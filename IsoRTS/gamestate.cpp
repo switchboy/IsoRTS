@@ -883,56 +883,103 @@ void gameState::clickToGatherResource()
     }
 }
 
+
+nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId)
+{
+    std::list <nearestBuildingTile> listOfBuildLocations;
+    std::vector<adjacentTile> tileList = listOfBuildings[buildingId].getFreeBuildingTile();
+    if (!tileList.empty()) {
+        for (int j = 0; j < tileList.size(); j++)
+        {
+            float tempDeltaDistance = dist(listOfActors[actorId].getLocation().x, listOfActors[actorId].getLocation().y, tileList[j].goalX, tileList[j].goalY);
+            listOfBuildLocations.push_back({ tempDeltaDistance, tileList[j].goalX, tileList[j].goalY, tileList[j].tileId, true });
+        }
+        if (!listOfBuildLocations.empty())
+        {
+            listOfBuildLocations.sort([](const nearestBuildingTile& f, const nearestBuildingTile& s)
+                {
+                    return f.deltaDistance < s.deltaDistance;
+                });
+        }
+        return  listOfBuildLocations.front();
+    }
+    else {
+        return { 0, 0, 0, 0, false };
+    }
+}
+
 void gameState::clickToBuildOrRepairBuilding()
 {
     if (!listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getCompleted())
     {
+        for (int i = 0; i < this->selectedUnits.size(); i++)
         {
-            for (int i = 0; i < this->selectedUnits.size(); i++)
+            nearestBuildingTile tempTile = findNearestBuildingTile(this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y], this->selectedUnits[i]);
+            if (tempTile.isSet)
             {
-                std::list <nearestBuildingTile> listOfBuildLocations;
-                std::vector<adjacentTile> tileList = listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getFreeBuildingTile();
-                for (int j = 0; j < tileList.size(); j++)
+                if (this->selectedUnits.size() > 1)
                 {
-                    float tempDeltaDistance = dist(listOfActors[this->selectedUnits[i]].getLocation().x, listOfActors[this->selectedUnits[i]].getLocation().y, tileList[j].goalX, tileList[j].goalY);
-                    listOfBuildLocations.push_back({ tempDeltaDistance, tileList[j].goalX, tileList[j].goalY, tileList[j].tileId, true });
-                }
-                if (!listOfBuildLocations.empty())
-                {
-                    listOfBuildLocations.sort([](const nearestBuildingTile& f, const nearestBuildingTile& s)
-                        {
-                            return f.deltaDistance < s.deltaDistance;
-                        });
-                }
-                nearestBuildingTile tempTile = listOfBuildLocations.front();
-                if (!tileList.empty())
-                {
-                    if (this->selectedUnits.size() > 1)
-                    {
-                        if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
-                        {
-                            listOfActors[this->selectedUnits[i]].updateGoal(tempTile.locationX, tempTile.locationY, i / 5);
-                            listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
-                            listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
-                        }
-                    }
-                    else
-                    {
-                        if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
-                        {
-                            listOfActors[this->selectedUnits[i]].updateGoal(tempTile.locationX, tempTile.locationY, i / 5);
-                            listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
-                        }
-                    }
                     if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
                     {
-                        listOfActors[this->selectedUnits[i]].setIsBuildingTrue(listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getBuildingId());
+                        listOfActors[this->selectedUnits[i]].updateGoal(tempTile.locationX, tempTile.locationY, i / 5);
+                        listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
+                        listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
                     }
+                }
+                else
+                {
+                    if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+                    {
+                        listOfActors[this->selectedUnits[i]].updateGoal(tempTile.locationX, tempTile.locationY, i / 5);
+                        listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
+                    }
+                }
+                if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+                {
+                    listOfActors[this->selectedUnits[i]].setIsBuildingTrue(listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getBuildingId());
                 }
             }
         }
     }
 }
+
+void gameState::changeBuildingType()
+{
+    this->buildingTypeSelected += 1;
+    if (this->buildingTypeSelected > 1)
+    {
+        this->buildingTypeSelected = 0;
+    }
+}
+
+void gameState::changeObjectType()
+{
+    this->objectTypeSelected += 1;
+    if (this->objectTypeSelected > 6)
+    {
+        this->objectTypeSelected = 0;
+    }
+}
+
+void gameState::clickToGiveCommand()
+{
+    this->firstRound = true;
+    this->lastIandJ[0] = 0;
+    this->lastIandJ[1] = 0;
+    if (this->isPassable(this->mouseWorldPosition.x, this->mouseWorldPosition.y))
+    {
+        clickToMove();
+    }
+    else if (this->objectLocationList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1)
+    {
+        clickToGatherResource();
+    }
+    else if (this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1)
+    {
+        clickToBuildOrRepairBuilding();
+    }
+}
+
 
 void gameState::mouseRightClick()
 {
@@ -940,19 +987,11 @@ void gameState::mouseRightClick()
     this->mousePressedRight = true;
     if (this->isPressedB)
     {
-        this->buildingTypeSelected += 1;
-        if (this->buildingTypeSelected > 1)
-        {
-            this->buildingTypeSelected = 0;
-        }
+        this->changeBuildingType();
     }
     else if (this->isPressedO)
     {
-        this->objectTypeSelected += 1;
-        if (this->objectTypeSelected > 6)
-        {
-            this->objectTypeSelected = 0;
-        }
+        this->changeObjectType();
     }
     else if (this->isPlacingBuilding)
     {
@@ -960,21 +999,7 @@ void gameState::mouseRightClick()
     }
     else if (!this->selectedUnits.empty())
     {
-        this->firstRound = true;
-        this->lastIandJ[0] = 0;
-        this->lastIandJ[1] = 0;
-        if (this->isPassable(this->mouseWorldPosition.x, this->mouseWorldPosition.y))
-        {
-            clickToMove();
-        }
-        else if (this->objectLocationList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1)
-        {
-            clickToGatherResource();
-        }
-        else if (this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1)
-        {
-            clickToBuildOrRepairBuilding();
-        }
+        this->clickToGiveCommand();
     }
 }
 
@@ -1160,8 +1185,6 @@ void gameState::drawMouseInteraction()
     }
 }
 
-
-
 mouseWorldCord gameState::getNextCord(int x, int y)
 {
     if(!this->firstRound && this->roundDone)
@@ -1216,7 +1239,6 @@ mouseWorldCord gameState::getNextCord(int x, int y)
         }
 
     }
-
 
     if(currentGame.isPassable(x, y))
     {
@@ -1513,6 +1535,94 @@ void gameState::drawMiniMap()
     window.setView(worldView);
 }
 
+
+void gameState::drawActorToolbar(int &startX, int &startY, int &incrementalXOffset, int &spriteYOffset, int &startDeck, int &tempY, int &incrementalYOffset, int &offSetTonextCard)
+{
+    bool villagerButtonsAreThere = false;
+    for (int i = 0; i < this->selectedUnits.size(); i++)
+    {
+        if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam() && !villagerButtonsAreThere)
+        {
+            //Er is een eigen villager geselecteerd
+            //Maak de bijbehoorende knoppen
+            button newButton = { startX, startY, 0, 0, 0, static_cast<int>(listOfButtons.size()),0 };
+            listOfButtons.push_back(newButton);
+            startX += incrementalXOffset;
+            button newButton1 = { startX, startY, 1, 1, 0, static_cast<int>(listOfButtons.size()),0 };
+            listOfButtons.push_back(newButton1);
+            villagerButtonsAreThere = true;
+        }
+        if (i == 0)
+        {
+            std::string actorTitle;
+            switch (listOfActors[this->selectedUnits[i]].getType())
+            {
+            case 0:
+                spriteYOffset = 0;
+                actorTitle = listOfActors[this->selectedUnits[i]].nameOfActor();
+            }
+            this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(128, spriteYOffset, 128, 128));
+            this->spriteBigSelectedIcon.setPosition(mainWindowWidth / 4.08, mainWindowHeigth / 30);
+            window.draw(this->spriteBigSelectedIcon);
+            text.setString(actorTitle);
+            text.setCharacterSize(26);
+            text.setOutlineColor(sf::Color::Black);
+            text.setOutlineThickness(2.f);
+            text.setFillColor(sf::Color::White);
+            int textStartX = (mainWindowWidth / 4.08) + (128 + (mainWindowWidth / 160));
+            int textStartY = mainWindowHeigth / 30;
+            text.setPosition(textStartX, textStartY);
+            window.draw(text);
+            text.setCharacterSize(18);
+            std::stringstream healthText;
+            healthText << "Hitpoints: " << listOfActors[this->selectedUnits[i]].getHealth().first << "/" << listOfActors[this->selectedUnits[i]].getHealth().second;
+            text.setString(healthText.str());
+            textStartY += 50;
+            text.setPosition(textStartX, textStartY);
+            window.draw(text);
+            textStartY += 20;
+            std::stringstream attakPoints;
+            attakPoints << "Melee damage: " << listOfActors[this->selectedUnits[i]].getMeleeDMG();
+            text.setString(attakPoints.str());
+            text.setPosition(textStartX, textStartY);
+            window.draw(text);
+            std::stringstream rangedDamage;
+            rangedDamage << "Ranged damage: " << listOfActors[this->selectedUnits[i]].getRangedDMG();
+            textStartY += 20;
+            text.setString(rangedDamage.str());
+            text.setPosition(textStartX, textStartY);
+            window.draw(text);
+            std::stringstream teamId;
+            teamId << "Team: " << listOfActors[this->selectedUnits[i]].getTeam();
+            textStartY += 20;
+            text.setString(teamId.str());
+            text.setPosition(textStartX, textStartY);
+            window.draw(text);
+        }
+        if (this->selectedUnits.size() > 1)
+        {
+            int buttonType;
+            //Speelruimte is 730 pixels = 1920/2.63 = cardDecksize
+            switch (listOfActors[this->selectedUnits[i]].getType())
+            {
+            case 0:
+                buttonType = 2;
+            }
+            button newButton = { startDeck, tempY, buttonType, 2, this->selectedUnits[i], static_cast<int>(listOfButtons.size()),0 };
+            listOfButtons.push_back(newButton);
+            if (tempY == startY)
+            {
+                tempY += incrementalYOffset;
+            }
+            else
+            {
+                startDeck += offSetTonextCard;
+                tempY = startY;
+            }
+        }
+    }
+}
+
 void gameState::drawToolbar()
 {
     listOfButtons.clear();
@@ -1537,89 +1647,7 @@ void gameState::drawToolbar()
 
     if(!this->selectedUnits.empty())
     {
-        bool villagerButtonsAreThere = false;
-        for(int i =0; i < this->selectedUnits.size(); i++)
-        {
-            if(listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam() && !villagerButtonsAreThere)
-            {
-                //Er is een eigen villager geselecteerd
-                //Maak de bijbehoorende knoppen
-                button newButton = {startX, startY, 0, 0, 0, static_cast<int>(listOfButtons.size()),0};
-                listOfButtons.push_back(newButton);
-                startX += incrementalXOffset;
-                button newButton1 = {startX, startY, 1, 1, 0, static_cast<int>(listOfButtons.size()),0};
-                listOfButtons.push_back(newButton1);
-                villagerButtonsAreThere = true;
-            }
-            if(i == 0)
-            {
-                std::string actorTitle;
-                switch(listOfActors[this->selectedUnits[i]].getType())
-                {
-                case 0:
-                    spriteYOffset = 0;
-                    actorTitle = listOfActors[this->selectedUnits[i]].nameOfActor();
-                }
-                this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(128,spriteYOffset,128,128));
-                this->spriteBigSelectedIcon.setPosition(mainWindowWidth/4.08, mainWindowHeigth/30);
-                window.draw(this->spriteBigSelectedIcon);
-                text.setString(actorTitle);
-                text.setCharacterSize(26);
-                text.setOutlineColor(sf::Color::Black);
-                text.setOutlineThickness(2.f);
-                text.setFillColor(sf::Color::White);
-                int textStartX = (mainWindowWidth/4.08) + (128+(mainWindowWidth/160));
-                int textStartY = mainWindowHeigth/30;
-                text.setPosition(textStartX, textStartY);
-                window.draw(text);
-                text.setCharacterSize(18);
-                std::stringstream healthText;
-                healthText << "Hitpoints: " << listOfActors[this->selectedUnits[i]].getHealth().first <<"/" <<listOfActors[this->selectedUnits[i]].getHealth().second;
-                text.setString(healthText.str());
-                textStartY += 50;
-                text.setPosition(textStartX, textStartY);
-                window.draw(text);
-                textStartY += 20;
-                std::stringstream attakPoints;
-                attakPoints << "Melee damage: " << listOfActors[this->selectedUnits[i]].getMeleeDMG();
-                text.setString(attakPoints.str());
-                text.setPosition(textStartX, textStartY);
-                window.draw(text);
-                std::stringstream rangedDamage;
-                rangedDamage << "Ranged damage: " << listOfActors[this->selectedUnits[i]].getRangedDMG();
-                textStartY += 20;
-                text.setString(rangedDamage.str());
-                text.setPosition(textStartX, textStartY);
-                window.draw(text);
-                std::stringstream teamId;
-                teamId << "Team: " << listOfActors[this->selectedUnits[i]].getTeam();
-                textStartY += 20;
-                text.setString(teamId.str());
-                text.setPosition(textStartX, textStartY);
-                window.draw(text);
-            }
-            if(this->selectedUnits.size() > 1)
-            {
-                int buttonType;
-                //Speelruimte is 730 pixels = 1920/2.63 = cardDecksize
-                switch(listOfActors[this->selectedUnits[i]].getType())
-                {
-                case 0:
-                    buttonType = 2;
-                }
-                button newButton = {startDeck, tempY, buttonType, 2, this->selectedUnits[i], static_cast<int>(listOfButtons.size()),0};
-                listOfButtons.push_back(newButton);
-                if(tempY == startY)
-                {
-                    tempY += incrementalYOffset;
-                }
-                else
-                {
-                    startDeck += offSetTonextCard;
-                    tempY = startY;
-                }
-            }
-        }
+        drawActorToolbar(startX, startY, incrementalXOffset, spriteYOffset, startDeck, tempY, incrementalYOffset, offSetTonextCard);
     }
     else if(this->buildingSelectedId != -1)
     {

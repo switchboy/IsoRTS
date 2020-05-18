@@ -85,6 +85,10 @@ public:
     void mouseRightClick();
     void changeTiles();
     void edgeScrolling();
+    void changeBuildingType();
+    void changeObjectType();
+    void clickToGiveCommand();
+    void drawActorToolbar(int& startX, int& startY, int& incrementalXOffset, int& spriteYOffset, int& startDeck, int& tempY, int& incrementalYOffset, int& offSetTonextCard);
     float elapsedTime;
     bool isPassable(int x, int y);
     bool isInSelectedActors(int id);

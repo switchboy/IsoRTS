@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="Copy of C++ Core Check Arithmetic Rules" Description="These rules enforce checks related to arithmetic operations from the C++ Core Guidelines (https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#es-expressions-and-statements)." ToolsVersion="16.0">
+  <Rules AnalyzerId="Microsoft.Analyzers.NativeCodeAnalysis" RuleNamespace="Microsoft.Rules.Native">
+    <Rule Id="C26452" Action="Warning" />
+    <Rule Id="C26453" Action="Warning" />
+    <Rule Id="C26454" Action="Warning" />
+  </Rules>
+</RuleSet>

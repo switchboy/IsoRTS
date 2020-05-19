@@ -10,6 +10,12 @@
 #include "gametext.h"
 #include "buildings.h"
 
+sf::RenderTexture minimapBuildingsTexture;
+sf::RenderTexture minimapActorsTexture;
+sf::RenderTexture minimapObjectsTexture;
+
+bool noNewBuildings;
+
 mouseWorldCord toWorldMousePosition(int mouseX, int mouseY)
 {
     if (!(mouseX < 0 || mouseY < 0))
@@ -883,7 +889,6 @@ void gameState::clickToGatherResource()
     }
 }
 
-
 nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId)
 {
     std::list <nearestBuildingTile> listOfBuildLocations;
@@ -1330,12 +1335,6 @@ void drawMiniMapBackground(sf::RectangleShape& miniMapPixel)
     }
 }
 
-sf::RenderTexture minimapBuildingsTexture;
-sf::RenderTexture minimapActorsTexture;
-sf::RenderTexture minimapObjectsTexture;
-
-bool noNewBuildings;
-
 void drawMiniMapBuildings(sf::RectangleShape& miniMapPixel)
 {
     if(!noNewBuildings)
@@ -1397,8 +1396,6 @@ void drawMiniMapBuildings(sf::RectangleShape& miniMapPixel)
         noNewBuildings = true;
     }
 }
-
-
 
 void drawMiniMapActors(sf::RectangleShape& miniMapPixel)
 {
@@ -1650,7 +1647,6 @@ void gameState::drawActorToolbar(int &startX, int &startY, int &incrementalXOffs
     }
 }
 
-
 int getBuildingSpriteOffset(int& buildingId)
 {
     switch (listOfBuildings[buildingId].getType())
@@ -1786,7 +1782,6 @@ rectangleCord getSpriteOffSetTask(int& buildingId)
     }
 }
 
-
 void gameState::drawBuildingTaskToolbar(int& startDeck, int& startY)
 {
     int iconStartX = startDeck + (mainWindowWidth / 30);
@@ -1854,7 +1849,66 @@ void gameState::drawBuildingToolbar(int& startX, int& startY, int& incrementalXO
     }
     else if (listOfBuildings[this->buildingSelectedId].hasTask())
     {
+        drawBuildingTaskToolbar(startDeck, startY);
+    }
+}
 
+int getObjectBigSpriteYOffset(int& objectId)
+{
+    switch (listOfObjects[objectId].getType())
+    {
+    case 0:
+        return 0;
+        break;
+    case 1:
+        return 128;
+        break;
+    case 2:
+        return 256;
+        break;
+    case 3:
+        return 384;
+        break;
+    case 4:
+        return 512;
+        break;
+    case 5:
+        return 640;
+        break;
+    case 6:
+        return 768;
+        break;
+    }
+}
+
+void gameState::drawObjectToolbar(int& startX, int& startY, int& incrementalXOffset, int& spriteYOffset, int& startDeck, int& tempY, int& incrementalYOffset, int& offSetTonextCard)
+{
+    this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(256, getObjectBigSpriteYOffset(this->objectSelectedId), 128, 128));
+    this->spriteBigSelectedIcon.setPosition(mainWindowWidth / 4.08, mainWindowHeigth / 30);
+    window.draw(this->spriteBigSelectedIcon);
+    text.setString(listOfObjects[this->objectSelectedId].getName());
+    text.setCharacterSize(26);
+    text.setOutlineColor(sf::Color::Black);
+    text.setOutlineThickness(2.f);
+    text.setFillColor(sf::Color::White);
+    int textStartX = (mainWindowWidth / 4.08) + (128 + (mainWindowWidth / 160));
+    int textStartY = mainWindowHeigth / 30;
+    text.setPosition(textStartX, textStartY);
+    window.draw(text);
+    text.setCharacterSize(18);
+    std::stringstream resourcesLeftText;
+    resourcesLeftText << listOfObjects[this->objectSelectedId].nameOfResource() << " left: " << listOfObjects[this->objectSelectedId].amountOfResourcesLeft();
+    text.setString(resourcesLeftText.str());
+    textStartY += 50;
+    text.setPosition(textStartX, textStartY);
+    window.draw(text);
+}
+
+void drawButtons()
+{
+    for (auto& Button : listOfButtons)
+    {
+        Button.drawButton();
     }
 }
 
@@ -1887,58 +1941,10 @@ void gameState::drawToolbar()
     }
     else if(this->objectSelectedId != -1)
     {
-        std::string objectName = listOfObjects[this->objectSelectedId].getName();
-        //Get the buttons
-        switch(listOfObjects[this->objectSelectedId].getType())
-        {
-        case 0:
-            spriteYOffset = 0;
-            break;
-        case 1:
-            spriteYOffset = 128;
-            break;
-        case 2:
-            spriteYOffset = 256;
-            break;
-        case 3:
-            spriteYOffset = 384;
-            break;
-        case 4:
-            spriteYOffset = 512;
-            break;
-        case 5:
-            spriteYOffset = 640;
-            break;
-        case 6:
-            spriteYOffset = 768;
-            break;
-        }
-        //icon and stats
-        this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(256,spriteYOffset,128,128));
-        this->spriteBigSelectedIcon.setPosition(mainWindowWidth/4.08, mainWindowHeigth/30);
-        window.draw(this->spriteBigSelectedIcon);
-        text.setString(objectName);
-        text.setCharacterSize(26);
-        text.setOutlineColor(sf::Color::Black);
-        text.setOutlineThickness(2.f);
-        text.setFillColor(sf::Color::White);
-        int textStartX = (mainWindowWidth/4.08) + (128+(mainWindowWidth/160));
-        int textStartY = mainWindowHeigth/30;
-        text.setPosition(textStartX, textStartY);
-        window.draw(text);
-        text.setCharacterSize(18);
-        std::stringstream resourcesLeftText;
-        resourcesLeftText << listOfObjects[this->objectSelectedId].nameOfResource() <<" left: " << listOfObjects[this->objectSelectedId].amountOfResourcesLeft();
-        text.setString(resourcesLeftText .str());
-        textStartY += 50;
-        text.setPosition(textStartX, textStartY);
-        window.draw(text);
+        drawObjectToolbar(startX, startY, incrementalXOffset, spriteYOffset, startDeck, tempY, incrementalYOffset, offSetTonextCard);
     }
-    //Draw the buttons
-    for (auto &Button : listOfButtons)
-    {
-        Button.drawButton();
-    }
+
+    drawButtons();
     window.setView(worldView);
 }
 

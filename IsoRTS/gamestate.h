@@ -77,6 +77,7 @@ public:
     void drawBuildingConstructionToolbar(int& startDeck, int& startY);
     void drawBuildingTaskToolbar(int& startDeck, int& startY);
     void drawProgressBar(float pointsGained, float pointsRequired, int& totalBarLength, int& startBarX, int& startBarY);
+    void drawObjectToolbar(int& startX, int& startY, int& incrementalXOffset, int& spriteYOffset, int& startDeck, int& tempY, int& incrementalYOffset, int& offSetTonextCard);
 
     void loadMap();
     void loadBuildings();

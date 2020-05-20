@@ -6,7 +6,6 @@
 #include <list>
 #include <sstream>
 
-
 extern int mainWindowWidth;
 extern int mainWindowHeigth;
 extern sf::RenderWindow window;
@@ -64,7 +63,8 @@ public:
     void interact();
     void drawMouseInteraction();
     void drawGame();
-
+    void drawToolTip();
+    void drawPaths();
     void drawToolbar();
     void drawActorTitle(int& actorId, int& textStartX, int& textStartY);
     void drawActorBigSprite(int& actorId);
@@ -78,7 +78,6 @@ public:
     void drawBuildingTaskToolbar(int& startDeck, int& startY);
     void drawProgressBar(float pointsGained, float pointsRequired, int& totalBarLength, int& startBarX, int& startBarY);
     void drawObjectToolbar(int& startX, int& startY, int& incrementalXOffset, int& spriteYOffset, int& startDeck, int& tempY, int& incrementalYOffset, int& offSetTonextCard);
-
     void loadMap();
     void loadBuildings();
     void loadGame();
@@ -102,17 +101,16 @@ public:
     void changeBuildingType();
     void changeObjectType();
     void clickToGiveCommand();
-
-    float elapsedTime;
     bool isPassable(int x, int y);
     bool isInSelectedActors(int id);
     void setBuildingType(int id);
     void setIsPlacingBuilding();
     void selectUnit(int id);
     float getTime();
+    mouseWorldCord getNextCord(int x, int y);
+    float elapsedTime;
     int buildingSelectedId;
     int objectSelectedId;
-    mouseWorldCord getNextCord(int x, int y);
     sf::Font font;
     sf::Text text;
     sf::Sprite  spriteSelectedTile,spriteSelectedTileForPath, spriteEmptyTile, spriteGrassTile, spriteSandTile, spriteSandTileNE,

@@ -5,7 +5,16 @@ player& currentPlayer = listOfPlayers[0];
 
 player::player()
 {
-    //ctor
+    this->team;
+    this->amountOfWood = 300;
+    this->amountOfFood = 0;
+    this->amountOfGold = 0;
+    this->amountOfStone = 100;
+    this->currentPopulation = 0;
+    this->populationRoom = 0;
+    this->friendOrFoo[8] ={0};
+    this->isDefeated = false;
+    this->isParticipating = true;
 }
 
 player::~player()

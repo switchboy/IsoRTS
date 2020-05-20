@@ -1,7 +1,7 @@
 #ifndef GLOBALFUNCTIONS_H
 #define GLOBALFUNCTIONS_H
-#define MAP_WIDTH	200
-#define MAP_HEIGHT	200
+#define MAP_WIDTH	256
+#define MAP_HEIGHT	256
 #include <mutex>
 
 extern int mapOffsetX;

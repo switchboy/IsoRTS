@@ -9,6 +9,7 @@
 #include <future>
 #include "gametext.h"
 #include "buildings.h"
+#include "randomMapGenerator.h"
 
 sf::RenderTexture minimapBuildingsTexture;
 sf::RenderTexture minimapActorsTexture;
@@ -1965,6 +1966,25 @@ void gameState::drawTopBar()
     window.setView(worldView);
 }
 
+void gameState::drawToolTip()
+{
+    if (mouseFakePosition.y > mainWindowHeigth * 0.8)
+    {
+        for (auto& Button : listOfButtons)
+        {
+            Button.isHoverd(mouseFakePosition);
+        }
+    }
+}
+
+void gameState::drawPaths()
+{
+    for (int i = 0; i < listOfActors.size(); i++)
+    {
+        listOfActors[i].renderPath();
+    }
+}
+
 void gameState::drawGame()
 {
     window.clear(sf::Color(0, 0, 0));
@@ -1979,20 +1999,9 @@ void gameState::drawGame()
     drawMouseInteraction();
     window.setView(totalView);
     gameText.drawMessages();
-    if(mouseFakePosition.y > mainWindowHeigth*0.8)
-    {
-        for (auto &Button : listOfButtons)
-        {
-            Button.isHoverd(mouseFakePosition);
-        }
-    }
-
+    drawToolTip();
     window.setView(worldView);
-    //debugging
-    for(int i = 0; i < listOfActors.size(); i++)
-    {
-        listOfActors[i].renderPath();
-    }
+    drawPaths();
     window.display();
 }
 float gameState::getTime()
@@ -2012,6 +2021,7 @@ void gameState::loadMap()
             this->occupiedByActorList[j][i] = -1;
         }
     }
+    generateRandomMap();
 }
 
 void gameState::loadBuildings()
@@ -2044,9 +2054,9 @@ void gameState::loadGame()
     this->text.setFont(this->font);
     window.setFramerateLimit(60);
     currentGame.loadTextures();
-    currentGame.loadMap();
     loadActors();
     currentGame.loadBuildings();
+    currentGame.loadMap();
     for(int i =0; i < 8; i++)
     {
         listOfPlayers[i].setTeam(i);

@@ -7,12 +7,14 @@
 #include <sstream>
 #include <algorithm> 
 #include <future>
+#include <vector>
 #include "gametext.h"
 #include "buildings.h"
 #include "randomMapGenerator.h"
 
 sf::RenderTexture minimapBuildingsTexture;
 sf::RenderTexture minimapActorsTexture;
+sf::RenderTexture minimapMistTexture;
 sf::RenderTexture minimapObjectsTexture;
 
 bool noNewBuildings;
@@ -150,7 +152,7 @@ void gameState::drawThingsOnTile(int i, int j)
     {
         listOfObjects[this->objectLocationList[i][j]].drawObject(i, j);
     }
-    else if(this->occupiedByActorList[i][j] != -1)
+    else if(this->occupiedByActorList[i][j] != -1 && this->visability[(i * MAP_HEIGHT) + j] > 1)
     {
         listOfActors[this->occupiedByActorList[i][j]].drawActor();
     }
@@ -183,7 +185,13 @@ void gameState::drawMap()
         {
             if((i >= lowX.x && i <= highX.x)&&(j >= lowY.y && j <= highY.y))
             {
-                drawGround(i, j);
+                if (this->visability[(i * MAP_HEIGHT) + j] > 0) {
+                    drawGround(i, j);
+                }
+                else {
+                    spriteBlackTile.setPosition(worldSpace(i, j, true), worldSpace(i, j, false));
+                    window.draw(spriteBlackTile);
+                }
             }
         }
     }
@@ -193,12 +201,25 @@ void gameState::drawMap()
         {
             if((i >= lowX.x && i <= highX.x)&&(j >= lowY.y && j <= highY.y))
             {
-                drawThingsOnTile(i, j);
-
+                if (this->visability[(i * MAP_HEIGHT) + j] > 0) {
+                    drawThingsOnTile(i, j);
+                }
+            }
+        }
+    }
+    for (int j = 0; j < MAP_HEIGHT; j++)
+    {
+        for (int i = 0; i < MAP_WIDTH; i++)
+        {
+            if (this->visability[(i * MAP_HEIGHT) + j] == 1) {
+                spriteMistTile.setPosition(worldSpace(i, j, true), worldSpace(i, j, false));
+                window.draw(spriteMistTile);
             }
         }
     }
 }
+
+
 
 void gameState::loadTextures()
 {
@@ -329,6 +350,14 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: tileSelected.png \n" << std::endl;
     }
+    if (textureMistTile.loadFromFile("textures/mistTile.png"))
+    {
+        spriteMistTile.setTexture(textureMistTile);
+    }
+    else
+    {
+        std::cout << "Error loading texture: mistTile.png \n" << std::endl;
+    }
     if(textureSelectedTileForPath.loadFromFile("textures/tileSelectedForPath.png"))
     {
         spriteSelectedTileForPath.setTexture(textureSelectedTileForPath);
@@ -344,6 +373,14 @@ void gameState::loadTextures()
     else
     {
         std::cout << "Error loading texture: emptyTile.png \n" << std::endl;
+    }
+    if (textureBlackTile.loadFromFile("textures/blackTile.png"))
+    {
+        spriteBlackTile.setTexture(textureBlackTile);
+    }
+    else
+    {
+        std::cout << "Error loading texture: blackTile.png \n" << std::endl;
     }
     if(textureGrassTile.loadFromFile("textures/grassTile.png"))
     {
@@ -986,7 +1023,6 @@ void gameState::clickToGiveCommand()
     }
 }
 
-
 void gameState::mouseRightClick()
 {
     this->rectangleCords.clear();
@@ -1103,6 +1139,21 @@ void gameState::interact()
     else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::B))
     {
         this->isPressedB = false;
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && this->focus && !this->isPressedS)
+    {
+        this->isPressedS = true;
+        if (this->showPaths) {
+            this->showPaths = false;
+        }
+        else {
+            this->showPaths = true;
+        }
+    }
+    else if (!sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+    {
+        this->isPressedS = false;
     }
 
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::O) && this->focus)
@@ -1398,62 +1449,90 @@ void drawMiniMapBuildings(sf::RectangleShape& miniMapPixel)
     }
 }
 
-void drawMiniMapActors(sf::RectangleShape& miniMapPixel)
+void gameState::drawMiniMapActors(sf::RectangleShape& miniMapPixel)
 {
     minimapActorsTexture.clear(sf::Color(0,0,0,0));
     for(int j = 0; j < MAP_HEIGHT; j++)
     {
         for(int i = 0; i < MAP_WIDTH; i++ )
         {
-            if(currentGame.occupiedByActorList[i][j] != -1)
-            {
-                switch(listOfActors[currentGame.occupiedByActorList[i][j]].getTeam())
+            if (this->visability[(i * MAP_HEIGHT) + j] > 1) {
+                if (currentGame.occupiedByActorList[i][j] != -1)
                 {
-                case 0:
-                    miniMapPixel.setFillColor(sf::Color(0, 0, 255));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
-                    minimapActorsTexture.draw(miniMapPixel);
-                    break;
-                case 1:
-                    miniMapPixel.setFillColor(sf::Color(0, 255, 0));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
-                    minimapActorsTexture.draw(miniMapPixel);
-                    break;
-                case 2:
-                    miniMapPixel.setFillColor(sf::Color(255, 0, 0));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
-                    minimapActorsTexture.draw(miniMapPixel);
-                    break;
-                case 3:
-                    miniMapPixel.setFillColor(sf::Color(255, 255, 0 ));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
-                    minimapActorsTexture.draw(miniMapPixel);
-                    break;
-                case 4:
-                    miniMapPixel.setFillColor(sf::Color(0, 255, 255));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
-                    minimapActorsTexture.draw(miniMapPixel);
-                    break;
-                case 5:
-                    miniMapPixel.setFillColor(sf::Color(255, 0, 255));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
-                    minimapActorsTexture.draw(miniMapPixel);
-                    break;
-                case 6:
-                    miniMapPixel.setFillColor(sf::Color(255, 127, 0));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
-                    minimapActorsTexture.draw(miniMapPixel);
-                    break;
-                case 7:
-                    miniMapPixel.setFillColor(sf::Color(127, 127, 127));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
-                    minimapActorsTexture.draw(miniMapPixel);
-                    break;
+                    switch (listOfActors[currentGame.occupiedByActorList[i][j]].getTeam())
+                    {
+                    case 0:
+                        miniMapPixel.setFillColor(sf::Color(0, 0, 255));
+                        miniMapPixel.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                        minimapActorsTexture.draw(miniMapPixel);
+                        break;
+                    case 1:
+                        miniMapPixel.setFillColor(sf::Color(0, 255, 0));
+                        miniMapPixel.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                        minimapActorsTexture.draw(miniMapPixel);
+                        break;
+                    case 2:
+                        miniMapPixel.setFillColor(sf::Color(255, 0, 0));
+                        miniMapPixel.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                        minimapActorsTexture.draw(miniMapPixel);
+                        break;
+                    case 3:
+                        miniMapPixel.setFillColor(sf::Color(255, 255, 0));
+                        miniMapPixel.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                        minimapActorsTexture.draw(miniMapPixel);
+                        break;
+                    case 4:
+                        miniMapPixel.setFillColor(sf::Color(0, 255, 255));
+                        miniMapPixel.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                        minimapActorsTexture.draw(miniMapPixel);
+                        break;
+                    case 5:
+                        miniMapPixel.setFillColor(sf::Color(255, 0, 255));
+                        miniMapPixel.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                        minimapActorsTexture.draw(miniMapPixel);
+                        break;
+                    case 6:
+                        miniMapPixel.setFillColor(sf::Color(255, 127, 0));
+                        miniMapPixel.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                        minimapActorsTexture.draw(miniMapPixel);
+                        break;
+                    case 7:
+                        miniMapPixel.setFillColor(sf::Color(127, 127, 127));
+                        miniMapPixel.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                        minimapActorsTexture.draw(miniMapPixel);
+                        break;
+                    }
                 }
             }
         }
     }
     minimapActorsTexture.display();
+}
+
+void gameState::drawMiniMapMist(sf::RectangleShape& miniMapPixel)
+{
+    if (this->lastMistDraw + 1 < this->elapsedTime) {
+        sf::RectangleShape miniMapPixelTL(sf::Vector2f(20.f, 10.f));
+        miniMapPixel.setFillColor(sf::Color(0, 0, 0));
+        miniMapPixelTL.setFillColor(sf::Color(0, 0, 0, 75));
+        minimapMistTexture.clear(sf::Color(0, 0, 0, 0));
+        this->lastMistDraw = this->elapsedTime;
+        for (int j = 0; j < MAP_HEIGHT; j++)
+        {
+            for (int i = 0; i < MAP_WIDTH; i++)
+            {
+                if (this->visability[(i * MAP_HEIGHT) + j] == 0) {
+                    miniMapPixel.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                    minimapMistTexture.draw(miniMapPixel);
+                }
+                else if (this->visability[(i * MAP_HEIGHT) + j] == 1) {
+                    miniMapPixelTL.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                    minimapMistTexture.draw(miniMapPixelTL);
+                }
+            }
+        }
+    }
+    minimapMistTexture.display();
 }
 
 void drawMiniMapObjects(sf::RectangleShape& miniMapPixel)
@@ -1518,8 +1597,14 @@ void gameState::drawMiniMap()
 
     drawMiniMapActors(miniMapPixel);
     miniMapBackground.setTexture(minimapActorsTexture.getTexture());
-    miniMapBackground.setScale(this->miniMapWidth/(20*MAP_WIDTH), this->miniMapHeigth/(10*MAP_HEIGHT));
+    miniMapBackground.setScale(this->miniMapWidth / (20 * MAP_WIDTH), this->miniMapHeigth / (10 * MAP_HEIGHT));
     window.draw(miniMapBackground);
+
+    drawMiniMapMist(miniMapPixel);
+    miniMapBackground.setTexture(minimapMistTexture.getTexture());
+    miniMapBackground.setScale(this->miniMapWidth / (20 * MAP_WIDTH), this->miniMapHeigth / (10 * MAP_HEIGHT));
+    window.draw(miniMapBackground);
+  
 
     sf::RectangleShape viewBox(sf::Vector2f(this->viewBoxX, this->viewBoxY));
     viewBox.setOrigin(sf::Vector2f(viewBoxX/2.f, viewBoxY/2.f));
@@ -1979,9 +2064,11 @@ void gameState::drawToolTip()
 
 void gameState::drawPaths()
 {
-    for (int i = 0; i < listOfActors.size(); i++)
-    {
-        listOfActors[i].renderPath();
+    if (this->showPaths) {
+        for (int i = 0; i < listOfActors.size(); i++)
+        {
+            listOfActors[i].renderPath();
+        }
     }
 }
 
@@ -1992,6 +2079,7 @@ void gameState::drawGame()
     window.setView(totalView);
     window.draw(spriteTotalBackground);
     window.setView(worldView);
+    createFogOfWar();
     drawTopBar();
     drawMap();
     drawToolbar();
@@ -2004,10 +2092,12 @@ void gameState::drawGame()
     drawPaths();
     window.display();
 }
+
 float gameState::getTime()
 {
     return this->elapsedTime;
 }
+
 void gameState::loadMap()
 {
     for(int i = 0; i < MAP_HEIGHT; i++)
@@ -2019,6 +2109,7 @@ void gameState::loadMap()
             this->occupiedByBuildingList[j][i] = -1;
             this->objectLocationList[j][i] = -1;
             this->occupiedByActorList[j][i] = -1;
+            this->visability.push_back(0);
         }
     }
     generateRandomMap();
@@ -2032,7 +2123,6 @@ void gameState::loadBuildings()
     footprintOfBuildings.push_back({4,4});//towncenter 1
     priceOfBuilding.push_back({0,300,100,0});
 }
-
 
 void loadActors()
 {
@@ -2049,6 +2139,7 @@ void gameState::loadGame()
     miniMap.setViewport(sf::FloatRect(0.8f, 0.8f, 0.2f, 0.2f));
     minimapTexture.create(20*MAP_WIDTH,10*MAP_HEIGHT);
     minimapActorsTexture.create(20*MAP_WIDTH,10*MAP_HEIGHT);
+    minimapMistTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
     minimapObjectsTexture.create(20*MAP_WIDTH,10*MAP_HEIGHT);
     minimapBuildingsTexture.create(20*MAP_WIDTH,10*MAP_HEIGHT);
     this->text.setFont(this->font);
@@ -2083,7 +2174,41 @@ void gameState::loadGame()
     this->objectSelectedId = -1;
     this->buildingTypeSelected = 0;
     this->objectTypeSelected = 0;
+    this->showPaths = false;
     listOfBuildings.resize(1);
     listOfObjects.resize(1);
+}
+
+std::list<mouseWorldCord> getListOfCordsInCircle(int startX, int startY, int r)
+{
+    std::list<mouseWorldCord> tempList;
+    for (int x = startX - r; x < startX + r; x++) {
+        for (int y = startY - r; y < startY + r; y++) {
+            if (((x - startX) * (x - startX) + (y - startY) * (y - startY)) <= r * r) {
+                tempList.push_back({ x, y });
+            }
+        }
+    }
+    return tempList;
+}
+
+void gameState::createFogOfWar() {
+
+    for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++) {
+        if (this->visability[i] == 2) {
+            this->visability[i] = 1;
+        }
+    }
+
+    for (int i = 0; i < listOfActors.size(); i++) {
+        if (listOfActors[i].getTeam() == currentPlayer.getTeam()) {
+            std::list<mouseWorldCord> tempList = getListOfCordsInCircle(listOfActors[i].getLocation().x, listOfActors[i].getLocation().y, 6);
+            for (const mouseWorldCord& cord : tempList)
+            {
+                this->visability[(cord.x * MAP_HEIGHT) + cord.y] = 2;
+            }
+        }
+    }
+
 }
 

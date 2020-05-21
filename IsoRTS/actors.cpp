@@ -355,7 +355,6 @@ void actors::updateGoal(int i, int j, int waitTime)
     {
         if(this->isBuilding)
         {
-            gameText.addNewMessage("empty slot", 0);
             listOfBuildings[this->buildingId].removeActorFromBuildingTile(this->actorId);
         }
         this->actorGoal[0] = i;
@@ -1159,12 +1158,13 @@ bool actors::findNearestSimilairResource()
 cords actors::getLocation(){
     return {this->actorCords[0], this->actorCords[1]};
 }
+
 nearestBuildingTile actors::findNearestDropOffPoint(int Resource)
 {
     std::list <nearestBuildingTile> listOfDropOffLocations;
     for(int i = 0; i < listOfBuildings.size(); i++)
     {
-        if((listOfBuildings[i].getRecievesWhichResources() == Resource || listOfBuildings[i].getRecievesWhichResources() == 4) && listOfBuildings[i].getTeam() == this->actorTeam)
+        if((listOfBuildings[i].getRecievesWhichResources() == Resource || listOfBuildings[i].getRecievesWhichResources() == 4) && listOfBuildings[i].getTeam() == this->actorTeam && listOfBuildings[i].getCompleted())
         {
             std::vector<adjacentTile> tileList = listOfBuildings[i].getDropOffTiles();
             for(int j = 0; j < tileList.size(); j++)

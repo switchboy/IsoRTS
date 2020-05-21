@@ -63,6 +63,7 @@ public:
     void interact();
     void drawMouseInteraction();
     void drawGame();
+    void createFogOfWar();
     void drawToolTip();
     void drawPaths();
     void drawToolbar();
@@ -82,6 +83,8 @@ public:
     void loadBuildings();
     void loadGame();
     void drawMiniMap();
+    void drawMiniMapActors(sf::RectangleShape& miniMapPixel);
+    void drawMiniMapMist(sf::RectangleShape& miniMapPixel);
     void drawTopBar();
     void mouseLeftClick();
     void changeViewFromMiniMap();
@@ -115,13 +118,13 @@ public:
     sf::Text text;
     sf::Sprite  spriteSelectedTile,spriteSelectedTileForPath, spriteEmptyTile, spriteGrassTile, spriteSandTile, spriteSandTileNE,
     spriteSandTileNW,spriteSandTileSE,spriteSandTileSW, spriteCactusTile, spriteCypressTrileTile, spriteBigSelectedIcon,
-    spriteNormalTreeTile, spritePineTreeTile, spriteTileObstructed, spriteTownCenter,
-    spriteStone, spriteGold, spriteBerryBush, spriteUIButton, spriteUnitSelectedTile,
+    spriteNormalTreeTile, spritePineTreeTile, spriteTileObstructed, spriteTownCenter, spriteBlackTile,
+    spriteStone, spriteGold, spriteBerryBush, spriteUIButton, spriteUnitSelectedTile, spriteMistTile,
     spriteWaterTile, spriteBeachTileNE, spriteBeachTileNW,spriteBeachTileSE,spriteBeachTileSW, spriteBuildingHouse, spriteVillager, spriteTotalBackground;
 
     sf::Texture textureSelectedTile, textureSelectedTileForPath, textureEmptyTile, textureGrassTile, textureSandTile, textureSandTileNE,
-    textureSandTileNW,textureSandTileSE,textureSandTileSW, textureCactusTile, textureCypressTrileTile, textureBigSelectedIcon,
-    textureNormalTreeTile, texturePineTreeTile, textureCheatTile, textureTileObstructed, textureTownCenter,
+    textureSandTileNW,textureSandTileSE,textureSandTileSW, textureCactusTile, textureCypressTrileTile, textureBigSelectedIcon, textureBlackTile,
+    textureNormalTreeTile, texturePineTreeTile, textureCheatTile, textureTileObstructed, textureTownCenter, textureMistTile,
     textureStone, textureGold, textureBerryBush, textureUIButton, textureUnitSelectedTile,
     textureWaterTile, textureBeachTileNE, textureBeachTileNW,textureBeachTileSE, textureBeachTileSW, textureBuildingHouse, textureVillager, textureTotalBackground;
     int currentMap[MAP_WIDTH][MAP_HEIGHT];
@@ -133,12 +136,14 @@ public:
 
 private:
     sf::Event event;
+    std::vector<int> visability;
     bool roundDone;
     bool addSubstractX;
     bool addSubstractY;
     bool firstRound;
     int lastIandJ[2];
     float topBarHeigth;
+    float lastMistDraw;
     bool focus;
     bool mousePressedLeft;
     bool equalIsPressed;
@@ -146,9 +151,11 @@ private:
     bool isPressedB;
     bool isPressedO;
     bool isPressedA;
+    bool isPressedS;
     bool isPressedTab;
     bool isPlacingBuilding;
     bool mousePressOutofWorld;
+    bool showPaths;
     int buildingTypeSelected;
     int objectTypeSelected;
     int startMouseCords[2];

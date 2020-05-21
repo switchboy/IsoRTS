@@ -86,17 +86,27 @@ void spawmFoodStoneGold(int resource)
 {
 	int gridMinX=0;
 	int gridMinY=0;
-	for (int gridMaxX = 32; gridMaxX < 256; gridMaxX += 32) {
-		for (int gridMaxY = 32; gridMaxY < 256; gridMaxY += 32) {
+	for (int gridMaxX = 64; gridMaxX < 256; gridMaxX += 64) {
+		for (int gridMaxY = 64; gridMaxY < 256; gridMaxY += 64) {
 			bool resourcePlaced = false;
-			while (!resourcePlaced) {
+			int maxTries = 0;
+			while (!resourcePlaced && maxTries < 100) {
 				mouseWorldCord suggestedCords = { roll(gridMinX,gridMaxX), roll(gridMinY,gridMaxY) };
-				if (currentGame.isPassable(suggestedCords.x, suggestedCords.y))
-				{
-					objects newObject(resource, suggestedCords.x, suggestedCords.y, listOfObjects.size());
-					listOfObjects.push_back(newObject);
-					resourcePlaced = true;
+				if (suggestedCords.y - 1 >= 0 && suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
+					if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y - 1))
+					{
+						objects newObject(resource, suggestedCords.x, suggestedCords.y, listOfObjects.size());
+						listOfObjects.push_back(newObject);
+						objects newObject1(resource, suggestedCords.x, suggestedCords.y+1, listOfObjects.size());
+						listOfObjects.push_back(newObject1);
+						objects newObject2(resource, suggestedCords.x+1, suggestedCords.y, listOfObjects.size());
+						listOfObjects.push_back(newObject2);
+						objects newObject3(resource, suggestedCords.x+1, suggestedCords.y-1, listOfObjects.size());
+						listOfObjects.push_back(newObject3);
+						resourcePlaced = true;
+					}
 				}
+				maxTries++;
 			}
 			gridMinY = gridMaxY;
 		}
@@ -107,14 +117,22 @@ void spawmFoodStoneGold(int resource)
 void spawmFirstVillager() {
 	bool villagerIsPlaced = false;
 	while (!villagerIsPlaced) {
-		mouseWorldCord suggestedVillagerCords = { roll(0,256), roll(0,256) };
-		if (currentGame.isPassable(suggestedVillagerCords.x, suggestedVillagerCords.y))
-		{
-			listOfActorsMutex.lock();
-			actors newActor(0, suggestedVillagerCords.x, suggestedVillagerCords.y, currentPlayer.getTeam(), listOfActors.size());
-			listOfActors.push_back(newActor);
-			listOfActorsMutex.unlock();
-			villagerIsPlaced = true;
+		mouseWorldCord suggestedCords = { roll(0,256), roll(0,256) };
+		if (suggestedCords.y - 1 >= 0 && suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
+			if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y - 1))
+			{
+				listOfActorsMutex.lock();
+				actors newActor(0, suggestedCords.x, suggestedCords.y, currentPlayer.getTeam(), listOfActors.size());
+				listOfActors.push_back(newActor);
+				actors newActor1(0, suggestedCords.x, suggestedCords.y-1, currentPlayer.getTeam(), listOfActors.size());
+				listOfActors.push_back(newActor1);
+				actors newActor2(0, suggestedCords.x+1, suggestedCords.y, currentPlayer.getTeam(), listOfActors.size());
+				listOfActors.push_back(newActor2);
+				actors newActor3(0, suggestedCords.x+1, suggestedCords.y+1, currentPlayer.getTeam(), listOfActors.size());
+				listOfActors.push_back(newActor3);
+				listOfActorsMutex.unlock();
+				villagerIsPlaced = true;
+			}
 		}
 	}
 }

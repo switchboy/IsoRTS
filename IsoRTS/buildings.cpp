@@ -180,7 +180,7 @@ buildings::buildings(int type, int startXlocation, int startYLocation, int build
         recievesFood = true;
         buildingPointsNeeded = 150;
         buildingPointsRecieved = 0;
-        supportsPopulationOf = 10;
+        supportsPopulationOf = 5;
         this->offSetYStore = 0;
         this->amountOfAnimationSprites = 0;
         break;
@@ -459,13 +459,11 @@ worldCords findEmptySpot(worldCords startCords)
         {
             for (std::vector<int>::const_iterator iterator =  (*listToCheck.front()).neighbours.begin(), end =  (*listToCheck.front()).neighbours.end(); iterator != end; ++iterator)
             {
-                std::cout << cellsList[*iterator].cellId<< " " << cellsList[startCell].cellId << "\n";
                 freeCellFound = true;
                 return {cellsList[*iterator].positionX, cellsList[*iterator].positionY};
             }
             if(!freeCellFound)
             {
-                std::cout << (*listToCheck.front()).cellId << "\n";
                 addNeighboursOfImpassableNeighbours((*listToCheck.front()).cellId, cellsList, listToCheck);
             }
             listToCheck.pop_front();
@@ -496,6 +494,7 @@ void buildings::update()
                                 case 0:
                                     actors newActor(0, spawmCords.x, spawmCords.y, this->ownedByPlayer,  listOfActors.size());
                                     listOfActors.push_back(newActor);
+                                    gameText.addNewMessage("- Villager completed! -", 0);
                                     break;
                                 }
                                 this->productionQueue.erase(productionQueue.begin());

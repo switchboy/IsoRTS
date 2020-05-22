@@ -211,7 +211,7 @@ void gameState::drawMap()
     {
         for (int i = 0; i < MAP_WIDTH; i++)
         {
-            if (this->visability[(i * MAP_HEIGHT) + j] == 1) {
+            if (this->visability[(i * MAP_HEIGHT) + j] <= 1) {
                 spriteMistTile.setPosition(worldSpace(i, j, true), worldSpace(i, j, false));
                 window.draw(spriteMistTile);
             }
@@ -2175,6 +2175,7 @@ void gameState::loadGame()
     this->buildingTypeSelected = 0;
     this->objectTypeSelected = 0;
     this->showPaths = false;
+    this->lastMistDraw = -1.0f;
     listOfBuildings.resize(1);
     listOfObjects.resize(1);
 }
@@ -2184,22 +2185,23 @@ std::list<mouseWorldCord> getListOfCordsInCircle(int startX, int startY, int r)
     std::list<mouseWorldCord> tempList;
     for (int x = startX - r; x < startX + r; x++) {
         for (int y = startY - r; y < startY + r; y++) {
-            if (((x - startX) * (x - startX) + (y - startY) * (y - startY)) <= r * r) {
-                tempList.push_back({ x, y });
+            if (x >= 0 && y >= 0 && x < MAP_WIDTH && y < MAP_HEIGHT) {
+                if (((x - startX) * (x - startX) + (y - startY) * (y - startY)) <= r * r) {
+                    tempList.push_back({ x, y });
+                }
             }
         }
     }
     return tempList;
 }
 
-void gameState::createFogOfWar() {
-
+void gameState::createFogOfWar() 
+{
     for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++) {
         if (this->visability[i] == 2) {
             this->visability[i] = 1;
         }
     }
-
     for (int i = 0; i < listOfActors.size(); i++) {
         if (listOfActors[i].getTeam() == currentPlayer.getTeam()) {
             std::list<mouseWorldCord> tempList = getListOfCordsInCircle(listOfActors[i].getLocation().x, listOfActors[i].getLocation().y, 6);
@@ -2209,6 +2211,21 @@ void gameState::createFogOfWar() {
             }
         }
     }
-
+    for (int i = 1; i < listOfBuildings.size(); i++) {
+        if (listOfBuildings[i].getTeam() == currentPlayer.getTeam()) {
+            int visRadius = 1;
+            if (listOfBuildings[i].getCompleted()) {
+                visRadius = 8;
+            }
+            std::list<mouseWorldCord> buidlingFootprint = listOfBuildings[i].getFootprintOfBuilding();
+            for (const mouseWorldCord& footprintTile : buidlingFootprint) {
+                std::list<mouseWorldCord> tempList = getListOfCordsInCircle(footprintTile.x, footprintTile.y, visRadius);
+                for (const mouseWorldCord& cord : tempList)
+                {
+                    this->visability[(cord.x * MAP_HEIGHT) + cord.y] = 2;
+                }
+            }
+        }
+    }
 }
 

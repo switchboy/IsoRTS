@@ -471,6 +471,17 @@ worldCords findEmptySpot(worldCords startCords)
     }
 }
 
+std::list<mouseWorldCord>  buildings::getFootprintOfBuilding() {
+    std::list<mouseWorldCord> tempList;
+    for (int x = this->startXlocation; x > this->startXlocation - footprintOfBuildings[this->buildingType].amountOfXFootprint; x--) {
+        for (int y = this->startYLocation; y > this->startYLocation - footprintOfBuildings[this->buildingType].amountOfYFootprint; y--) {
+            tempList.push_back({ x, y });
+        }
+    }
+    return tempList;
+}
+
+
 void buildings::update()
 {
     if(this->exists)

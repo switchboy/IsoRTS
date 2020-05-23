@@ -8,5 +8,5 @@ private:
 
 };
 
-extern void generateRandomMap();
+extern void generateRandomMap(int players);
 

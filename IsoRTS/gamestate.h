@@ -141,6 +141,7 @@ private:
     bool addSubstractX;
     bool addSubstractY;
     bool firstRound;
+    int players;
     int lastIandJ[2];
     float topBarHeigth;
     float lastMistDraw;

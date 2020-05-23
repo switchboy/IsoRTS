@@ -1863,7 +1863,7 @@ rectangleCord getSpriteOffSetTask(int& buildingId)
         switch (listOfBuildings[buildingId].productionQueue.front().idOfUnitOrResearch)
         {
         case 0:
-            return { 0, 64 };
+            return { 64, 0 };
         }
     }
 }
@@ -2112,7 +2112,7 @@ void gameState::loadMap()
             this->visability.push_back(0);
         }
     }
-    generateRandomMap();
+    generateRandomMap(this->players);
 }
 
 void gameState::loadBuildings()
@@ -2132,6 +2132,7 @@ void loadActors()
 
 void gameState::loadGame()
 {
+    this->players = 1;
     totalView.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 1.f));
     worldView.setViewport(sf::FloatRect(0.f, 0.03f, 1.f, 0.77f));
     topBar.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 0.03f));

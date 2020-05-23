@@ -61,6 +61,11 @@ void objects::substractResource()
     }
 }
 
+mouseWorldCord  objects::getLocation() {
+
+    return { this->locationX, this->locationY };
+}
+
 void objects::drawObject(int i, int j)
 {
     drawObjectSprite(this->objectType, i, j);

@@ -139,6 +139,32 @@ double dist(double x1, double y1, double x2, double y2)
 }
 
 
+void actors::doMeleeDamage()
+{
+    if (currentGame.occupiedByActorList[this->actorGoal[0]][this->actorGoal[1]] != -1) {
+        if (listOfActors[currentGame.occupiedByActorList[this->actorGoal[0]][this->actorGoal[1]]].getTeam() != this->actorTeam) {
+            listOfActors[currentGame.occupiedByActorList[this->actorGoal[0]][this->actorGoal[1]]].takeDamage(this->meleeDamage);
+        }
+    }
+    else if (currentGame.occupiedByBuildingList[this->actorGoal[0]][this->actorGoal[1]] != -1) {
+        if (listOfBuildings[currentGame.occupiedByBuildingList[this->actorGoal[0]][this->actorGoal[1]]].getTeam() != this->actorTeam) {
+            listOfBuildings[currentGame.occupiedByBuildingList[this->actorGoal[0]][this->actorGoal[1]]].takeDamage(this->meleeDamage);
+        }
+    }
+}
+
+void actors::takeDamage(int amountOfDamage)
+{
+    this->actorHealth -= amountOfDamage;
+    if (this->actorHealth <= 0) {
+        this->killActor();
+    }
+}
+
+void actors::killActor() {
+    this->actorAlive = false;
+    currentGame.occupiedByActorList[this->actorCords[0]][this->actorCords[1]] = -1;
+}
 
 bool actors::canTargetBeReached()
 {
@@ -296,6 +322,7 @@ actors::actors(int type, int actorX, int actorY, int actorTeam, int actorId)
         this->meleeDamage = 10;
         this->rangedDamage = 5;
     }
+    this->actorAlive = true;
     this->actorGoal[0] = actorX;
     this->actorGoal[1] = actorY;
     this->orientation = 0;
@@ -471,286 +498,264 @@ int newOrientation(int oldOrientation, int desiredOrientation)
 }
 
 
+void actors::updateGoal()
+{
+    this->pathFound = false;
+    this->busyWalking = false;
+    this->route.clear();
+    this->retries = 0;
+    if (this->waitForAmountOfFrames == 0)
+    {
+        this->routeNeedsPath = true;
+        listOfActorsWhoNeedAPath.push_back(this->actorId);
+        this->goalNeedsUpdate = false;
+    }
+    else
+    {
+        this->waitForAmountOfFrames += -1;
+    }
+}
+
+void actors::moveActorIfWalking()
+{
+    if (this->busyWalking && (currentGame.elapsedTime - this->timeLastUpdate) > 1.0f)
+    {
+        this->busyWalking = false;
+        this->movedMoreThanHalf = false;
+        this->actorCords[0] = this->actorGoal[0];
+        this->actorCords[1] = this->actorGoal[1];
+    }
+    else if (this->busyWalking && (currentGame.elapsedTime - this->timeLastUpdate) > 0.5f && !this->movedMoreThanHalf)
+    {
+
+        currentGame.occupiedByActorList[this->actorCords[0]][this->actorCords[1]] = -1;
+        this->movedMoreThanHalf = true;
+
+    }
+}
+
+void actors::clearRoute()
+{
+    this->pathFound = false;
+    this->commonGoal = false;
+    this->route.clear();
+    if (this->isWalkingToUnloadingPoint)
+    {
+        this->reachedUnloadingPoint = true;
+    }
+}
+
+void actors::startWalking() 
+{
+    this->hasMoved = true;
+    this->retries = 0;
+    this->busyWalking = true;
+    this->timeLastUpdate = currentGame.elapsedTime;
+    this->actorGoal[0] = this->route.back().positionX;
+    this->actorGoal[1] = this->route.back().positionY;
+
+    currentGame.occupiedByActorList[this->route.back().positionX][this->route.back().positionY] = this->actorId;
+
+    this->route.pop_back();
+    if (route.empty())
+    {
+        this->pathFound = false;
+        this->commonGoal = false;
+        if (this->isWalkingToUnloadingPoint)
+        {
+            this->reachedUnloadingPoint = true;
+        }
+    }
+}
+
+void actors::retryWalkingOrChangeGoal() {
+    if (this->retries < 10)
+    {
+        if (currentGame.elapsedTime - this->timeLastAttempt > 1)
+        {
+            //there is a problem; do nothing this frame but calculate an alternative route!
+            this->actorGoal[0] = this->route.front().positionX;
+            this->actorGoal[1] = this->route.front().positionY;
+            this->routeNeedsPath = true;
+            listOfActorsWhoNeedAPath.push_back(this->actorId);
+            this->retries += +1;
+            this->timeLastAttempt = currentGame.elapsedTime;
+        }
+    }
+    else if (this->isWalkingToUnloadingPoint)
+    {
+        //find new drop off point
+        this->dropOffTile = findNearestDropOffPoint(this->ResourceBeingGatherd);
+        if (this->dropOffTile.isSet)
+        {
+            updateGoal(this->dropOffTile.locationX, this->dropOffTile.locationY, 0);
+            this->isWalkingToUnloadingPoint = true;
+            this->reachedUnloadingPoint = false;
+            this->retries = 0;
+        }
+        else
+        {
+            this->clearRoute();
+        }
+    }
+    else if (this->isGatheringRecources)
+    {
+        if (this->findNearestSimilairResource())
+        {
+            this->updateGoal(this->gatheringResourcesAt[0], this->gatheringResourcesAt[1], 0);
+            this->isWalkingToUnloadingPoint = false;
+            this->isAtCarryCapacity = false;
+            this->carriesRecources = false;
+            this->isAtRecource = false;
+            this->hasToUnloadResource = false;
+            this->timeStartedWalkingToRecource = 0.0f;
+            this->retries = 0;
+        }
+    }
+    else 
+    {
+        this->clearRoute();
+    }
+}
+
+void actors::walkToNextSquare() {
+    // Deze actor heeft een doel, dit doel is nog niet bereikt en is klaar met het vorige stuk lopen!
+    if (actorOrientation(this->actorCords[0], this->actorCords[1], this->route.back().positionX, this->route.back().positionY) == this->orientation)
+    {
+        if ((this->isGatheringRecources || this->isBuilding) && this->route.size() == 1)
+        {
+            this->clearRoute();
+        }
+        else
+        {
+            //De actor staat met zijn neus de goede kant op en kan dus gaan lopen als de tegel vrij is!
+            if (currentGame.occupiedByActorList[this->route.back().positionX][this->route.back().positionY] == -1)
+            {
+                this->startWalking();
+            }
+            else {
+                this->retryWalkingOrChangeGoal();
+            }
+        }
+    }
+    else
+    {
+        //De actor moet eerst draaien voordat hij kan gaan lopen
+        this->orientation = newOrientation(this->orientation, actorOrientation(this->actorCords[0], this->actorCords[1], this->route.back().positionX, this->route.back().positionY));
+    }
+}
+
+void actors::handleResourceGathering()
+{
+    if (this->hasToUnloadResource)
+    {
+        if (!this->isBackAtOwnSquare)
+        {
+            this->walkBackToOwnSquare();
+        }
+        else
+        {
+            if (!this->isWalkingToUnloadingPoint)
+            {
+                //search the nearest unloading point an walk there
+                this->dropOffTile = findNearestDropOffPoint(this->ResourceBeingGatherd);
+                if (this->dropOffTile.isSet)
+                {
+                    updateGoal(this->dropOffTile.locationX, this->dropOffTile.locationY, 0);
+                    this->retries = 0;
+                    this->isWalkingToUnloadingPoint = true;
+                    this->reachedUnloadingPoint = false;
+                }
+                else
+                {
+                    //There is no dropoff point!
+                }
+            }
+            else if (this->reachedUnloadingPoint)
+            {
+                this->unloadAndReturnToGathering();
+            }
+        }
+    }
+    else
+    {
+        //verzamel recources
+        if (this->isAtRecource)
+        {
+            this->gatherResource();
+        }
+        else if (this->timeStartedWalkingToRecource == 0.0f)
+        {
+            this->timeStartedWalkingToRecource = currentGame.elapsedTime;
+        }
+        else if (currentGame.elapsedTime - this->timeStartedWalkingToRecource < 0.5f)
+        {
+            this->animateWalkingToResource();
+        }
+        else
+        {
+            this->startGatheringAnimation();
+        }
+    }
+}
+
+void actors::handleBuilding()
+{
+    //villager is aangekomen bij te bouwen gebouw en kan na verplaatst te zijn gaan bouwen!
+    if (this->isAtRecource)
+    {
+        this->buildBuilding();
+    }
+    else if (this->timeStartedWalkingToRecource == 0.0f)
+    {
+        this->timeStartedWalkingToRecource = currentGame.elapsedTime;
+    }
+    else if (currentGame.elapsedTime - this->timeStartedWalkingToRecource < 0.5f)
+    {
+        this->animateWalkingToResource();
+    }
+    else
+    {
+        this->startGatheringAnimation();
+    }
+}
+
+void actors::houseKeeping()
+{
+    if (!this->busyWalking && this->route.empty() && this->hasMoved)
+    {
+        this->cleanUp();
+        this->hasMoved = false;
+    }
+}
+
+
 void actors::update()
 {
-    if(this->initialized)
+    if(this->initialized && this->actorAlive)
     {
         if(this->goalNeedsUpdate)
         {
-            this->pathFound = false;
-            this->busyWalking = false;
-            this->route.clear();
-            this->retries = 0;
-            if(this->waitForAmountOfFrames == 0)
-            {
-                this->routeNeedsPath = true;
-                listOfActorsWhoNeedAPath.push_back(this->actorId);
-                this->goalNeedsUpdate = false;
-            }
-            else
-            {
-                this->waitForAmountOfFrames += -1;
-            }
+            this->updateGoal();
         }
         else if(!this->routeNeedsPath)
         {
-            if(this->busyWalking && (currentGame.elapsedTime-this->timeLastUpdate) > 1.0f)
-            {
-                this->busyWalking = false;
-                this->movedMoreThanHalf = false;
-                this->actorCords[0] = this->actorGoal[0];
-                this->actorCords[1] = this->actorGoal[1];
-            }
-            else if(this->busyWalking && (currentGame.elapsedTime-this->timeLastUpdate) > 0.5f && !this->movedMoreThanHalf)
-            {
-
-                currentGame.occupiedByActorList[this->actorCords[0]][this->actorCords[1]] = -1;
-                this->movedMoreThanHalf = true;
-
-            }
+            this->moveActorIfWalking();
 
             if((!this->busyWalking) && this->pathFound &&(!this->route.empty()))
             {
-                //Deze actor heeft een doel, dit doel is nog niet bereikt en is klaar met het vorige stuk lopen!
-                int wantedOrientation = actorOrientation(this->actorCords[0], this->actorCords[1], this->route.back().positionX, this->route.back().positionY);
-                if(wantedOrientation == this->orientation)
-                {
-                    if((this->isGatheringRecources || this->isBuilding) && this->route.size() == 1)
-                    {
-                        this->pathFound = false;
-                        this->commonGoal = false;
-                        this->route.clear();
-                        if(this->isWalkingToUnloadingPoint)
-                        {
-                            this->reachedUnloadingPoint = true;
-                        }
-                    }
-                    else
-                    {
-                        //De actor staat met zijn neus de goede kant op en kan dus gaan lopen als de tegel vrij is!
-                        if(currentGame.occupiedByActorList[this->route.back().positionX][this->route.back().positionY] == -1)
-                        {
-                            this->hasMoved = true;
-                            this->retries = 0;
-                            this->busyWalking = true;
-                            this->timeLastUpdate = currentGame.elapsedTime;
-                            this->actorGoal[0] = this->route.back().positionX;
-                            this->actorGoal[1] = this->route.back().positionY;
-
-                            currentGame.occupiedByActorList[this->route.back().positionX][this->route.back().positionY] = this->actorId;
-
-                            this->route.pop_back();
-                            if(route.empty())
-                            {
-                                this->pathFound = false;
-                                this->commonGoal = false;
-                                if(this->isWalkingToUnloadingPoint)
-                                {
-                                    this->reachedUnloadingPoint = true;
-                                }
-                            }
-                        }
-                        else if(this->retries < 10)
-                        {
-                            if(currentGame.elapsedTime-this->timeLastAttempt > 1)
-                            {
-                                //there is a problem; do nothing this frame but calculate an alternative route!
-                                this->actorGoal[0] = this->route.front().positionX;
-                                this->actorGoal[1] = this->route.front().positionY;
-                                this->routeNeedsPath = true;
-                                listOfActorsWhoNeedAPath.push_back(this->actorId);
-                                this->retries += +1;
-                                this->timeLastAttempt = currentGame.elapsedTime;
-                            }
-                        }
-                        else if(this->isWalkingToUnloadingPoint)
-                        {
-                            //find new drop off point
-                            this->dropOffTile = findNearestDropOffPoint(this->ResourceBeingGatherd);
-                            if(this->dropOffTile.isSet)
-                            {
-                                updateGoal(this->dropOffTile.locationX, this->dropOffTile.locationY, 0);
-                                this->isWalkingToUnloadingPoint = true;
-                                this->reachedUnloadingPoint = false;
-                                this->retries = 0;
-                            }
-                            else
-                            {
-                                this->pathFound = false;
-                                this->route.clear();
-                                this->commonGoal = false;
-                                this->retries = 0;
-                            }
-                        }
-                        else if(this->isGatheringRecources)
-                        {
-                            if(this->findNearestSimilairResource())
-                            {
-                                this->updateGoal(this->gatheringResourcesAt[0], this->gatheringResourcesAt[1], 0);
-                                this->isWalkingToUnloadingPoint = false;
-                                this->isAtCarryCapacity = false;
-                                this->carriesRecources = false;
-                                this->isAtRecource = false;
-                                this->hasToUnloadResource = false;
-                                this->timeStartedWalkingToRecource = 0.0f;
-                                this->retries = 0;
-                            }
-                        }
-                        else
-                        {
-                            this->pathFound = false;
-                            this->route.clear();
-                            this->commonGoal = false;
-                            this->retries = 0;
-                        }
-                    }
-                }
-                else
-                {
-                    //De actor moet eerst draaien voordat hij kan gaan lopen
-                    this->orientation = newOrientation(this->orientation, wantedOrientation);
-                }
+                this->walkToNextSquare();
             }
             else if(this->isGatheringRecources && (!this->busyWalking)&& this->route.empty())
             {
-                if(this->hasToUnloadResource)
-                {
-                    if(!this->isBackAtOwnSquare)
-                    {
-                        this->walkBackToOwnSquare();
-                    }
-                    else
-                    {
-                        if(!this->isWalkingToUnloadingPoint)
-                        {
-                            //search the nearest unloading point an walk there
-                            this->dropOffTile = findNearestDropOffPoint(this->ResourceBeingGatherd);
-                            if(this->dropOffTile.isSet)
-                            {
-                                updateGoal(this->dropOffTile.locationX, this->dropOffTile.locationY, 0);
-                                this->retries = 0;
-                                this->isWalkingToUnloadingPoint = true;
-                                this->reachedUnloadingPoint = false;
-                            }
-                            else
-                            {
-                                //There is no dropoff point!
-                            }
-                        }
-                        else if(this->reachedUnloadingPoint)
-                        {
-                            this->unloadAndReturnToGathering();
-                        }
-                    }
-                }
-                else
-                {
-                    //verzamel recources
-                    if(this->isAtRecource)
-                    {
-                        this->gatherResource();
-                    }
-                    else if(this->timeStartedWalkingToRecource == 0.0f)
-                    {
-                        this->timeStartedWalkingToRecource = currentGame.elapsedTime;
-                    }
-                    else if(currentGame.elapsedTime - this->timeStartedWalkingToRecource < 0.5f)
-                    {
-                        this->animateWalkingToResource();
-                    }
-                    else
-                    {
-                        this->startGatheringAnimation();
-                    }
-                }
+                this->handleResourceGathering();
             }
             else if(this->isBuilding && (!this->busyWalking)&& this->route.empty())
             {
-                //villager is aangekomen bij te bouwen gebouw en kan na verplaatst te zijn gaan bouwen!
-                if(this->isAtRecource)
-                {
-                    this->buildBuilding();
-                }
-                else if(this->timeStartedWalkingToRecource == 0.0f)
-                {
-                    this->timeStartedWalkingToRecource = currentGame.elapsedTime;
-                }
-                else if(currentGame.elapsedTime - this->timeStartedWalkingToRecource < 0.5f)
-                {
-                    this->animateWalkingToResource();
-                }
-                else
-                {
-                    this->startGatheringAnimation();
-                }
-            }
-
-            if(this->commonGoal && !this->pathFound && this->retries < 6 && currentGame.elapsedTime-this->timeLastAttempt > 1)
-            {
-                this->routeNeedsPath = true;
-                listOfActorsWhoNeedAPath.push_back(this->actorId);
-                this->retries += +1;
-                this->timeLastAttempt = currentGame.elapsedTime;
-            }
-            if(this->retries == 5)
-            {
-                if(this->isGatheringRecources)
-                {
-                    if(this->findNearestSimilairResource())
-                    {
-                        this->updateGoal(this->gatheringResourcesAt[0], this->gatheringResourcesAt[1], 0);
-                        this->isWalkingToUnloadingPoint = false;
-                        this->isAtCarryCapacity = false;
-                        this->carriesRecources = false;
-                        this->isAtRecource = false;
-                        this->hasToUnloadResource = false;
-                        this->timeStartedWalkingToRecource = 0.0f;
-                    }
-                    else
-                    {
-                        this->isGatheringRecources = false;
-                        this->pathFound = false;
-                        this->route.clear();
-                        this->commonGoal = false;
-                        this->retries = 0;
-                    }
-                }
-
-                else if(this->isWalkingToUnloadingPoint)
-                {
-                    //find new drop off point
-                    this->dropOffTile = findNearestDropOffPoint(this->ResourceBeingGatherd);
-                    if(this->dropOffTile.isSet)
-                    {
-                        updateGoal(this->dropOffTile.locationX, this->dropOffTile.locationY, 0);
-                        listOfActorsWhoNeedAPath.push_back(this->actorId);
-                        this->isWalkingToUnloadingPoint = true;
-                        this->reachedUnloadingPoint = false;
-                    }
-                    else
-                    {
-                        this->isGatheringRecources = false;
-                        this->pathFound = false;
-                        this->route.clear();
-                        this->commonGoal = false;
-                        this->retries = 0;
-                    }
-                }
-
-                else
-                {
-                    this->pathFound = false;
-                    this->route.clear();
-                    this->commonGoal = false;
-                    this->retries = 0;
-                }
+                this->handleBuilding();
             }
         }
-        if(!this->busyWalking && this->route.empty() && this->hasMoved)
-        {
-            this->cleanUp();
-            this->hasMoved = false;
-        }
+
     }
 }
 
@@ -1583,6 +1588,8 @@ int actors::getRangedDMG()
 {
     return this->rangedDamage;
 }
+
+
 
 void actors:: drawActor()
 {

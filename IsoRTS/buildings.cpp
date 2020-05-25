@@ -481,6 +481,13 @@ std::list<mouseWorldCord>  buildings::getFootprintOfBuilding() {
     return tempList;
 }
 
+void buildings::takeDamage(int amountOfDamage)
+{
+    this->hitPointsLeft -= amountOfDamage;
+    if (this->hitPointsLeft <= 0) {
+        this->removeBuilding();
+    }
+}
 
 void buildings::update()
 {

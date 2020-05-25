@@ -46,6 +46,7 @@ public:
     void                        removeBuilding();
     void                        fillAdjacentTiles();
     void                        getTask(bool isResearch, int idOfUnitOrResearch, int productionPointsNeeded);
+    void                        takeDamage(int amountOfDamage);
     std::vector<buildingQueue>  productionQueue;
     std::pair<int, int>         getBuildingPoints();
     std::string                 getName();

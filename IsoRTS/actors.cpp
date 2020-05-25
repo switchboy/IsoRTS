@@ -1613,16 +1613,18 @@ void actors:: drawActor()
             }
             this->timeLastOffsetChange = currentGame.elapsedTime;
         }
-
-        int nXPosition = worldSpace(x,y,true);
-        int nYPosition = worldSpace(x,y,false);
-        int deltaX = xPosition-nXPosition;
-        int deltaY = yPosition-nYPosition;
-        float deltaTime = currentGame.elapsedTime - this->timeLastUpdate;
-        float deltaXCompleted = deltaX*deltaTime;
-        float deltaYCompleted = deltaY*deltaTime;
-        xPosition = xPosition - deltaXCompleted;
-        yPosition = yPosition - deltaYCompleted;
+        if (this->busyWalking)
+        {
+            int nXPosition = worldSpace(x, y, true);
+            int nYPosition = worldSpace(x, y, false);
+            int deltaX = xPosition - nXPosition;
+            int deltaY = yPosition - nYPosition;
+            float deltaTime = currentGame.elapsedTime - this->timeLastUpdate;
+            float deltaXCompleted = deltaX * deltaTime;
+            float deltaYCompleted = deltaY * deltaTime;
+            xPosition = xPosition - deltaXCompleted;
+            yPosition = yPosition - deltaYCompleted;
+        }
     }
     else if(this->isAtRecource)
     {

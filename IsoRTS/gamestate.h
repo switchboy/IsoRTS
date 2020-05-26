@@ -98,6 +98,7 @@ public:
     void clickToMove();
     void clickToGatherResource();
     void clickToBuildOrRepairBuilding();
+    void clickToAttack();
     void mouseRightClick();
     void changeTiles();
     void edgeScrolling();

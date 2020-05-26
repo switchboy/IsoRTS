@@ -90,7 +90,7 @@ public:
     void takeDamage(int amountOfDamage);
     int getMeleeDMG();
     int getRangedDMG();
-    void updateGoal();
+    void updateGoalPath();
     void moveActorIfWalking();
     void walkToNextSquare();
     void clearRoute();
@@ -99,6 +99,8 @@ public:
     void handleResourceGathering();
     void handleBuilding();
     void houseKeeping();
+    void setIsDoingAttack();
+    void doTaskIfNotWalking();
 
 private:
     bool actorAlive;
@@ -122,6 +124,8 @@ private:
     bool initialized;
     bool isBuilding;
     bool hasMoved;
+    bool isMeleeAttacking;
+    bool isRangedAttacking;
     int actorType;
     int actorTeam;
     int actorHealth;
@@ -134,7 +138,7 @@ private:
     int range;
     int actorCords[2];
     int actorGoal[2];
-    int gatheringResourcesAt[2];
+    int actionPreformedOnTile[2];
     int ResourceBeingGatherd;
     int amountOfGold;
     int amountOfWood;

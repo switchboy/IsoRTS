@@ -150,7 +150,7 @@ void gameState::drawThingsOnTile(int i, int j)
     }
     else if(this->objectLocationList[i][j]!= -1)
     {
-        listOfObjects[this->objectLocationList[i][j]].drawObject(i, j);
+//        listOfObjects[this->objectLocationList[i][j]].drawObject(i, j);
     }
     else if(this->occupiedByActorList[i][j] != -1 && this->visability[(i * MAP_HEIGHT) + j] > 1)
     {
@@ -1004,6 +1004,33 @@ void gameState::changeObjectType()
     }
 }
 
+void gameState::clickToAttack() {
+
+    for (int i = 0; i < this->selectedUnits.size(); i++)
+    {
+        if (this->selectedUnits.size() > 1)
+        {
+            if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+            {
+                listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, i / 5);
+                listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
+            }
+        }
+        else
+        {
+            if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+            {
+                listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, 0);
+            }
+        }
+        if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+        {
+            listOfActors[this->selectedUnits[i]].setIsDoingAttack();
+        }
+    }
+
+}
+
 void gameState::clickToGiveCommand()
 {
     this->firstRound = true;
@@ -1019,7 +1046,21 @@ void gameState::clickToGiveCommand()
     }
     else if (this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1)
     {
-        clickToBuildOrRepairBuilding();
+        if (listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getTeam() == currentPlayer.getTeam()) 
+        {
+            clickToBuildOrRepairBuilding();
+        }
+        else 
+        {
+            clickToAttack();
+        }
+        
+    }
+    else if (this->occupiedByActorList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1) {
+        if (listOfActors[this->occupiedByActorList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getTeam() != currentPlayer.getTeam()) 
+        {
+            clickToAttack();
+        }
     }
 }
 
@@ -1585,7 +1626,7 @@ void gameState::drawMiniMap()
     miniMapBackground.setScale(this->miniMapWidth/(20*MAP_WIDTH), this->miniMapHeigth/(10*MAP_HEIGHT));
     window.draw(miniMapBackground);
 
-    drawMiniMapObjects(miniMapPixel);
+   // drawMiniMapObjects(miniMapPixel);
     miniMapBackground.setTexture(minimapObjectsTexture.getTexture());
     miniMapBackground.setScale(this->miniMapWidth/(20*MAP_WIDTH), this->miniMapHeigth/(10*MAP_HEIGHT));
     window.draw(miniMapBackground);

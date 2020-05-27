@@ -101,6 +101,7 @@ public:
     void houseKeeping();
     void setIsDoingAttack();
     void doTaskIfNotWalking();
+    void shootProjectile();
 
 private:
     bool actorAlive;
@@ -148,6 +149,8 @@ private:
     int currentFrame;
     int spriteYOffset;
     int retries;
+    int splashDamage;
+    int projectileType;
     int waitForAmountOfFrames;
     float timeStartedGatheringRecource;
     float timeLastOffsetChange;
@@ -156,6 +159,7 @@ private:
     float timeLastAttempt;
     float offSetX;
     float offSetY;
+    float timeBetweenShots;
     nearestBuildingTile dropOffTile;
     std::list<routeCell> route;
     std::list <nearestBuildingTile> listOfDropOffLocations;

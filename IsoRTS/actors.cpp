@@ -7,6 +7,7 @@
 #include <string>
 #include "globalfunctions.h"
 #include "gametext.h"
+#include "projectile.h"
 
 std::vector<actorOrBuildingPrice> priceOfActor;
 std::list<int> listOfActorsWhoNeedAPath;
@@ -46,7 +47,6 @@ void updateCells(int goalId, int startId, std::vector<Cells> &cellsList)
         }
     }
 }
-
 
 void Cells::addNeighbours(std::vector<Cells> &cellsList)
 {
@@ -159,8 +159,12 @@ actors::actors(int type, int actorX, int actorY, int actorTeam, int actorId)
         this->actorHealth = 300;
         this->hitPoints = 300;
         this->meleeDamage = 10;
-        this->rangedDamage = 0;
-        this->doesRangedDamage = false;
+        this->range = 4;
+        this->rangedDamage = 4;
+        this->timeBetweenShots = 2.0f;
+        this->splashDamage = 0;
+        this->projectileType = 0;
+        this->doesRangedDamage = true;
     }
     this->actorAlive = true;
     this->actorGoal[0] = actorX;
@@ -233,7 +237,7 @@ void actors::doTaskIfNotWalking()
             this->doMeleeDamage();
         }
         else if (this->isRangedAttacking) {
-
+            this->shootProjectile();
         }
         else if (this->isGatheringRecources && (!this->busyWalking) && this->route.empty())
         {
@@ -243,6 +247,16 @@ void actors::doTaskIfNotWalking()
         {
             this->handleBuilding();
         }
+    }
+}
+
+
+void actors::shootProjectile()
+{
+    if (this->timeStartedGatheringRecource + this->timeBetweenShots < currentGame.getTime()) {
+        this->timeStartedGatheringRecource = currentGame.getTime();
+        projectile newProjectile(this->actorCords[0], this->actorCords[1], this->actionPreformedOnTile[0], this->actionPreformedOnTile[1], this->projectileType, this->rangedDamage, this->splashDamage);
+        listOfProjectiles.push_back(newProjectile);
     }
 }
 
@@ -466,6 +480,8 @@ void actors::updateGoal(int i, int j, int waitTime)
         this->pathFound = false;
         this->isAtRecource = false;
         this->isBackAtOwnSquare = false;
+        this->isRangedAttacking = false;
+        this->isMeleeAttacking = false;
         this->offSetX = 0.0f;
         this->offSetY = 0.0f;
         this->timeStartedGatheringRecource = 0.0f;

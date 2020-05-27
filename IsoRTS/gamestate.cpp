@@ -11,6 +11,7 @@
 #include "gametext.h"
 #include "buildings.h"
 #include "randomMapGenerator.h"
+#include "projectile.h"
 
 sf::RenderTexture minimapBuildingsTexture;
 sf::RenderTexture minimapActorsTexture;
@@ -223,6 +224,14 @@ void gameState::drawMap()
 
 void gameState::loadTextures()
 {
+    if (textureArrow.loadFromFile("textures/arrow.png"))
+    {
+        spriteArrow.setTexture(textureArrow);
+    }
+    else
+    {
+        std::cout << "Error loading texture: largeIconGrid.png \n" << std::endl;
+    }
     if(textureBigSelectedIcon.loadFromFile("textures/largeIconGrid.png"))
     {
         spriteBigSelectedIcon.setTexture(textureBigSelectedIcon);
@@ -2113,6 +2122,13 @@ void gameState::drawPaths()
     }
 }
 
+void drawProjectiles()
+{
+    for (int i = 0; i < listOfProjectiles.size(); i++) {
+        listOfProjectiles[i].drawProjectile();
+    }
+}
+
 void gameState::drawGame()
 {
     window.clear(sf::Color(0, 0, 0));
@@ -2123,6 +2139,7 @@ void gameState::drawGame()
     createFogOfWar();
     drawTopBar();
     drawMap();
+    drawProjectiles();
     drawToolbar();
     drawMiniMap();
     drawMouseInteraction();

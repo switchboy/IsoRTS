@@ -9,6 +9,7 @@
 #include <future>
 #include <mutex>
 #include "gametext.h"
+#include "projectile.h"
 
 gameState currentGame;
 
@@ -96,6 +97,13 @@ void calculateRoutesWorker()
     }
 }
 
+void updateProjectiles()
+{
+    for (int i = 0; i < listOfProjectiles.size(); i++) {
+        listOfProjectiles[i].updatePosition();
+    }
+}
+
 int main()
 {
     sf::Clock clockMain;
@@ -113,6 +121,7 @@ int main()
         //calculateRoutesWorker();
         updateBuildingsWorker();
         //updateObjectsWorker();
+        updateProjectiles();
         currentGame.interact();
         currentGame.drawGame();
     }

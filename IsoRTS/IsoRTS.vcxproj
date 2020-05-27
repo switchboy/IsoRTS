@@ -28,6 +28,7 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="objects.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="projectile.h" />
     <ClInclude Include="randomMapGenerator.h" />
     <ClInclude Include="tooltip.h" />
   </ItemGroup>
@@ -41,6 +42,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="objects.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="projectile.cpp" />
     <ClCompile Include="randomMapGenerator.cpp" />
     <ClCompile Include="tooltip.cpp" />
   </ItemGroup>

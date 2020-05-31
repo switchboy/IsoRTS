@@ -151,7 +151,7 @@ void gameState::drawThingsOnTile(int i, int j)
     }
     else if(this->objectLocationList[i][j]!= -1)
     {
-//        listOfObjects[this->objectLocationList[i][j]].drawObject(i, j);
+        listOfObjects[this->objectLocationList[i][j]].drawObject(i, j);
     }
     else if(this->occupiedByActorList[i][j] != -1 && this->visability[(i * MAP_HEIGHT) + j] > 1)
     {
@@ -1636,7 +1636,7 @@ void gameState::drawMiniMap()
     miniMapBackground.setScale(this->miniMapWidth/(20*MAP_WIDTH), this->miniMapHeigth/(10*MAP_HEIGHT));
     window.draw(miniMapBackground);
 
-   // drawMiniMapObjects(miniMapPixel);
+    drawMiniMapObjects(miniMapPixel);
     miniMapBackground.setTexture(minimapObjectsTexture.getTexture());
     miniMapBackground.setScale(this->miniMapWidth/(20*MAP_WIDTH), this->miniMapHeigth/(10*MAP_HEIGHT));
     window.draw(miniMapBackground);
@@ -2189,46 +2189,49 @@ void loadActors()
     priceOfActor.push_back({50,0,0,0}); //villager 0
 }
 
-void gameState::loadGame()
+void gameState::loadFonts()
 {
-    this->players = 1;
+    if (!this->font.loadFromFile("fonts/arial.ttf"))
+    {
+        std::cout << "Could not load font arial.ttf!\n";
+    }
+    this->text.setFont(this->font);
+}
+
+void setViewports()
+{
     totalView.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 1.f));
     worldView.setViewport(sf::FloatRect(0.f, 0.03f, 1.f, 0.77f));
     topBar.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 0.03f));
     toolBar.setViewport(sf::FloatRect(0.f, 0.8f, 1.f, 0.2f));
     miniMap.setViewport(sf::FloatRect(0.8f, 0.8f, 0.2f, 0.2f));
-    minimapTexture.create(20*MAP_WIDTH,10*MAP_HEIGHT);
-    minimapActorsTexture.create(20*MAP_WIDTH,10*MAP_HEIGHT);
-    minimapMistTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
-    minimapObjectsTexture.create(20*MAP_WIDTH,10*MAP_HEIGHT);
-    minimapBuildingsTexture.create(20*MAP_WIDTH,10*MAP_HEIGHT);
-    this->text.setFont(this->font);
     window.setFramerateLimit(60);
-    currentGame.loadTextures();
-    loadActors();
-    currentGame.loadBuildings();
-    currentGame.loadMap();
-    for(int i =0; i < 8; i++)
-    {
-        listOfPlayers[i].setTeam(i);
-    }
-    if(!this->font.loadFromFile("fonts/arial.ttf"))
-    {
-        std::cout << "Could not load font arial.ttf!\n";
-    }
+}
+
+void createMiniMapTexture()
+{
+    minimapTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
+    minimapActorsTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
+    minimapMistTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
+    minimapObjectsTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
+    minimapBuildingsTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
+}
+
+void gameState::setDefaultValues()
+{
     this->focus = true;
     this->mousePressedLeft = false;
     this->equalIsPressed = false;
     this->isPressedB = false;
     this->mousePressedRight = false;
-    this->mapPixelHeigth = MAP_HEIGHT*32;
-    this->mapPixelWidth = MAP_WIDTH*64;
-    this->miniMapWidth = mainWindowWidth*0.2f;
-    this->miniMapHeigth = mainWindowHeigth*0.2f;
-    this->topBarHeigth = mainWindowHeigth*0.03f;
-    this->viewBoxX = mainWindowWidth/(this->mapPixelWidth/this->miniMapWidth);
-    this->viewBoxY = (mainWindowHeigth*0.77f)/(this->mapPixelHeigth/this->miniMapHeigth);
-    this->toolBarWidth = mainWindowWidth-miniMapWidth;
+    this->mapPixelHeigth = MAP_HEIGHT * 32;
+    this->mapPixelWidth = MAP_WIDTH * 64;
+    this->miniMapWidth = mainWindowWidth * 0.2f;
+    this->miniMapHeigth = mainWindowHeigth * 0.2f;
+    this->topBarHeigth = mainWindowHeigth * 0.03f;
+    this->viewBoxX = mainWindowWidth / (this->mapPixelWidth / this->miniMapWidth);
+    this->viewBoxY = (mainWindowHeigth * 0.77f) / (this->mapPixelHeigth / this->miniMapHeigth);
+    this->toolBarWidth = mainWindowWidth - miniMapWidth;
     this->isPlacingBuilding = false;
     this->buildingSelectedId = -1;
     this->objectSelectedId = -1;
@@ -2238,6 +2241,41 @@ void gameState::loadGame()
     this->lastMistDraw = -1.0f;
     listOfBuildings.resize(1);
     listOfObjects.resize(1);
+    this->players = 1;
+}
+
+void setTeam() {
+    for (int i = 0; i < 8; i++)
+    {
+        listOfPlayers[i].setTeam(i);
+    }
+}
+
+void showLoadingScreen() {
+    currentGame.text.setCharacterSize(64);
+    currentGame.text.setOutlineColor(sf::Color::White);
+    currentGame.text.setOutlineThickness(1.f);
+    currentGame.text.setFillColor(sf::Color::Yellow);
+    currentGame.text.setString("Loading...");
+    currentGame.text.setPosition(mainWindowWidth/2, mainWindowHeigth/2);
+    window.clear();
+    window.draw(currentGame.text);
+    window.display();
+}
+
+void gameState::loadGame()
+{
+   
+    loadFonts();
+    setViewports();
+    showLoadingScreen;
+    createMiniMapTexture();
+    loadTextures();
+    loadActors();
+    setDefaultValues();
+    loadBuildings();
+    loadMap();
+    setTeam();
 }
 
 std::list<mouseWorldCord> getListOfCordsInCircle(int startX, int startY, int r)

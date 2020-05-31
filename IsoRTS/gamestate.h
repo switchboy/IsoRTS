@@ -55,6 +55,8 @@ class gameState
 
 public:
     void drawMousePosition(int x,int y, int noProblem);
+    void setDefaultValues();
+    void loadFonts();
     void drawGround(int i, int j);
     void drawThingsOnTile(int i, int j);
     void drawMap();

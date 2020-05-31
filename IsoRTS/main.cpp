@@ -21,10 +21,6 @@ void updateActorHelper(int i)
     }
 }
 
-void updateObjectHelper(int i)
-{
-    //listOfObjects[i].update();
-}
 
 void updateBuildingsHelper(int i)
 {
@@ -43,8 +39,6 @@ void routeHelper(int i)
 
 void updateActorsWorker()
 {
-    //while(window.isOpen())
-    //{
     if(!listOfActors.empty())
     {
         for(int i = 0; i < listOfActors.size(); i++)
@@ -52,27 +46,9 @@ void updateActorsWorker()
             std::async(std::launch::async, updateActorHelper, i);
         }
     }
-    //}
 }
-
-void updateObjectsWorker()
-{
-    // while(window.isOpen())
-    // {
-    if(!listOfObjects.empty())
-    {
-        for(int i = 0; i < listOfObjects.size(); i++)
-        {
-            std::async(std::launch::async, updateObjectHelper, i);
-        }
-    }
-    //}
-}
-
 void updateBuildingsWorker()
 {
-    //while(window.isOpen())
-    //{
     if(!listOfBuildings.empty())
     {
         for(int i = 0; i < listOfBuildings.size(); i++)
@@ -80,7 +56,6 @@ void updateBuildingsWorker()
             std::async(std::launch::async, updateBuildingsHelper, i);
         }
     }
-    //}
 }
 
 void calculateRoutesWorker()
@@ -114,9 +89,6 @@ int main()
 {
     sf::Clock clockMain;
     currentGame.loadGame();
-    //std::thread updateActorsThread(updateActorsWorker);
-    //std::thread updateObjectsThread(updateObjectsWorker);
-    //std::thread updateBuildingsThread(updateBuildingsWorker);
     std::thread updateRoutesThread(calculateRoutesWorker);
     while(window.isOpen())
     {
@@ -124,16 +96,11 @@ int main()
         currentGame.elapsedTime = elapsedMain.asSeconds();
         gameText.throwOutOldMessages();
         updateActorsWorker();
-        //calculateRoutesWorker();
         updateBuildingsWorker();
-        //updateObjectsWorker();
         updateProjectiles();
         currentGame.interact();
         currentGame.drawGame();
     }
-    //updateActorsThread.join();
-    //updateObjectsThread.join();
-    //updateBuildingsThread.join();
     updateRoutesThread.join();
     return 0;
 }

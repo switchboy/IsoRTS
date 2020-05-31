@@ -15,6 +15,7 @@ public:
 	void drawProjectile();
 	void doDamage();
 	void doSplashDamage();
+	float getTimeLastUpdate();
 
 private:
 	mouseWorldCord projectilePosition;
@@ -29,6 +30,7 @@ private:
 	float deltaX;
 	float deltaY;
 	float deltaZ;
+	float projectileRotation;
 	bool reachedTarget;
 };
 

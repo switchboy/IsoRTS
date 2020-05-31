@@ -250,13 +250,17 @@ void actors::doTaskIfNotWalking()
     }
 }
 
-
 void actors::shootProjectile()
 {
     if (this->timeStartedGatheringRecource + this->timeBetweenShots < currentGame.getTime()) {
         this->timeStartedGatheringRecource = currentGame.getTime();
-        projectile newProjectile(this->actorCords[0], this->actorCords[1], this->actionPreformedOnTile[0], this->actionPreformedOnTile[1], this->projectileType, this->rangedDamage, this->splashDamage);
-        listOfProjectiles.push_back(newProjectile);
+        if (currentGame.occupiedByActorList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]] != -1) {
+            projectile newProjectile(this->actorCords[0], this->actorCords[1], this->actionPreformedOnTile[0], this->actionPreformedOnTile[1], this->projectileType, this->rangedDamage, this->splashDamage);
+            listOfProjectiles.push_back(newProjectile);
+        }
+        else {
+            this->isRangedAttacking = false;
+        }
     }
 }
 

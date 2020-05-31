@@ -99,6 +99,12 @@ void calculateRoutesWorker()
 
 void updateProjectiles()
 {
+    //Erase old projectiles (older then 30 sec)
+    auto iter = std::find_if(listOfProjectiles.begin(), listOfProjectiles.end(),
+        [&](projectile& p){return p.getTimeLastUpdate() > 30.0f; });
+    if (iter != listOfProjectiles.end())
+        listOfProjectiles.erase(iter);
+    //update porjectile positions
     for (int i = 0; i < listOfProjectiles.size(); i++) {
         listOfProjectiles[i].updatePosition();
     }

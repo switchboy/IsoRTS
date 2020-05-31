@@ -2,8 +2,23 @@
 #include "gamestate.h"
 #include "actors.h"
 #include "buildings.h"
+#include <math.h>
 
 std::vector<projectile> listOfProjectiles;
+
+
+float giveAnngleOfSpriteInDGR(float screenVelocityX, float screenVelocityY)
+{
+	if (screenVelocityX == 0.0f && screenVelocityY > 0.0f) { return 0.0f; }
+	if (screenVelocityX == 0.0f && screenVelocityY < 0.0f) { return 180.0f; }
+	if (screenVelocityX == 0.0f && screenVelocityY == 0.0f) { return 0.0f; }
+	if (screenVelocityY == 0.0f && screenVelocityX > 0.0f) { return 90.0f; }
+	if (screenVelocityY == 0.0f && screenVelocityX < 0.0f) { return 270.0f; }
+	if (screenVelocityX < 0.0f && screenVelocityY < 0.0f) { return 90 - atan(fabs(screenVelocityY) / fabs(screenVelocityX)); }
+	if (screenVelocityX > 0.0f && screenVelocityY < 0.0f) { return 360 - (90 - atan(fabs(screenVelocityY) / fabs(screenVelocityX))); }
+	if (screenVelocityX < 0.0f && screenVelocityY > 0.0f) { return 90 + atan(fabs(screenVelocityY) / fabs(screenVelocityX)); }
+	if (screenVelocityX > 0.0f && screenVelocityY > 0.0f) { return 360 - (90 + atan(fabs(screenVelocityY) / fabs(screenVelocityX))); }
+}
 
 projectile::projectile(int projectileStartX, int projectileStartY, int projectileTargetX, int projectileTargetY, int projectileType, int damageOnImpact, int splashDamageOnImpact)
 {
@@ -21,7 +36,12 @@ projectile::projectile(int projectileStartX, int projectileStartY, int projectil
 	this->deltaZ = travelTimeInSeconds*3;
 	this->timeFired = currentGame.getTime();
 	this->reachedTarget = false;
+	this->projectileRotation = 0.0f;
 	this->X += 32;
+}
+
+float projectile::getTimeLastUpdate() {
+	return this->timeFired;
 }
 
 void projectile::updatePosition()
@@ -33,6 +53,7 @@ void projectile::updatePosition()
 			this->X -= this->deltaX/60.f;
 			this->Y -= this->deltaY/60.f;
 			this->Z -= this->deltaZ;
+			this->projectileRotation = giveAnngleOfSpriteInDGR(this->deltaX / 60.f, (this->deltaY / 60.f) + this->deltaZ);
 			this->deltaZ -= 0.096f;
 			if (this->Z >= 0.0f) {
 				doDamage();
@@ -44,9 +65,8 @@ void projectile::updatePosition()
 
 void projectile::drawProjectile()
 {
-	int xScreenCord = this->X;
-	int yScreenCord = this->Y + this->Z;
-	currentGame.spriteArrow.setPosition(xScreenCord, yScreenCord);
+	currentGame.spriteArrow.setRotation(this->projectileRotation);
+	currentGame.spriteArrow.setPosition(this->X, this->Y + this->Z);
 	window.draw(currentGame.spriteArrow);
 }
 
@@ -65,5 +85,3 @@ void projectile::doSplashDamage()
 {
 
 }
-
-

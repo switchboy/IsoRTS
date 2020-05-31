@@ -232,6 +232,7 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: largeIconGrid.png \n" << std::endl;
     }
+    spriteArrow.setOrigin(spriteArrow.getLocalBounds().width/2, spriteArrow.getLocalBounds().height/2);
     if(textureBigSelectedIcon.loadFromFile("textures/largeIconGrid.png"))
     {
         spriteBigSelectedIcon.setTexture(textureBigSelectedIcon);

@@ -131,9 +131,6 @@ void Cells::addNeighbours(std::vector<Cells> &cellsList)
 
 double dist(double x1, double y1, double x2, double y2)
 {
-//Euclidean distance
-//    return = sqrt(pow((x1 - x2), 2) + pow((y1 - y2), 2));
-
 //Manhattan distance
     return fabs(x2 - x1) + fabs(y2 - y1);
 }

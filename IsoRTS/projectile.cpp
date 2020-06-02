@@ -6,7 +6,6 @@
 
 std::vector<projectile> listOfProjectiles;
 
-
 float giveAnngleOfSpriteInDGR(float screenVelocityX, float screenVelocityY)
 {
 	if (screenVelocityX == 0.0f && screenVelocityY > 0.0f) { return 0.0f; }
@@ -53,7 +52,7 @@ void projectile::updatePosition()
 			this->X -= this->deltaX/60.f;
 			this->Y -= this->deltaY/60.f;
 			this->Z -= this->deltaZ;
-			this->projectileRotation = giveAnngleOfSpriteInDGR(this->deltaX / 60.f, (this->deltaY / 60.f) + this->deltaZ);
+			this->projectileRotation = giveAnngleOfSpriteInDGR(this->deltaX, this->deltaY + (this->deltaZ*60));
 			this->deltaZ -= 0.096f;
 			if (this->Z >= 0.0f) {
 				doDamage();

@@ -2278,21 +2278,6 @@ void gameState::loadGame()
     setTeam();
 }
 
-std::list<mouseWorldCord> getListOfCordsInCircle(int startX, int startY, int r)
-{
-    std::list<mouseWorldCord> tempList;
-    for (int x = startX - r; x < startX + r; x++) {
-        for (int y = startY - r; y < startY + r; y++) {
-            if (x >= 0 && y >= 0 && x < MAP_WIDTH && y < MAP_HEIGHT) {
-                if (((x - startX) * (x - startX) + (y - startY) * (y - startY)) <= r * r) {
-                    tempList.push_back({ x, y });
-                }
-            }
-        }
-    }
-    return tempList;
-}
-
 void gameState::createFogOfWar() 
 {
     for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++) {

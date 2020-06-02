@@ -3,6 +3,7 @@
 #define MAP_WIDTH	256
 #define MAP_HEIGHT	256
 #include <mutex>
+#include <list>
 
 extern int mapOffsetX;
 extern int mapOffsetY;
@@ -25,6 +26,7 @@ bool compareCord(const rectangleCord& lhs, const rectangleCord& rhs);
 bool sortCordByX(const rectangleCord& lhs, const rectangleCord& rhs);
 int worldSpace(int x, int y, bool getX);
 int miniMapSpace(int x, int y, bool getX);
+std::list<mouseWorldCord> getListOfCordsInCircle(int startX, int startY, int r);
 
 extern std::mutex listOfActorsMutex;
 

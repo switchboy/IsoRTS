@@ -2,6 +2,7 @@
 #include "gamestate.h"
 #include "player.h"
 #include "gametext.h"
+#include "projectile.h"
 #include <iostream>
 
 
@@ -143,6 +144,7 @@ buildings::buildings(int type, int startXlocation, int startYLocation, int build
     this->ownedByPlayer = team;
     this->buildingCompleted = false;
     this->exists = true;
+    this->lastShotFired = 0.0f;
     currentGame.buildingLocationList[startXlocation][startYLocation] = buildingId;
     for(int i = 0; i < footprintOfBuildings[type].amountOfXFootprint; i++)
     {
@@ -174,6 +176,7 @@ buildings::buildings(int type, int startXlocation, int startYLocation, int build
         hitPointsLeft = 5000;
         canDoRangedDamage = true;
         amountOfRangedDamage = 10;
+        range = 4;
         recievesWood = true;
         recievesStone= true;
         recievesGold = true;
@@ -390,8 +393,6 @@ struct worldCords
     int y;
 };
 
-
-
 void addNeighboursOfImpassableNeighbours(int& i, std::vector<Cells> &cellsList, std::list<Cells*>& listToCheck)
 {
     if(cellsList[i].positionX > 0)
@@ -435,8 +436,6 @@ void addNeighboursOfImpassableNeighbours(int& i, std::vector<Cells> &cellsList, 
         listToCheck.push_back(&cellsList[i-1-MAP_HEIGHT]);
     }
 }
-
-
 
 worldCords findEmptySpot(worldCords startCords)
 {
@@ -489,6 +488,96 @@ void buildings::takeDamage(int amountOfDamage)
     }
 }
 
+void buildings::spawnProduce()
+{
+    worldCords spawmCords = findEmptySpot({ this->startXlocation + 1, this->startYLocation + 1 });
+    listOfActorsMutex.lock();
+    if (currentPlayer.getStats().currentPopulation < currentPlayer.getStats().populationRoom)
+    {
+        switch (this->productionQueue.front().idOfUnitOrResearch)
+        {
+        case 0:
+            actors newActor(0, spawmCords.x, spawmCords.y, this->ownedByPlayer, listOfActors.size());
+            listOfActors.push_back(newActor);
+            gameText.addNewMessage("- Villager completed! -", 0);
+            break;
+        }
+        this->productionQueue.erase(productionQueue.begin());
+    }
+    else
+    {
+        if (!this->hasDisplayedError)
+        {
+            gameText.addNewMessage("Not enough population room to add more units, build more houses!", 1);
+            this->hasDisplayedError = true;
+        }
+    }
+    listOfActorsMutex.unlock();
+}
+
+void::buildings::doProduction()
+{
+    if (this->productionQueue.front().lastTimeUpdate + 1 < currentGame.elapsedTime)
+    {
+        if (this->productionQueue.front().productionPointsGained >= this->productionQueue.front().productionPointsNeeded)
+        {
+            if (!this->productionQueue.front().isResearch)
+            {
+                spawnProduce();
+            }
+            else
+            {
+                //research things do ehh TBI
+                this->productionQueue.erase(productionQueue.begin());
+            }
+        }
+        else
+        {
+            this->productionQueue.front().productionPointsGained += 1;
+            this->productionQueue.front().lastTimeUpdate = currentGame.elapsedTime;
+            this->hasDisplayedError = false;
+        }
+    }
+
+}
+
+mouseWorldCord findCloseTile(const std::list<mouseWorldCord>& buidlingFootprint , const mouseWorldCord& target)
+{
+    int lowestDist = 0;
+    mouseWorldCord closeTile = {-1, -1};
+    for (const mouseWorldCord& footprintTile : buidlingFootprint) {
+        if (distEuclidean(footprintTile.x, footprintTile.y, target.x, target.y) < lowestDist || lowestDist == 0) {
+            closeTile = footprintTile;
+            lowestDist = distEuclidean(footprintTile.x, footprintTile.y, target.x, target.y);
+        }
+    }
+    return closeTile;
+}
+
+void buildings::checkOnEnemyAndShoot()
+{
+    if (lastShotFired + 2.f < currentGame.getTime()) {
+        lastShotFired = currentGame.getTime();
+        std::list<mouseWorldCord> buidlingFootprint = this->getFootprintOfBuilding();
+        for (const mouseWorldCord& footprintTile : buidlingFootprint) {
+            std::list<mouseWorldCord> tempList = getListOfCordsInCircle(footprintTile.x, footprintTile.y, this->range);
+            for (const mouseWorldCord& cord : tempList)
+            {
+                if (currentGame.occupiedByActorList[cord.x][cord.y] != -1)
+                {
+                    if (listOfActors[currentGame.occupiedByActorList[cord.x][cord.y]].getTeam() != this->ownedByPlayer)
+                    {
+                        mouseWorldCord sourceTile = findCloseTile(buidlingFootprint, cord);
+                        projectile newProjectile(sourceTile.x, sourceTile.y, cord.x, cord.y, 0, this->amountOfRangedDamage, 0);
+                        listOfProjectiles.push_back(newProjectile);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+
 void buildings::update()
 {
     if(this->exists)
@@ -497,50 +586,10 @@ void buildings::update()
         {
             if(!this->productionQueue.empty())
             {
-                if(this->productionQueue.front().lastTimeUpdate + 1 < currentGame.elapsedTime)
-                {
-                    if(this->productionQueue.front().productionPointsGained >= this->productionQueue.front().productionPointsNeeded)
-                    {
-                        worldCords spawmCords = findEmptySpot({this->startXlocation+1, this->startYLocation+1});
-                        if(!this->productionQueue.front().isResearch)
-                        {
-                            listOfActorsMutex.lock();
-                            if(currentPlayer.getStats().currentPopulation < currentPlayer.getStats().populationRoom)
-                            {
-                                switch(this->productionQueue.front().idOfUnitOrResearch)
-                                {
-                                case 0:
-                                    actors newActor(0, spawmCords.x, spawmCords.y, this->ownedByPlayer,  listOfActors.size());
-                                    listOfActors.push_back(newActor);
-                                    gameText.addNewMessage("- Villager completed! -", 0);
-                                    break;
-                                }
-                                this->productionQueue.erase(productionQueue.begin());
-                            }
-                            else
-                            {
-                                if(!this->hasDisplayedError)
-                                {
-                                    gameText.addNewMessage("Not enough population room to add more units, build more houses!", 1);
-                                    this->hasDisplayedError = true;
-                                }
-                            }
-                            listOfActorsMutex.unlock();
-
-                        }
-                        else
-                        {
-                            //research things do ehh TBI
-                            this->productionQueue.erase(productionQueue.begin());
-                        }
-                    }
-                    else
-                    {
-                        this->productionQueue.front().productionPointsGained += 1;
-                        this->productionQueue.front().lastTimeUpdate = currentGame.elapsedTime;
-                        this->hasDisplayedError = false;
-                    }
-                }
+                doProduction();
+            }
+            if (this->canDoRangedDamage) {
+                checkOnEnemyAndShoot();
             }
         }
         else if(this->buildingPointsNeeded <= this->buildingPointsRecieved)

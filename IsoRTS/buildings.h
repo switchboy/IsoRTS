@@ -28,7 +28,7 @@ class buildings
 {
 
 public:
-    buildings() {}
+    buildings() { this->exists = false; }
     buildings(int type, int startXlocation, int startYLocation, int buildingId, int team);
     void                        update();
     void                        drawBuildingFootprint(int type, int mouseWorldX, int mouseWorldY);
@@ -47,6 +47,9 @@ public:
     void                        fillAdjacentTiles();
     void                        getTask(bool isResearch, int idOfUnitOrResearch, int productionPointsNeeded);
     void                        takeDamage(int amountOfDamage);
+    void                        doProduction();
+    void                        spawnProduce();
+    void                        checkOnEnemyAndShoot();
     std::vector<buildingQueue>  productionQueue;
     std::pair<int, int>         getBuildingPoints();
     std::string                 getName();
@@ -84,6 +87,8 @@ private:
     int                         amountOfRangedDamage;
     int                         supportsPopulationOf;
     bool                        hasDisplayedError;
+    int                         range;
+    float                       lastShotFired;
     std::vector<adjacentTile>   adjacentTiles;
 };
 

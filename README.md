@@ -14,8 +14,8 @@ Project goals:
 - Robust villager AI for doing a task                                                                           Mostly done
 - Show different animations for these resources                                                                 Mostly done
 - Generate random map on game startup                                                                           Mostly done
+- Make the units fight each other                                                                               Mostly done
 
-- Make the units fight each other                                                                               Not started on yet
 - Fighting animations                                                                                           Not started on yet
 - Implant a basic Rock/Paper/Scissors for damage calculations during battle                                     Not started on yet
 - Researchable upgrades for units                                                                               Not started on yet

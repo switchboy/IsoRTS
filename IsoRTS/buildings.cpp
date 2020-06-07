@@ -261,7 +261,7 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
             offsetY = 1;
             if(this->amountOfAnimationSprites > 0)
             {
-                offsetY += this->offSetYStore;
+                offsetY = this->offSetYStore;
                 if(offsetY > amountOfAnimationSprites+1)
                 {
                     offsetY = 1;

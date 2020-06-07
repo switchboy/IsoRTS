@@ -153,7 +153,7 @@ void spawmFirstVillager(int distanceFromFood, int teamId) {
 				listOfActors.push_back(newActor1);
 				actors newActor2(0, suggestedCords.x+1, suggestedCords.y, teamId, listOfActors.size());
 				listOfActors.push_back(newActor2);
-				actors newActor3(0, suggestedCords.x+1, suggestedCords.y+1, 1, listOfActors.size());
+				actors newActor3(0, suggestedCords.x+1, suggestedCords.y+1, teamId, listOfActors.size());
 				listOfActors.push_back(newActor3);
 				listOfActorsMutex.unlock();
 				villagerIsPlaced = true;
@@ -182,8 +182,8 @@ void generateTerrain() {
 	};
 	generatePerlinNoise(1.4f, 5, noiseSeed, noiseMap);
 	convertPerlinNoiseToMap(noiseMap);
-	delete noiseMap;
-	delete noiseSeed;
+	delete []noiseMap;
+	delete []noiseSeed;
 }
 
 void generateRandomMap(int players) {
@@ -196,6 +196,4 @@ void generateRandomMap(int players) {
 	spawmFoodStoneGold(5);
 	placeTrees();
 	centerViewOnVillager();
-
-
 }

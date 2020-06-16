@@ -327,6 +327,17 @@ void gameState::loadTextures()
         std::cout << "Error loading texture: lumbercamp.png \n" << std::endl;
     }
 
+    if (textureBuildingBarracks.loadFromFile("textures/barracks.png"))
+    {
+        spriteBuildingBarracks.setTexture(textureBuildingBarracks);
+        spriteBuildingBarracks.setTextureRect(sf::IntRect(0, 0, 192, 192));
+        spriteBuildingBarracks.setOrigin(64, 160);
+    }
+    else
+    {
+        std::cout << "Error loading texture: lumbercamp.png \n" << std::endl;
+    }
+
 
     if(texturePineTreeTile.loadFromFile("textures/pineTree.png"))
     {

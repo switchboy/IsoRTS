@@ -93,6 +93,11 @@ void button::showToolTip()
         toolTipText << "Cost: Food: " << priceOfBuilding[3].food << " Wood: " << priceOfBuilding[3].wood << " Stone: " << priceOfBuilding[3].stone << " Gold: " << priceOfBuilding[3].gold;
         toolTipDiscription << "Collection point for wood and research new wood chopping abilities";
         break;
+    case 8:
+        toolTipTitle << "Build Barracks";
+        toolTipText << "Cost: Food: " << priceOfBuilding[4].food << " Wood: " << priceOfBuilding[4].wood << " Stone: " << priceOfBuilding[4].stone << " Gold: " << priceOfBuilding[4].gold;
+        toolTipDiscription << "Collection point for wood and research new wood chopping abilities";
+        break;
     }
 
     int longestStringLength = 0;
@@ -221,7 +226,21 @@ void button::performAction()
         else
         {
             std::stringstream errortext;
-            errortext << "Not enough resources to build a Mill! Cost Food: " << priceOfBuilding[3].food << " Wood: " << priceOfBuilding[3].wood << " Stone: " << priceOfBuilding[3].stone << " Gold: " << priceOfBuilding[3].gold;
+            errortext << "Not enough resources to build a Lumber Camp! Cost Food: " << priceOfBuilding[3].food << " Wood: " << priceOfBuilding[3].wood << " Stone: " << priceOfBuilding[3].stone << " Gold: " << priceOfBuilding[3].gold;
+            gameText.addNewMessage(errortext.str(), 1);
+        }
+        break;
+
+    case 8:
+        if (priceOfBuilding[4].food <= currentPlayer.getStats().amountOfFood && priceOfBuilding[4].wood <= currentPlayer.getStats().amountOfWood && priceOfBuilding[4].stone <= currentPlayer.getStats().amountOfStone && priceOfBuilding[4].gold <= currentPlayer.getStats().amountOfGold)
+        {
+            currentGame.setBuildingType(4);
+            currentGame.setIsPlacingBuilding();
+        }
+        else
+        {
+            std::stringstream errortext;
+            errortext << "Not enough resources to build a Barracks! Cost Food: " << priceOfBuilding[4].food << " Wood: " << priceOfBuilding[4].wood << " Stone: " << priceOfBuilding[4].stone << " Gold: " << priceOfBuilding[4].gold;
             gameText.addNewMessage(errortext.str(), 1);
         }
         break;
@@ -251,6 +270,7 @@ void button::drawButton()
     case 3:
         xOffSet = 192;
         yOffset = 0;
+        break;
     case 4: //Mill
         xOffSet = 0;
         yOffset = 192;

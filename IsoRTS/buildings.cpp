@@ -364,6 +364,13 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
         currentGame.spriteBuildingLumberCamp.setPosition(worldSpace(i, j, true), worldSpace(i, j, false));
         currentGame.spriteBuildingLumberCamp.setColor(sf::Color(255, 255, 255, transparant));
         window.draw(currentGame.spriteBuildingLumberCamp);
+        break;
+    case 4:
+        currentGame.spriteBuildingBarracks.setTextureRect(sf::IntRect(0, currentGame.spriteBuildingBarracks.getTextureRect().height * offsetY, currentGame.spriteBuildingBarracks.getTextureRect().width, currentGame.spriteBuildingBarracks.getTextureRect().height));
+        currentGame.spriteBuildingBarracks.setPosition(worldSpace(i, j, true), worldSpace(i, j, false));
+        currentGame.spriteBuildingBarracks.setColor(sf::Color(255, 255, 255, transparant));
+        window.draw(currentGame.spriteBuildingBarracks);
+        break;
     }
     //Redraw possible overdrawn sprites
     if(!typeOverride)

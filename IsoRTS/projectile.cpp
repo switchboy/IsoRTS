@@ -4,7 +4,13 @@
 #include "buildings.h"
 #include <math.h>
 
+float PI = acos(-1); 
 std::vector<projectile> listOfProjectiles;
+
+
+float radiansToDegree(float radians) {
+	return radians * (180.0 / PI);
+}
 
 float giveAnngleOfSpriteInDGR(float screenVelocityX, float screenVelocityY)
 {
@@ -13,10 +19,10 @@ float giveAnngleOfSpriteInDGR(float screenVelocityX, float screenVelocityY)
 	if (screenVelocityX == 0.0f && screenVelocityY == 0.0f) { return 0.0f; }
 	if (screenVelocityY == 0.0f && screenVelocityX > 0.0f) { return 90.0f; }
 	if (screenVelocityY == 0.0f && screenVelocityX < 0.0f) { return 270.0f; }
-	if (screenVelocityX < 0.0f && screenVelocityY < 0.0f) { return 90 - atan(fabs(screenVelocityY) / fabs(screenVelocityX)); }
-	if (screenVelocityX > 0.0f && screenVelocityY < 0.0f) { return 360 - (90 - atan(fabs(screenVelocityY) / fabs(screenVelocityX))); }
-	if (screenVelocityX < 0.0f && screenVelocityY > 0.0f) { return 90 + atan(fabs(screenVelocityY) / fabs(screenVelocityX)); }
-	if (screenVelocityX > 0.0f && screenVelocityY > 0.0f) { return 360 - (90 + atan(fabs(screenVelocityY) / fabs(screenVelocityX))); }
+	if (screenVelocityX < 0.0f && screenVelocityY > 0.0f) { return 90 - radiansToDegree( atan(fabs(screenVelocityY) / fabs(screenVelocityX)) ); }
+	if (screenVelocityX > 0.0f && screenVelocityY > 0.0f) { return 360 - radiansToDegree( (90 - atan(fabs(screenVelocityY) / fabs(screenVelocityX))) ); }
+	if (screenVelocityX < 0.0f && screenVelocityY < 0.0f) { return 90 + radiansToDegree( atan(fabs(screenVelocityY) / fabs(screenVelocityX)) ); }
+	if (screenVelocityX > 0.0f && screenVelocityY < 0.0f) { return 360 - radiansToDegree( (90 + atan(fabs(screenVelocityY) / fabs(screenVelocityX))) ); }
 }
 
 projectile::projectile(int projectileStartX, int projectileStartY, int projectileTargetX, int projectileTargetY, int projectileType, int damageOnImpact, int splashDamageOnImpact)

@@ -96,7 +96,7 @@ void button::showToolTip()
     case 8:
         toolTipTitle << "Build Barracks";
         toolTipText << "Cost: Food: " << priceOfBuilding[4].food << " Wood: " << priceOfBuilding[4].wood << " Stone: " << priceOfBuilding[4].stone << " Gold: " << priceOfBuilding[4].gold;
-        toolTipDiscription << "Collection point for wood and research new wood chopping abilities";
+        toolTipDiscription << "Train and research melee soldiers and combat abilities";
         break;
     }
 
@@ -278,6 +278,10 @@ void button::drawButton()
     case 5: //Lumber Camp
         xOffSet = 0;
         yOffset = 128;
+        break;
+    case 6: //barracks
+        xOffSet = 0;
+        yOffset = 256;
         break;
     }
     currentGame.spriteUIButton.setTextureRect(sf::IntRect(xOffSet, yOffset, 64, 64));

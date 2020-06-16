@@ -1720,6 +1720,9 @@ void createVillagerButtons(int& startX, int& startY, int& incrementalXOffset, bo
         startX += incrementalXOffset;
         button newButton3 = { startX, startY, 5, 7, 0, static_cast<int>(listOfButtons.size()),0 };
         listOfButtons.push_back(newButton3);
+        startX += incrementalXOffset;
+        button newButton4 = { startX, startY, 6, 8, 0, static_cast<int>(listOfButtons.size()),0 };
+        listOfButtons.push_back(newButton4);
         villagerButtonsAreThere = true;
     }
 }

@@ -302,6 +302,32 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: house.png \n" << std::endl;
     }
+
+
+    if (textureBuildingMill.loadFromFile("textures/mill.png"))
+    {
+        spriteBuildingMill.setTexture(textureBuildingMill);
+        spriteBuildingMill.setTextureRect(sf::IntRect(0, 0, 192, 192));
+        spriteBuildingMill.setOrigin(64, 160);
+    }
+    else
+    {
+        std::cout << "Error loading texture: mill.png \n" << std::endl;
+    }
+
+
+    if (textureBuildingLumberCamp.loadFromFile("textures/lumbercamp.png"))
+    {
+        spriteBuildingLumberCamp.setTexture(textureBuildingLumberCamp);
+        spriteBuildingLumberCamp.setTextureRect(sf::IntRect(0, 0, 192, 192));
+        spriteBuildingLumberCamp.setOrigin(64, 160);
+    }
+    else
+    {
+        std::cout << "Error loading texture: lumbercamp.png \n" << std::endl;
+    }
+
+
     if(texturePineTreeTile.loadFromFile("textures/pineTree.png"))
     {
         spritePineTreeTile.setTexture(texturePineTreeTile);
@@ -999,7 +1025,7 @@ void gameState::clickToBuildOrRepairBuilding()
 void gameState::changeBuildingType()
 {
     this->buildingTypeSelected += 1;
-    if (this->buildingTypeSelected > 1)
+    if (this->buildingTypeSelected > 4)
     {
         this->buildingTypeSelected = 0;
     }
@@ -1677,6 +1703,12 @@ void createVillagerButtons(int& startX, int& startY, int& incrementalXOffset, bo
         startX += incrementalXOffset;
         button newButton1 = { startX, startY, 1, 1, 0, static_cast<int>(listOfButtons.size()),0 };
         listOfButtons.push_back(newButton1);
+        startX += incrementalXOffset;
+        button newButton2 = { startX, startY, 4, 6, 0, static_cast<int>(listOfButtons.size()),0 };
+        listOfButtons.push_back(newButton2);
+        startX += incrementalXOffset;
+        button newButton3 = { startX, startY, 5, 7, 0, static_cast<int>(listOfButtons.size()),0 };
+        listOfButtons.push_back(newButton3);
         villagerButtonsAreThere = true;
     }
 }
@@ -1794,6 +1826,16 @@ int getBuildingSpriteOffset(int& buildingId)
     case 1:
         return  0;
         break;
+    case 2:
+        return  384;
+        break;
+    case 3:
+        return  256;
+        break;
+    case 4:
+        return  512;
+        break;
+
     }
     return -1;
 }
@@ -2177,10 +2219,21 @@ void gameState::loadMap()
 void gameState::loadBuildings()
 {
     //food, wood, stone, gold
-    footprintOfBuildings.push_back({2,2});//house 0
+    //house 0
+    footprintOfBuildings.push_back({2,2});
     priceOfBuilding.push_back({0,25,0,0});
-    footprintOfBuildings.push_back({4,4});//towncenter 1
+    //towncenter 1
+    footprintOfBuildings.push_back({4,4});
     priceOfBuilding.push_back({0,300,100,0});
+    //mill 2
+    footprintOfBuildings.push_back({ 3,3 });
+    priceOfBuilding.push_back({ 0,100,0,0 });
+    //Lumbercamp 3
+    footprintOfBuildings.push_back({ 3,3 });
+    priceOfBuilding.push_back({ 0,100,0,0 });
+    //barracks 4
+    footprintOfBuildings.push_back({ 3,3 });
+    priceOfBuilding.push_back({ 0,175,0,0 });
 }
 
 void loadActors()

@@ -145,6 +145,7 @@ buildings::buildings(int type, int startXlocation, int startYLocation, int build
     this->buildingCompleted = false;
     this->exists = true;
     this->lastShotFired = 0.0f;
+    this->lastFrameUpdate = currentGame.getTime();
     currentGame.buildingLocationList[startXlocation][startYLocation] = buildingId;
     for(int i = 0; i < footprintOfBuildings[type].amountOfXFootprint; i++)
     {
@@ -157,10 +158,12 @@ buildings::buildings(int type, int startXlocation, int startYLocation, int build
     switch(type)
     {
     case 0:
+        //house
         hitPointsTotal = 450;
         hitPointsLeft = 450;
         canDoRangedDamage = false;
         amountOfRangedDamage = 0;
+        range = 0;
         recievesWood = false;
         recievesStone= false;
         recievesGold = false;
@@ -168,10 +171,11 @@ buildings::buildings(int type, int startXlocation, int startYLocation, int build
         buildingPointsNeeded = 25;
         buildingPointsRecieved = 0;
         supportsPopulationOf = 5;
-        this->offSetYStore = 0;
+        this->offSetYStore = 1;
         this->amountOfAnimationSprites = 0;
         break;
     case 1:
+        //towncenter
         hitPointsTotal = 5000;
         hitPointsLeft = 5000;
         canDoRangedDamage = true;
@@ -184,7 +188,58 @@ buildings::buildings(int type, int startXlocation, int startYLocation, int build
         buildingPointsNeeded = 150;
         buildingPointsRecieved = 0;
         supportsPopulationOf = 5;
-        this->offSetYStore = 0;
+        this->offSetYStore = 1;
+        this->amountOfAnimationSprites = 0;
+        break;
+    case 2:
+        //Mill
+        hitPointsTotal = 350;
+        hitPointsLeft = 350;
+        canDoRangedDamage = false;
+        amountOfRangedDamage = 0;
+        range = 0;
+        recievesWood = false;
+        recievesStone = false;
+        recievesGold = false;
+        recievesFood = true;
+        buildingPointsNeeded = 25;
+        buildingPointsRecieved = 0;
+        supportsPopulationOf = 0;
+        this->offSetYStore = 1;
+        this->amountOfAnimationSprites = 8;
+        break;
+    case 3:
+        //Lumbercamp
+        hitPointsTotal = 250;
+        hitPointsLeft = 250;
+        canDoRangedDamage = false;
+        amountOfRangedDamage = 0;
+        range = 0;
+        recievesWood = true;
+        recievesStone = false;
+        recievesGold = false;
+        recievesFood = false;
+        buildingPointsNeeded = 25;
+        buildingPointsRecieved = 0;
+        supportsPopulationOf = 0;
+        this->offSetYStore = 1;
+        this->amountOfAnimationSprites = 8;
+        break;
+    case 4:
+        //Barracks
+        hitPointsTotal = 500;
+        hitPointsLeft = 500;
+        canDoRangedDamage = false;
+        amountOfRangedDamage = 0;
+        range = 0;
+        recievesWood = false;
+        recievesStone = false;
+        recievesGold = false;
+        recievesFood = false;
+        buildingPointsNeeded = 50;
+        buildingPointsRecieved = 0;
+        supportsPopulationOf = 0;
+        this->offSetYStore = 1;
         this->amountOfAnimationSprites = 0;
         break;
     }
@@ -262,7 +317,11 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
             if(this->amountOfAnimationSprites > 0)
             {
                 offsetY = this->offSetYStore;
-                if(offsetY > amountOfAnimationSprites+1)
+                if (this->lastFrameUpdate + 0.2 < currentGame.getTime()) {
+                    this->lastFrameUpdate = currentGame.getTime();
+                    offsetY++;
+                }
+                if(offsetY > amountOfAnimationSprites)
                 {
                     offsetY = 1;
                 }
@@ -294,6 +353,17 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
         currentGame.spriteTownCenter.setColor(sf::Color(255, 255, 255, transparant));
         window.draw(currentGame.spriteTownCenter);
         break;
+    case 2:
+        currentGame.spriteBuildingMill.setTextureRect(sf::IntRect(0, currentGame.spriteBuildingMill.getTextureRect().height * offsetY, currentGame.spriteBuildingMill.getTextureRect().width, currentGame.spriteBuildingMill.getTextureRect().height));
+        currentGame.spriteBuildingMill.setPosition(worldSpace(i, j, true), worldSpace(i, j, false));
+        currentGame.spriteBuildingMill.setColor(sf::Color(255, 255, 255, transparant));
+        window.draw(currentGame.spriteBuildingMill);
+        break;
+    case 3:
+        currentGame.spriteBuildingLumberCamp.setTextureRect(sf::IntRect(0, currentGame.spriteBuildingLumberCamp.getTextureRect().height * offsetY, currentGame.spriteBuildingLumberCamp.getTextureRect().width, currentGame.spriteBuildingLumberCamp.getTextureRect().height));
+        currentGame.spriteBuildingLumberCamp.setPosition(worldSpace(i, j, true), worldSpace(i, j, false));
+        currentGame.spriteBuildingLumberCamp.setColor(sf::Color(255, 255, 255, transparant));
+        window.draw(currentGame.spriteBuildingLumberCamp);
     }
     //Redraw possible overdrawn sprites
     if(!typeOverride)
@@ -316,7 +386,16 @@ std::string buildings::getName()
         return "House";
     case 1:
         return "Town Center";
+    case 2:
+        return "Mill";
+    case 3:
+        return "Lumber Camp";
+    case 4:
+        return "Barracks";
+    default: 
+        return "Building Name Label";
     }
+
 }
 
 std::pair<int, int> buildings::getHealth()

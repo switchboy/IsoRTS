@@ -60,6 +60,7 @@ public:
     void                        claimFreeBuiildingTile(int id, int actorId);
     void                        removeActorFromBuildingTile(int actorId);
     std::list<mouseWorldCord>   getFootprintOfBuilding();
+    
 
 private:
     int                         buildingId;
@@ -89,6 +90,7 @@ private:
     bool                        hasDisplayedError;
     int                         range;
     float                       lastShotFired;
+    float                       lastFrameUpdate;
     std::vector<adjacentTile>   adjacentTiles;
 };
 

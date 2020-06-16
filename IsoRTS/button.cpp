@@ -83,6 +83,16 @@ void button::showToolTip()
         toolTipText << "Cancels research or unit production";
         toolTipDiscription << "Production ceases and half of the invested resources are returned.";
         break;
+    case 6:
+        toolTipTitle << "Build Mill";
+        toolTipText << "Cost: Food: " << priceOfBuilding[2].food << " Wood: " << priceOfBuilding[2].wood << " Stone: " << priceOfBuilding[2].stone << " Gold: " << priceOfBuilding[2].gold;
+        toolTipDiscription << "Collection point for food, build farms and research facility for food";
+        break;
+    case 7:
+        toolTipTitle << "Build Lumber Camp";
+        toolTipText << "Cost: Food: " << priceOfBuilding[3].food << " Wood: " << priceOfBuilding[3].wood << " Stone: " << priceOfBuilding[3].stone << " Gold: " << priceOfBuilding[3].gold;
+        toolTipDiscription << "Collection point for wood and research new wood chopping abilities";
+        break;
     }
 
     int longestStringLength = 0;
@@ -187,7 +197,36 @@ void button::performAction()
     case 5:
         //cancel production or research
         break;
+
+    case 6:
+        if (priceOfBuilding[2].food <= currentPlayer.getStats().amountOfFood && priceOfBuilding[2].wood <= currentPlayer.getStats().amountOfWood && priceOfBuilding[2].stone <= currentPlayer.getStats().amountOfStone && priceOfBuilding[2].gold <= currentPlayer.getStats().amountOfGold)
+        {
+            currentGame.setBuildingType(2);
+            currentGame.setIsPlacingBuilding();
+        }
+        else
+        {
+            std::stringstream errortext;
+            errortext << "Not enough resources to build a Mill! Cost Food: " << priceOfBuilding[2].food << " Wood: " << priceOfBuilding[2].wood << " Stone: " << priceOfBuilding[2].stone << " Gold: " << priceOfBuilding[2].gold;
+            gameText.addNewMessage(errortext.str(), 1);
+        }
+        break;
+
+    case 7:
+        if (priceOfBuilding[3].food <= currentPlayer.getStats().amountOfFood && priceOfBuilding[3].wood <= currentPlayer.getStats().amountOfWood && priceOfBuilding[3].stone <= currentPlayer.getStats().amountOfStone && priceOfBuilding[3].gold <= currentPlayer.getStats().amountOfGold)
+        {
+            currentGame.setBuildingType(3);
+            currentGame.setIsPlacingBuilding();
+        }
+        else
+        {
+            std::stringstream errortext;
+            errortext << "Not enough resources to build a Mill! Cost Food: " << priceOfBuilding[3].food << " Wood: " << priceOfBuilding[3].wood << " Stone: " << priceOfBuilding[3].stone << " Gold: " << priceOfBuilding[3].gold;
+            gameText.addNewMessage(errortext.str(), 1);
+        }
+        break;
     }
+
 }
 
 
@@ -197,11 +236,11 @@ void button::drawButton()
     int yOffset = 0;
     switch(this->spriteId)
     {
-    case 0:
+    case 0:// town center
         xOffSet = 0;
         yOffset = 0;
         break;
-    case 1:
+    case 1:// house
         xOffSet = 0;
         yOffset = 64;
         break;
@@ -212,7 +251,14 @@ void button::drawButton()
     case 3:
         xOffSet = 192;
         yOffset = 0;
-
+    case 4: //Mill
+        xOffSet = 0;
+        yOffset = 192;
+        break;
+    case 5: //Lumber Camp
+        xOffSet = 0;
+        yOffset = 128;
+        break;
     }
     currentGame.spriteUIButton.setTextureRect(sf::IntRect(xOffSet, yOffset, 64, 64));
     currentGame.spriteUIButton.setPosition(this->positionX, this->positionY);

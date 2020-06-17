@@ -152,16 +152,28 @@ actors::actors(int type, int actorX, int actorY, int actorTeam, int actorId)
     this->actorCords[1] = actorY;
     switch(type)
     {
-    case 0:
-        this->actorHealth = 300;
-        this->hitPoints = 300;
-        this->meleeDamage = 10;
-        this->range = 4;
-        this->rangedDamage = 4;
+    case 0://villager
+        this->actorHealth = 25;
+        this->hitPoints = 25;
+        this->meleeDamage = 9;
+        this->range = 0;
+        this->rangedDamage = 0;
         this->timeBetweenShots = 2.0f;
         this->splashDamage = 0;
         this->projectileType = 0;
-        this->doesRangedDamage = true;
+        this->doesRangedDamage = false;
+        break;
+    case 1://swordsman
+        this->actorHealth = 60;
+        this->hitPoints = 60;
+        this->meleeDamage = 12;
+        this->range = 0;
+        this->rangedDamage = 0;
+        this->timeBetweenShots = 2.0f;
+        this->splashDamage = 0;
+        this->projectileType = 0;
+        this->doesRangedDamage = false;
+        break;
     }
     this->actorAlive = true;
     this->actorGoal[0] = actorX;
@@ -459,6 +471,9 @@ std::string actors::nameOfActor()
     {
     case 0:
         return  "Villager";
+        break;
+    case 1:
+        return "Swordsman";
         break;
     }
 }
@@ -1776,10 +1791,20 @@ void actors:: drawActor()
         window.draw(currentGame.spriteUnitSelectedTile);
     }
 
+    switch (this->actorType) 
+    {
+    case 0:
+        currentGame.spriteVillager.setPosition(xPosition, yPosition);
+        currentGame.spriteVillager.setTextureRect(sf::IntRect(spriteXoffset, spriteYoffset, 16, 32));
+        window.draw(currentGame.spriteVillager);
+        break;
+    case 1:
+        currentGame.spriteSwordsman.setPosition(xPosition, yPosition);
+        currentGame.spriteSwordsman.setTextureRect(sf::IntRect(spriteXoffset, spriteYoffset, 16, 32));
+        window.draw(currentGame.spriteSwordsman);
+    }
 
-    currentGame.spriteVillager.setPosition(xPosition, yPosition);
-    currentGame.spriteVillager.setTextureRect(sf::IntRect(spriteXoffset,spriteYoffset,16,32));
-    window.draw(currentGame.spriteVillager);
+
 }
 
 void actors::buildBuilding()

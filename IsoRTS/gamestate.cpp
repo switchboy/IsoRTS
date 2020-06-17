@@ -521,6 +521,8 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: cheatTile.png \n" << std::endl;
     }
+
+    //actors
     if(this->textureVillager.loadFromFile("textures/testVillagerSprite.png"))
     {
         this->spriteVillager.setTexture(textureVillager);
@@ -530,7 +532,18 @@ void gameState::loadTextures()
     }
     else
     {
-        std::cout << "Error loading texture: cheatTile.png \n" << std::endl;
+        std::cout << "Error loading texture: testVillagerSprite.png \n" << std::endl;
+    }
+    if (this->textureSwordsman.loadFromFile("textures/swordsman.png"))
+    {
+        this->spriteSwordsman.setTexture(textureSwordsman);
+        this->spriteSwordsman.setTextureRect(sf::IntRect(0, 0, 16, 32));
+        this->spriteSwordsman.setOrigin(-24, 12);
+
+    }
+    else
+    {
+        std::cout << "Error loading texture: swordsman.png \n" << std::endl;
     }
 }
 
@@ -1735,6 +1748,10 @@ void addActorSelectorButton(int& actorId, int& startDeck, int& tempY, int& start
     {
     case 0:
         buttonType = 2;
+        break;
+    case 1:
+        buttonType = 7;
+        break;
     }
     button newButton = { startDeck, tempY, buttonType, 2, actorId, static_cast<int>(listOfButtons.size()),0 };
     listOfButtons.push_back(newButton);
@@ -1817,15 +1834,14 @@ void gameState::drawActorToolbar(int &startX, int &startY, int &incrementalXOffs
         {
             createVillagerButtons(startX, startY, incrementalXOffset, villagerButtonsAreThere);
         }
-        if (i == 0)
-        {
-            drawActorBigSprite(this->selectedUnits[i]);
-            drawActorTitle(this->selectedUnits[i], textStartX, textStartY);
-            drawActorStats(this->selectedUnits[i], textStartX, textStartY);
-        }
         if (this->selectedUnits.size() > 1)
         {
             addActorSelectorButton(this->selectedUnits[i], startDeck, tempY, startY, incrementalYOffset, offSetTonextCard);
+        }
+        else if (i == 0) {
+            drawActorBigSprite(this->selectedUnits[i]);
+            drawActorTitle(this->selectedUnits[i], textStartX, textStartY);
+            drawActorStats(this->selectedUnits[i], textStartX, textStartY);
         }
     }
 }
@@ -1866,6 +1882,21 @@ void createBuildingButtons(int& buildingId, int& startX, int& startY)
         {
             button makeVillager = { startX, startY, 2, 3, buildingId, static_cast<int>(listOfButtons.size()),0 };
             listOfButtons.push_back(makeVillager);
+            //research will also go here
+        }
+        break;
+    case 2:
+        //mill
+        break;
+    case 3:
+        //lumbercamp
+        break;
+    case 4:
+        //Barracks
+        if (listOfBuildings[buildingId].getCompleted())
+        {
+            button makeSwordsman = { startX, startY, 7, 9, buildingId, static_cast<int>(listOfButtons.size()),0 };
+            listOfButtons.push_back(makeSwordsman);
             //research will also go here
         }
         break;
@@ -1951,6 +1982,8 @@ std::string getBuildingIsProducingName(int& buildingId)
         {
         case 0:
             return "Villager";
+        case 1:
+            return "Swordsman";
         }
     }
 }
@@ -1971,6 +2004,8 @@ rectangleCord getSpriteOffSetTask(int& buildingId)
         {
         case 0:
             return { 64, 0 };
+        case 1:
+            return { 64, 64 };
         }
     }
 }
@@ -2115,14 +2150,14 @@ void gameState::drawToolbar()
     int incrementalXOffset = 64+(mainWindowWidth/160);
     int incrementalYOffset = 64+(mainWindowHeigth/90);
     int spriteYOffset;
-    int cardDeckSize = mainWindowWidth/2.62;
+    int cardDeckSize = mainWindowWidth / 1.82;
     int amountOfCardsPerRow = (this->selectedUnits.size()+1)/2;
     int requiredSize = amountOfCardsPerRow*64;
     int devider = (this->selectedUnits.size()+1)/2;
     if(devider == 0) devider = 1;
     int spaceBetweenCards = (cardDeckSize - requiredSize)/devider;
     int offSetTonextCard = 64 + spaceBetweenCards;
-    int startDeck = mainWindowWidth/2.48;
+    int startDeck = mainWindowWidth / 4.2;
 
     if(!this->selectedUnits.empty())
     {
@@ -2253,7 +2288,8 @@ void gameState::loadBuildings()
 void loadActors()
 {
     //food, wood, stone, gold
-    priceOfActor.push_back({50,0,0,0}); //villager 0
+    priceOfActor.push_back({ 50,0,0,0 });   //villager    0
+    priceOfActor.push_back({ 60,0,0,20 });  //Swordsman   1
 }
 
 void gameState::loadFonts()

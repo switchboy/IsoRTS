@@ -98,6 +98,11 @@ void button::showToolTip()
         toolTipText << "Cost: Food: " << priceOfBuilding[4].food << " Wood: " << priceOfBuilding[4].wood << " Stone: " << priceOfBuilding[4].stone << " Gold: " << priceOfBuilding[4].gold;
         toolTipDiscription << "Train and research melee soldiers and combat abilities";
         break;
+    case 9:
+        toolTipTitle << "Create Swordsman";
+        toolTipText << "Cost: Food: " << priceOfActor[1].food << " Wood: " << priceOfActor[1].wood << " Stone: " << priceOfActor[1].stone << " Gold: " << priceOfActor[1].gold;
+        toolTipDiscription << "Train a basic melee sword wielding soldier";
+        break;
     }
 
     int longestStringLength = 0;
@@ -244,8 +249,20 @@ void button::performAction()
             gameText.addNewMessage(errortext.str(), 1);
         }
         break;
+    case 9:
+        //create a swordman
+        if (priceOfActor[1].food <= currentPlayer.getStats().amountOfFood && priceOfActor[1].wood <= currentPlayer.getStats().amountOfWood && priceOfActor[1].stone <= currentPlayer.getStats().amountOfStone && priceOfActor[1].gold <= currentPlayer.getStats().amountOfGold)
+        {
+            listOfBuildings[this->actorOrBuildingId].getTask(false, 1, 25);
+        }
+        else
+        {
+            std::stringstream errortext;
+            errortext << "Not enough resources to produce a Swordsman! Cost Food: " << priceOfActor[1].food << " Wood: " << priceOfActor[1].wood << " Stone: " << priceOfActor[1].stone << " Gold: " << priceOfActor[1].gold;
+            gameText.addNewMessage(errortext.str(), 1);
+        }
+        break;
     }
-
 }
 
 
@@ -263,7 +280,7 @@ void button::drawButton()
         xOffSet = 0;
         yOffset = 64;
         break;
-    case 2:
+    case 2://villager
         xOffSet = 64;
         yOffset = 0;
         break;
@@ -282,6 +299,10 @@ void button::drawButton()
     case 6: //barracks
         xOffSet = 0;
         yOffset = 256;
+        break;
+    case 7: //Swordsman
+        xOffSet = 64;
+        yOffset = 64;
         break;
     }
     currentGame.spriteUIButton.setTextureRect(sf::IntRect(xOffSet, yOffset, 64, 64));

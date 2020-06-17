@@ -7,8 +7,8 @@ player::player()
 {
     this->team;
     this->amountOfWood = 300;
-    this->amountOfFood = 0;
-    this->amountOfGold = 0;
+    this->amountOfFood = 100;
+    this->amountOfGold = 100;
     this->amountOfStone = 100;
     this->currentPopulation = 0;
     this->populationRoom = 0;

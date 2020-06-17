@@ -580,14 +580,9 @@ void buildings::spawnProduce()
     listOfActorsMutex.lock();
     if (currentPlayer.getStats().currentPopulation < currentPlayer.getStats().populationRoom)
     {
-        switch (this->productionQueue.front().idOfUnitOrResearch)
-        {
-        case 0:
-            actors newActor(0, spawmCords.x, spawmCords.y, this->ownedByPlayer, listOfActors.size());
-            listOfActors.push_back(newActor);
-            gameText.addNewMessage("- Villager completed! -", 0);
-            break;
-        }
+        actors newActor(this->productionQueue.front().idOfUnitOrResearch, spawmCords.x, spawmCords.y, this->ownedByPlayer, listOfActors.size());
+        listOfActors.push_back(newActor);
+        gameText.addNewMessage("-  " + newActor.nameOfActor() + " completed! -", 0);
         this->productionQueue.erase(productionQueue.begin());
     }
     else

@@ -40,21 +40,26 @@ void routeHelper(int i)
 
 void updateActorsWorker()
 {
-    if(!listOfActors.empty())
+    while (window.isOpen())
     {
-        for(int i = 0; i < listOfActors.size(); i++)
+        if (!listOfActors.empty())
         {
-            std::async(std::launch::async, updateActorHelper, i);
+            for (int i = 0; i < listOfActors.size(); i++)
+            {
+                std::async(std::launch::async, updateActorHelper, i);
+            }
         }
     }
 }
 void updateBuildingsWorker()
 {
-    if(!listOfBuildings.empty())
-    {
-        for(int i = 0; i < listOfBuildings.size(); i++)
+    while (window.isOpen()) {
+        if (!listOfBuildings.empty())
         {
-            std::async(std::launch::async, updateBuildingsHelper, i);
+            for (int i = 0; i < listOfBuildings.size(); i++)
+            {
+                std::async(std::launch::async, updateBuildingsHelper, i);
+            }
         }
     }
 }
@@ -73,18 +78,27 @@ void calculateRoutesWorker()
     }
 }
 
+void projectileHelper(int i) {
+    listOfProjectiles[i].updatePosition();
+}
+
 void updateProjectiles()
 {
-    //update porjectile positions
-    for (int i = 0; i < listOfProjectiles.size(); i++) {
-        listOfProjectiles[i].updatePosition();
-    }
+    while (window.isOpen())
+    {
+        if (!listOfProjectiles.empty()) {
+            //update porjectile positions
+            for (int i = 0; i < listOfProjectiles.size(); i++) {
+                std::async(std::launch::async, projectileHelper, i);
+            }
 
-    //Erase old projectiles (older then 30 sec)
-    auto iter = std::find_if(listOfProjectiles.begin(), listOfProjectiles.end(),
-        [&](projectile& p) {return p.getTimeLastUpdate()+30.0f < currentGame.getTime(); });
-    if (iter != listOfProjectiles.end())
-        listOfProjectiles.erase(iter);
+            //Erase old projectiles (older then 30 sec)
+            auto iter = std::find_if(listOfProjectiles.begin(), listOfProjectiles.end(),
+                [&](projectile& p) {return p.getTimeLastUpdate() + 30.0f < currentGame.getTime(); });
+            if (iter != listOfProjectiles.end())
+                listOfProjectiles.erase(iter);
+        }
+    }
 }
 
 void clearOldCommandCursors()
@@ -100,19 +114,22 @@ int main()
     sf::Clock clockMain;
     currentGame.loadGame();
     std::thread updateRoutesThread(calculateRoutesWorker);
+    std::thread updateActorsThread(updateActorsWorker);
+    std::thread updateArrowsThread(updateProjectiles);
+    std::thread updateBuildingsThread(updateBuildingsWorker);
     while(window.isOpen())
     {
         sf::Time elapsedMain = clockMain.getElapsedTime();
         currentGame.elapsedTime = elapsedMain.asSeconds();
         gameText.throwOutOldMessages();
         clearOldCommandCursors();
-        updateActorsWorker();
-        updateBuildingsWorker();
-        updateProjectiles();
         currentGame.interact();
         currentGame.drawGame();
     }
+    updateActorsThread.join();
     updateRoutesThread.join();
+    updateArrowsThread.join();
+    updateBuildingsThread.join();
     return 0;
 }
 

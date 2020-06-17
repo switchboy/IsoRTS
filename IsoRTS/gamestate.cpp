@@ -1791,6 +1791,8 @@ int getActorSpriteOffSet(int& actorId)
     {
     case 0:
         return  0;
+    case 1:
+        return 128;
     }
     return -1;
 }
@@ -2029,6 +2031,29 @@ rectangleCord getSpriteOffSetTask(int& buildingId)
     }
 }
 
+int getCardForButtonByTask(int& buildingId, int& taskId)
+{
+    if (listOfBuildings[buildingId].productionQueue[taskId].isResearch)
+    {
+        switch (listOfBuildings[buildingId].productionQueue[taskId].idOfUnitOrResearch)
+        {
+        case 0:
+            return 0;
+            break;
+        }
+    }
+    else
+    {
+        switch (listOfBuildings[buildingId].productionQueue[taskId].idOfUnitOrResearch)
+        {
+        case 0:
+            return 2;
+        case 1:
+            return 7;
+        }
+    }
+}
+
 void gameState::drawBuildingTaskToolbar(int& startDeck, int& startY)
 {
     int iconStartX = startDeck + (mainWindowWidth / 30);
@@ -2054,7 +2079,7 @@ void gameState::drawBuildingTaskToolbar(int& startDeck, int& startY)
         tempYOffset = iconStartY + (mainWindowHeigth / 22.97);
         for (int i = 1; i < listOfBuildings[this->buildingSelectedId].productionQueue.size(); i++)
         {
-            button tempButton = { tempXOffset, tempYOffset, 2, 5, this->buildingSelectedId, (int)listOfButtons.size(), i };
+            button tempButton = { tempXOffset, tempYOffset, getCardForButtonByTask(this->buildingSelectedId, i), 5, this->buildingSelectedId, (int)listOfButtons.size(), i };
             listOfButtons.push_back(tempButton);
             tempXOffset += 64 + (mainWindowWidth / 160);
         }
@@ -2177,6 +2202,7 @@ void gameState::drawToolbar()
     int spaceBetweenCards = (cardDeckSize - requiredSize)/devider;
     int offSetTonextCard = 64 + spaceBetweenCards;
     int startDeck = mainWindowWidth / 4.2;
+    int startProgress = mainWindowWidth / 2.48;
 
     if(!this->selectedUnits.empty())
     {
@@ -2184,11 +2210,11 @@ void gameState::drawToolbar()
     }
     else if(this->buildingSelectedId != -1)
     {
-        drawBuildingToolbar(startX, startY, incrementalXOffset, spriteYOffset, startDeck, tempY, incrementalYOffset, offSetTonextCard);
+        drawBuildingToolbar(startX, startY, incrementalXOffset, spriteYOffset, startProgress, tempY, incrementalYOffset, offSetTonextCard);
     }
     else if(this->objectSelectedId != -1)
     {
-        drawObjectToolbar(startX, startY, incrementalXOffset, spriteYOffset, startDeck, tempY, incrementalYOffset, offSetTonextCard);
+        drawObjectToolbar(startX, startY, incrementalXOffset, spriteYOffset, startProgress, tempY, incrementalYOffset, offSetTonextCard);
     }
 
     drawButtons();

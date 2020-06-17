@@ -635,7 +635,6 @@ void actors::moveActorIfWalking()
 
         currentGame.occupiedByActorList[this->actorCords[0]][this->actorCords[1]] = -1;
         this->movedMoreThanHalf = true;
-
     }
 }
 
@@ -674,7 +673,7 @@ void actors::startWalking()
 }
 
 void actors::retryWalkingOrChangeGoal() {
-    if (this->retries < 10)
+    if (this->retries < 100)
     {
         if (currentGame.elapsedTime - this->timeLastAttempt > 1)
         {
@@ -720,6 +719,8 @@ void actors::retryWalkingOrChangeGoal() {
     else 
     {
         this->clearRoute();
+        this->isGatheringRecources = false;
+        this->isBuilding = false;
     }
 }
 

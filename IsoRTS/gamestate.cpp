@@ -12,6 +12,7 @@
 #include "buildings.h"
 #include "randomMapGenerator.h"
 #include "projectile.h"
+#include "orderCursor.h"
 
 sf::RenderTexture minimapBuildingsTexture;
 sf::RenderTexture minimapActorsTexture;
@@ -284,6 +285,18 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: berrybush.png \n" << std::endl;
     }
+
+    if (textureCommandCursor.loadFromFile("textures/giveOrder.png"))
+    {
+        spriteCommandCursor.setTexture(textureCommandCursor);
+        spriteCommandCursor.setTextureRect(sf::IntRect(0, 0, 16, 16));
+        spriteCommandCursor.setOrigin(8, 8);
+    }
+    else
+    {
+        std::cout << "Error loading texture: giveOrder.png \n" << std::endl;
+    }
+
     if(textureTileObstructed.loadFromFile("textures/tileObstructed.png"))
     {
         spriteTileObstructed.setTexture(textureTileObstructed);
@@ -1122,7 +1135,13 @@ void gameState::clickToGiveCommand()
             clickToAttack();
         }
     }
+
+    orderCursor newOrderCursor(this->mousePosition);
+    listOfOrderCursors.push_back(newOrderCursor);
+
 }
+
+
 
 void gameState::mouseRightClick()
 {
@@ -2221,6 +2240,14 @@ void drawProjectiles()
     }
 }
 
+void drawCommandCursors()
+{
+    for (int i = 0; i < listOfOrderCursors.size(); i++)
+    {
+        listOfOrderCursors[i].drawCursor();
+    }
+}
+
 void gameState::drawGame()
 {
     window.clear(sf::Color(0, 0, 0));
@@ -2235,6 +2262,7 @@ void gameState::drawGame()
     drawToolbar();
     drawMiniMap();
     drawMouseInteraction();
+    drawCommandCursors();
     window.setView(totalView);
     gameText.drawMessages();
     drawToolTip();

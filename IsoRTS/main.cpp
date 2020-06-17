@@ -10,6 +10,7 @@
 #include <mutex>
 #include "gametext.h"
 #include "projectile.h"
+#include "orderCursor.h"
 
 gameState currentGame;
 
@@ -86,6 +87,14 @@ void updateProjectiles()
         listOfProjectiles.erase(iter);
 }
 
+void clearOldCommandCursors()
+{
+    auto iter = std::find_if(listOfOrderCursors.begin(), listOfOrderCursors.end(),
+        [&](orderCursor& p) {return p.isFinished(); });
+    if (iter != listOfOrderCursors.end())
+        listOfOrderCursors.erase(iter);
+}
+
 int main()
 {
     sf::Clock clockMain;
@@ -96,6 +105,7 @@ int main()
         sf::Time elapsedMain = clockMain.getElapsedTime();
         currentGame.elapsedTime = elapsedMain.asSeconds();
         gameText.throwOutOldMessages();
+        clearOldCommandCursors();
         updateActorsWorker();
         updateBuildingsWorker();
         updateProjectiles();

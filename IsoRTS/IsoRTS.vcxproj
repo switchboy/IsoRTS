@@ -27,6 +27,7 @@
     <ClInclude Include="globalfunctions.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="objects.h" />
+    <ClInclude Include="orderCursor.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="projectile.h" />
     <ClInclude Include="randomMapGenerator.h" />
@@ -41,6 +42,7 @@
     <ClCompile Include="globalfunctions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="objects.cpp" />
+    <ClCompile Include="orderCursor.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="projectile.cpp" />
     <ClCompile Include="randomMapGenerator.cpp" />

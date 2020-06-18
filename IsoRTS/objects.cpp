@@ -55,7 +55,7 @@ objects::objects(int type, int startXlocation, int startYLocation, int objectId)
 void objects::substractResource()
 {
     this->resourceLeft -= 1;
-    if(resourceLeft < 0)
+    if(resourceLeft <= 0)
     {
         currentGame.objectLocationList[this->locationX][this->locationY] = -1;
     }

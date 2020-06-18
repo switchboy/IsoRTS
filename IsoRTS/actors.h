@@ -68,7 +68,8 @@ public:
     void setGatheringRecource(bool flag);
     void setIsBuildingTrue(int buildingId);
     bool canTargetBeReached();
-    nearestBuildingTile findNearestDropOffPoint(int Resource);
+    void findNearestDropOffPoint();
+    void findNearestSimilairResource();
     void pathAStar();
     void pathAStarBiDi();
     bool isInitialized();
@@ -77,7 +78,6 @@ public:
     int getType();
     int getActorId();
     std::pair<int, int> getHealth();
-    bool findNearestSimilairResource();
     void walkBackToOwnSquare();
     void startGatheringAnimation();
     void animateWalkingToResource();
@@ -127,6 +127,7 @@ private:
     bool hasMoved;
     bool isMeleeAttacking;
     bool isRangedAttacking;
+    bool isFindingAlternative;
     int actorType;
     int actorTeam;
     int actorHealth;
@@ -139,6 +140,7 @@ private:
     int range;
     int actorCords[2];
     int actorGoal[2];
+    int actorCommandGoal[2];
     int actionPreformedOnTile[2];
     int ResourceBeingGatherd;
     int amountOfGold;
@@ -160,10 +162,11 @@ private:
     float offSetX;
     float offSetY;
     float timeBetweenShots;
+    float timeLastRetry;
     nearestBuildingTile dropOffTile;
     std::list<routeCell> route;
     std::list <nearestBuildingTile> listOfDropOffLocations;
-
+    std::list <nearestBuildingTile> listOfResourceLocations;
 };
 
 extern std::vector<actors> listOfActors;

@@ -175,6 +175,7 @@ actors::actors(int type, int actorX, int actorY, int actorTeam, int actorId)
         this->doesRangedDamage = false;
         break;
     }
+    this->timeLastRetry = 0.0f;
     this->actorAlive = true;
     this->actorGoal[0] = actorX;
     this->actorGoal[1] = actorY;
@@ -220,18 +221,49 @@ actors::~actors()
 
 void actors::update()
 {
-    if (this->initialized && this->actorAlive)
+    if (this->actorAlive)
     {
-        if (this->goalNeedsUpdate)
-        {
-            this->updateGoalPath();
+        if (!this->isFindingAlternative) {
+            if (this->goalNeedsUpdate)
+            {
+                this->updateGoalPath();
+            }
+            else if (!this->routeNeedsPath)
+            {
+                this->moveActorIfWalking();
+                this->doTaskIfNotWalking();
+            }
+            this->houseKeeping();
         }
-        else if (!this->routeNeedsPath)
-        {
-            this->moveActorIfWalking();
-            this->doTaskIfNotWalking();
+        else if (!this->routeNeedsPath) {
+            if (!this->pathFound) {
+                if (this->isBuilding) {
+                    //find alternative building spot function
+
+                }
+                else if (this->hasToUnloadResource) {
+                    //find alternative unloadingPoint
+                    this->findNearestDropOffPoint();
+                }
+                else if (this->isGatheringRecources) {
+                    //find alternative resouces
+                    this->findNearestSimilairResource();
+                }
+            }
+            else {
+                this->isFindingAlternative = false;
+                if (this->hasToUnloadResource) {
+                    this->isWalkingToUnloadingPoint = true;
+                    this->dropOffTile = listOfDropOffLocations.front();
+                }
+                else if (this->isGatheringRecources) {
+                    this->actionPreformedOnTile[0] = this->listOfResourceLocations.front().locationX;
+                    this->actionPreformedOnTile[1] = this->listOfResourceLocations.front().locationY;
+                }
+                this->listOfDropOffLocations.clear();
+                this->listOfResourceLocations.clear();
+            }
         }
-        this->houseKeeping();
     }
 }
 
@@ -489,9 +521,10 @@ void actors::updateGoal(int i, int j, int waitTime)
         }
         this->actorGoal[0] = i;
         this->actorGoal[1] = j;
+        this->actorCommandGoal[0] = i;
+        this->actorCommandGoal[1] = j;
         this->waitForAmountOfFrames = waitTime;
         this->goalNeedsUpdate = true;
-        listOfActorsWhoNeedAPath.push_back(this->actorId);
         this->busyWalking = false;
         this->pathFound = false;
         this->isAtRecource = false;
@@ -501,6 +534,7 @@ void actors::updateGoal(int i, int j, int waitTime)
         this->offSetX = 0.0f;
         this->offSetY = 0.0f;
         this->timeStartedGatheringRecource = 0.0f;
+        this->isFindingAlternative = false;
     }
 }
 
@@ -673,54 +707,29 @@ void actors::startWalking()
 }
 
 void actors::retryWalkingOrChangeGoal() {
-    if (this->retries < 100)
-    {
-        if (currentGame.elapsedTime - this->timeLastAttempt > 1)
+    if (this->timeLastRetry + 1 < currentGame.getTime()) {
+        this->timeLastRetry = currentGame.getTime();
+        if (this->retries < 30)
         {
-            //there is a problem; do nothing this frame but calculate an alternative route!
-            //this->actorGoal[0] = this->route.front().positionX;
-            //this->actorGoal[1] = this->route.front().positionY;
-            this->routeNeedsPath = true;
-            listOfActorsWhoNeedAPath.push_back(this->actorId);
-            this->retries += +1;
-            this->timeLastAttempt = currentGame.elapsedTime;
+                this->actorGoal[0] = this->actorCommandGoal[0];
+                this->actorGoal[1] = this->actorCommandGoal[1];
+                this->routeNeedsPath = true;
+                this->pathFound = false;
+                listOfActorsWhoNeedAPath.push_back(this->actorId);
+                this->retries += +1;
         }
-    }
-    else if (this->isWalkingToUnloadingPoint)
-    {
-        //find new drop off point
-        this->dropOffTile = findNearestDropOffPoint(this->ResourceBeingGatherd);
-        if (this->dropOffTile.isSet)
+        else if (this->hasToUnloadResource || this->isGatheringRecources || this->isBuilding)
         {
-            updateGoal(this->dropOffTile.locationX, this->dropOffTile.locationY, 0);
-            this->isWalkingToUnloadingPoint = true;
-            this->reachedUnloadingPoint = false;
-            this->retries = 0;
+            this->routeNeedsPath = true;
+            this->pathFound = false;
+            this->isFindingAlternative = true;
         }
         else
         {
             this->clearRoute();
+            this->isGatheringRecources = false;
+            this->isBuilding = false;
         }
-    }
-    else if (this->isGatheringRecources)
-    {
-        if (this->findNearestSimilairResource())
-        {
-            this->updateGoal(this->actionPreformedOnTile[0], this->actionPreformedOnTile[1], 0);
-            this->isWalkingToUnloadingPoint = false;
-            this->isAtCarryCapacity = false;
-            this->carriesRecources = false;
-            this->isAtRecource = false;
-            this->hasToUnloadResource = false;
-            this->timeStartedWalkingToRecource = 0.0f;
-            this->retries = 0;
-        }
-    }
-    else 
-    {
-        this->clearRoute();
-        this->isGatheringRecources = false;
-        this->isBuilding = false;
     }
 }
 
@@ -767,19 +776,10 @@ void actors::handleResourceGathering()
         {
             if (!this->isWalkingToUnloadingPoint)
             {
-                //search the nearest unloading point an walk there
-                this->dropOffTile = findNearestDropOffPoint(this->ResourceBeingGatherd);
-                if (this->dropOffTile.isSet)
-                {
-                    updateGoal(this->dropOffTile.locationX, this->dropOffTile.locationY, 0);
-                    this->retries = 0;
-                    this->isWalkingToUnloadingPoint = true;
-                    this->reachedUnloadingPoint = false;
-                }
-                else
-                {
-                    //There is no dropoff point!
-                }
+                this->routeNeedsPath = false;
+                this->pathFound = false;
+                this->reachedUnloadingPoint = false;
+                this->isFindingAlternative = true;
             }
             else if (this->reachedUnloadingPoint)
             {
@@ -1134,16 +1134,17 @@ void actors::unloadAndReturnToGathering()
     }
     else
     {
-        if(this->findNearestSimilairResource())
-        {
-            this->updateGoal(this->actionPreformedOnTile[0], this->actionPreformedOnTile[1], 0);
-            this->isWalkingToUnloadingPoint = false;
-            this->isAtCarryCapacity = false;
-            this->carriesRecources = false;
-            this->isAtRecource = false;
-            this->hasToUnloadResource = false;
-            this->timeStartedWalkingToRecource = 0.0f;
-        }
+        this->routeNeedsPath = false;
+        this->pathFound = false;
+        this->actionPreformedOnTile[0] = this->actorGoal[0];
+        this->actionPreformedOnTile[1] = this->actorGoal[1];
+        this->isWalkingToUnloadingPoint = false;
+        this->isAtCarryCapacity = false;
+        this->carriesRecources = false;
+        this->isAtRecource = false;
+        this->hasToUnloadResource = false;
+        this->timeStartedWalkingToRecource = 0.0f;
+        this->isFindingAlternative = true;
     }
 }
 
@@ -1164,79 +1165,65 @@ void actors::setCommonGoalTrue()
     this->commonGoal = true;
 }
 
-bool actors::findNearestSimilairResource()
+void actors::findNearestSimilairResource()
 {
-    std::list <nearestBuildingTile> listOfResourceLocations;
-    int lowSearchLimitX = this->actorCords[0]-30;
-    if(lowSearchLimitX < 0)
-    {
-        lowSearchLimitX = 0;
-    }
-    int lowSearchLimitY = this->actorCords[1]-30;
-    if(lowSearchLimitY < 0)
-    {
-        lowSearchLimitY = 0;
-    }
-    int highSearchLimitX = this->actorCords[0]+30;
-    if(highSearchLimitX > MAP_WIDTH)
-    {
-        highSearchLimitX = MAP_WIDTH;
-    }
-    int highSearchLimitY = this->actorCords[0]+30;
-    if(highSearchLimitY > MAP_HEIGHT)
-    {
-        highSearchLimitY = MAP_HEIGHT;
-    }
-    for(int i = lowSearchLimitX; i < highSearchLimitX; i++)
-    {
-        for(int j = lowSearchLimitY; j < highSearchLimitY; j++)
+    if (this->listOfResourceLocations.empty()) {
+        int lowSearchLimitX = this->actorCords[0] - 30;
+        if (lowSearchLimitX < 0)
         {
-            if(currentGame.objectLocationList[i][j] != -1)
+            lowSearchLimitX = 0;
+        }
+        int lowSearchLimitY = this->actorCords[1] - 30;
+        if (lowSearchLimitY < 0)
+        {
+            lowSearchLimitY = 0;
+        }
+        int highSearchLimitX = this->actorCords[0] + 30;
+        if (highSearchLimitX > MAP_WIDTH)
+        {
+            highSearchLimitX = MAP_WIDTH;
+        }
+        int highSearchLimitY = this->actorCords[1] + 30;
+        if (highSearchLimitY > MAP_HEIGHT)
+        {
+            highSearchLimitY = MAP_HEIGHT;
+        }
+        for (int i = lowSearchLimitX; i < highSearchLimitX; i++)
+        {
+            for (int j = lowSearchLimitY; j < highSearchLimitY; j++)
             {
-                if(listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource() == this->ResourceBeingGatherd)
+                if (currentGame.objectLocationList[i][j] != -1)
                 {
-                    float tempDeltaDistance = dist(this->actorCords[0], this->actorCords[1], i, j);
-                    listOfResourceLocations.push_back({tempDeltaDistance, i, j, currentGame.objectLocationList[i][j], true});
+                    if (listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource() == this->ResourceBeingGatherd)
+                    {
+                        float tempDeltaDistance = dist(this->actorCords[0], this->actorCords[1], i, j);
+                        this->listOfResourceLocations.push_back({ tempDeltaDistance, i, j, currentGame.objectLocationList[i][j], true });
+                    }
                 }
             }
         }
+        if (!this->listOfResourceLocations.empty())
+        {
+            this->listOfResourceLocations.sort([](const nearestBuildingTile& f, const nearestBuildingTile& s)
+                {
+                    return f.deltaDistance < s.deltaDistance;
+                });
+        }
+        this->pathFound = false;
+    }
+    else {
+        this->listOfResourceLocations.pop_front();
     }
 
-    if(!listOfResourceLocations.empty())
+    if(!this->pathFound && !this->listOfResourceLocations.empty())
     {
-        listOfResourceLocations.sort([](const nearestBuildingTile  &f, const nearestBuildingTile &s)
-        {
-            return f.deltaDistance < s.deltaDistance;
-        });
-    }
-    this->pathFound = false;
-    while(!this->pathFound && !listOfResourceLocations.empty())
-    {
-        this->actorGoal[0] = listOfResourceLocations.front().locationX;
-        this->actorGoal[1] =listOfResourceLocations.front().locationY;
-        this->noPathPossible = false;
-        std::thread pathfinding(&actors::pathAStar, &listOfActors[this->actorId]);
-        if(!canTargetBeReached())
-        {
-            this->noPathPossible = true;
-        }
-        pathfinding.join();
-        if(!this->pathFound)
-        {
-            listOfResourceLocations.pop_front();
-        }
-    }
-
-    if(!listOfResourceLocations.empty())
-    {
-        this->actionPreformedOnTile[0] = listOfResourceLocations.front().locationX;
-        this->actionPreformedOnTile[1] = listOfResourceLocations.front().locationY;
-        return true;
-    }
-    else
-    {
-        this->isGatheringRecources = false;
-        return false;
+        this->actorGoal[0] = this->listOfResourceLocations.front().locationX;
+        this->actorGoal[1] = this->listOfResourceLocations.front().locationY;
+        this->actorCommandGoal[0] = this->listOfResourceLocations.front().locationX;
+        this->actorCommandGoal[1] = this->listOfResourceLocations.front().locationY;
+        this->waitForAmountOfFrames = 0;
+        this->routeNeedsPath = true;
+        listOfActorsWhoNeedAPath.push_back(this->actorId);
     }
 }
 
@@ -1244,56 +1231,46 @@ cords actors::getLocation(){
     return {this->actorCords[0], this->actorCords[1]};
 }
 
-nearestBuildingTile actors::findNearestDropOffPoint(int Resource)
+void actors::findNearestDropOffPoint()
 {
-    std::list <nearestBuildingTile> listOfDropOffLocations;
-    for(int i = 0; i < listOfBuildings.size(); i++)
-    {
-        if((listOfBuildings[i].getRecievesWhichResources() == Resource || listOfBuildings[i].getRecievesWhichResources() == 4) && listOfBuildings[i].getTeam() == this->actorTeam && listOfBuildings[i].getCompleted())
+    if (listOfDropOffLocations.empty()) {
+        for (int i = 0; i < listOfBuildings.size(); i++)
         {
-            std::vector<adjacentTile> tileList = listOfBuildings[i].getDropOffTiles();
-            for(int j = 0; j < tileList.size(); j++)
+            if ((listOfBuildings[i].getRecievesWhichResources() == this->ResourceBeingGatherd || listOfBuildings[i].getRecievesWhichResources() == 4) && listOfBuildings[i].getTeam() == this->actorTeam && listOfBuildings[i].getCompleted())
             {
-                float tempDeltaDistance = dist(this->actorCords[0], this->actorCords[1], tileList[j].goalX, tileList[j].goalY);
-                listOfDropOffLocations.push_back({tempDeltaDistance, tileList[j].goalX, tileList[j].goalY, listOfBuildings[i].getBuildingId(), true});
+                std::vector<adjacentTile> tileList = listOfBuildings[i].getDropOffTiles();
+                for (int j = 0; j < tileList.size(); j++)
+                {
+                    float tempDeltaDistance = dist(this->actorCords[0], this->actorCords[1], tileList[j].goalX, tileList[j].goalY);
+                    listOfDropOffLocations.push_back({ tempDeltaDistance, tileList[j].goalX, tileList[j].goalY, listOfBuildings[i].getBuildingId(), true });
+                }
             }
         }
-    }
-    if(!listOfDropOffLocations.empty())
-    {
-        listOfDropOffLocations.sort([](const nearestBuildingTile  &f, const nearestBuildingTile &s)
+        if (!listOfDropOffLocations.empty())
         {
-            return f.deltaDistance < s.deltaDistance;
-        });
+            listOfDropOffLocations.sort([](const nearestBuildingTile& f, const nearestBuildingTile& s)
+                {
+                    return f.deltaDistance < s.deltaDistance;
+                });
+        }
+        this->pathFound = false;
     }
-    this->pathFound = false;
-    while(!this->pathFound && !listOfDropOffLocations.empty())
+    else {
+        //Blijkbaar niet succesvolle poging geweest
+        listOfDropOffLocations.pop_front();
+    }
+    
+    if(!this->pathFound && !listOfDropOffLocations.empty())
     {
+
         this->actorGoal[0] = listOfDropOffLocations.front().locationX;
         this->actorGoal[1] = listOfDropOffLocations.front().locationY;
-        this->noPathPossible = false;
-        std::thread pathfinding(&actors::pathAStar, &listOfActors[this->actorId]);
-        if(!canTargetBeReached())
-        {
-            this->noPathPossible = true;
-        }
-        pathfinding.join();
-        if(!this->pathFound)
-        {
-            listOfDropOffLocations.pop_front();
-        }
+        this->actorCommandGoal[0] = listOfDropOffLocations.front().locationX;
+        this->actorCommandGoal[1] = listOfDropOffLocations.front().locationY;
+        this->waitForAmountOfFrames = 0;
+        this->routeNeedsPath = true;
+        listOfActorsWhoNeedAPath.push_back(this->actorId);
     }
-
-    if(!listOfDropOffLocations.empty())
-    {
-        return listOfDropOffLocations.front();
-    }
-    else
-    {
-        return {0, 0, 0, 0, false};
-    }
-
-
 }
 
 int actors::getTeam()

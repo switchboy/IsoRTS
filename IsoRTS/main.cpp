@@ -103,10 +103,12 @@ void updateProjectiles()
 
 void clearOldCommandCursors()
 {
-    auto iter = std::find_if(listOfOrderCursors.begin(), listOfOrderCursors.end(),
-        [&](orderCursor& p) {return p.isFinished(); });
-    if (iter != listOfOrderCursors.end())
-        listOfOrderCursors.erase(iter);
+    if (!listOfOrderCursors.empty()) {
+        auto iter = std::find_if(listOfOrderCursors.begin(), listOfOrderCursors.end(),
+            [&](orderCursor& p) {return p.isFinished(); });
+        if (iter != listOfOrderCursors.end())
+            listOfOrderCursors.erase(iter);
+    }
 }
 
 int main()
@@ -132,6 +134,3 @@ int main()
     updateBuildingsThread.join();
     return 0;
 }
-
-
-

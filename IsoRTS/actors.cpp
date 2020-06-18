@@ -235,35 +235,47 @@ void actors::update()
             }
             this->houseKeeping();
         }
-        else if (!this->routeNeedsPath) {
-            if (!this->pathFound) {
-                if (this->isBuilding) {
-                    //find alternative building spot function
-
-                }
-                else if (this->hasToUnloadResource) {
-                    //find alternative unloadingPoint
-                    this->findNearestDropOffPoint();
-                }
-                else if (this->isGatheringRecources) {
-                    //find alternative resouces
-                    this->findNearestSimilairResource();
-                }
+        else  {
+            this->searchAltetnative();
+        }
+    }
+}
+void actors::searchAltetnative() {
+    if (!this->routeNeedsPath){
+        if (!this->pathFound) {
+            if (this->isBuilding) {
+                this->getNewBuildingTileForSameBuilding();
             }
-            else {
-                this->isFindingAlternative = false;
-                if (this->hasToUnloadResource) {
-                    this->isWalkingToUnloadingPoint = true;
-                    this->dropOffTile = listOfDropOffLocations.front();
-                }
-                else if (this->isGatheringRecources) {
-                    this->actionPreformedOnTile[0] = this->listOfResourceLocations.front().locationX;
-                    this->actionPreformedOnTile[1] = this->listOfResourceLocations.front().locationY;
-                }
-                this->listOfDropOffLocations.clear();
-                this->listOfResourceLocations.clear();
+            else if (this->hasToUnloadResource) {
+                this->findNearestDropOffPoint();
+            }
+            else if (this->isGatheringRecources) {
+                this->findNearestSimilairResource();
             }
         }
+        else {
+            this->isFindingAlternative = false;
+            if (this->hasToUnloadResource) {
+                this->isWalkingToUnloadingPoint = true;
+                this->dropOffTile = listOfDropOffLocations.front();
+            }
+            else if (this->isGatheringRecources) {
+                this->actionPreformedOnTile[0] = this->listOfResourceLocations.front().locationX;
+                this->actionPreformedOnTile[1] = this->listOfResourceLocations.front().locationY;
+            }
+            this->listOfDropOffLocations.clear();
+            this->listOfResourceLocations.clear();
+        }
+    }
+}
+
+void actors::getNewBuildingTileForSameBuilding() {
+    nearestBuildingTile tempTile = findNearestBuildingTile(this->buildingId, this->actorId);
+    if (tempTile.isSet)
+    {
+        this->updateGoal(tempTile.locationX, tempTile.locationY, 0); //this also releases the old building tile, but does not reset the 'buildingId', so we can still use it! But we have to claim new building tile...
+        listOfBuildings[this->buildingId].claimFreeBuiildingTile(tempTile.buildingId, this->actorId);
+        this->setIsBuildingTrue(this->buildingId);
     }
 }
 

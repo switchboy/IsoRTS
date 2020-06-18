@@ -29,6 +29,7 @@ struct nearestBuildingTile
 };
 
 extern void updateCells(int goalId, int startId, std::vector<Cells> &cellsList);
+extern nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId);
 
 struct islandCell
 {
@@ -59,6 +60,7 @@ public:
     actors(int type, int actorX, int actorY, int actorTeam, int actorId);
     virtual ~actors();
     void update();
+    void searchAltetnative();
     void calculateRoute();
     void drawActor();
     std::string nameOfActor();
@@ -70,6 +72,7 @@ public:
     bool canTargetBeReached();
     void findNearestDropOffPoint();
     void findNearestSimilairResource();
+    void getNewBuildingTileForSameBuilding();
     void pathAStar();
     void pathAStarBiDi();
     bool isInitialized();

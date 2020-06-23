@@ -157,6 +157,7 @@ private:
     int splashDamage;
     int projectileType;
     int waitForAmountOfFrames;
+    int rateOfFire;
     float timeStartedGatheringRecource;
     float timeLastOffsetChange;
     float timeLastUpdate;

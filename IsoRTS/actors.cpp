@@ -155,13 +155,14 @@ actors::actors(int type, int actorX, int actorY, int actorTeam, int actorId)
     case 0://villager
         this->actorHealth = 25;
         this->hitPoints = 25;
-        this->meleeDamage = 9;
+        this->meleeDamage = 3;
         this->range = 0;
         this->rangedDamage = 0;
         this->timeBetweenShots = 2.0f;
         this->splashDamage = 0;
         this->projectileType = 0;
         this->doesRangedDamage = false;
+        this->rateOfFire = 2;
         break;
     case 1://swordsman
         this->actorHealth = 60;
@@ -173,6 +174,7 @@ actors::actors(int type, int actorX, int actorY, int actorTeam, int actorId)
         this->splashDamage = 0;
         this->projectileType = 0;
         this->doesRangedDamage = false;
+        this->rateOfFire = 3;
         break;
     }
     this->timeLastRetry = 0.0f;
@@ -335,7 +337,7 @@ void actors::doMeleeDamage()
     {
         gameText.addNewMessage("We have engaged the Enemy!", 1);    
     }
-    if (currentGame.elapsedTime - this->timeStartedGatheringRecource > 1) 
+    if (currentGame.elapsedTime - this->timeStartedGatheringRecource > this->rateOfFire) 
     {
         this->timeStartedGatheringRecource = currentGame.elapsedTime;
         if (currentGame.occupiedByActorList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]] != -1) {

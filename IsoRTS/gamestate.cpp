@@ -1087,6 +1087,7 @@ void gameState::clickToAttack() {
             {
                 listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, i / 5);
                 listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
+                listOfActors[this->selectedUnits[i]].setIsDoingAttack();
             }
         }
         else
@@ -1094,14 +1095,10 @@ void gameState::clickToAttack() {
             if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
             {
                 listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, 0);
+                listOfActors[this->selectedUnits[i]].setIsDoingAttack();
             }
         }
-        if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
-        {
-            listOfActors[this->selectedUnits[i]].setIsDoingAttack();
-        }
     }
-
 }
 
 void gameState::clickToGiveCommand()

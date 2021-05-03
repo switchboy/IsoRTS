@@ -952,7 +952,7 @@ void gameState::getDefinitiveSelection()
     }
 }
 
-void gameState::clickToMove()
+void gameState::clickToMove(int posX, int posY, bool minimap)
 {
     for (int i = 0; i < this->selectedUnits.size(); i++)
     {
@@ -960,7 +960,13 @@ void gameState::clickToMove()
         {
             if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
             {
-                mouseWorldCord tempCords = currentGame.getNextCord(this->mouseWorldPosition.x, this->mouseWorldPosition.y);
+                mouseWorldCord tempCords;
+                if (minimap) {
+                    tempCords = currentGame.getNextCord(posX, posY);
+                }
+                else {
+                    tempCords = currentGame.getNextCord(this->mouseWorldPosition.x, this->mouseWorldPosition.y);
+                }
                 listOfActors[this->selectedUnits[i]].updateGoal(tempCords.x, tempCords.y, i / 5);
                 listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
             }
@@ -969,7 +975,12 @@ void gameState::clickToMove()
         {
             if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
             {
-                listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, 0);
+                if (minimap) {
+                    listOfActors[this->selectedUnits[i]].updateGoal(posX, posY, 0);
+                }
+                else {
+                    listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, 0);
+                }
             }
         }
         if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
@@ -1120,7 +1131,7 @@ void gameState::clickToGiveCommand()
     this->lastIandJ[1] = 0;
     if (this->isPassable(this->mouseWorldPosition.x, this->mouseWorldPosition.y))
     {
-        clickToMove();
+        clickToMove(0,0,false);
     }
     else if (this->objectLocationList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1)
     {
@@ -1150,27 +1161,50 @@ void gameState::clickToGiveCommand()
 
 }
 
+void gameState::clickToGiveMinimapCommand()
+{
+    this->firstRound = true;
+    this->lastIandJ[0] = 0;
+    this->lastIandJ[1] = 0;
+    mouseWorldCord minimapToWorldPosition;
+    minimapToWorldPosition = toWorldMousePosition(((mouseFakePosition.x - (mainWindowWidth * 0.8f)) / (0.2f * mainWindowWidth)) * (MAP_WIDTH * 64), ((mouseFakePosition.y - (mainWindowHeigth * 0.8f)) / (0.2f * mainWindowHeigth)) * (MAP_HEIGHT * 32));
+    for (int posX = minimapToWorldPosition.x - 1; posX < minimapToWorldPosition.x + 2; posX++) {
+        for (int posY = minimapToWorldPosition.y - 1; posY < minimapToWorldPosition.y + 2; posY++) {
+            clickToMove(posX, posY, true);
+            orderCursor newOrderCursor(this->mousePosition);
+            listOfOrderCursors.push_back(newOrderCursor);
+            return;
+        }
+    }
+ }
+
 
 
 void gameState::mouseRightClick()
 {
     this->rectangleCords.clear();
     this->mousePressedRight = true;
-    if (this->isPressedB)
+    if (mouseFakePosition.y > mainWindowHeigth * 0.8f)
     {
-        this->changeBuildingType();
+        this->clickToGiveMinimapCommand();
     }
-    else if (this->isPressedO)
-    {
-        this->changeObjectType();
-    }
-    else if (this->isPlacingBuilding)
-    {
-        this->isPlacingBuilding = false;
-    }
-    else if (!this->selectedUnits.empty())
-    {
-        this->clickToGiveCommand();
+    else {
+        if (this->isPressedB)
+        {
+            this->changeBuildingType();
+        }
+        else if (this->isPressedO)
+        {
+            this->changeObjectType();
+        }
+        else if (this->isPlacingBuilding)
+        {
+            this->isPlacingBuilding = false;
+        }
+        else if (!this->selectedUnits.empty())
+        {
+            this->clickToGiveCommand();
+        }
     }
 }
 

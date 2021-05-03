@@ -156,8 +156,8 @@ actors::actors(int type, int actorX, int actorY, int actorTeam, int actorId)
         this->actorHealth = 25;
         this->hitPoints = 25;
         this->meleeDamage = 3;
-        this->range = 0;
-        this->rangedDamage = 0;
+        this->range = 3;
+        this->rangedDamage = 1;
         this->timeBetweenShots = 2.0f;
         this->splashDamage = 0;
         this->projectileType = 0;

@@ -99,7 +99,7 @@ public:
     void clickToSelectObjectOrBuilding();
     void clickToSelect();
     void getDefinitiveSelection();
-    void clickToMove();
+    void clickToMove(int posX, int posY, bool minimap);
     void clickToGatherResource();
     void clickToBuildOrRepairBuilding();
     void clickToAttack();
@@ -109,6 +109,7 @@ public:
     void changeBuildingType();
     void changeObjectType();
     void clickToGiveCommand();
+    void clickToGiveMinimapCommand();
     bool isPassable(int x, int y);
     bool isInSelectedActors(int id);
     void setBuildingType(int id);

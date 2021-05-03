@@ -143,7 +143,7 @@ void spawmFirstVillager(int distanceFromFood, int teamId) {
 
 	while (!villagerIsPlaced) {
 		mouseWorldCord suggestedCords = { roll(randomFoodSource.x - distanceFromFood,randomFoodSource.x + distanceFromFood), roll(randomFoodSource.y - distanceFromFood, randomFoodSource.y + distanceFromFood) };
-		if (suggestedCords.y - 1 >= 0 && suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
+		if (suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
 			if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y + 1))
 			{
 				listOfActorsMutex.lock();
@@ -191,7 +191,7 @@ void generateRandomMap(int players) {
 	placeTrees();
 	spawmFoodStoneGold(6);
 	for (int i = 0; i < players; i++) {
-		spawmFirstVillager(6, i);
+		spawmFirstVillager(8, i);
 	}
 	spawmFoodStoneGold(4);
 	spawmFoodStoneGold(5);

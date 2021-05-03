@@ -144,12 +144,12 @@ void spawmFirstVillager(int distanceFromFood, int teamId) {
 	while (!villagerIsPlaced) {
 		mouseWorldCord suggestedCords = { roll(randomFoodSource.x - distanceFromFood,randomFoodSource.x + distanceFromFood), roll(randomFoodSource.y - distanceFromFood, randomFoodSource.y + distanceFromFood) };
 		if (suggestedCords.y - 1 >= 0 && suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
-			if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y - 1))
+			if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y + 1))
 			{
 				listOfActorsMutex.lock();
 				actors newActor(0, suggestedCords.x, suggestedCords.y, teamId, listOfActors.size());
 				listOfActors.push_back(newActor);
-				actors newActor1(0, suggestedCords.x, suggestedCords.y-1, teamId, listOfActors.size());
+				actors newActor1(0, suggestedCords.x, suggestedCords.y+1, teamId, listOfActors.size());
 				listOfActors.push_back(newActor1);
 				actors newActor2(0, suggestedCords.x+1, suggestedCords.y, teamId, listOfActors.size());
 				listOfActors.push_back(newActor2);

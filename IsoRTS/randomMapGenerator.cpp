@@ -188,12 +188,12 @@ void generateTerrain() {
 
 void generateRandomMap(int players) {
 	generateTerrain();
+	placeTrees();
 	spawmFoodStoneGold(6);
 	for (int i = 0; i < players; i++) {
 		spawmFirstVillager(6, i);
 	}
 	spawmFoodStoneGold(4);
 	spawmFoodStoneGold(5);
-	placeTrees();
 	centerViewOnVillager();
 }

@@ -771,7 +771,7 @@ void gameState::clickToPlaceBuilding() {
     if (!(this->mouseWorldPosition.x - footprintOfBuildings[this->buildingTypeSelected].amountOfXFootprint < -1) && !(this->mouseWorldPosition.y - footprintOfBuildings[this->buildingTypeSelected].amountOfYFootprint < -1) && !(this->mouseWorldPosition.x >= MAP_WIDTH) && !(this->mouseWorldPosition.y >= MAP_HEIGHT))
     {
         //check of het gebouw hier kan staan:
-        bool buildinPlacable = true;
+        bool buildingPlacable = true;
 
         for (int i = 0; i < footprintOfBuildings[this->buildingTypeSelected].amountOfXFootprint; i++)
         {
@@ -780,13 +780,15 @@ void gameState::clickToPlaceBuilding() {
                 if (
                     this->occupiedByBuildingList[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j] != -1 || 
                     this->objectLocationList[mouseWorldPosition.x - i][mouseWorldPosition.y - j] != -1 || 
-                    this->occupiedByActorList[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j] != -1)
+                    this->occupiedByActorList[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j] != -1 ||
+                    this->currentMap[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j] == 7
+                    )
                 {
-                    buildinPlacable = false;
+                    buildingPlacable = false;
                 }
             }
         }
-        if (buildinPlacable)
+        if (buildingPlacable)
         {
             //Zet het gebouw neer
             buildings newBuilding(this->buildingTypeSelected, this->mouseWorldPosition.x, this->mouseWorldPosition.y, listOfBuildings.size(), currentPlayer.getTeam());

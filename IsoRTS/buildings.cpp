@@ -433,7 +433,8 @@ void buildings::drawBuildingFootprint(int type, int mouseWorldX, int mouseWorldY
                 if(
                     currentGame.occupiedByBuildingList[mouseWorldX-i][mouseWorldY-j] != -1 ||
                     currentGame.objectLocationList[mouseWorldX - i][mouseWorldY - j] != -1 ||
-                    currentGame.occupiedByActorList[mouseWorldX - i][mouseWorldY - j] != -1
+                    currentGame.occupiedByActorList[mouseWorldX - i][mouseWorldY - j] != -1 ||
+                    currentGame.currentMap[mouseWorldX - i][mouseWorldY - j] == 7
                     )
                 {
                     currentGame.drawMousePosition(mouseWorldX-i, mouseWorldY-j, false);

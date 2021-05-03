@@ -1849,6 +1849,11 @@ void gameState::drawActorStats(int& actorId, int& textStartX, int& textStartY)
     text.setString(teamId.str());
     text.setPosition(textStartX, textStartY);
     window.draw(text);
+
+    textStartY += 20;
+    text.setString(listOfActors[actorId].getRecources());
+    text.setPosition(textStartX, textStartY);
+    window.draw(text);
 }
 
 void gameState::drawActorToolbar(int &startX, int &startY, int &incrementalXOffset, int &spriteYOffset, int &startDeck, int &tempY, int &incrementalYOffset, int &offSetTonextCard)

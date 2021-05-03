@@ -271,6 +271,12 @@ void actors::searchAltetnative() {
     }
 }
 
+std::string actors::getRecources() {
+    std::stringstream output;
+    output << "Wood: " << this->amountOfWood << " Food: " << this->amountOfFood << " Stone: " << this->amountOfStone << " Gold: " << this->amountOfGold;
+    return output.str();
+}
+
 void actors::getNewBuildingTileForSameBuilding() {
     nearestBuildingTile tempTile = findNearestBuildingTile(this->buildingId, this->actorId);
     if (tempTile.isSet)

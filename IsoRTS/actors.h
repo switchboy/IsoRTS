@@ -64,6 +64,7 @@ public:
     void calculateRoute();
     void drawActor();
     std::string nameOfActor();
+    std::string getRecources();
     void updateGoal(int i, int j, int waitTime);
     void renderPath();
     void setCommonGoalTrue();

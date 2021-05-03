@@ -1245,45 +1245,78 @@ cords actors::getLocation(){
     return {this->actorCords[0], this->actorCords[1]};
 }
 
-void actors::findNearestDropOffPoint()
-{
-    if (listOfDropOffLocations.empty()) {
-        for (int i = 0; i < listOfBuildings.size(); i++)
+int adjacentTileIsCorrectDropOffPoint(int& x, int& y, int& resourceGatherd, int& team) {
+    for (int xOffset = x - 1; xOffset < x + 2; xOffset++) 
+    {
+        for (int yOffset = y - 1; yOffset < y + 2; yOffset++) 
         {
-            if ((listOfBuildings[i].getRecievesWhichResources() == this->ResourceBeingGatherd || listOfBuildings[i].getRecievesWhichResources() == 4) && listOfBuildings[i].getTeam() == this->actorTeam && listOfBuildings[i].getCompleted())
+            if (currentGame.occupiedByBuildingList[xOffset][yOffset] != -1) 
             {
-                std::vector<adjacentTile> tileList = listOfBuildings[i].getDropOffTiles();
-                for (int j = 0; j < tileList.size(); j++)
+                int i = currentGame.occupiedByBuildingList[xOffset][yOffset];
+                if ((listOfBuildings[i].getRecievesWhichResources() == resourceGatherd || listOfBuildings[i].getRecievesWhichResources() == 4) && listOfBuildings[i].getTeam() == team && listOfBuildings[i].getCompleted()) 
                 {
-                    float tempDeltaDistance = dist(this->actorCords[0], this->actorCords[1], tileList[j].goalX, tileList[j].goalY);
-                    listOfDropOffLocations.push_back({ tempDeltaDistance, tileList[j].goalX, tileList[j].goalY, listOfBuildings[i].getBuildingId(), true });
+                    return i;
                 }
             }
         }
-        if (!listOfDropOffLocations.empty())
-        {
-            listOfDropOffLocations.sort([](const nearestBuildingTile& f, const nearestBuildingTile& s)
-                {
-                    return f.deltaDistance < s.deltaDistance;
-                });
-        }
-        this->pathFound = false;
     }
-    else {
-        //Blijkbaar niet succesvolle poging geweest
-        listOfDropOffLocations.pop_front();
-    }
-    
-    if(!this->pathFound && !listOfDropOffLocations.empty())
-    {
+    return -1;
+}
 
-        this->actorGoal[0] = listOfDropOffLocations.front().locationX;
-        this->actorGoal[1] = listOfDropOffLocations.front().locationY;
-        this->actorCommandGoal[0] = listOfDropOffLocations.front().locationX;
-        this->actorCommandGoal[1] = listOfDropOffLocations.front().locationY;
+void actors::findNearestDropOffPoint()
+{
+    //Bugfix for edge case where the actor is ocuping a tile adjacent to a dropoff building
+    int adjacentBuildingAvailableId = adjacentTileIsCorrectDropOffPoint(this->actorCords[0], this->actorCords[1], this->ResourceBeingGatherd, this->actorTeam);
+    if( adjacentBuildingAvailableId != -1) {
+        listOfDropOffLocations.push_back({ 0, this->actorCords[0], this->actorCords[1], adjacentBuildingAvailableId, true });
+        this->actorGoal[0] = this->actorCords[0];
+        this->actorGoal[1] = this->actorCords[1];
+        this->actorCommandGoal[0] = this->actorCords[0];
+        this->actorCommandGoal[1] = this->actorCords[1];
         this->waitForAmountOfFrames = 0;
         this->routeNeedsPath = true;
         listOfActorsWhoNeedAPath.push_back(this->actorId);
+    }
+
+    else {
+        if (listOfDropOffLocations.empty())
+        {
+            for (int i = 0; i < listOfBuildings.size(); i++)
+            {
+                if ((listOfBuildings[i].getRecievesWhichResources() == this->ResourceBeingGatherd || listOfBuildings[i].getRecievesWhichResources() == 4) && listOfBuildings[i].getTeam() == this->actorTeam && listOfBuildings[i].getCompleted())
+                {
+                    std::vector<adjacentTile> tileList = listOfBuildings[i].getDropOffTiles();
+                    for (int j = 0; j < tileList.size(); j++)
+                    {
+                        float tempDeltaDistance = dist(this->actorCords[0], this->actorCords[1], tileList[j].goalX, tileList[j].goalY);
+                        listOfDropOffLocations.push_back({ tempDeltaDistance, tileList[j].goalX, tileList[j].goalY, listOfBuildings[i].getBuildingId(), true });
+                    }
+                }
+            }
+            if (!listOfDropOffLocations.empty())
+            {
+                listOfDropOffLocations.sort([](const nearestBuildingTile& f, const nearestBuildingTile& s)
+                    {
+                        return f.deltaDistance < s.deltaDistance;
+                    });
+            }
+            this->pathFound = false;
+        }
+        else {
+            //Blijkbaar niet succesvolle poging geweest
+            listOfDropOffLocations.pop_front();
+        }
+
+        if (!this->pathFound && !listOfDropOffLocations.empty())
+        {
+            this->actorGoal[0] = listOfDropOffLocations.front().locationX;
+            this->actorGoal[1] = listOfDropOffLocations.front().locationY;
+            this->actorCommandGoal[0] = listOfDropOffLocations.front().locationX;
+            this->actorCommandGoal[1] = listOfDropOffLocations.front().locationY;
+            this->waitForAmountOfFrames = 0;
+            this->routeNeedsPath = true;
+            listOfActorsWhoNeedAPath.push_back(this->actorId);
+        }
     }
 }
 
@@ -1325,7 +1358,7 @@ void actors::pathAStar()
     //check of de doelcel niet 1 hokje weg is
     if(((actorCords[0]-actorGoal[0] == 0) ||(actorCords[0]-actorGoal[0] == -1) ||(actorCords[0]-actorGoal[0] == 1)) && ((actorCords[1]-actorGoal[1] == 0) ||(actorCords[1]-actorGoal[1] == -1) ||(actorCords[1]-actorGoal[1] == 1)))
     {
-        if(!cellsList[endCell].obstacle)
+        if(!cellsList[endCell].obstacle || (actorCords[0] == actorGoal[0] && actorCords[1] == actorGoal[1]))
         {
             this->pathFound = true;
             endReached = true;

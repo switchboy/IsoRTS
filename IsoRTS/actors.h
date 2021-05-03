@@ -44,7 +44,7 @@ struct routeCell
 {
     int positionX;
     int positionY;
-    int visited;
+    bool visited;
     int parentCellId;
     int backParent;
 };

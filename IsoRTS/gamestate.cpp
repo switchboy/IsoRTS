@@ -57,7 +57,7 @@ mouseWorldCord toWorldMousePosition(int mouseX, int mouseY)
     }
 }
 
-void gameState::drawMousePosition(int x,int y, int noProblem)
+void gameState::drawMousePosition(int x,int y, bool noProblem)
 {
     if(noProblem)
     {
@@ -777,7 +777,10 @@ void gameState::clickToPlaceBuilding() {
         {
             for (int j = 0; j < footprintOfBuildings[this->buildingTypeSelected].amountOfYFootprint; j++)
             {
-                if (this->occupiedByBuildingList[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j] != -1 || this->objectLocationList[mouseWorldPosition.x - i][mouseWorldPosition.y - j] != -1)
+                if (
+                    this->occupiedByBuildingList[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j] != -1 || 
+                    this->objectLocationList[mouseWorldPosition.x - i][mouseWorldPosition.y - j] != -1 || 
+                    this->occupiedByActorList[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j] != -1)
                 {
                     buildinPlacable = false;
                 }
@@ -1074,6 +1077,13 @@ void gameState::changeObjectType()
     if (this->objectTypeSelected > 6)
     {
         this->objectTypeSelected = 0;
+    }
+}
+
+void testfunctiuon(int testVar)
+{
+    if (testVar == 32) {
+        std::cout << "You have answerd the universe, life and everything!";
     }
 }
 

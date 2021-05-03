@@ -430,13 +430,17 @@ void buildings::drawBuildingFootprint(int type, int mouseWorldX, int mouseWorldY
         {
             for(int j = 0; j < footprintOfBuildings[type].amountOfYFootprint; j++)
             {
-                if(currentGame.occupiedByBuildingList[mouseWorldX-i][mouseWorldY-j] == -1)
+                if(
+                    currentGame.occupiedByBuildingList[mouseWorldX-i][mouseWorldY-j] != -1 ||
+                    currentGame.objectLocationList[mouseWorldX - i][mouseWorldY - j] != -1 ||
+                    currentGame.occupiedByActorList[mouseWorldX - i][mouseWorldY - j] != -1
+                    )
                 {
-                    currentGame.drawMousePosition(mouseWorldX-i, mouseWorldY-j, true);
+                    currentGame.drawMousePosition(mouseWorldX-i, mouseWorldY-j, false);
                 }
                 else
                 {
-                    currentGame.drawMousePosition(mouseWorldX-i, mouseWorldY-j, false);
+                    currentGame.drawMousePosition(mouseWorldX-i, mouseWorldY-j, true);
                 }
             }
         }

@@ -72,7 +72,7 @@ public:
     void findNearestSimilairResource();
     void getNewBuildingTileForSameBuilding();
     void pathAStar();
-    void pathing(std::vector<Cells>& cellsList, int& endCell, int& startCell, bool& endReached);
+    void routing(std::vector<Cells>& cellsList, int& endCell, int& startCell, bool& endReached);
     void pathAStarBiDi();
     bool isInitialized();
     int getTeam();

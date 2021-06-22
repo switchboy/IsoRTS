@@ -962,7 +962,9 @@ void gameState::clickToMove(int posX, int posY, bool minimap)
             {
                 mouseWorldCord tempCords;
                 if (minimap) {
-                    tempCords = currentGame.getNextCord(posX, posY);
+                    if ((posX <= MAP_WIDTH && posY <= MAP_HEIGHT)) {
+                        tempCords = currentGame.getNextCord(posX, posY);
+                    }
                 }
                 else {
                     tempCords = currentGame.getNextCord(this->mouseWorldPosition.x, this->mouseWorldPosition.y);
@@ -976,7 +978,9 @@ void gameState::clickToMove(int posX, int posY, bool minimap)
             if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
             {
                 if (minimap) {
-                    listOfActors[this->selectedUnits[i]].updateGoal(posX, posY, 0);
+                    if ((posX <= MAP_WIDTH && posY <= MAP_HEIGHT)) {
+                        listOfActors[this->selectedUnits[i]].updateGoal(posX, posY, 0);
+                    }
                 }
                 else {
                     listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, 0);
@@ -1177,7 +1181,6 @@ void gameState::clickToGiveMinimapCommand()
         }
     }
  }
-
 
 
 void gameState::mouseRightClick()

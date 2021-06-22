@@ -1340,14 +1340,12 @@ void actors::calculateRoute()
 {
     if(this->routeNeedsPath)
     {
-        this->noPathPossible = false;
-        std::thread pathfinding(&actors::pathAStar, &listOfActors[this->actorId]);
-        if (!canTargetBeReached())
-        {
-            this->noPathPossible = true;
-        }
-        pathfinding.join();
+        this->realPath = false;
+        this->pathAStar();
         this->routeNeedsPath = false;
+        if (!this->realPath) {
+            this->timeLastPathTry = currentGame.elapsedTime;
+        }
     }
 }
 
@@ -1359,6 +1357,7 @@ void actors::pathAStar()
     int endCell = (actorGoal[0]*MAP_HEIGHT)+actorGoal[1]; //doel positie
     updateCells(endCell, startCell, cellsList);
     std::list<Cells*> listToCheck;
+    std::list<Cells*> checkedList;
     bool endReached = false;
 
     //check of de doelcel niet 1 hokje weg is
@@ -1378,6 +1377,7 @@ void actors::pathAStar()
     {
         this->pathFound = false;
         cellsList[startCell].addNeighbours(cellsList);
+        cellsList[startCell].totalCostGuess = dist(cellsList[startCell].positionX, cellsList[startCell].positionY, cellsList[endCell].positionX, cellsList[endCell].positionY);
         cellsList[startCell].visited = true;
         listToCheck.push_back(&cellsList[startCell]);
     }
@@ -1395,10 +1395,6 @@ void actors::pathAStar()
         {
             listToCheck.clear();
             this->pathFound = true;
-        }
-        else if(this->noPathPossible)
-        {
-            listToCheck.clear();
         }
         else if(!listToCheck.empty())
         {
@@ -1433,28 +1429,46 @@ void actors::pathAStar()
                     }
                 }
             }
+            int id = (*listToCheck.front()).cellId;
+            checkedList.push_back(&cellsList[id]);
             listToCheck.pop_front();
         }
     }
     //Zet de te lopen route in een lijst
     this->route.clear();
-    this->route.push_back({cellsList[endCell].positionX, cellsList[endCell].positionY, cellsList[endCell].visited, cellsList[endCell].parentCellId});
     if(this->pathFound)
     {
-        while(!endReached)
-        {
-            if(route.back().visited == true)
+        pathing(cellsList, endCell, startCell, endReached);
+        this->realPath = true;
+    }
+    else {
+        //We kunnen niet bij het doel komen, dan gaan we maar naar de geschatte dichtsbijzijnde cell waar we naartoe kunnen!
+        checkedList.sort([](const Cells* f, const Cells* s)
             {
-                this->route.push_back({cellsList[route.back().parentCellId].positionX, cellsList[route.back().parentCellId].positionY, cellsList[route.back().parentCellId].visited, cellsList[route.back().parentCellId].parentCellId});
-                if(this->route.back().parentCellId == startCell)
-                {
-                    endReached = true;
-                }
-            }
-            else
+                return f->totalCostGuess < s->totalCostGuess;
+            });
+        this->pathFound = true;
+        pathing(cellsList, (*checkedList.front()).cellId, startCell, endReached);
+    }
+}
+
+void actors::pathing(std::vector<Cells>& cellsList, int& endCell, int& startCell, bool& endReached)
+{
+    this->route.push_back({ cellsList[endCell].positionX, cellsList[endCell].positionY, cellsList[endCell].visited, cellsList[endCell].parentCellId });
+    std::cout << "Bingo!" << std::endl<< "Best cell is: " << cellsList[endCell].cellId << std::endl << "Startiing from: " << cellsList[startCell].cellId << std::endl << std::endl;
+    while (!endReached)
+    {
+        if (route.back().visited == true)
+        {
+            this->route.push_back({ cellsList[route.back().parentCellId].positionX, cellsList[route.back().parentCellId].positionY, cellsList[route.back().parentCellId].visited, cellsList[route.back().parentCellId].parentCellId });
+            if (this->route.back().parentCellId == startCell)
             {
                 endReached = true;
             }
+        }
+        else
+        {
+            endReached = true;
         }
     }
 }

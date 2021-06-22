@@ -49,10 +49,7 @@ struct routeCell
     int backParent;
 };
 
-struct cords{
-    int x;
-    int y;
-};
+
 
 class actors
 {
@@ -75,6 +72,7 @@ public:
     void findNearestSimilairResource();
     void getNewBuildingTileForSameBuilding();
     void pathAStar();
+    void pathing(std::vector<Cells>& cellsList, int& endCell, int& startCell, bool& endReached);
     void pathAStarBiDi();
     bool isInitialized();
     int getTeam();
@@ -132,6 +130,7 @@ private:
     bool isMeleeAttacking;
     bool isRangedAttacking;
     bool isFindingAlternative;
+    bool realPath;
     int actorType;
     int actorTeam;
     int actorHealth;
@@ -162,6 +161,7 @@ private:
     float timeStartedGatheringRecource;
     float timeLastOffsetChange;
     float timeLastUpdate;
+    float timeLastPathTry;
     float timeStartedWalkingToRecource;
     float timeLastAttempt;
     float offSetX;

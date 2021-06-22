@@ -1470,33 +1470,39 @@ void actors::pathAStar()
 
 void actors::routing(std::vector<Cells>& cellsList, int& endCell, int& startCell, bool& endReached)
 {
+    //Zet de tegel waarnaartoe gelopen wordt in de lijst
     this->route.push_back({ cellsList[endCell].positionX, cellsList[endCell].positionY, cellsList[endCell].visited, cellsList[endCell].parentCellId });
     while (!endReached)
     {
         if (route.back().visited == true)
         {
+            //Voeg voor iedere tegel de parent toe aan de lijst (dit was de tegel met de korste weg naar deze tegel)
             this->route.push_back({ cellsList[route.back().parentCellId].positionX, cellsList[route.back().parentCellId].positionY, cellsList[route.back().parentCellId].visited, cellsList[route.back().parentCellId].parentCellId });
             if (this->route.back().parentCellId == startCell) {
+                    //Als de nu volgende parentCell de tegel is waar de actor op staat zijn we klaar.
                     endReached = true;
             }
+            //Fix voor een bug waarin op een of andere manier géén parent cell ingevult staat en dus nul zou zijn. (al zou dat niet moeten kunnen)
             if (this->route.back().parentCellId == 0) {
+                //We gaan kijken of het een logische buur kan zijn, gelukkig hoeven we maar drie posities te controleren:
                 if (this->route.back().positionX == 0 && this->route.back().positionX == 1) {
-
+                    //Logische parent; doe niets!
                 }
                 else if(this->route.back().positionX == 0 && this->route.back().positionX == 1) {
-
+                    //Logische parent; doe niets!
                 }
                 else if (this->route.back().positionX == 1 && this->route.back().positionX == 1) {
-
+                    //Logische parent; doe niets!
                 }
                 else {
+                    //Onlogisch! breek de route af zonder de parent cell toe te voegen
                     endReached = true;
                 }
-
             }
         }
         else
         {
+            //Blijkbaar is deze tegel nooit geevalueerd of het is de starttegel; onlogisch! breek het route maken af!
             endReached = true;
         }
     }

@@ -801,24 +801,30 @@ void gameState::clickToPlaceBuilding() {
                 currentPlayer.substractResources(3, priceOfBuilding[this->buildingTypeSelected].gold);
                 for (int i = 0; i < this->selectedUnits.size(); i++)
                 {
-                    if (this->selectedUnits.size() > 1)
+                    nearestBuildingTile tempTile = findNearestBuildingTile(this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y], this->selectedUnits[i]);
+                    if (tempTile.isSet)
                     {
+                        if (this->selectedUnits.size() > 1)
+                        {
+                            if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+                            {
+                                listOfActors[this->selectedUnits[i]].updateGoal(tempTile.locationX, tempTile.locationY, i / 5);
+                                listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
+                                listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
+                            }
+                        }
+                        else
+                        {
+                            if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+                            {
+                                listOfActors[this->selectedUnits[i]].updateGoal(tempTile.locationX, tempTile.locationY, i / 5);
+                                listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
+                            }
+                        }
                         if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
                         {
-                            listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, i / 5);
-                            listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
+                            listOfActors[this->selectedUnits[i]].setIsBuildingTrue(listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getBuildingId(), tempTile.actionLocationX, tempTile.actionLocationY);
                         }
-                    }
-                    else
-                    {
-                        if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
-                        {
-                            listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, 0);
-                        }
-                    }
-                    if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
-                    {
-                        listOfActors[this->selectedUnits[i]].setIsBuildingTrue(newBuilding.getBuildingId());
                     }
                 }
             }
@@ -1027,8 +1033,8 @@ nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId)
     if (!tileList.empty()) {
         for (int j = 0; j < tileList.size(); j++)
         {
-            float tempDeltaDistance = dist(listOfActors[actorId].getLocation().x, listOfActors[actorId].getLocation().y, tileList[j].goalX, tileList[j].goalY);
-            listOfBuildLocations.push_back({ tempDeltaDistance, tileList[j].goalX, tileList[j].goalY, tileList[j].tileId, true });
+            float tempDeltaDistance = dist(listOfActors[actorId].getLocation().x, listOfActors[actorId].getLocation().y, tileList[j].tileX, tileList[j].tileY);
+            listOfBuildLocations.push_back({ tempDeltaDistance, tileList[j].tileX, tileList[j].tileY, tileList[j].goalX , tileList[j].goalY, tileList[j].tileId, true });
         }
         if (!listOfBuildLocations.empty())
         {
@@ -1037,6 +1043,7 @@ nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId)
                     return f.deltaDistance < s.deltaDistance;
                 });
         }
+        //listOfBuildLocations.front().buildingId
         return  listOfBuildLocations.front();
     }
     else {
@@ -1072,7 +1079,7 @@ void gameState::clickToBuildOrRepairBuilding()
                 }
                 if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
                 {
-                    listOfActors[this->selectedUnits[i]].setIsBuildingTrue(listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getBuildingId());
+                    listOfActors[this->selectedUnits[i]].setIsBuildingTrue(listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getBuildingId(), tempTile.actionLocationX, tempTile.actionLocationY);
                 }
             }
         }
@@ -2446,7 +2453,7 @@ void gameState::setDefaultValues()
     this->objectSelectedId = -1;
     this->buildingTypeSelected = 0;
     this->objectTypeSelected = 0;
-    this->showPaths = false;
+    this->showPaths = true;
     this->lastMistDraw = -1.0f;
     listOfBuildings.resize(1);
     listOfObjects.resize(1);

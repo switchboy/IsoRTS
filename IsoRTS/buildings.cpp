@@ -38,7 +38,7 @@ void buildings::fillAdjacentTiles()
         }
     }
     //The row left and right of the building
-    for(int i =  this->startYLocation-footprintOfBuildings[this->buildingType].amountOfYFootprint; i <=  this->startYLocation; i++)
+    for(int i =  this->startYLocation-footprintOfBuildings[this->buildingType].amountOfYFootprint+1; i <=  this->startYLocation; i++)
     {
         if(i >= 0 && i <= MAP_HEIGHT)
         {
@@ -68,7 +68,7 @@ std::vector<adjacentTile> buildings::getFreeBuildingTile()
     std::vector<adjacentTile> tileList;
     for(int i = 0; i < this->adjacentTiles.size(); i++)
     {
-        if(!this->adjacentTiles[i].occupied)
+        if(!this->adjacentTiles[i].occupied && this->adjacentTiles[i].actorId == -1)
         {
             if(currentGame.isPassable(this->adjacentTiles[i].tileX, this->adjacentTiles[i].tileY))
             {
@@ -383,6 +383,22 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
             }
         }
     }
+
+    //draw adjecent tiles
+
+    for (adjacentTile tile : adjacentTiles) {
+        if (tile.occupied) {
+            currentGame.spriteTileObstructed.setPosition(worldSpace(tile.tileX, tile.tileY, true), worldSpace(tile.tileX, tile.tileY, false));
+            window.draw(currentGame.spriteTileObstructed);
+        }
+        else {
+            currentGame.spriteSelectedTileForPath.setPosition(worldSpace(tile.tileX, tile.tileY, true), worldSpace(tile.tileX, tile.tileY, false));
+            window.draw(currentGame.spriteSelectedTileForPath);
+        }
+        currentGame.spriteUnitSelectedTile.setPosition(worldSpace(tile.goalX, tile.goalY, true), worldSpace(tile.goalX, tile.goalY, false));
+        window.draw(currentGame.spriteUnitSelectedTile);
+    }
+
 }
 
 std::string buildings::getName()

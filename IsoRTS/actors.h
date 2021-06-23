@@ -24,6 +24,8 @@ struct nearestBuildingTile
     float deltaDistance;
     int locationX;
     int locationY;
+    int actionLocationX;
+    int actionLocationY;
     int buildingId;
     bool isSet;
 };
@@ -66,7 +68,6 @@ public:
     void renderPath();
     void setCommonGoalTrue();
     void setGatheringRecource(bool flag);
-    void setIsBuildingTrue(int buildingId);
     bool canTargetBeReached();
     void findNearestDropOffPoint();
     void findNearestSimilairResource();
@@ -79,6 +80,7 @@ public:
     cords getLocation();
     int getType();
     int getActorId();
+    void setIsBuildingTrue(int buildingId, int& goalX, int& goalY);
     std::pair<int, int> getHealth();
     void walkBackToOwnSquare();
     void startGatheringAnimation();

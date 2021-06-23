@@ -283,7 +283,7 @@ void actors::getNewBuildingTileForSameBuilding() {
     {
         this->updateGoal(tempTile.locationX, tempTile.locationY, 0); //this also releases the old building tile, but does not reset the 'buildingId', so we can still use it! But we have to claim new building tile...
         listOfBuildings[this->buildingId].claimFreeBuiildingTile(tempTile.buildingId, this->actorId);
-        this->setIsBuildingTrue(this->buildingId);
+        this->setIsBuildingTrue(this->buildingId, tempTile.actionLocationX, tempTile.actionLocationY);
     }
 }
 
@@ -300,19 +300,13 @@ void actors::doTaskIfNotWalking()
         else if (this->isRangedAttacking) {
             this->shootProjectile();
         }
-        else if (this->isGatheringRecources && (!this->busyWalking) && this->route.empty())
+        else if (this->isGatheringRecources && (!this->routeNeedsPath) && this->route.empty())
         {
             this->handleResourceGathering();
         }
-        else if (this->isBuilding && (!this->busyWalking) && this->route.empty())
+        else if (this->isBuilding && (!this->routeNeedsPath) && this->route.empty())
         {
-            if (this->realPath) {
-                this->handleBuilding();
-            }
-            else {
-                //Check if maybe another building tile is reachable
-                this->getNewBuildingTileForSameBuilding();
-            }
+            this->handleBuilding();
         }
     }
 }
@@ -741,6 +735,7 @@ void actors::retryWalkingOrChangeGoal() {
                 this->actorGoal[1] = this->actorCommandGoal[1];
                 this->routeNeedsPath = true;
                 this->pathFound = false;
+                this->realPath = false;
                 listOfActorsWhoNeedAPath.push_back(this->actorId);
                 this->retries += +1;
         }
@@ -748,6 +743,7 @@ void actors::retryWalkingOrChangeGoal() {
         {
             this->routeNeedsPath = true;
             this->pathFound = false;
+            this->realPath = false;
             this->isFindingAlternative = true;
         }
         else
@@ -763,7 +759,7 @@ void actors::walkToNextSquare() {
     // Deze actor heeft een doel, dit doel is nog niet bereikt en is klaar met het vorige stuk lopen!
     if (actorOrientation(this->actorCords[0], this->actorCords[1], this->route.back().positionX, this->route.back().positionY) == this->orientation)
     {
-        if ((this->isGatheringRecources || this->isBuilding || this->isMeleeAttacking) && this->route.size() == 1)
+        if ((this->isGatheringRecources || this->isMeleeAttacking) && this->route.size() == 1)
         {
             this->clearRoute();
         }
@@ -1348,6 +1344,8 @@ void actors::calculateRoute()
 {
     if(this->routeNeedsPath)
     {
+        this->actorRealGoal[0] = this->actorGoal[0];
+        this->actorRealGoal[1] = this->actorGoal[1];
         this->realPath = false;
         this->routeNeedsPath = false;
         this->pathAStar();
@@ -1367,6 +1365,7 @@ void actors::pathAStar()
     std::list<Cells*> listToCheck;
     std::list<Cells*> checkedList;
     bool endReached = false;
+
 
     //check of de doelcel niet 1 hokje weg is 
     if(((actorCords[0]-actorGoal[0] == 0) ||(actorCords[0]-actorGoal[0] == -1) ||(actorCords[0]-actorGoal[0] == 1)) && ((actorCords[1]-actorGoal[1] == 0) ||(actorCords[1]-actorGoal[1] == -1) ||(actorCords[1]-actorGoal[1] == 1)))
@@ -1460,8 +1459,10 @@ void actors::pathAStar()
         //Er is een pad naar het doel gevonden! Stippel de route maar uit!
         routing(cellsList, endCell, startCell, endReached);
         this->realPath = true; //Vlaggetje dat de route naar het eindpunt gaat en er in princiepe geen herbereking nodig is
+        std::cout << "realpath" << std::endl;
     }
     else {
+        std::cout << "No solution --> so closest tile" << std::endl;
         //Check of de actor niet naar een opdracht moet lopen. Is dat het geval wil ik niet naar de dichtsbijzijnde tegel lopen maar de actor een nieuw doel laten kiezen
         if (!(this->isGatheringRecources || this->isBuilding)) {
             //We kunnen niet bij het doel komen en hebben geen bouw of verzamel opdracht, dan gaan we maar naar de geschatte dichtsbijzijnde cell waar we naartoe kunnen!
@@ -1471,8 +1472,6 @@ void actors::pathAStar()
                         return f->costToGoal < s->costToGoal;
                     });
                 //Een bereikbare tegel met de laagst geschatte totale kosten staat nu vooraan in de rij van de bezochte tegels
-                this->actorRealGoal[0] = this->actorGoal[0];
-                this->actorRealGoal[1] = this->actorGoal[1];
                 this->actorGoal[0] = cellsList[(*checkedList.front()).cellId].positionX;
                 this->actorGoal[1] = cellsList[(*checkedList.front()).cellId].positionY;
                 if ((*checkedList.front()).parentCellId != -1) {
@@ -1487,7 +1486,7 @@ void actors::pathAStar()
             }
         }
         else {
-           
+            std::cout << "No solution but gathering or building" << std::endl;
         }
     }
 }
@@ -1951,14 +1950,14 @@ int actors::getActorId()
     return this->actorId;
 }
 
-void actors::setIsBuildingTrue(int buildingId)
+void actors::setIsBuildingTrue(int buildingId, int& goalX, int& goalY)
 {
     this->isBuilding = true;
     this->buildingId = buildingId;
     this->isGatheringRecources = false;
     this->ResourceBeingGatherd = 1;
-    this->actionPreformedOnTile[0] = this->actorGoal[0];
-    this->actionPreformedOnTile[1] = this->actorGoal[1];
+    this->actionPreformedOnTile[0] = goalX;
+    this->actionPreformedOnTile[1] = goalY;
 }
 
 void actors::renderPath()

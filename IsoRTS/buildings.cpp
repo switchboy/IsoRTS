@@ -88,19 +88,25 @@ std::vector<adjacentTile> buildings::getDropOffTiles()
     {
         if(currentGame.isPassable(this->adjacentTiles[i].tileX, this->adjacentTiles[i].tileY))
         {
-            tileList.push_back(this->adjacentTiles[i]);
+            if (this->adjacentTiles[i].occupied == false) {
+                tileList.push_back(this->adjacentTiles[i]);
+            }
         }
     }
     return tileList;
 }
 
 
-void buildings::claimFreeBuiildingTile(int id, int actorId)
+bool buildings::claimFreeBuiildingTile(int id, int actorId)
 {
     if(this->adjacentTiles[id].actorId == -1)
     {
         this->adjacentTiles[id].actorId = actorId;
         this->adjacentTiles[id].occupied = true;
+        return true;
+    }
+    else {
+        return false;
     }
 }
 

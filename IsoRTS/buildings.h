@@ -57,7 +57,7 @@ public:
     void                        addBuildingPoint();
     std::vector<adjacentTile>   getDropOffTiles();
     std::vector<adjacentTile>   getFreeBuildingTile();
-    void                        claimFreeBuiildingTile(int id, int actorId);
+    bool                        claimFreeBuiildingTile(int id, int actorId);
     void                        removeActorFromBuildingTile(int actorId);
     std::list<mouseWorldCord>   getFootprintOfBuilding();
     

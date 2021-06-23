@@ -28,6 +28,7 @@ struct nearestBuildingTile
     int actionLocationY;
     int buildingId;
     bool isSet;
+    int tileId;
 };
 
 extern void updateCells(int goalId, int startId, std::vector<Cells> &cellsList);

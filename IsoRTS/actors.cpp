@@ -535,7 +535,7 @@ void actors::updateGoal(int i, int j, int waitTime)
     //check if values are in bounds
     if((i >= 0 && i < MAP_WIDTH) && (j >= 0 && j < MAP_HEIGHT))
     {
-        if(this->isBuilding)
+        if(this->buildingId != -1)
         {
             listOfBuildings[this->buildingId].removeActorFromBuildingTile(this->actorId);
         }
@@ -547,8 +547,9 @@ void actors::updateGoal(int i, int j, int waitTime)
         this->goalNeedsUpdate = true;
         this->busyWalking = false;
         this->pathFound = false;
+        this->realPath = false;
         this->isAtRecource = false;
-        this->isBackAtOwnSquare = false;
+        this->isBackAtOwnSquare = true;
         this->isRangedAttacking = false;
         this->isMeleeAttacking = false;
         this->offSetX = 0.0f;
@@ -558,7 +559,7 @@ void actors::updateGoal(int i, int j, int waitTime)
     }
 }
 
-int actorOrientation(int Xc, int Yc, int Xn, int Yn)
+int actorOrientation(int& Xc, int& Yc, int& Xn, int& Yn)
 {
 
     //Orientation:
@@ -741,7 +742,7 @@ void actors::retryWalkingOrChangeGoal() {
         }
         else if (this->hasToUnloadResource || this->isGatheringRecources || this->isBuilding)
         {
-            this->routeNeedsPath = true;
+            this->routeNeedsPath = false;
             this->pathFound = false;
             this->realPath = false;
             this->isFindingAlternative = true;
@@ -749,8 +750,8 @@ void actors::retryWalkingOrChangeGoal() {
         else
         {
             this->clearRoute();
-            this->isGatheringRecources = false;
-            this->isBuilding = false;
+            this->pathFound = false;
+            this->realPath = false;
         }
     }
 }
@@ -761,7 +762,9 @@ void actors::walkToNextSquare() {
     {
         if ((this->isGatheringRecources || this->isMeleeAttacking) && this->route.size() == 1)
         {
-            this->clearRoute();
+            //if (!this->isWalkingToUnloadingPoint) {
+                this->clearRoute();
+            //}
         }
         else if (this->isRangedAttacking && distEuclidean(this->actorCords[0], this->actorCords[1], this->actorGoal[0], this->actorGoal[1]) <= this->range)
         {
@@ -800,6 +803,7 @@ void actors::handleResourceGathering()
             {
                 this->routeNeedsPath = false;
                 this->pathFound = false;
+                this->realPath = false;
                 this->reachedUnloadingPoint = false;
                 this->isFindingAlternative = true;
             }
@@ -835,22 +839,33 @@ void actors::handleResourceGathering()
 
 void actors::handleBuilding()
 {
-    //villager is aangekomen bij te bouwen gebouw en kan na verplaatst te zijn gaan bouwen!
-    if (this->isAtRecource)
-    {
-        this->buildBuilding();
+    if (this->realPath) {
+        if (this->orientation == actorOrientation(this->actorCords[0], this->actorCords[1], this->actionPreformedOnTile[0], this->actionPreformedOnTile[1])) {
+            //villager is aangekomen bij te bouwen gebouw en kan na verplaatst te zijn gaan bouwen!
+            if (this->isAtRecource)
+            {
+                this->buildBuilding();
+            }
+            else if (this->timeStartedWalkingToRecource == 0.0f)
+            {
+                this->timeStartedWalkingToRecource = currentGame.elapsedTime;
+            }
+            else if (currentGame.elapsedTime - this->timeStartedWalkingToRecource < 0.5f)
+            {
+                this->animateWalkingToResource();
+            }
+            else
+            {
+                this->startGatheringAnimation();
+            }
+        }
+        else {
+            //eerst de actor in de juiste orientatie zetten
+            this->orientation = newOrientation(this->orientation, actorOrientation(this->actorCords[0], this->actorCords[1], this->actionPreformedOnTile[0], this->actionPreformedOnTile[1]));
+        }
     }
-    else if (this->timeStartedWalkingToRecource == 0.0f)
-    {
-        this->timeStartedWalkingToRecource = currentGame.elapsedTime;
-    }
-    else if (currentGame.elapsedTime - this->timeStartedWalkingToRecource < 0.5f)
-    {
-        this->animateWalkingToResource();
-    }
-    else
-    {
-        this->startGatheringAnimation();
+    else {
+        this->getNewBuildingTileForSameBuilding();
     }
 }
 
@@ -1098,6 +1113,7 @@ void actors::gatherResource()
             {
                 this->hasToUnloadResource = true;
                 this->isAtRecource = false;
+                this->realPath = false;
             }
             this->timeStartedGatheringRecource = currentGame.elapsedTime;
         }
@@ -1245,6 +1261,8 @@ void actors::findNearestSimilairResource()
         this->actorGoal[1] = this->listOfResourceLocations.front().locationY;
         this->actorCommandGoal[0] = this->listOfResourceLocations.front().locationX;
         this->actorCommandGoal[1] = this->listOfResourceLocations.front().locationY;
+        this->actionPreformedOnTile[0] = this->actorGoal[0];
+        this->actionPreformedOnTile[1] = this->actorGoal[1];
         this->waitForAmountOfFrames = 0;
         this->routeNeedsPath = true;
         listOfActorsWhoNeedAPath.push_back(this->actorId);
@@ -1275,57 +1293,51 @@ int adjacentTileIsCorrectDropOffPoint(int& x, int& y, int& resourceGatherd, int&
 
 void actors::findNearestDropOffPoint()
 {
-    //Bugfix for edge case where the actor is ocuping a tile adjacent to a dropoff building
-    int adjacentBuildingAvailableId = adjacentTileIsCorrectDropOffPoint(this->actorCords[0], this->actorCords[1], this->ResourceBeingGatherd, this->actorTeam);
-    if( adjacentBuildingAvailableId != -1) {
-        listOfDropOffLocations.push_back({ 0, this->actorCords[0], this->actorCords[1], adjacentBuildingAvailableId, true });
-        this->actorGoal[0] = this->actorCords[0];
-        this->actorGoal[1] = this->actorCords[1];
-        this->actorCommandGoal[0] = this->actorCords[0];
-        this->actorCommandGoal[1] = this->actorCords[1];
-        this->waitForAmountOfFrames = 0;
-        this->routeNeedsPath = true;
-        listOfActorsWhoNeedAPath.push_back(this->actorId);
-    }
-
-    else {
-        if (listOfDropOffLocations.empty())
-        {
-            for (int i = 0; i < listOfBuildings.size(); i++)
-            {
-                if ((listOfBuildings[i].getRecievesWhichResources() == this->ResourceBeingGatherd || listOfBuildings[i].getRecievesWhichResources() == 4) && listOfBuildings[i].getTeam() == this->actorTeam && listOfBuildings[i].getCompleted())
-                {
-                    std::vector<adjacentTile> tileList = listOfBuildings[i].getDropOffTiles();
-                    for (int j = 0; j < tileList.size(); j++)
-                    {
-                        float tempDeltaDistance = dist(this->actorCords[0], this->actorCords[1], tileList[j].goalX, tileList[j].goalY);
-                        listOfDropOffLocations.push_back({ tempDeltaDistance, tileList[j].goalX, tileList[j].goalY, listOfBuildings[i].getBuildingId(), true });
-                    }
-                }
-            }
-            if (!listOfDropOffLocations.empty())
-            {
-                listOfDropOffLocations.sort([](const nearestBuildingTile& f, const nearestBuildingTile& s)
-                    {
-                        return f.deltaDistance < s.deltaDistance;
-                    });
-            }
-            this->pathFound = false;
-        }
-        else {
-            //Blijkbaar niet succesvolle poging geweest
-            listOfDropOffLocations.pop_front();
-        }
-
-        if (!this->pathFound && !listOfDropOffLocations.empty())
-        {
-            this->actorGoal[0] = listOfDropOffLocations.front().locationX;
-            this->actorGoal[1] = listOfDropOffLocations.front().locationY;
-            this->actorCommandGoal[0] = listOfDropOffLocations.front().locationX;
-            this->actorCommandGoal[1] = listOfDropOffLocations.front().locationY;
+    if (!this->routeNeedsPath) {
+        //Bugfix for edge case where the actor is ocuping a tile adjacent to a dropoff building
+        int adjacentBuildingAvailableId = adjacentTileIsCorrectDropOffPoint(this->actorCords[0], this->actorCords[1], this->ResourceBeingGatherd, this->actorTeam);
+        if (adjacentBuildingAvailableId != -1) {
+            listOfDropOffLocations.push_back({ 0, this->actorCords[0], this->actorCords[1], adjacentBuildingAvailableId, true, 1 });
+            this->actorGoal[0] = this->actorCords[0];
+            this->actorGoal[1] = this->actorCords[1];
+            this->actorCommandGoal[0] = this->actorCords[0];
+            this->actorCommandGoal[1] = this->actorCords[1];
             this->waitForAmountOfFrames = 0;
             this->routeNeedsPath = true;
             listOfActorsWhoNeedAPath.push_back(this->actorId);
+        }
+        else {
+            if (listOfDropOffLocations.empty())
+            {
+                for (int i = 0; i < listOfBuildings.size(); i++)
+                {
+                    if ((listOfBuildings[i].getRecievesWhichResources() == this->ResourceBeingGatherd || listOfBuildings[i].getRecievesWhichResources() == 4) && listOfBuildings[i].getTeam() == this->actorTeam && listOfBuildings[i].getCompleted())
+                    {
+                        std::vector<adjacentTile> tileList = listOfBuildings[i].getDropOffTiles();
+                        for (int j = 1; j < tileList.size(); j++)
+                        {
+                            float tempDeltaDistance = dist(this->actorCords[0], this->actorCords[1], tileList[j].goalX, tileList[j].goalY);
+                            listOfDropOffLocations.push_back({ tempDeltaDistance, tileList[j].tileX, tileList[j].tileY, tileList[j].goalX, tileList[j].goalY, i, true, tileList[j].tileId });
+                        }
+                    }
+                }
+                if (!listOfDropOffLocations.empty())
+                {
+                    listOfDropOffLocations.sort([](const nearestBuildingTile& f, const nearestBuildingTile& s)
+                        {
+                            return f.deltaDistance < s.deltaDistance;
+                        });
+                }
+                this->pathFound = false;
+            }
+            if (!this->realPath && !listOfDropOffLocations.empty())
+            {
+                this->updateGoal(listOfDropOffLocations.front().actionLocationX, listOfDropOffLocations.front().actionLocationY, 0);
+                listOfBuildings[this->buildingId].removeActorFromBuildingTile(this->actorId);
+                this->buildingId = listOfDropOffLocations.front().buildingId;
+                listOfBuildings[this->buildingId].claimFreeBuiildingTile(listOfDropOffLocations.front().tileId, this->actorId);
+                listOfDropOffLocations.pop_front();
+            }
         }
     }
 }
@@ -1459,12 +1471,12 @@ void actors::pathAStar()
         //Er is een pad naar het doel gevonden! Stippel de route maar uit!
         routing(cellsList, endCell, startCell, endReached);
         this->realPath = true; //Vlaggetje dat de route naar het eindpunt gaat en er in princiepe geen herbereking nodig is
-        std::cout << "realpath" << std::endl;
+        std::cout << "Solution found, Real path!" << std::endl;
     }
     else {
-        std::cout << "No solution --> so closest tile" << std::endl;
         //Check of de actor niet naar een opdracht moet lopen. Is dat het geval wil ik niet naar de dichtsbijzijnde tegel lopen maar de actor een nieuw doel laten kiezen
         if (!(this->isGatheringRecources || this->isBuilding)) {
+            std::cout << "No solution --> so closest tile" << std::endl;
             //We kunnen niet bij het doel komen en hebben geen bouw of verzamel opdracht, dan gaan we maar naar de geschatte dichtsbijzijnde cell waar we naartoe kunnen!
             if (!checkedList.empty()) {
                 checkedList.sort([](const Cells* f, const Cells* s)
@@ -1927,20 +1939,14 @@ void actors::buildBuilding()
         }
         else
         {
-            if(!this->isBackAtOwnSquare)
-            {
-                this->walkBackToOwnSquare();
-            }
+            this->walkBackToOwnSquare();
             listOfBuildings[this->buildingId].removeActorFromBuildingTile(this->actorId);
         }
     }
     else
     {
         //het gebouw is er niet meer
-        if(!this->isBackAtOwnSquare)
-        {
-            this->walkBackToOwnSquare();
-        }
+        this->walkBackToOwnSquare();
         listOfBuildings[this->buildingId].removeActorFromBuildingTile(this->actorId);
     }
 }

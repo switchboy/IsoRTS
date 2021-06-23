@@ -306,7 +306,13 @@ void actors::doTaskIfNotWalking()
         }
         else if (this->isBuilding && (!this->busyWalking) && this->route.empty())
         {
-            this->handleBuilding();
+            if (this->realPath) {
+                this->handleBuilding();
+            }
+            else {
+                //Check if maybe another building tile is reachable
+                this->getNewBuildingTileForSameBuilding();
+            }
         }
     }
 }
@@ -809,22 +815,24 @@ void actors::handleResourceGathering()
     }
     else
     {
-        //verzamel recources
-        if (this->isAtRecource)
-        {
-            this->gatherResource();
-        }
-        else if (this->timeStartedWalkingToRecource == 0.0f)
-        {
-            this->timeStartedWalkingToRecource = currentGame.elapsedTime;
-        }
-        else if (currentGame.elapsedTime - this->timeStartedWalkingToRecource < 0.5f)
-        {
-            this->animateWalkingToResource();
-        }
-        else
-        {
-            this->startGatheringAnimation();
+        if (this->realPath) {
+            //verzamel recources
+            if (this->isAtRecource)
+            {
+                this->gatherResource();
+            }
+            else if (this->timeStartedWalkingToRecource == 0.0f)
+            {
+                this->timeStartedWalkingToRecource = currentGame.elapsedTime;
+            }
+            else if (currentGame.elapsedTime - this->timeStartedWalkingToRecource < 0.5f)
+            {
+                this->animateWalkingToResource();
+            }
+            else
+            {
+                this->startGatheringAnimation();
+            }
         }
     }
 }

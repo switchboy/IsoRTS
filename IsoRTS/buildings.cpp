@@ -384,21 +384,22 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
         }
     }
 
-    //draw adjecent tiles
+    if (currentGame.showPaths) {
+        //draw adjecent tiles
 
-    for (adjacentTile tile : adjacentTiles) {
-        if (tile.occupied) {
-            currentGame.spriteTileObstructed.setPosition(worldSpace(tile.tileX, tile.tileY, true), worldSpace(tile.tileX, tile.tileY, false));
-            window.draw(currentGame.spriteTileObstructed);
+        for (adjacentTile tile : adjacentTiles) {
+            if (tile.occupied) {
+                currentGame.spriteTileObstructed.setPosition(worldSpace(tile.tileX, tile.tileY, true), worldSpace(tile.tileX, tile.tileY, false));
+                window.draw(currentGame.spriteTileObstructed);
+            }
+            else {
+                currentGame.spriteSelectedTileForPath.setPosition(worldSpace(tile.tileX, tile.tileY, true), worldSpace(tile.tileX, tile.tileY, false));
+                window.draw(currentGame.spriteSelectedTileForPath);
+            }
+            currentGame.spriteUnitSelectedTile.setPosition(worldSpace(tile.goalX, tile.goalY, true), worldSpace(tile.goalX, tile.goalY, false));
+            window.draw(currentGame.spriteUnitSelectedTile);
         }
-        else {
-            currentGame.spriteSelectedTileForPath.setPosition(worldSpace(tile.tileX, tile.tileY, true), worldSpace(tile.tileX, tile.tileY, false));
-            window.draw(currentGame.spriteSelectedTileForPath);
-        }
-        currentGame.spriteUnitSelectedTile.setPosition(worldSpace(tile.goalX, tile.goalY, true), worldSpace(tile.goalX, tile.goalY, false));
-        window.draw(currentGame.spriteUnitSelectedTile);
     }
-
 }
 
 std::string buildings::getName()

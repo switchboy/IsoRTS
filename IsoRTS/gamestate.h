@@ -143,7 +143,7 @@ public:
     int objectLocationList[MAP_WIDTH][MAP_HEIGHT];
     int occupiedByBuildingList[MAP_WIDTH][MAP_HEIGHT];
     int occupiedByActorList[MAP_WIDTH][MAP_HEIGHT];
-
+    bool showPaths;
 
 private:
     sf::Event event;
@@ -167,7 +167,6 @@ private:
     bool isPressedTab;
     bool isPlacingBuilding;
     bool mousePressOutofWorld;
-    bool showPaths;
     int buildingTypeSelected;
     int objectTypeSelected;
     int startMouseCords[2];

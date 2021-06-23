@@ -1348,24 +1348,17 @@ void actors::calculateRoute()
 {
     if(this->routeNeedsPath)
     {
-        std::cout << std::endl<< "=============================" << std::endl << "Pather & Router" << std::endl;
         this->realPath = false;
         this->routeNeedsPath = false;
         this->pathAStar();
         if (!this->realPath && this->pathFound) {
-            std::cout << "Setting timestamp to recalculate path (the actual recalculation is yet to be implemented though...)" << std::endl;
             this->timeLastPathTry = currentGame.elapsedTime;
         }
-        if (!this->pathFound) {
-            std::cout << "pathFound is not set to true! So the game can manage gathering or building" << std::endl;
-        }
-        std::cout << "Done!" << std::endl << "=============================" << std::endl;
     }
 }
 
 void actors::pathAStar()
 {
-    std::cout << "Start pathfinding" << std::endl;
     std::vector<Cells> cellsList;
     cellsList.reserve(MAP_HEIGHT*MAP_WIDTH);
     int startCell = (actorCords[0]*MAP_HEIGHT)+actorCords[1]; //eigen positie
@@ -1465,7 +1458,6 @@ void actors::pathAStar()
     if(this->pathFound)
     {
         //Er is een pad naar het doel gevonden! Stippel de route maar uit!
-        std::cout << "Path found!" << std::endl;
         routing(cellsList, endCell, startCell, endReached);
         this->realPath = true; //Vlaggetje dat de route naar het eindpunt gaat en er in princiepe geen herbereking nodig is
     }
@@ -1479,14 +1471,8 @@ void actors::pathAStar()
                         return f->costToGoal < s->costToGoal;
                     });
                 //Een bereikbare tegel met de laagst geschatte totale kosten staat nu vooraan in de rij van de bezochte tegels
-                std::cout << "No path possible!" << std::endl << "Closest cell: " << (*checkedList.front()).cellId << std::endl << "Actors current cell: " << cellsList[startCell].cellId << std::endl << std::endl;
-                for (Cells* a : checkedList) {
-                    std::cout << "ID: " << a->cellId << " cost to goal: " << a->costToGoal << " parent ID: " << a->parentCellId << std::endl;
-                }
-                std::cout << "Saving original goal" << std::endl;
                 this->actorRealGoal[0] = this->actorGoal[0];
                 this->actorRealGoal[1] = this->actorGoal[1];
-                std::cout << "setting new actor goal to nearest point" << std::endl;
                 this->actorGoal[0] = cellsList[(*checkedList.front()).cellId].positionX;
                 this->actorGoal[1] = cellsList[(*checkedList.front()).cellId].positionY;
                 if ((*checkedList.front()).parentCellId != -1) {
@@ -1495,21 +1481,19 @@ void actors::pathAStar()
                 }
                 else {
                     //Actor staat al op de dichtsbijzijnde tegel er is dus geen route nodig
-                    std::cout << "Actor is allready on the closest tile..." << std::endl;
                 }
                 this->pathFound = true; //Er is geen pad naar het doel maar wel een pad naar de dichtsbijzijnde plek, de actor moet dus wel gaan lopen
                 this->realPath = false; //Vlaggetje op false laten staan zodat op een later tijdstip er opnieuw geprobeerd kan worden of er nu wél een pad naar het doel is
             }
         }
         else {
-            std::cout << "No path found! " << std::endl;
+           
         }
     }
 }
 
 void actors::routing(std::vector<Cells>& cellsList, int& endCell, int& startCell, bool& endReached)
 {
-    std::cout << "Start routing: " << std::endl << "from x:" << cellsList[startCell].positionX << " - y:" << cellsList[startCell].positionY << " to x:" << cellsList[endCell].positionX << " - y:" << cellsList[endCell].positionY << std::endl;
     //Zet de tegel waarnaartoe gelopen wordt in de lijst
     this->route.push_back({ cellsList[endCell].positionX, cellsList[endCell].positionY, cellsList[endCell].visited, cellsList[endCell].parentCellId });
     while (!endReached)
@@ -1549,11 +1533,6 @@ void actors::routing(std::vector<Cells>& cellsList, int& endCell, int& startCell
             endReached = true;
         }
     }
-
-    for (routeCell cell : this->route) {
-        std::cout << "next cell on route x: " << cell.positionX << " - y:" << cell.positionY << std::endl;
-    }
-    std::cout << "Finished routing" << std::endl;
 }
 
 void actors::pathAStarBiDi()

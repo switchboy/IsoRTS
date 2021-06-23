@@ -143,6 +143,7 @@ private:
     int range;
     int actorCords[2];
     int actorGoal[2];
+    int actorRealGoal[2];
     int actorCommandGoal[2];
     int actionPreformedOnTile[2];
     int ResourceBeingGatherd;

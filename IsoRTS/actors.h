@@ -75,7 +75,6 @@ public:
     void getNewBuildingTileForSameBuilding();
     void pathAStar();
     void routing(std::vector<Cells>& cellsList, int& endCell, int& startCell, bool& endReached);
-    void pathAStarBiDi();
     bool isInitialized();
     int getTeam();
     cords getLocation();

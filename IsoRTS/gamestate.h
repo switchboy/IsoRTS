@@ -105,10 +105,10 @@ public:
     void clickToSelectObjectOrBuilding();
     void clickToSelect();
     void getDefinitiveSelection();
-    void clickToMove(int posX, int posY, bool minimap);
-    void clickToGatherResource();
-    void clickToBuildOrRepairBuilding();
-    void clickToAttack();
+    bool clickToMove(int posX, int posY, bool minimap);
+    bool clickToGatherResource();
+    bool clickToBuildOrRepairBuilding();
+    bool clickToAttack();
     void mouseRightClick();
     void changeTiles();
     void edgeScrolling();

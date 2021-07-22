@@ -973,8 +973,9 @@ void gameState::getDefinitiveSelection()
     }
 }
 
-void gameState::clickToMove(int posX, int posY, bool minimap)
+bool gameState::clickToMove(int posX, int posY, bool minimap)
 {
+    bool actionDone = false;
     for (int i = 0; i < this->selectedUnits.size(); i++)
     {
         if (this->selectedUnits.size() > 1)
@@ -992,6 +993,7 @@ void gameState::clickToMove(int posX, int posY, bool minimap)
                 }
                 listOfActors[this->selectedUnits[i]].updateGoal(tempCords.x, tempCords.y, i / 5);
                 listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
+                actionDone = true;
             }
         }
         else
@@ -1005,6 +1007,7 @@ void gameState::clickToMove(int posX, int posY, bool minimap)
                 }
                 else {
                     listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, 0);
+                    actionDone = true;
                 }
             }
         }
@@ -1013,10 +1016,12 @@ void gameState::clickToMove(int posX, int posY, bool minimap)
             listOfActors[this->selectedUnits[i]].setGatheringRecource(false);
         }
     }
+    return actionDone;
 }
 
-void gameState::clickToGatherResource()
+bool gameState::clickToGatherResource()
 {
+    bool actionDone = false;
     for (int i = 0; i < this->selectedUnits.size(); i++)
     {
         if (this->selectedUnits.size() > 1)
@@ -1025,6 +1030,7 @@ void gameState::clickToGatherResource()
             {
                 listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, i / 5);
                 listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
+                actionDone = true;
             }
         }
         else
@@ -1032,6 +1038,7 @@ void gameState::clickToGatherResource()
             if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
             {
                 listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, 0);
+                actionDone = true;
             }
         }
         if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
@@ -1039,6 +1046,7 @@ void gameState::clickToGatherResource()
             listOfActors[this->selectedUnits[i]].setGatheringRecource(true);
         }
     }
+    return actionDone;
 }
 
 nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId)
@@ -1066,8 +1074,9 @@ nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId)
     }
 }
 
-void gameState::clickToBuildOrRepairBuilding()
+bool gameState::clickToBuildOrRepairBuilding()
 {
+    bool actionDone = false;
     if (!listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getCompleted())
     {
         for (int i = 0; i < this->selectedUnits.size(); i++)
@@ -1082,6 +1091,7 @@ void gameState::clickToBuildOrRepairBuilding()
                         listOfActors[this->selectedUnits[i]].updateGoal(tempTile.locationX, tempTile.locationY, i / 5);
                         listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
                         listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
+                        actionDone = true;
                     }
                 }
                 else
@@ -1090,6 +1100,7 @@ void gameState::clickToBuildOrRepairBuilding()
                     {
                         listOfActors[this->selectedUnits[i]].updateGoal(tempTile.locationX, tempTile.locationY, i / 5);
                         listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
+                        actionDone = true;
                     }
                 }
                 if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
@@ -1099,6 +1110,7 @@ void gameState::clickToBuildOrRepairBuilding()
             }
         }
     }
+    return actionDone;
 }
 
 void gameState::changeBuildingType()
@@ -1126,8 +1138,8 @@ void testfunctiuon(int testVar)
     }
 }
 
-void gameState::clickToAttack() {
-
+bool gameState::clickToAttack() {
+    bool actionDone = false;
     for (int i = 0; i < this->selectedUnits.size(); i++)
     {
         if (this->selectedUnits.size() > 1)
@@ -1137,6 +1149,7 @@ void gameState::clickToAttack() {
                 listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, i / 5);
                 listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
                 listOfActors[this->selectedUnits[i]].setIsDoingAttack();
+                actionDone = true;
             }
         }
         else
@@ -1145,9 +1158,11 @@ void gameState::clickToAttack() {
             {
                 listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, 0);
                 listOfActors[this->selectedUnits[i]].setIsDoingAttack();
+                actionDone = true;
             }
         }
     }
+    return actionDone;
 }
 
 void gameState::clickToGiveCommand()
@@ -1155,23 +1170,24 @@ void gameState::clickToGiveCommand()
     this->firstRound = true;
     this->lastIandJ[0] = 0;
     this->lastIandJ[1] = 0;
+    bool actionPreformed = false;
     if (this->isPassable(this->mouseWorldPosition.x, this->mouseWorldPosition.y))
     {
-        clickToMove(0,0,false);
+        actionPreformed = clickToMove(0,0,false);
     }
     else if (this->objectLocationList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1)
     {
-        clickToGatherResource();
+        actionPreformed = clickToGatherResource();
     }
     else if (this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1)
     {
         if (listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getTeam() == currentPlayer.getTeam()) 
         {
-            clickToBuildOrRepairBuilding();
+            actionPreformed = clickToBuildOrRepairBuilding();
         }
         else 
         {
-            clickToAttack();
+            actionPreformed = clickToAttack();
         }
         
     }
@@ -1182,8 +1198,10 @@ void gameState::clickToGiveCommand()
         }
     }
 
-    orderCursor newOrderCursor(this->mousePosition);
-    listOfOrderCursors.push_back(newOrderCursor);
+    if (actionPreformed) {
+        orderCursor newOrderCursor(this->mousePosition);
+        listOfOrderCursors.push_back(newOrderCursor);
+    }
 
 }
 

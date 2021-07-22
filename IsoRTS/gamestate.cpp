@@ -343,6 +343,19 @@ void gameState::loadTextures()
         std::cout << "Error loading texture: lumbercamp.png \n" << std::endl;
     }
 
+    if (textureBuildingMiningCamp.loadFromFile("textures/miningCamp.png"))
+    {
+        spriteBuildingMiningCamp.setTexture(textureBuildingMiningCamp);
+        spriteBuildingMiningCamp.setTextureRect(sf::IntRect(0, 0, 192, 192));
+        spriteBuildingMiningCamp.setOrigin(64, 160);
+    }
+    else
+    {
+        std::cout << "Error loading texture: lumbercamp.png \n" << std::endl;
+    }
+
+
+
     if (textureBuildingBarracks.loadFromFile("textures/barracks.png"))
     {
         spriteBuildingBarracks.setTexture(textureBuildingBarracks);
@@ -1128,7 +1141,7 @@ bool gameState::clickToBuildOrRepairBuilding()
 void gameState::changeBuildingType()
 {
     this->buildingTypeSelected += 1;
-    if (this->buildingTypeSelected > 4)
+    if (this->buildingTypeSelected > 5)
     {
         this->buildingTypeSelected = 0;
     }
@@ -1839,9 +1852,10 @@ void gameState::drawMiniMap()
     window.setView(worldView);
 }
 
-void createVillagerButtons(int& startX, int& startY, int& incrementalXOffset, bool& villagerButtonsAreThere)
+void createVillagerButtons(int& startX, int& startY, int& incrementalXOffset,  bool& villagerButtonsAreThere)
 {
     if (!villagerButtonsAreThere) {
+        int startXOr = startX;
         button newButton = { startX, startY, 0, 0, 0, static_cast<int>(listOfButtons.size()),0 };
         listOfButtons.push_back(newButton);
         startX += incrementalXOffset;
@@ -1856,6 +1870,11 @@ void createVillagerButtons(int& startX, int& startY, int& incrementalXOffset, bo
         startX += incrementalXOffset;
         button newButton4 = { startX, startY, 6, 8, 0, static_cast<int>(listOfButtons.size()),0 };
         listOfButtons.push_back(newButton4);
+        villagerButtonsAreThere = true;
+        startX = startXOr;
+        startY += incrementalXOffset;
+        button newButton5 = { startX, startY, 8, 10, 0, static_cast<int>(listOfButtons.size()),0 };
+        listOfButtons.push_back(newButton5);
         villagerButtonsAreThere = true;
     }
 }
@@ -1993,6 +2012,9 @@ int getBuildingSpriteOffset(int& buildingId)
     case 4:
         return  512;
         break;
+    case 5:
+        return  640;
+        break;
 
     }
     return -1;
@@ -2027,6 +2049,11 @@ void createBuildingButtons(int& buildingId, int& startX, int& startY)
             listOfButtons.push_back(makeSwordsman);
             //research will also go here
         }
+        break;
+    case 5:
+        //mingincamp
+        break;
+    default:
         break;
     }
 }
@@ -2444,6 +2471,9 @@ void gameState::loadBuildings()
     //barracks 4
     footprintOfBuildings.push_back({ 3,3 });
     priceOfBuilding.push_back({ 0,175,0,0 });
+    //Mining camp 5
+    footprintOfBuildings.push_back({ 3,3 });
+    priceOfBuilding.push_back({ 0,100,0,0 });
 }
 
 void loadActors()

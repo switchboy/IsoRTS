@@ -103,6 +103,11 @@ void button::showToolTip()
         toolTipText << "Cost: Food: " << priceOfActor[1].food << " Wood: " << priceOfActor[1].wood << " Stone: " << priceOfActor[1].stone << " Gold: " << priceOfActor[1].gold;
         toolTipDiscription << "Train a basic melee sword wielding soldier";
         break;
+    case 10:
+        toolTipTitle << "Build Mining Camp";
+        toolTipText << "Cost: Food: " << priceOfBuilding[5].food << " Wood: " << priceOfBuilding[5].wood << " Stone: " << priceOfBuilding[5].stone << " Gold: " << priceOfBuilding[5].gold;
+        toolTipDiscription << "Collection point for gold and stone and research new mining abilities";
+        break;
     }
 
     int longestStringLength = 0;
@@ -262,6 +267,19 @@ void button::performAction()
             gameText.addNewMessage(errortext.str(), 1);
         }
         break;
+    case 10:
+        if (priceOfBuilding[5].food <= currentPlayer.getStats().amountOfFood && priceOfBuilding[5].wood <= currentPlayer.getStats().amountOfWood && priceOfBuilding[5].stone <= currentPlayer.getStats().amountOfStone && priceOfBuilding[5].gold <= currentPlayer.getStats().amountOfGold)
+        {
+            currentGame.setBuildingType(5);
+            currentGame.setIsPlacingBuilding();
+        }
+        else
+        {
+            std::stringstream errortext;
+            errortext << "Not enough resources to build a Mining Camp! Cost Food: " << priceOfBuilding[5].food << " Wood: " << priceOfBuilding[5].wood << " Stone: " << priceOfBuilding[5].stone << " Gold: " << priceOfBuilding[5].gold;
+            gameText.addNewMessage(errortext.str(), 1);
+        }
+        break;
     }
 }
 
@@ -303,6 +321,10 @@ void button::drawButton()
     case 7: //Swordsman
         xOffSet = 64;
         yOffset = 64;
+        break;
+    case 8: //Mining Camp
+        xOffSet = 0;
+        yOffset = 320;
         break;
     }
     currentGame.spriteUIButton.setTextureRect(sf::IntRect(xOffSet, yOffset, 64, 64));

@@ -248,6 +248,23 @@ buildings::buildings(int type, int startXlocation, int startYLocation, int build
         this->offSetYStore = 1;
         this->amountOfAnimationSprites = 0;
         break;
+    case 5:
+        //MiningCamp
+        hitPointsTotal = 250;
+        hitPointsLeft = 250;
+        canDoRangedDamage = false;
+        amountOfRangedDamage = 0;
+        range = 0;
+        recievesWood = false;
+        recievesStone = true;
+        recievesGold = true;
+        recievesFood = false;
+        buildingPointsNeeded = 25;
+        buildingPointsRecieved = 0;
+        supportsPopulationOf = 0;
+        this->offSetYStore = 1;
+        this->amountOfAnimationSprites = 8;
+        break;
     }
     fillAdjacentTiles();
 }
@@ -377,6 +394,11 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
         currentGame.spriteBuildingBarracks.setColor(sf::Color(255, 255, 255, transparant));
         window.draw(currentGame.spriteBuildingBarracks);
         break;
+    case 5:
+        currentGame.spriteBuildingMiningCamp.setTextureRect(sf::IntRect(0, currentGame.spriteBuildingMiningCamp.getTextureRect().height * offsetY, currentGame.spriteBuildingMiningCamp.getTextureRect().width, currentGame.spriteBuildingMiningCamp.getTextureRect().height));
+        currentGame.spriteBuildingMiningCamp.setPosition(worldSpace(i, j, true), worldSpace(i, j, false));
+        currentGame.spriteBuildingMiningCamp.setColor(sf::Color(255, 255, 255, transparant));
+        window.draw(currentGame.spriteBuildingMiningCamp);
     }
     //Redraw possible overdrawn sprites
     if(!typeOverride)
@@ -422,6 +444,8 @@ std::string buildings::getName()
         return "Lumber Camp";
     case 4:
         return "Barracks";
+    case 5:
+        return "Mining Camp";
     default: 
         return "Building Name Label";
     }

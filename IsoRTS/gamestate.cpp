@@ -1983,6 +1983,7 @@ void gameState::drawActorToolbar(int &startX, int &startY, int &incrementalXOffs
         }
         if (this->selectedUnits.size() > 1)
         {
+            startY = mainWindowHeigth / 30;
             addActorSelectorButton(this->selectedUnits[i], startDeck, tempY, startY, incrementalYOffset, offSetTonextCard);
         }
         else if (i == 0) {
@@ -2350,7 +2351,6 @@ void gameState::drawToolbar()
     {
         drawObjectToolbar(startX, startY, incrementalXOffset, spriteYOffset, startProgress, tempY, incrementalYOffset, offSetTonextCard);
     }
-
     drawButtons();
     window.setView(worldView);
 }

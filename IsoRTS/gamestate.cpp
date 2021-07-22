@@ -954,6 +954,21 @@ void gameState::getDefinitiveSelection()
                     selectedUnits.push_back({ this->occupiedByActorList[this->rectangleCords[i].x][this->rectangleCords[i].y] });
                 }
             }
+            if (selectedUnits.size() > 1) {
+                //Haal duplicaten eruit
+                sort(selectedUnits.begin(), selectedUnits.end());
+                selectedUnits.erase(unique(selectedUnits.begin(), selectedUnits.end()), selectedUnits.end());
+            
+                //Haal vijanden eruit als er meer dan 1 unit geselecteerd is
+                selectedUnits.erase(std::remove_if(
+                    selectedUnits.begin(), selectedUnits.end(),
+                    [](const int& id) {
+                        return listOfActors[currentGame.selectedUnits[id]].getTeam() != currentPlayer.getTeam();
+                    }
+                ));
+            
+            }
+
         }
     }
 }
@@ -2453,7 +2468,7 @@ void gameState::setDefaultValues()
     this->objectSelectedId = -1;
     this->buildingTypeSelected = 0;
     this->objectTypeSelected = 0;
-    this->showPaths = true;
+    this->showPaths = false;
     this->lastMistDraw = -1.0f;
     listOfBuildings.resize(1);
     listOfObjects.resize(1);

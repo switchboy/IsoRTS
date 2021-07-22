@@ -5,6 +5,7 @@
 #include "button.h"
 #include <list>
 #include <sstream>
+#include <set>
 
 extern int mainWindowWidth;
 extern int mainWindowHeigth;

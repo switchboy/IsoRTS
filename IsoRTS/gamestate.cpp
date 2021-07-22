@@ -225,6 +225,9 @@ void gameState::drawMap()
 
 void gameState::loadTextures()
 {
+    this->selectionRectangle.setOutlineThickness(1);
+    this->selectionRectangle.setOutlineColor(sf::Color(255, 255, 255));
+    this->selectionRectangle.setFillColor(sf::Color(255, 255, 255, 40));
     if (textureArrow.loadFromFile("textures/arrow.png"))
     {
         spriteArrow.setTexture(textureArrow);
@@ -900,12 +903,9 @@ void gameState::drawMouseBox() {
     if (!(this->startLocation[0] == this->mouseWorldPosition.x && this->startLocation[1] == this->mouseWorldPosition.y)) {
         int diffX = this->startMouseCords[0] - (int)this->mousePosition.x;
         int diffY = this->startMouseCords[1] - (int)this->mousePosition.y;
-        sf::RectangleShape rectangle(sf::Vector2f(diffX, diffY));
-        rectangle.setOutlineThickness(1);
-        rectangle.setOutlineColor(sf::Color(255, 255, 255));
-        rectangle.setFillColor(sf::Color(255, 255, 255, 128));
-        rectangle.setPosition((int)this->mousePosition.x, (int)this->mousePosition.y);
-        window.draw(rectangle);
+        this->selectionRectangle.setSize(sf::Vector2f(diffX, diffY));
+        this->selectionRectangle.setPosition((int)this->mousePosition.x, (int)this->mousePosition.y);
+        window.draw(this->selectionRectangle);
     }
 }
 

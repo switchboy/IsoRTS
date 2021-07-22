@@ -75,6 +75,7 @@ public:
     void calculateRectangle();
     void interact();
     void drawMouseInteraction();
+    void drawMouseBox();
     void drawGame();
     void createFogOfWar();
     void drawToolTip();

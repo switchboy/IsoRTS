@@ -896,6 +896,19 @@ void gameState::clickToSelect()
     }
 }
 
+void gameState::drawMouseBox() {
+    if (!(this->startLocation[0] == this->mouseWorldPosition.x && this->startLocation[1] == this->mouseWorldPosition.y)) {
+        int diffX = this->startMouseCords[0] - (int)this->mousePosition.x;
+        int diffY = this->startMouseCords[1] - (int)this->mousePosition.y;
+        sf::RectangleShape rectangle(sf::Vector2f(diffX, diffY));
+        rectangle.setOutlineThickness(1);
+        rectangle.setOutlineColor(sf::Color(255, 255, 255));
+        rectangle.setFillColor(sf::Color(255, 255, 255, 128));
+        rectangle.setPosition((int)this->mousePosition.x, (int)this->mousePosition.y);
+        window.draw(rectangle);
+    }
+}
+
 void gameState::mouseLeftClick()
 {
     if(!this->mousePressedLeft)
@@ -1429,11 +1442,14 @@ void gameState::drawMouseInteraction()
 {
     if(this->mousePressedLeft && !this->mousePressOutofWorld)
     {
+        drawMouseBox();
         if(!rectangleCords.empty())
         {
             for(int i = 0; i < rectangleCords.size(); i++)
             {
-                drawMousePosition(rectangleCords[i].x, rectangleCords[i].y,true);
+                if (showPaths) {
+                    drawMousePosition(rectangleCords[i].x, rectangleCords[i].y, true);
+                }
             }
         }
     }

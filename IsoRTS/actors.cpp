@@ -1086,43 +1086,63 @@ void actors::animateWalkingToResource()
     }
 }
 
+bool isRealyNextToRecource(int& unitX, int& unitY, int& resourceX, int& resourceY) {
+    int distX = unitX - resourceX;
+    int distY = unitY - resourceY;
+    if ((distX == 0 || distX == 1 || distX == -1) && (distY == 0 || distY == 1 || distY == -1)) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 void actors::gatherResource()
 {
-    if(currentGame.objectLocationList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]] != -1)
-    {
-        if(currentGame.elapsedTime - this->timeStartedGatheringRecource > 2)
+    if (isRealyNextToRecource(this->actorCords[0], this->actorCords[1], this->actionPreformedOnTile[0], this->actionPreformedOnTile[1])) {
+        if (currentGame.objectLocationList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]] != -1)
         {
-            switch(this->ResourceBeingGatherd)
+            if (currentGame.elapsedTime - this->timeStartedGatheringRecource > 2)
             {
-            case 0:  //wood
-                this->amountOfWood += +1;
-                break;
-            case 1: //food
-                this->amountOfFood += +1;
-                break;
-            case 2: //stone
-                this->amountOfStone += +1;
-                break;
-            case 3: // gold
-                this->amountOfGold += +1;
-                break;
+                switch (this->ResourceBeingGatherd)
+                {
+                case 0:  //wood
+                    this->amountOfWood += +1;
+                    break;
+                case 1: //food
+                    this->amountOfFood += +1;
+                    break;
+                case 2: //stone
+                    this->amountOfStone += +1;
+                    break;
+                case 3: // gold
+                    this->amountOfGold += +1;
+                    break;
+                }
+                listOfObjects[currentGame.objectLocationList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]]].substractResource();
+                this->carriesRecources = true;
+                if ((this->amountOfFood == 10) || (this->amountOfWood == 10) || (this->amountOfStone == 10) || (this->amountOfGold == 10))
+                {
+                    this->hasToUnloadResource = true;
+                    this->isAtRecource = false;
+                    this->realPath = false;
+                }
+                this->timeStartedGatheringRecource = currentGame.elapsedTime;
             }
-            listOfObjects[currentGame.objectLocationList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]]].substractResource();
-            this->carriesRecources = true;
-            if((this->amountOfFood == 10) || (this->amountOfWood == 10) ||(this->amountOfStone == 10) ||(this->amountOfGold == 10) )
-            {
-                this->hasToUnloadResource = true;
-                this->isAtRecource = false;
-                this->realPath = false;
-            }
-            this->timeStartedGatheringRecource = currentGame.elapsedTime;
+        }
+        else
+        {
+            //resource not here!
+            this->hasToUnloadResource = true;
+            this->isAtRecource = false;
+            this->realPath = false;
         }
     }
-    else
-    {
-        //resource not here!
+    else {
+        this->carriesRecources = true;
         this->hasToUnloadResource = true;
         this->isAtRecource = false;
+        this->realPath = false;
     }
 }
 
@@ -1207,6 +1227,7 @@ void actors::setCommonGoalTrue()
 
 void actors::findNearestSimilairResource()
 {
+    std::cout << "searching for other resource" << std::endl;
     if (this->listOfResourceLocations.empty()) {
         int lowSearchLimitX = this->actorCords[0] - 30;
         if (lowSearchLimitX < 0)

@@ -965,8 +965,7 @@ void gameState::getDefinitiveSelection()
                     [](const int& id) {
                         return listOfActors[currentGame.selectedUnits[id]].getTeam() != currentPlayer.getTeam();
                     }
-                ));
-            
+                ), selectedUnits.end());
             }
 
         }

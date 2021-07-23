@@ -357,6 +357,14 @@ bool actors::isAlive()
     return this->actorAlive;
 }
 
+cords actors::getActorCords()
+{
+    cords blah;
+    blah.x = this->actorCords[0];
+    blah.y = this->actorCords[1];
+    return blah;
+}
+
 void actors::setIsDoingAttack()
 {
     if (this->doesRangedDamage) {

@@ -56,10 +56,7 @@ void convertPerlinNoiseToMap(float* noisemap) {
 	}
 }
 
-int roll(int min, int max)
-{
-	return  min + (rand() % static_cast<int>(max - min + 1));
-}
+
 
 void placeTrees() {
 	srand(time(NULL));

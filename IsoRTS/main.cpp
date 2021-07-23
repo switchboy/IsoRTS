@@ -12,9 +12,9 @@
 #include "projectile.h"
 #include "orderCursor.h"
 #include "player.h"
+#include "simpleAI.h"
 
 gameState currentGame;
-
 
 void routeHelper(int i)
 {
@@ -53,7 +53,19 @@ void clearOldCommandCursors()
 }
 
 void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& lastProjectile){
-
+    for (int i = 0; i < currentGame.getPlayerCount(); i++) {
+        listOfPlayers[i].clearIdleVillagerList();
+    }
+    for (int n = 0; n < listOfActors.size(); n++) {
+        if (listOfActors[n].idle() && listOfActors[n].getType() == 0 && listOfActors[n].isAlive()) {
+            listOfPlayers[listOfActors[n].getTeam()].insertIdIntoIdleVillagerList(n);
+        }
+    }    
+    if (!listOfAI.empty()) {
+        for (int i = 0; i < listOfAI.size(); i++) {
+            listOfAI[i].update();
+        }
+    }
     if (!listOfProjectiles.empty()) {
         int endProjectile = lastProjectile + 100;
         if (listOfProjectiles.size() > 100) {
@@ -131,15 +143,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
             lastBuilding = endBuilding;
         }
     }
-    for (int i = 0; i < currentGame.getPlayerCount(); i++) {
-        listOfPlayers[i].clearIdleVillagerList();
-    }
-    for (int n = 0; n < listOfActors.size(); n++) {
-        if (listOfActors[n].idle() && listOfActors[n].getType() == 0 && listOfActors[n].isAlive()) {
-            listOfPlayers[listOfActors[n].getTeam()].insertIdIntoIdleVillagerList(n);
-        }
-    }
-    
+  
 }
 
 int main()
@@ -150,6 +154,8 @@ int main()
     int lastPath=0;
     int lastProjectile=0;
     currentGame.loadGame();
+    simpleAI newAIPlayer(0, 0);
+    listOfAI.push_back(newAIPlayer);
     while(window.isOpen())
     {
         sf::Time elapsedMain = clockMain.getElapsedTime();

@@ -51,10 +51,7 @@ struct adjacentTile
     int actorId;
 };
 
-struct cords {
-    int x;
-    int y;
-};
+
 
 mouseWorldCord toWorldMousePosition(int mouseX, int mouseY);
 

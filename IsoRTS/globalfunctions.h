@@ -21,6 +21,14 @@ struct rectangleCord
     int x, y;
 };
 
+struct cords {
+    int x;
+    int y;
+};
+
+int roll(int min, int max);
+
+
 bool rectCord (rectangleCord& lhs, rectangleCord& rhs);
 bool compareCord(const rectangleCord& lhs, const rectangleCord& rhs);
 bool sortCordByX(const rectangleCord& lhs, const rectangleCord& rhs);

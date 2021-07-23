@@ -21,6 +21,13 @@ bool sortCordByX(const rectangleCord& lhs, const rectangleCord& rhs)
     }
 }
 
+int roll(int min, int max)
+{
+    {
+        return  min + (rand() % static_cast<int>(max - min + 1));
+    }
+}
+
 bool rectCord(rectangleCord& lhs, rectangleCord& rhs)
 {
     return(lhs.y<rhs.y);

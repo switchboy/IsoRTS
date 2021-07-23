@@ -3,6 +3,7 @@
 #include <cmath>
 #include <list>
 #include "gamestate.h"
+#include "globalfunctions.h"
 #include <SFML/System.hpp>
 #include <thread>
 
@@ -107,6 +108,7 @@ public:
     void shootProjectile();
     bool idle();
     bool isAlive();
+    cords getActorCords();
 
 private:
     bool actorAlive;
@@ -141,7 +143,6 @@ private:
     int buildingId;
     int actorId;
     int hitPoints;
-    //int totalHitPoints;
     int meleeDamage;
     int rangedDamage;
     int range;

@@ -1604,11 +1604,19 @@ void actors:: drawActor()
     xPosition = xPosition + this->offSetX;
     yPosition = yPosition + this->offSetY;
 
+    bool drawHealth = false;
+
     if(currentGame.isInSelectedActors(this->actorId))
     {
         currentGame.spriteUnitSelectedTile.setPosition(xPosition, yPosition);
         window.draw(currentGame.spriteUnitSelectedTile);
+        drawHealth = true;
     }
+
+    if (this->actorHealth < this->hitPoints) {
+        drawHealth = true;
+    }
+
 
     switch (this->actorType) 
     {
@@ -1621,6 +1629,18 @@ void actors:: drawActor()
         currentGame.spriteSwordsman.setPosition(xPosition, yPosition);
         currentGame.spriteSwordsman.setTextureRect(sf::IntRect(spriteXoffset, spriteYoffset, 16, 32));
         window.draw(currentGame.spriteSwordsman);
+    }
+
+    if (drawHealth) {
+        currentGame.healthBarBackground.setFillColor(sf::Color(255, 0, 0));
+        currentGame.healthBarBackground.setSize(sf::Vector2f(32, 3));
+        currentGame.healthBarGreenBar.setFillColor(sf::Color(0, 255, 0));
+        currentGame.healthBarGreenBar.setSize(sf::Vector2f(((float)this->actorHealth / (float)this->hitPoints) * 32, 3));
+        currentGame.healthBarBackground.setPosition(xPosition+16, yPosition-28);
+        currentGame.healthBarGreenBar.setPosition(xPosition+16, yPosition-28);
+        window.draw(currentGame.healthBarBackground);
+        window.draw(currentGame.healthBarGreenBar);
+
     }
 
 

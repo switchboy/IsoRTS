@@ -141,6 +141,8 @@ public:
     textureStone, textureGold, textureBerryBush, textureUIButton, textureUnitSelectedTile,
     textureWaterTile, textureBeachTileNE, textureBeachTileNW,textureBeachTileSE, textureBeachTileSW, textureBuildingHouse, textureVillager, textureTotalBackground;
     sf::RectangleShape selectionRectangle;
+    sf::RectangleShape healthBarBackground;
+    sf::RectangleShape healthBarGreenBar;
     int currentMap[MAP_WIDTH][MAP_HEIGHT];
     int buildingLocationList[MAP_WIDTH][MAP_HEIGHT];
     int objectLocationList[MAP_WIDTH][MAP_HEIGHT];

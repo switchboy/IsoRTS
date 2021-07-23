@@ -138,7 +138,7 @@ private:
     int buildingId;
     int actorId;
     int hitPoints;
-    int totalHitPoints;
+    //int totalHitPoints;
     int meleeDamage;
     int rangedDamage;
     int range;

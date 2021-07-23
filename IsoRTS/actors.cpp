@@ -249,7 +249,6 @@ void actors::update()
                 if (actorInListForPathfinding) {
                 }
                 else {
-                    std::cout << "NOT ON THE LIST!";
                     this->retryWalkingOrChangeGoal();
                 }
             }
@@ -261,19 +260,15 @@ void actors::update()
     }
 }
 void actors::searchAltetnative() {
-    std::cout << "Finding alternative..." << std::endl;
     if (!this->routeNeedsPath){
         if (!this->pathFound) {
-            std::cout << "no new path foud yet..." <<std::endl;
             if (this->isBuilding) {
                 this->getNewBuildingTileForSameBuilding();
             }
             else if (this->hasToUnloadResource) {
-                std::cout << "getting new drop off point." << std::endl;
                 this->findNearestDropOffPoint();
             }
             else if (this->isGatheringRecources) {
-                std::cout << "getting similair resource." << std::endl;
                 this->findNearestSimilairResource();
             }
         }
@@ -1283,7 +1278,6 @@ void actors::calculateRoute()
 
 void actors::pathAStar()
 {
-    std::cout << "routing actor: " << this->actorId << std::endl;
     std::vector<Cells> cellsList;
     cellsList.reserve(MAP_HEIGHT*MAP_WIDTH);
     int startCell = (actorCords[0]*MAP_HEIGHT)+actorCords[1]; //eigen positie
@@ -1411,7 +1405,6 @@ void actors::pathAStar()
             }
         }
         else {
-            std::cout << "No solution but gathering or building" << std::endl;
             this->isFindingAlternative = true;
         }
     }

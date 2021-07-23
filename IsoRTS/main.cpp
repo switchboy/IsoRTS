@@ -15,7 +15,13 @@
 gameState currentGame;
 
 
-
+void routeHelper(int i)
+{
+    if (listOfActors[i].isInitialized())
+    {
+        listOfActors[i].calculateRoute();
+    }
+}
 
 void updateActorHelper(int i)
 {
@@ -80,11 +86,9 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
                 endPath = listOfActorsWhoNeedAPath.size();
             }
             for (int i = lastPath; i < endPath; i++){
-                std::cout << "Requesting route for " << i << std::endl;
-                listOfActors[listOfActorsWhoNeedAPath[i]].calculateRoute();
+                std::async(std::launch::async, routeHelper, listOfActorsWhoNeedAPath[i]);
             }
             int after = listOfActorsWhoNeedAPath.size();
-            std::cout << begin << "-" << after << std::endl;
             if (endPath == listOfActorsWhoNeedAPath.size()) {
                 lastPath = 0;
                 listOfActorsWhoNeedAPath.clear();

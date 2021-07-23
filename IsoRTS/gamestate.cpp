@@ -73,13 +73,18 @@ void gameState::drawMousePosition(int x,int y, bool noProblem)
 
 bool gameState::isPassable(int x, int y)
 {
-    //check if the terrain is passable 1-6
-    if((this->currentMap[x][y] > 0 && this->currentMap[x][y] < 7)&& this->objectLocationList[x][y] == -1 && this->occupiedByBuildingList[x][y] == -1 && this->occupiedByActorList[x][y] == -1)
-    {
-        return true;
+    //check if the terrain is passable 1-6 and within map bounds
+    if (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT) {
+        if ((this->currentMap[x][y] > 0 && this->currentMap[x][y] < 7) && this->objectLocationList[x][y] == -1 && this->occupiedByBuildingList[x][y] == -1 && this->occupiedByActorList[x][y] == -1)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
-    else
-    {
+    else {
         return false;
     }
 }
@@ -136,6 +141,12 @@ void gameState::drawGround(int i, int j)
         spriteBeachTileSW.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
         window.draw(spriteBeachTileSW);
         break;
+    }
+    if (this->showPaths) {
+        if (!isPassable(i, j)) {
+            spriteTileObstructed.setPosition(worldSpace(i, j, true), worldSpace(i, j, false));
+            window.draw(spriteTileObstructed);
+        }
     }
 }
 
@@ -989,6 +1000,8 @@ void gameState::getDefinitiveSelection()
                 selectedUnits.erase(std::remove_if(
                     selectedUnits.begin(), selectedUnits.end(),
                     [](const int& id) {
+                        std::cout << id;
+                        std::cout << " - " << listOfActors[currentGame.selectedUnits[id]].getTeam() << std::endl;
                         return listOfActors[currentGame.selectedUnits[id]].getTeam() != currentPlayer.getTeam();
                     }
                 ), selectedUnits.end());

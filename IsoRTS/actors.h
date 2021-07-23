@@ -69,7 +69,6 @@ public:
     void renderPath();
     void setCommonGoalTrue();
     void setGatheringRecource(bool flag);
-    bool canTargetBeReached();
     void findNearestDropOffPoint();
     void findNearestSimilairResource();
     void getNewBuildingTileForSameBuilding();
@@ -178,6 +177,6 @@ private:
 };
 
 extern std::vector<actors> listOfActors;
-extern std::list<int> listOfActorsWhoNeedAPath;
+extern std::vector<int> listOfActorsWhoNeedAPath;
 
 #endif // ACTORS_H

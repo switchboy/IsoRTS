@@ -10,7 +10,7 @@
 #include "projectile.h"
 
 std::vector<actorOrBuildingPrice> priceOfActor;
-std::list<int> listOfActorsWhoNeedAPath;
+std::vector<int> listOfActorsWhoNeedAPath;
 std::vector <actors> listOfActors;
 std::mutex listOfActorsMutex;
 
@@ -150,6 +150,7 @@ actors::actors(int type, int actorX, int actorY, int actorTeam, int actorId)
     this->actorId = actorId;
     this->actorCords[0] = actorX;
     this->actorCords[1] = actorY;
+    this->timeLastRetry = 0;
     switch(type)
     {
     case 0://villager
@@ -225,22 +226,45 @@ void actors::update()
 {
     if (this->actorAlive)
     {
+        std::cout << "Actor " << this->actorId << " is alive and ";
         if (!this->isFindingAlternative) {
             if (this->goalNeedsUpdate)
             {
+                std::cout << "is updateing goal";
                 this->updateGoalPath();
             }
             else if (!this->routeNeedsPath)
             {
+                std::cout << "has had a path or is idle ";
                 this->moveActorIfWalking();
                 this->doTaskIfNotWalking();
+            }
+            else {
+                std::cout << "is waiting on a path ";
+                bool actorInListForPathfinding = false;
+                if (!listOfActorsWhoNeedAPath.empty()) {
+                    for (int i = 0; i < listOfActorsWhoNeedAPath.size(); i++) {
+                        if (listOfActorsWhoNeedAPath[i] == this->actorId) {
+                            actorInListForPathfinding = true;
+                        }
+                    }
+                }
+                if (actorInListForPathfinding) {
+                    std::cout << "and on the list";
+                }
+                else {
+                    std::cout << "NOT ON THE LIST!";
+                    this->retryWalkingOrChangeGoal();
+                }
             }
             this->houseKeeping();
         }
         else  {
+            std::cout << "is finding alternative ";
             this->searchAltetnative();
         }
     }
+    std::cout << std::endl;
 }
 void actors::searchAltetnative() {
     if (!this->routeNeedsPath){
@@ -378,140 +402,6 @@ void actors::killActor() {
     currentGame.occupiedByActorList[this->actorCords[0]][this->actorCords[1]] = -1;
 }
 
-bool actors::canTargetBeReached()
-{
-    int sourceX = this->actorCords[0];
-    int sourceY = this->actorCords[1];
-    int targetX = this->actorGoal[0];
-    int targetY = this->actorGoal[1];
-    int maxCellId = MAP_HEIGHT * MAP_WIDTH;
-    std::vector<std::vector<int>> cellsList;
-    std::list <islandCell> toCheckListFromSource;
-    std::list <islandCell> toCheckListFromTarget;
-    cellsList.assign(maxCellId, std::vector <int>(2, 0));;
-    int startCell = (sourceX * MAP_HEIGHT) + sourceY;
-    int endCell = (targetX * MAP_HEIGHT) + targetY;
-    int collisionCellId = 0;
-    cellsList[startCell][0] = 1;
-    cellsList[endCell][1] = 1;
-    toCheckListFromSource.push_back({ sourceX, sourceY, startCell, 0, 0 });
-    toCheckListFromTarget.push_back({ targetX, targetY, endCell, 0, 0 });
-    bool cellIsInBothLists = false;
-    int cellScore = 0;
-    while (!toCheckListFromSource.empty() && !toCheckListFromTarget.empty() && !cellIsInBothLists)
-    {
-        for (int i = 0; i < 8; i++)
-        {
-            int tempSourceCellId;
-            int tempSourceX;
-            int tempSourceY;
-            int tempTargetCellId;
-            int tempTargetX;
-            int tempTargetY;
-            switch (i)
-            {
-            case 0:
-                //north
-                tempSourceX = toCheckListFromSource.front().positionX;
-                tempSourceY = toCheckListFromSource.front().positionY - 1;
-                tempTargetX = toCheckListFromTarget.front().positionX;
-                tempTargetY = toCheckListFromTarget.front().positionY - 1;
-                break;
-            case 1:
-
-                //NorthEast
-                tempSourceX = toCheckListFromSource.front().positionX + 1;
-                tempSourceY = toCheckListFromSource.front().positionY - 1;
-                tempTargetX = toCheckListFromTarget.front().positionX + 1;
-                tempTargetY = toCheckListFromTarget.front().positionY - 1;
-                break;
-            case 2:
-                //East
-                tempSourceX = toCheckListFromSource.front().positionX + 1;
-                tempSourceY = toCheckListFromSource.front().positionY;
-                tempTargetX = toCheckListFromTarget.front().positionX + 1;
-                tempTargetY = toCheckListFromTarget.front().positionY;
-                break;
-            case 3:
-                //SouthEast
-                tempSourceX = toCheckListFromSource.front().positionX + 1;
-                tempSourceY = toCheckListFromSource.front().positionY + 1;
-                tempTargetX = toCheckListFromTarget.front().positionX + 1;
-                tempTargetY = toCheckListFromTarget.front().positionY + 1;
-                break;
-            case 4:
-                //South
-                tempSourceX = toCheckListFromSource.front().positionX;
-                tempSourceY = toCheckListFromSource.front().positionY + 1;
-                tempTargetX = toCheckListFromTarget.front().positionX;
-                tempTargetY = toCheckListFromTarget.front().positionY + 1;
-                break;
-            case 5:
-                //SouthWest
-                tempSourceX = toCheckListFromSource.front().positionX - 1;
-                tempSourceY = toCheckListFromSource.front().positionY + 1;
-                tempTargetX = toCheckListFromTarget.front().positionX - 1;
-                tempTargetY = toCheckListFromTarget.front().positionY + 1;
-                break;
-            case 6:
-                //West
-                tempSourceX = toCheckListFromSource.front().positionX - 1;
-                tempSourceY = toCheckListFromSource.front().positionY;
-                tempTargetX = toCheckListFromTarget.front().positionX - 1;
-                tempTargetY = toCheckListFromTarget.front().positionY;
-                break;
-            case 7:
-                //NorthWest
-                tempSourceX = toCheckListFromSource.front().positionX - 1;
-                tempSourceY = toCheckListFromSource.front().positionY - 1;
-                tempTargetX = toCheckListFromTarget.front().positionX - 1;
-                tempTargetY = toCheckListFromTarget.front().positionY - 1;
-                break;
-            }
-            tempSourceCellId = (tempSourceX * MAP_HEIGHT) + tempSourceY;
-            tempTargetCellId = (tempTargetX * MAP_HEIGHT) + tempTargetY;
-            if (tempSourceCellId >= 0 && tempSourceCellId < maxCellId)
-            {
-                if (currentGame.isPassable(tempSourceX, tempSourceY))
-                {
-                    if (cellsList[tempSourceCellId][0] == 0)
-                    {
-                        toCheckListFromSource.push_back({ tempSourceX, tempSourceY, tempSourceCellId, cellScore, toCheckListFromSource.front().cellId });
-                        cellsList[tempSourceCellId][0] = 1;
-                        if (cellsList[tempSourceCellId][1] == 1)
-                        {
-                            cellIsInBothLists = true;
-                            collisionCellId = tempSourceCellId;
-                            i = 8;
-                        }
-                    }
-                }
-            }
-            if (tempTargetCellId >= 0 && tempTargetCellId < maxCellId)
-            {
-                if (currentGame.isPassable(tempTargetX, tempTargetY))
-                {
-                    if (cellsList[tempTargetCellId][1] == 0)
-                    {
-                        toCheckListFromTarget.push_back({ tempTargetX, tempTargetY, tempSourceCellId, cellScore, toCheckListFromTarget.front().cellId });
-                        cellsList[tempTargetCellId][1] = 1;
-                        if (cellsList[tempTargetCellId][0] == 1)
-                        {
-                            cellIsInBothLists = true;
-                            collisionCellId = tempTargetCellId;
-                            i = 8;
-                        }
-                    }
-                }
-            }
-        }
-        toCheckListFromSource.pop_front();
-        toCheckListFromTarget.pop_front();
-        cellScore += +1;
-    }
-    return cellIsInBothLists;
-}
-
 int actors::getType()
 {
     return this->actorType;
@@ -543,7 +433,7 @@ void actors::updateGoal(int i, int j, int waitTime)
         this->actorGoal[1] = j;
         this->actorCommandGoal[0] = i;
         this->actorCommandGoal[1] = j;
-        this->waitForAmountOfFrames = waitTime;
+        this->waitForAmountOfFrames = 0;// waitTime;
         this->goalNeedsUpdate = true;
         this->busyWalking = false;
         this->pathFound = false;
@@ -728,10 +618,13 @@ void actors::startWalking()
 }
 
 void actors::retryWalkingOrChangeGoal() {
-    if (this->timeLastRetry + 1 < currentGame.getTime()) {
+    std::cout << "actor has to do rerouting! ";
+    if (this->timeLastRetry + 0.5 < currentGame.getTime()) {
+        std::cout << "Requesting ";
         this->timeLastRetry = currentGame.getTime();
         if (this->retries < 30)
         {
+                std::cout << "an alternative route to the same spot ";
                 this->actorGoal[0] = this->actorCommandGoal[0];
                 this->actorGoal[1] = this->actorCommandGoal[1];
                 this->routeNeedsPath = true;
@@ -742,6 +635,7 @@ void actors::retryWalkingOrChangeGoal() {
         }
         else if (this->hasToUnloadResource || this->isGatheringRecources || this->isBuilding)
         {
+            std::cout << "Tried it 30 times requesting alternative ";
             this->routeNeedsPath = false;
             this->pathFound = false;
             this->realPath = false;
@@ -749,10 +643,15 @@ void actors::retryWalkingOrChangeGoal() {
         }
         else
         {
+            std::cout << "Tried it 30 times, terminating ";
             this->clearRoute();
             this->pathFound = false;
             this->realPath = false;
+            this->routeNeedsPath = false;
         }
+    }
+    else {
+        std::cout << "waiting... ";
     }
 }
 

@@ -14,6 +14,9 @@
 
 gameState currentGame;
 
+
+
+
 void updateActorHelper(int i)
 {
     if(listOfActors[i].isInitialized())
@@ -28,77 +31,8 @@ void updateBuildingsHelper(int i)
     listOfBuildings[i].update();
 }
 
-void routeHelper(int i)
-{
-    listOfActorsMutex.lock();
-    if(listOfActors[i].isInitialized())
-    {
-        listOfActors[i].calculateRoute();
-    }
-    listOfActorsMutex.unlock();
-}
-
-void updateActorsWorker()
-{
-    while (window.isOpen())
-    {
-        if (!listOfActors.empty())
-        {
-            for (int i = 0; i < listOfActors.size(); i++)
-            {
-                std::async(std::launch::async, updateActorHelper, i);
-            }
-        }
-    }
-}
-void updateBuildingsWorker()
-{
-    while (window.isOpen()) {
-        if (!listOfBuildings.empty())
-        {
-            for (int i = 0; i < listOfBuildings.size(); i++)
-            {
-                std::async(std::launch::async, updateBuildingsHelper, i);
-            }
-        }
-    }
-}
-
-void calculateRoutesWorker()
-{
-    while(window.isOpen())
-    {
-        if(!listOfActorsWhoNeedAPath.empty())
-        {
-            for (std::list<int>::const_iterator iterator = listOfActorsWhoNeedAPath.begin(), end = listOfActorsWhoNeedAPath.end(); iterator != end; ++iterator)
-            {
-                std::async(std::launch::async, routeHelper,*iterator);
-            }
-        }
-    }
-}
-
 void projectileHelper(int i) {
     listOfProjectiles[i].updatePosition();
-}
-
-void updateProjectiles()
-{
-    while (window.isOpen())
-    {
-        if (!listOfProjectiles.empty()) {
-            //update porjectile positions
-            for (int i = 0; i < listOfProjectiles.size(); i++) {
-                std::async(std::launch::async, projectileHelper, i);
-            }
-
-            //Erase old projectiles (older then 30 sec)
-            auto iter = std::find_if(listOfProjectiles.begin(), listOfProjectiles.end(),
-                [&](projectile& p) {return p.getTimeLastUpdate() + 30.0f < currentGame.getTime(); });
-            if (iter != listOfProjectiles.end())
-                listOfProjectiles.erase(iter);
-        }
-    }
 }
 
 void clearOldCommandCursors()
@@ -111,14 +45,96 @@ void clearOldCommandCursors()
     }
 }
 
+void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& lastProjectile){
+
+    if (!listOfProjectiles.empty()) {
+        int endProjectile = lastProjectile + 100;
+        if (listOfProjectiles.size() > 100) {
+            if (endProjectile > listOfProjectiles.size()) {
+                endProjectile = listOfProjectiles.size();
+            }
+        }
+        //update porjectile positions
+        for (int i = lastProjectile; i < endProjectile; i++) {
+            std::async(std::launch::async, projectileHelper, i);
+        }
+        //Erase old projectiles (older then 30 sec)
+        auto iter = std::find_if(listOfProjectiles.begin(), listOfProjectiles.end(),
+            [&](projectile& p) {return p.getTimeLastUpdate() + 30.0f < currentGame.getTime(); });
+        if (iter != listOfProjectiles.end())
+            listOfProjectiles.erase(iter);
+        if (endProjectile = listOfProjectiles.size()) {
+            lastProjectile = 0;
+        }
+        else {
+            lastProjectile = endProjectile;
+        }
+    }
+    if (!listOfActors.empty())
+    {
+        if (!listOfActorsWhoNeedAPath.empty())
+        {
+            int begin = listOfActorsWhoNeedAPath.size();
+            int endPath = lastPath + 5;
+            if (endPath > listOfActorsWhoNeedAPath.size()) {
+                endPath = listOfActorsWhoNeedAPath.size();
+            }
+            for (int i = lastPath; i < endPath; i++){
+                listOfActors[i].calculateRoute();
+            }
+            int after = listOfActorsWhoNeedAPath.size();
+            std::cout << begin << "-" << after << std::endl;
+            if (endPath == listOfActorsWhoNeedAPath.size()) {
+                lastPath = 0;
+                listOfActorsWhoNeedAPath.clear();
+            }
+            else {
+               lastPath = endPath;
+            }
+        }
+
+        int endActor = lastActor + 25;
+        if (endActor > listOfActors.size()) {
+            endActor = listOfActors.size();
+        }
+        for (int i = lastActor; i < endActor; i++)
+        {
+            std::async(std::launch::async, updateActorHelper, i);
+        }
+        if (endActor == listOfActors.size()) {
+            lastActor = 0;
+        }
+        else {
+            lastActor = endActor;
+        }
+    }
+    if (!listOfBuildings.empty())
+    {
+        int endBuilding = lastBuilding + 10;
+        if (endBuilding > listOfBuildings.size()) {
+            endBuilding = listOfBuildings.size();
+        }
+        for (int i = lastBuilding; i < endBuilding; i++)
+        {
+            std::async(std::launch::async, updateBuildingsHelper, i);
+        }
+        if (endBuilding == listOfBuildings.size()) {
+            lastBuilding = 0;
+        }
+        else {
+            lastBuilding = endBuilding;
+        }
+    }
+}
+
 int main()
 {
     sf::Clock clockMain;
+    int lastActor =0;
+    int lastBuilding=0;
+    int lastPath=0;
+    int lastProjectile=0;
     currentGame.loadGame();
-    std::thread updateRoutesThread(calculateRoutesWorker);
-    std::thread updateActorsThread(updateActorsWorker);
-    std::thread updateArrowsThread(updateProjectiles);
-    std::thread updateBuildingsThread(updateBuildingsWorker);
     while(window.isOpen())
     {
         sf::Time elapsedMain = clockMain.getElapsedTime();
@@ -126,11 +142,8 @@ int main()
         gameText.throwOutOldMessages();
         clearOldCommandCursors();
         currentGame.interact();
+        updateGameState(lastActor, lastBuilding, lastPath, lastProjectile);
         currentGame.drawGame();
     }
-    updateActorsThread.join();
-    updateRoutesThread.join();
-    updateArrowsThread.join();
-    updateBuildingsThread.join();
     return 0;
 }

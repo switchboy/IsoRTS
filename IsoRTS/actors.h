@@ -105,6 +105,8 @@ public:
     void setIsDoingAttack();
     void doTaskIfNotWalking();
     void shootProjectile();
+    bool idle();
+    bool isAlive();
 
 private:
     bool actorAlive;
@@ -131,6 +133,7 @@ private:
     bool isMeleeAttacking;
     bool isRangedAttacking;
     bool isFindingAlternative;
+    bool isIdle;
     bool realPath;
     int actorType;
     int actorTeam;

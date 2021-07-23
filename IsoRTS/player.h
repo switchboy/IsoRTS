@@ -1,5 +1,6 @@
 #ifndef PLAYER_H
 #define PLAYER_H
+#include <vector>
 
 struct playerStats
 {
@@ -30,6 +31,9 @@ public:
     int getTeam();
     void setTeam(int team);
     bool isPlayerDefeated();
+    void clearIdleVillagerList();
+    void insertIdIntoIdleVillagerList(int& id);
+    int getIdleVillagerId(int it);
     playerStats getStats();
 
 private:
@@ -43,6 +47,7 @@ private:
     int friendOrFoo[8];
     bool isDefeated;
     bool isParticipating;
+    std::vector<int> idleVillagersList;
 };
 
 extern player& currentPlayer;

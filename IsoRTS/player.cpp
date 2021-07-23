@@ -127,6 +127,26 @@ bool player::isPlayerDefeated()
     return this->isDefeated;
 }
 
+void player::clearIdleVillagerList()
+{
+    this->idleVillagersList.clear();
+}
+
+void player::insertIdIntoIdleVillagerList(int& id)
+{
+    this->idleVillagersList.push_back(id);
+}
+
+int player::getIdleVillagerId(int it)
+{
+    if (it < idleVillagersList.size()) {
+        return idleVillagersList[it];
+    }
+    else {
+        return -1;
+    }
+}
+
 playerStats player::getStats()
 {
     playerStats temp = {this->amountOfWood, this->amountOfFood, this->amountOfGold, this->amountOfStone,this->currentPopulation, this->populationRoom, this->getTeam()};

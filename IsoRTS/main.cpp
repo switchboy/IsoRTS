@@ -11,6 +11,7 @@
 #include "gametext.h"
 #include "projectile.h"
 #include "orderCursor.h"
+#include "player.h"
 
 gameState currentGame;
 
@@ -130,6 +131,15 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
             lastBuilding = endBuilding;
         }
     }
+    for (int i = 0; i < currentGame.getPlayerCount(); i++) {
+        listOfPlayers[i].clearIdleVillagerList();
+    }
+    for (int n = 0; n < listOfActors.size(); n++) {
+        if (listOfActors[n].idle() && listOfActors[n].getType() == 0 && listOfActors[n].isAlive()) {
+            listOfPlayers[listOfActors[n].getTeam()].insertIdIntoIdleVillagerList(n);
+        }
+    }
+    
 }
 
 int main()

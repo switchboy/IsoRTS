@@ -1560,6 +1560,11 @@ mouseWorldCord gameState::getNextCord(int x, int y)
     }
 }
 
+int gameState::getPlayerCount()
+{
+    return players;
+}
+
 void drawMiniMapBackground(sf::RectangleShape& miniMapPixel)
 {
     if(!minimapTextureExist)

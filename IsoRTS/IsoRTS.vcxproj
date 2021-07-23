@@ -31,6 +31,7 @@
     <ClInclude Include="player.h" />
     <ClInclude Include="projectile.h" />
     <ClInclude Include="randomMapGenerator.h" />
+    <ClInclude Include="simpleAI.h" />
     <ClInclude Include="tooltip.h" />
   </ItemGroup>
   <ItemGroup>
@@ -46,6 +47,7 @@
     <ClCompile Include="player.cpp" />
     <ClCompile Include="projectile.cpp" />
     <ClCompile Include="randomMapGenerator.cpp" />
+    <ClCompile Include="simpleAI.cpp" />
     <ClCompile Include="tooltip.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

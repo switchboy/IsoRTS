@@ -149,6 +149,7 @@ public:
     int occupiedByBuildingList[MAP_WIDTH][MAP_HEIGHT];
     int occupiedByActorList[MAP_WIDTH][MAP_HEIGHT];
     bool showPaths;
+    int getPlayerCount();
 
 private:
     sf::Event event;
@@ -157,11 +158,11 @@ private:
     bool addSubstractX;
     bool addSubstractY;
     bool firstRound;
-    int players;
     int lastIandJ[2];
     float topBarHeigth;
     float lastMistDraw;
     bool focus;
+    int players;
     bool mousePressedLeft;
     bool equalIsPressed;
     bool mousePressedRight;

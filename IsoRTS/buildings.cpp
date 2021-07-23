@@ -501,15 +501,17 @@ void  buildings::getTask(bool isResearch, int idOfUnitOrResearch, int production
     {
         this->productionQueue.push_back({isResearch, idOfUnitOrResearch, 0, productionPointsNeeded, 0});
         if(!isResearch){
-            currentPlayer.substractResources( 1, priceOfActor[idOfUnitOrResearch].food);
-            currentPlayer.substractResources( 0, priceOfActor[idOfUnitOrResearch].wood);
-            currentPlayer.substractResources( 2, priceOfActor[idOfUnitOrResearch].stone);
-            currentPlayer.substractResources( 3, priceOfActor[idOfUnitOrResearch].gold);
+            listOfPlayers[ownedByPlayer].substractResources( 1, priceOfActor[idOfUnitOrResearch].food);
+            listOfPlayers[ownedByPlayer].substractResources( 0, priceOfActor[idOfUnitOrResearch].wood);
+            listOfPlayers[ownedByPlayer].substractResources( 2, priceOfActor[idOfUnitOrResearch].stone);
+            listOfPlayers[ownedByPlayer].substractResources( 3, priceOfActor[idOfUnitOrResearch].gold);
         }
     }
     else
     {
-        gameText.addNewMessage("No room in building queue for production...", 1);
+        if (currentPlayer.getTeam() == ownedByPlayer) {
+            gameText.addNewMessage("No room in building queue for production...", 1);
+        }
     }
 }
 
@@ -629,23 +631,26 @@ void buildings::takeDamage(int amountOfDamage)
 void buildings::spawnProduce()
 {
     worldCords spawmCords = findEmptySpot({ this->startXlocation + 1, this->startYLocation + 1 });
-    listOfActorsMutex.lock();
     if (currentPlayer.getStats().currentPopulation < currentPlayer.getStats().populationRoom)
     {
         actors newActor(this->productionQueue.front().idOfUnitOrResearch, spawmCords.x, spawmCords.y, this->ownedByPlayer, listOfActors.size());
         listOfActors.push_back(newActor);
-        gameText.addNewMessage("-  " + newActor.nameOfActor() + " completed! -", 0);
+        if (this->ownedByPlayer == currentPlayer.getTeam()) {
+            gameText.addNewMessage("-  " + newActor.nameOfActor() + " completed! -", 0);
+        }
         this->productionQueue.erase(productionQueue.begin());
+        this->hasDisplayedError = false;
     }
     else
     {
         if (!this->hasDisplayedError)
         {
-            gameText.addNewMessage("Not enough population room to add more units, build more houses!", 1);
-            this->hasDisplayedError = true;
+            if (this->ownedByPlayer == currentPlayer.getTeam()) {
+                gameText.addNewMessage("Not enough population room to add more units, build more houses!", 1);
+                this->hasDisplayedError = true;
+            }
         }
     }
-    listOfActorsMutex.unlock();
 }
 
 void::buildings::doProduction()

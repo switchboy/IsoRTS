@@ -151,6 +151,7 @@ actors::actors(int type, int actorX, int actorY, int actorTeam, int actorId)
     this->actorCords[0] = actorX;
     this->actorCords[1] = actorY;
     this->timeLastRetry = 0;
+    this->isIdle = true;
     switch(type)
     {
     case 0://villager
@@ -325,6 +326,9 @@ void actors::doTaskIfNotWalking()
         {
             this->handleBuilding();
         }
+        else {
+            this->isIdle = true;
+        }
     }
 }
 
@@ -340,6 +344,17 @@ void actors::shootProjectile()
             this->isRangedAttacking = false;
         }
     }
+}
+
+bool actors::idle()
+{
+    return this->isIdle;
+}
+
+
+bool actors::isAlive()
+{
+    return this->actorAlive;
 }
 
 void actors::setIsDoingAttack()
@@ -439,6 +454,7 @@ void actors::updateGoal(int i, int j, int waitTime)
         this->offSetY = 0.0f;
         this->timeStartedGatheringRecource = 0.0f;
         this->isFindingAlternative = false;
+        this->isIdle = false;
     }
 }
 
@@ -636,6 +652,7 @@ void actors::retryWalkingOrChangeGoal() {
             this->pathFound = false;
             this->realPath = false;
             this->routeNeedsPath = false;
+            this->isIdle = true;
         }
     }
 }

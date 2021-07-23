@@ -1702,6 +1702,21 @@ int actors::getActorId()
     return this->actorId;
 }
 
+bool actors::isGathering()
+{
+    return this->isGatheringRecources;
+}
+
+bool actors::getIsBuilding()
+{
+    return this->isBuilding;
+}
+
+int actors::getResourceGathered()
+{
+    return this->ResourceBeingGatherd;
+}
+
 void actors::setIsBuildingTrue(int buildingId, int& goalX, int& goalY)
 {
     this->isBuilding = true;

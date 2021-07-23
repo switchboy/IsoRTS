@@ -80,6 +80,9 @@ public:
     cords getLocation();
     int getType();
     int getActorId();
+    bool isGathering();
+    bool getIsBuilding();
+    int getResourceGathered();
     void setIsBuildingTrue(int buildingId, int& goalX, int& goalY);
     std::pair<int, int> getHealth();
     void walkBackToOwnSquare();

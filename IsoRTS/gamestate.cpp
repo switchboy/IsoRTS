@@ -2384,8 +2384,42 @@ void gameState::drawTopBar()
     window.setView(topBar);
     playerStats tempStats = currentPlayer.getStats();
     std::stringstream resourcesText;
-    resourcesText   << "Wood: " << tempStats.amountOfWood <<" | Food: " << tempStats.amountOfFood << " | Stone: " << tempStats.amountOfStone << " | Gold: " << tempStats.amountOfGold
-                    << " | Population: "<< tempStats.currentPopulation<< "/"<<tempStats.populationRoom << " | Team: " << tempStats.team ;
+    int seconds = currentGame.elapsedTime;
+    int minutes = 0;
+    int hours = 0;
+    if (seconds >= 60) {
+        minutes = seconds / 60;
+        seconds = seconds - (minutes*60);
+    }
+    if (minutes >= 60) {
+        hours = minutes/60;
+        minutes = minutes - (hours*60);
+    }
+    //vanwege esthetiek
+    std::stringstream  time;
+    if (hours < 10) {
+        time << "0";
+    }
+    time << hours << ":";
+    if (minutes < 10) {
+        time << "0";
+    }
+    time << minutes << ":";
+    if (seconds < 10) {
+        time << "0";
+    }
+    time << seconds;
+
+    resourcesText << "|  Wood: " << tempStats.amountOfWood << " (" << currentPlayer.getTotalGatheringWood() <<
+        ")  |  Food: " << tempStats.amountOfFood << " (" << currentPlayer.getTotalGatheringFood() <<
+        ")  |  Stone: " << tempStats.amountOfStone << " (" << currentPlayer.getTotalGatheringStone() <<
+        ")  |  Gold: " << tempStats.amountOfGold << " (" << currentPlayer.getTotalGatheringGold() <<
+        ")  |                |  Population: " << tempStats.currentPopulation << "/" << tempStats.populationRoom <<
+        "  |  Idle: " << currentPlayer.getIdleVillagers() <<
+        "  |  Building: " << currentPlayer.getTotalBuilding() <<
+        "  |                |  Team: " << tempStats.team << " |" <<
+        "  |                |  Time: " << time.str() << " |";
+
     text.setString(resourcesText.str());
     text.setCharacterSize(24);
     text.setOutlineColor(sf::Color::Black);

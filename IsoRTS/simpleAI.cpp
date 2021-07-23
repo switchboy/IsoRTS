@@ -80,8 +80,10 @@ void simpleAI::produceCommandBuilding(int& buildingId, bool& isResearch, int& id
 void simpleAI::sandboxScript()
 {
 	if (hasBuildingType(1)) {
-		//We hebben een TC 
-		if (listOfPlayers[this->playerId].getIdleVillagerId(0) != -1) {
+
+		if (listOfPlayers[this->playerId].getIdleVillagers() > 0) {
+			//Er zijn idle villagers!
+
 
 		}
 		
@@ -94,7 +96,11 @@ void simpleAI::sandboxScript()
 			cords idleVillagerCords = listOfActors[idleVillagerId].getActorCords();
 			cords buildingSlot = getFreeBuildingSlot(1, idleVillagerCords);
 			buildBuilding(1, buildingSlot);
-			buildCommandUnit(idleVillagerId, buildingSlot);
+			for (int i = 0; i < listOfPlayers[this->playerId].getIdleVillagers(); i++) {
+				int vilId = listOfPlayers[this->playerId].getIdleVillagerId(i);
+				std::cout << vilId << std::endl;
+				buildCommandUnit(vilId, buildingSlot);
+			}
 		}
 		else {
 			//Er zijn onvoldoende resources!
@@ -126,14 +132,12 @@ void simpleAI::sandboxScript()
 
 cords simpleAI::getFreeBuildingSlot(int buildingId, cords& closeToThis)
 {
-	std::cout << "trying to place building near " << closeToThis.x << " - " << closeToThis.y <<std::endl;
 	int maximumDistance = 3;
 	bool freeFootprintFound = false;
 	cords suggestedCords;
 	int tries = 0;
 	while (!freeFootprintFound && tries < 60) {
 		suggestedCords = { roll(closeToThis.x - maximumDistance, closeToThis.x + maximumDistance), roll(closeToThis.y - maximumDistance, closeToThis.y + maximumDistance) };
-		std::cout << suggestedCords.x << " - " << suggestedCords.y << std::endl;
 		bool buildingPlacable = true;
 		if (suggestedCords.x < MAP_WIDTH && suggestedCords.y < MAP_HEIGHT) {
 			for (int i = 0; i < footprintOfBuildings[buildingId].amountOfXFootprint; i++)
@@ -154,7 +158,6 @@ cords simpleAI::getFreeBuildingSlot(int buildingId, cords& closeToThis)
 		freeFootprintFound = buildingPlacable;
 		tries++;
 	}
-	std::cout << suggestedCords.x << " - " << suggestedCords.y;
 	if (freeFootprintFound) {
 		return suggestedCords;
 	}

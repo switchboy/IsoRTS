@@ -54,11 +54,34 @@ void clearOldCommandCursors()
 
 void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& lastProjectile){
     for (int i = 0; i < currentGame.getPlayerCount(); i++) {
-        listOfPlayers[i].clearIdleVillagerList();
+        listOfPlayers[i].clearLists();
+
     }
     for (int n = 0; n < listOfActors.size(); n++) {
-        if (listOfActors[n].idle() && listOfActors[n].getType() == 0 && listOfActors[n].isAlive()) {
-            listOfPlayers[listOfActors[n].getTeam()].insertIdIntoIdleVillagerList(n);
+        if ( listOfActors[n].getType() == 0 && listOfActors[n].isAlive()) {
+            listOfPlayers[listOfActors[n].getTeam()].insertVillagerList(n);
+            if (listOfActors[n].idle()) {
+                listOfPlayers[listOfActors[n].getTeam()].insertIdIntoIdleVillagerList(n);
+            }
+            else if (listOfActors[n].getIsBuilding()) {
+                listOfPlayers[listOfActors[n].getTeam()].insertBuilding(n);
+            }
+            else if (listOfActors[n].isGathering()) {
+                switch (listOfActors[n].getResourceGathered()) {
+                case 0: //wood
+                    listOfPlayers[listOfActors[n].getTeam()].insertGatheringWood(n);
+                    break;
+                case 1: //food
+                    listOfPlayers[listOfActors[n].getTeam()].insertGatheringFood(n);
+                    break;
+                case 2: //stone
+                    listOfPlayers[listOfActors[n].getTeam()].insertGatheringStone(n);
+                    break;
+                case 3: //gold
+                    listOfPlayers[listOfActors[n].getTeam()].insertGatheringGold(n);
+                    break;
+                }
+            }
         }
     }    
     if (!listOfAI.empty()) {

@@ -995,13 +995,12 @@ void gameState::getDefinitiveSelection()
                 //Haal duplicaten eruit
                 sort(selectedUnits.begin(), selectedUnits.end());
                 selectedUnits.erase(unique(selectedUnits.begin(), selectedUnits.end()), selectedUnits.end());
+
             
                 //Haal vijanden eruit als er meer dan 1 unit geselecteerd is
                 selectedUnits.erase(std::remove_if(
                     selectedUnits.begin(), selectedUnits.end(),
                     [](const int& id) {
-                        std::cout << id;
-                        std::cout << " - " << listOfActors[currentGame.selectedUnits[id]].getTeam() << std::endl;
                         return listOfActors[currentGame.selectedUnits[id]].getTeam() != currentPlayer.getTeam();
                     }
                 ), selectedUnits.end());

@@ -222,25 +222,22 @@ actors::~actors()
     //dtor
 }
 
+
 void actors::update()
 {
     if (this->actorAlive)
     {
-        std::cout << "Actor " << this->actorId << " is alive and ";
         if (!this->isFindingAlternative) {
             if (this->goalNeedsUpdate)
             {
-                std::cout << "is updateing goal";
                 this->updateGoalPath();
             }
             else if (!this->routeNeedsPath)
             {
-                std::cout << "has had a path or is idle ";
                 this->moveActorIfWalking();
                 this->doTaskIfNotWalking();
             }
             else {
-                std::cout << "is waiting on a path ";
                 bool actorInListForPathfinding = false;
                 if (!listOfActorsWhoNeedAPath.empty()) {
                     for (int i = 0; i < listOfActorsWhoNeedAPath.size(); i++) {
@@ -250,7 +247,6 @@ void actors::update()
                     }
                 }
                 if (actorInListForPathfinding) {
-                    std::cout << "and on the list";
                 }
                 else {
                     std::cout << "NOT ON THE LIST!";
@@ -260,11 +256,9 @@ void actors::update()
             this->houseKeeping();
         }
         else  {
-            std::cout << "is finding alternative ";
             this->searchAltetnative();
         }
     }
-    std::cout << std::endl;
 }
 void actors::searchAltetnative() {
     if (!this->routeNeedsPath){
@@ -618,13 +612,10 @@ void actors::startWalking()
 }
 
 void actors::retryWalkingOrChangeGoal() {
-    std::cout << "actor has to do rerouting! ";
     if (this->timeLastRetry + 0.5 < currentGame.getTime()) {
-        std::cout << "Requesting ";
         this->timeLastRetry = currentGame.getTime();
         if (this->retries < 30)
         {
-                std::cout << "an alternative route to the same spot ";
                 this->actorGoal[0] = this->actorCommandGoal[0];
                 this->actorGoal[1] = this->actorCommandGoal[1];
                 this->routeNeedsPath = true;
@@ -635,7 +626,6 @@ void actors::retryWalkingOrChangeGoal() {
         }
         else if (this->hasToUnloadResource || this->isGatheringRecources || this->isBuilding)
         {
-            std::cout << "Tried it 30 times requesting alternative ";
             this->routeNeedsPath = false;
             this->pathFound = false;
             this->realPath = false;
@@ -643,15 +633,11 @@ void actors::retryWalkingOrChangeGoal() {
         }
         else
         {
-            std::cout << "Tried it 30 times, terminating ";
             this->clearRoute();
             this->pathFound = false;
             this->realPath = false;
             this->routeNeedsPath = false;
         }
-    }
-    else {
-        std::cout << "waiting... ";
     }
 }
 
@@ -1276,6 +1262,7 @@ void actors::calculateRoute()
 {
     if(this->routeNeedsPath)
     {
+        this->route.clear();
         this->actorRealGoal[0] = this->actorGoal[0];
         this->actorRealGoal[1] = this->actorGoal[1];
         this->realPath = false;
@@ -1285,10 +1272,14 @@ void actors::calculateRoute()
             this->timeLastPathTry = currentGame.elapsedTime;
         }
     }
+    else {
+        std::cout << "Route did not need a path?" << std::endl;
+    }
 }
 
 void actors::pathAStar()
 {
+    std::cout << "routing actor: " << this->actorId << std::endl;
     std::vector<Cells> cellsList;
     cellsList.reserve(MAP_HEIGHT*MAP_WIDTH);
     int startCell = (actorCords[0]*MAP_HEIGHT)+actorCords[1]; //eigen positie

@@ -80,7 +80,8 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
                 endPath = listOfActorsWhoNeedAPath.size();
             }
             for (int i = lastPath; i < endPath; i++){
-                listOfActors[i].calculateRoute();
+                std::cout << "Requesting route for " << i << std::endl;
+                listOfActors[listOfActorsWhoNeedAPath[i]].calculateRoute();
             }
             int after = listOfActorsWhoNeedAPath.size();
             std::cout << begin << "-" << after << std::endl;

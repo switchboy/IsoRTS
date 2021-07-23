@@ -996,6 +996,13 @@ void gameState::getDefinitiveSelection()
                 sort(selectedUnits.begin(), selectedUnits.end());
                 selectedUnits.erase(unique(selectedUnits.begin(), selectedUnits.end()), selectedUnits.end());
 
+                //Haal id's eruit die niet in de actor list zitten
+                selectedUnits.erase(std::remove_if(
+                    selectedUnits.begin(), selectedUnits.end(),
+                    [](const int& id) {
+                        return (id < 0 || id > listOfActors.size());
+                    }
+                ), selectedUnits.end());
             
                 //Haal vijanden eruit als er meer dan 1 unit geselecteerd is
                 selectedUnits.erase(std::remove_if(

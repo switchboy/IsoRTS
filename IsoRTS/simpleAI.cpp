@@ -61,10 +61,10 @@ void simpleAI::buildCommandUnit(int& unitId, cords targetCords)
 	}
 }
 
-void simpleAI::gatherCommandUnit(int& unitId, cords targetCords)
+void simpleAI::gatherCommandUnit(int unitId, cords targetCords)
 {
-
-
+	listOfActors[unitId].updateGoal(targetCords.x, targetCords.y, 0);
+	listOfActors[unitId].setGatheringRecource(true);
 }
 
 void simpleAI::attakCommandUnit(int& unitId, cords targetCords)
@@ -166,63 +166,47 @@ void simpleAI::buildBuildingNearUnlessBuilding(int buildingId, int idleVillagerI
 	}
 }
 
+void simpleAI::distributeIdleVillagers() {
+	int villagersThatShouldBeGathering;
+	int gatheringNow;
+	int villagersAssigned = 0;
+	for (int resourceId = 0; resourceId < 4; resourceId++) {
+		switch (resourceId) {
+		case 0:
+			gatheringNow = listOfPlayers[this->playerId].getTotalGatheringWood();
+			villagersThatShouldBeGathering = ceil((float)listOfPlayers[this->playerId].getVillagers() * 0.3f);
+			break;
+		case 1:
+			gatheringNow = listOfPlayers[this->playerId].getTotalGatheringFood();
+			villagersThatShouldBeGathering = ceil((float)listOfPlayers[this->playerId].getVillagers() * 0.4f);
+			break;
+		case 2:
+			gatheringNow = listOfPlayers[this->playerId].getTotalGatheringStone();
+			villagersThatShouldBeGathering = ceil((float)listOfPlayers[this->playerId].getVillagers() * 0.1f);
+			break;
+		case 3:
+			gatheringNow = listOfPlayers[this->playerId].getTotalGatheringGold();
+			villagersThatShouldBeGathering = ceil((float)listOfPlayers[this->playerId].getVillagers() * 0.2f);
+			break;
+		}
+		while (gatheringNow < villagersThatShouldBeGathering && villagersAssigned < listOfPlayers[this->playerId].getIdleVillagers()) {
+			//Get nearest food source
+			cords targetCords = findResource(resourceId, listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned));
+			//Order unit
+			gatherCommandUnit(listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned), targetCords);
+			villagersAssigned++;
+			gatheringNow++;
+		}
+	}
+}
+
 void simpleAI::sandboxScript()
 {
 	if (this->hasBuildingType(1)) {
 		//check if there are idle villagers and order them around
 		if (listOfPlayers[this->playerId].getIdleVillagers() > 0) {
 			//Er zijn idle villagers!
-			int villagersAssigned = 0;
-
-			int villagersThatShouldBeGatheringFood = ceil((float)listOfPlayers[this->playerId].getVillagers() * 0.4f);
-			int villagersThatShouldBeGatheringWood = ceil((float)listOfPlayers[this->playerId].getVillagers() * 0.3f);
-			int villagersThatShouldBeGatheringStone = ceil((float)listOfPlayers[this->playerId].getVillagers()* 0.1f);
-			int villagersThatShouldBeGatheringGold = ceil((float)listOfPlayers[this->playerId].getVillagers() * 0.2f);
-
-			int gatheringNow = listOfPlayers[this->playerId].getTotalGatheringFood();
-			while (gatheringNow < villagersThatShouldBeGatheringFood && villagersAssigned < listOfPlayers[this->playerId].getIdleVillagers()) {
-				//Get nearest food source
-				cords targetCords = findResource(1, listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned));
-				//Order unit
-				listOfActors[listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned)].updateGoal(targetCords.x, targetCords.y, 0);
-				listOfActors[listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned)].setGatheringRecource(true);
-				villagersAssigned++;
-				gatheringNow++;
-			}
-
-			gatheringNow = listOfPlayers[this->playerId].getTotalGatheringWood();
-			while (gatheringNow < villagersThatShouldBeGatheringWood && villagersAssigned < listOfPlayers[this->playerId].getIdleVillagers()) {
-				//Get nearest food source
-				cords targetCords = findResource(0, listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned));
-				//Order unit
-				listOfActors[listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned)].updateGoal(targetCords.x, targetCords.y, 0);
-				listOfActors[listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned)].setGatheringRecource(true);
-				villagersAssigned++;
-				gatheringNow++;
-			}
-
-			gatheringNow = listOfPlayers[this->playerId].getTotalGatheringGold();
-			while (gatheringNow < villagersThatShouldBeGatheringGold && villagersAssigned < listOfPlayers[this->playerId].getIdleVillagers()) {
-				//Get nearest food source
-				cords targetCords = findResource(3, listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned));
-				//Order unit
-				listOfActors[listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned)].updateGoal(targetCords.x, targetCords.y, 0);
-				listOfActors[listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned)].setGatheringRecource(true);
-				villagersAssigned++;
-				gatheringNow++;
-			}
-
-			gatheringNow = listOfPlayers[this->playerId].getTotalGatheringStone();
-			while (gatheringNow < villagersThatShouldBeGatheringStone && villagersAssigned < listOfPlayers[this->playerId].getIdleVillagers()) {
-				//Get nearest food source
-				cords targetCords = findResource(2, listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned));
-				//Order unit
-				listOfActors[listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned)].updateGoal(targetCords.x, targetCords.y, 0);
-				listOfActors[listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned)].setGatheringRecource(true);
-				villagersAssigned++;
-				gatheringNow++;
-			}
-
+			distributeIdleVillagers();
 		}
 		//Alway expand villagers
 		if (listOfPlayers[this->playerId].getVillagers() < 60) {

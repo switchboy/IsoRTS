@@ -17,10 +17,11 @@ private:
 	void buildBuilding(int buildingId, cords buildingCords);
 	void moveCommandUnit(int& unitId, cords targetCords);
 	void buildCommandUnit(int& unitId, cords targetCords);
-	void gatherCommandUnit(int& unitId, cords targetCords);
+	void gatherCommandUnit(int unitId, cords targetCords);
 	void attakCommandUnit(int& unitId, cords targetCords);
 	void produceCommandBuilding(int buildingId, bool isResearch, int idOfUnitOrResearch);
 	void buildBuildingNearUnlessBuilding(int buildingId, int idleVillagerId, int nearResource);
+	void distributeIdleVillagers();
 	int isBuildingThereButIncomplete(int type);
 	std::vector<int> getBuildingIdsOfType(int type);
 	void sandboxScript();

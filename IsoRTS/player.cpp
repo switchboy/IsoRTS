@@ -162,22 +162,22 @@ int player::getTotalGatheringGold()
 {
     return this->gatheringGold.size();
 }
-int player::getGatheringWood(int& id)
+int player::getGatheringWood(int id)
 {
     return this->gatheringWood[id];
 }
 
-int player::getGatheringFood(int& id) 
+int player::getGatheringFood(int id) 
 {
     return this->gatheringFood[id];
 }
 
-int player::getGatheringStone(int& id)
+int player::getGatheringStone(int id)
 {
     return this->gatheringStone[id];
 }
 
-int player::getGatheringGold(int& id) 
+int player::getGatheringGold(int id) 
 {
     return this->gatheringGold[id];
 }
@@ -187,9 +187,29 @@ int player::getTotalBuilding()
     return this->building.size();
 }
 
-int player::getBuilder(int& id)
+int player::getBuilder(int id)
 {
     return this->building[id];
+}
+
+int player::getVillager(int id)
+{
+    return this->villagersList[id];
+}
+
+int player::getSwordsman(int id)
+{
+    return this->listOfSwordsman[id];
+}
+
+int player::getTotalSwordsman()
+{
+    return this->listOfSwordsman.size();
+}
+
+void player::insertSwordsman(int& id)
+{
+    this->listOfSwordsman.push_back(id);
 }
 
 
@@ -227,6 +247,11 @@ void player::insertGatheringGold(int& id)
 void player::insertBuilding(int& id)
 {
     this->building.push_back(id);
+}
+
+int player::getPopulationRoom()
+{
+    return this->populationRoom - this->currentPopulation;
 }
 
 int player::getIdleVillagerId(int it)

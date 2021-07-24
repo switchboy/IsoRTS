@@ -192,7 +192,7 @@ void button::performAction()
         //create villager
         if(priceOfActor[0].food <= currentPlayer.getStats().amountOfFood && priceOfActor[0].wood <= currentPlayer.getStats().amountOfWood && priceOfActor[0].stone <= currentPlayer.getStats().amountOfStone && priceOfActor[0].gold <= currentPlayer.getStats().amountOfGold)
         {
-            listOfBuildings[this->actorOrBuildingId].getTask(false, 0, 25);
+            listOfBuildings[this->actorOrBuildingId].getTask(false, 0);
         }
         else
         {
@@ -258,7 +258,7 @@ void button::performAction()
         //create a swordman
         if (priceOfActor[1].food <= currentPlayer.getStats().amountOfFood && priceOfActor[1].wood <= currentPlayer.getStats().amountOfWood && priceOfActor[1].stone <= currentPlayer.getStats().amountOfStone && priceOfActor[1].gold <= currentPlayer.getStats().amountOfGold)
         {
-            listOfBuildings[this->actorOrBuildingId].getTask(false, 1, 25);
+            listOfBuildings[this->actorOrBuildingId].getTask(false, 1);
         }
         else
         {

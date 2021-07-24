@@ -45,7 +45,7 @@ public:
     bool                        hasTask();
     void                        removeBuilding();
     void                        fillAdjacentTiles();
-    void                        getTask(bool isResearch, int idOfUnitOrResearch, int productionPointsNeeded);
+    void                        getTask(bool isResearch, int idOfUnitOrResearch);
     void                        takeDamage(int amountOfDamage);
     void                        doProduction();
     void                        spawnProduce();

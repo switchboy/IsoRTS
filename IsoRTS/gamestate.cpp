@@ -2040,6 +2040,9 @@ int getBuildingSpriteOffset(int& buildingId)
     case 5:
         return  640;
         break;
+    case 6:
+        return  640;
+        break;
 
     }
     return -1;
@@ -2076,6 +2079,9 @@ void createBuildingButtons(int& buildingId, int& startX, int& startY)
         }
         break;
     case 5:
+        //mingincamp
+        break;
+    case 6:
         //mingincamp
         break;
     default:
@@ -2384,7 +2390,7 @@ void gameState::drawTopBar()
     window.setView(topBar);
     playerStats tempStats = currentPlayer.getStats();
     std::stringstream resourcesText;
-    int seconds = currentGame.elapsedTime;
+    int seconds = currentGame.elapsedTime; //Tijd in seconden
     int minutes = 0;
     int hours = 0;
     if (seconds >= 60) {
@@ -2532,13 +2538,16 @@ void gameState::loadBuildings()
     //Mining camp 5
     footprintOfBuildings.push_back({ 3,3 });
     priceOfBuilding.push_back({ 0,100,0,0 });
+    //Mining camp 6
+    footprintOfBuildings.push_back({ 3,3 });
+    priceOfBuilding.push_back({ 0,100,0,0 });
 }
 
 void loadActors()
 {
-    //food, wood, stone, gold
-    priceOfActor.push_back({ 50,0,0,0 });   //villager    0
-    priceOfActor.push_back({ 60,0,0,20 });  //Swordsman   1
+    //food, wood, stone, gold, production points
+    priceOfActor.push_back({ 50,0,0,0,25 });   //villager    0
+    priceOfActor.push_back({ 60,0,0,20,25 });  //Swordsman   1
 }
 
 void gameState::loadFonts()

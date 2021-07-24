@@ -1136,24 +1136,23 @@ void actors::setCommonGoalTrue()
 
 void actors::findNearestSimilairResource()
 {
-    std::cout << "searching for other resource" << std::endl;
     if (this->listOfResourceLocations.empty()) {
-        int lowSearchLimitX = this->actorCords[0] - 30;
+        int lowSearchLimitX = this->actorCords[0] - 60;
         if (lowSearchLimitX < 0)
         {
             lowSearchLimitX = 0;
         }
-        int lowSearchLimitY = this->actorCords[1] - 30;
+        int lowSearchLimitY = this->actorCords[1] - 60;
         if (lowSearchLimitY < 0)
         {
             lowSearchLimitY = 0;
         }
-        int highSearchLimitX = this->actorCords[0] + 30;
+        int highSearchLimitX = this->actorCords[0] + 60;
         if (highSearchLimitX > MAP_WIDTH)
         {
             highSearchLimitX = MAP_WIDTH;
         }
-        int highSearchLimitY = this->actorCords[1] + 30;
+        int highSearchLimitY = this->actorCords[1] + 60;
         if (highSearchLimitY > MAP_HEIGHT)
         {
             highSearchLimitY = MAP_HEIGHT;
@@ -1710,6 +1709,11 @@ bool actors::isGathering()
 bool actors::getIsBuilding()
 {
     return this->isBuilding;
+}
+
+int actors::getBuildingId()
+{
+    return this->buildingId;
 }
 
 int actors::getResourceGathered()

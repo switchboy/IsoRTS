@@ -6,6 +6,7 @@
 #include "globalfunctions.h"
 #include "actors.h"
 #include "buildings.h"
+#include "objects.h"
 
 class simpleAI
 {
@@ -18,9 +19,12 @@ private:
 	void buildCommandUnit(int& unitId, cords targetCords);
 	void gatherCommandUnit(int& unitId, cords targetCords);
 	void attakCommandUnit(int& unitId, cords targetCords);
-	void produceCommandBuilding(int& buildingId, bool& isResearch, int& idOfUnitOrResearch);
+	void produceCommandBuilding(int buildingId, bool isResearch, int idOfUnitOrResearch);
+	void buildBuildingNearUnlessBuilding(int buildingId, int idleVillagerId, int nearResource);
+	int isBuildingThereButIncomplete(int type);
+	std::vector<int> getBuildingIdsOfType(int type);
 	void sandboxScript();
-	cords getFreeBuildingSlot(int buildingId, cords& closeToThis);
+	cords getFreeBuildingSlot(int buildingId, cords closeToThis);
 	int playerId;
 	int difficultyLevel;
 	bool hasBuildingType(int id);

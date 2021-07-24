@@ -35,6 +35,7 @@ struct actorOrBuildingPrice
     int wood;
     int stone;
     int gold;
+    int productionPoints;
 };
 
 extern std::vector<actorOrBuildingPrice> priceOfBuilding;

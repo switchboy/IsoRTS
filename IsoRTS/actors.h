@@ -82,6 +82,7 @@ public:
     int getActorId();
     bool isGathering();
     bool getIsBuilding();
+    int getBuildingId();
     int getResourceGathered();
     void setIsBuildingTrue(int buildingId, int& goalX, int& goalY);
     std::pair<int, int> getHealth();

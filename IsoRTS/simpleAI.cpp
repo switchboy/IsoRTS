@@ -76,6 +76,58 @@ void simpleAI::produceCommandBuilding(int buildingId, bool isResearch, int idOfU
 	listOfBuildings[buildingId].getTask(isResearch, idOfUnitOrResearch);
 }
 
+
+int distanceToResource(int kind, cords from) {
+	std::list <nearestBuildingTile> listOfResourceLocations;
+	cords targetCords;
+	int lowSearchLimitX = from.x - 60;
+	if (lowSearchLimitX < 0)
+	{
+		lowSearchLimitX = 0;
+	}
+	int lowSearchLimitY = from.y - 60;
+	if (lowSearchLimitY < 0)
+	{
+		lowSearchLimitY = 0;
+	}
+	int highSearchLimitX = from.x + 60;
+	if (highSearchLimitX > MAP_WIDTH)
+	{
+		highSearchLimitX = MAP_WIDTH;
+	}
+	int highSearchLimitY = from.y + 60;
+	if (highSearchLimitY > MAP_HEIGHT)
+	{
+		highSearchLimitY = MAP_HEIGHT;
+	}
+	for (int i = lowSearchLimitX; i < highSearchLimitX; i++)
+	{
+		for (int j = lowSearchLimitY; j < highSearchLimitY; j++)
+		{
+			if (currentGame.objectLocationList[i][j] != -1)
+			{
+				if (listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource() == kind)
+				{
+					float tempDeltaDistance = distEuclidean(from.x, from.y, i, j);
+					listOfResourceLocations.push_back({ tempDeltaDistance, i, j, currentGame.objectLocationList[i][j], true });
+				}
+			}
+		}
+	}
+	if (!listOfResourceLocations.empty())
+	{
+		listOfResourceLocations.sort([](const nearestBuildingTile& f, const nearestBuildingTile& s)
+			{
+				return f.deltaDistance < s.deltaDistance;
+			});
+	}
+	return listOfResourceLocations.front().deltaDistance;
+}
+
+
+
+
+
 cords findResource(int kind, int unitId ) {
 	std::list <nearestBuildingTile> listOfResourceLocations;
 	cords actorCords = listOfActors[unitId].getActorCords();
@@ -108,7 +160,7 @@ cords findResource(int kind, int unitId ) {
 			{
 				if (listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource() == kind)
 				{
-					float tempDeltaDistance = dist(actorCords.x, actorCords.y, i, j);
+					float tempDeltaDistance =  distEuclidean(actorCords.x, actorCords.y, i, j);
 					listOfResourceLocations.push_back({ tempDeltaDistance, i, j, currentGame.objectLocationList[i][j], true });
 				}
 			}
@@ -132,19 +184,24 @@ void simpleAI::buildBuildingNearUnlessBuilding(int buildingId, int idleVillagerI
 	int idOfUnfinishedHousing = isBuildingThereButIncomplete(buildingId);
 	if (idOfUnfinishedHousing == -1) {
 		if (priceOfBuilding[buildingId].food <= listOfPlayers[this->playerId].getStats().amountOfFood && priceOfBuilding[buildingId].wood <= listOfPlayers[this->playerId].getStats().amountOfWood && priceOfBuilding[buildingId].stone <= listOfPlayers[this->playerId].getStats().amountOfStone && priceOfBuilding[buildingId].gold <= listOfPlayers[this->playerId].getStats().amountOfGold) {
-			//Bouw een huis! (door een food gatherer)
-			cords nearThis;
-			if (nearResource != -1) {
-				nearThis = findResource(nearResource, idleVillagerId);
+			cords buildingSlot;
+			switch (nearResource) {
+			case -1:
+				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getLocation(), false, false, false, false);
+				break;
+			case 0:
+				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getLocation(), true, false, false, false);
+				break;
+			case 1:
+				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getLocation(), false, true, false, false);
+				break;
+			case 2:
+				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getLocation(), false, false, true, false);
+				break;
+			case 3:
+				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getLocation(), false, false, false, true);
+				break;
 			}
-			else {
-				nearThis = listOfActors[idleVillagerId].getLocation();
-			}
-			cords buildingSlot = getFreeBuildingSlot(0, nearThis);
-			std::cout << idOfUnfinishedHousing << std::endl;
-			std::cout << "actor location" << listOfActors[idleVillagerId].getLocation().x << " - " << listOfActors[idleVillagerId].getLocation().y << std::endl;
-			std::cout << "NearThis:" << nearThis.x << " - " << nearThis.y << std::endl;
-			std::cout << "Building slot:" << buildingSlot.x << " - " << buildingSlot.y << std::endl;
 			buildBuilding(buildingId, buildingSlot);
 			buildCommandUnit(idleVillagerId, buildingSlot);
 		}
@@ -272,7 +329,8 @@ void simpleAI::sandboxScript()
 			//zoek een vrije plek bij de villagers om een TC te bouwen
 			int idleVillagerId = listOfPlayers[this->playerId].getIdleVillagerId(0);
 			cords idleVillagerCords = listOfActors[idleVillagerId].getActorCords();
-			cords buildingSlot = getFreeBuildingSlot(1, idleVillagerCords);
+			//cords buildingSlot = getFreeBuildingSlot(1, idleVillagerCords);
+			cords buildingSlot = this->getOptimalFreeBuildingSlot(1, idleVillagerCords, true, true, true, true);
 			buildBuilding(1, buildingSlot);
 			for (int i = 0; i < listOfPlayers[this->playerId].getIdleVillagers(); i++) {
 				int vilId = listOfPlayers[this->playerId].getIdleVillagerId(i);
@@ -307,8 +365,166 @@ void simpleAI::sandboxScript()
 	}
 }
 
+struct possibleBuildTile {
+	cords startCordsOfTile;
+	cords endCordsOfTile;
+	int optimazationScore;
+
+
+};
+
+bool checkIfEmpty(cords tile) {
+	if (currentGame.occupiedByBuildingList[tile.x][tile.y] == -1 && currentGame.objectLocationList[tile.x][tile.y] == -1) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+cords simpleAI::getOptimalFreeBuildingSlot(int buildingId, cords closeToVillager, bool closeToWood, bool closeToFood, bool closeToStone, bool closeToGold) {
+	//Set the size of the square to search in
+	std::vector <possibleBuildTile> listOfPossibilities;
+	listOfPossibilities.clear();
+	cords maxSearchArea = { 15, 15 }; //this will evaluate all start locations in a 30x30 square (900 induvidual evaluations)
+	cords startCords = { closeToVillager.x - (maxSearchArea.x / 2), closeToVillager.y - (maxSearchArea.y / 2) };
+	cords endCords = { closeToVillager.x + (maxSearchArea.x / 2), closeToVillager.y + (maxSearchArea.y / 2) };
+	//Now trim to get only cords within the map limitations
+	if (startCords.x - footprintOfBuildings[buildingId].amountOfXFootprint < 0) { startCords.x = footprintOfBuildings[buildingId].amountOfXFootprint; };
+	if (startCords.y - footprintOfBuildings[buildingId].amountOfYFootprint < 0) { startCords.y = footprintOfBuildings[buildingId].amountOfYFootprint; };
+	if (endCords.x >= MAP_WIDTH) { endCords.x = MAP_WIDTH; }
+	if (endCords.y >= MAP_HEIGHT) { endCords.x = MAP_HEIGHT; }
+
+	//Fill a temp array with zero's and make them 1 if obstructed on the real map
+	int quickLookUpMap[MAP_WIDTH][MAP_HEIGHT] = { 0 };
+	for (int x = startCords.x; x < endCords.x; x++) {
+		for (int y = startCords.y; y < endCords.y; y++) {
+			if (currentGame.occupiedByBuildingList[x][y] != -1 || currentGame.objectLocationList[x][y] != -1 || currentGame.occupiedByActorList[x][y] != -1 || currentGame.currentMap[x][y] >= 7 || currentGame.currentMap[x][y] == 0) {
+				quickLookUpMap[x][y] = 1;
+			}
+		}
+	}
+	
+	//Time to evaluate all the posibilities
+	for (int x = startCords.x; x < endCords.x; x++) {
+		for (int y = startCords.y; y < endCords.y; y++) {
+			bool buildingPossible = true;
+			for (int i = 0; i < footprintOfBuildings[buildingId].amountOfXFootprint; i++)
+			{
+				for (int j = 0; j < footprintOfBuildings[buildingId].amountOfYFootprint; j++)
+				{
+					if (x - i >= 0 && y - j >= 0) {
+						if (quickLookUpMap[x - i][y - j] != 0){
+							//Building slot blocked by terain, objects or actors
+							buildingPossible = false;
+						}
+					}
+					else {
+						//Building slot out of bounds, this should not be possible because of earlier trimming but just in case..
+						buildingPossible = false;
+					}
+				}
+			}
+			if (buildingPossible) {
+				listOfPossibilities.push_back({ {x,y}, {x - footprintOfBuildings[buildingId].amountOfXFootprint, y - footprintOfBuildings[buildingId].amountOfYFootprint}, 0 });
+				int thisOne = listOfPossibilities.size() - 1;
+
+				//Lets calculate the score
+				int tempScore = 0;
+				int bonusFactorDistance = 1;
+				int bonusFactorProximityToResource = 1;
+				int penaltyForAdjacentTileBlocked = 10;
+
+				//calculate distance to actor
+				tempScore += (15 - distEuclidean(listOfPossibilities[thisOne].startCordsOfTile.x, listOfPossibilities[thisOne].startCordsOfTile.y, closeToVillager.x, closeToVillager.y)) * bonusFactorDistance;
+
+				//Score for proximity to resource
+				if (closeToWood) {
+					//search for the closest source of a resource
+					tempScore += 15 - distanceToResource(0, listOfPossibilities[thisOne].startCordsOfTile) * bonusFactorProximityToResource;
+				}
+				if (closeToFood) {
+					//search for the closest source of a resource
+					tempScore += 15 - distanceToResource(1, listOfPossibilities[thisOne].startCordsOfTile) * bonusFactorProximityToResource;
+				}
+				if (closeToStone) {
+					//search for the closest source of a resource
+					tempScore += 15 - distanceToResource(2, listOfPossibilities[thisOne].startCordsOfTile) * bonusFactorProximityToResource;
+				}
+				if (closeToGold) {
+					//search for the closest source of a resource
+					tempScore += 15 - distanceToResource(3, listOfPossibilities[thisOne].startCordsOfTile) * bonusFactorProximityToResource;
+				}
+
+				//try not to block resources or paths so substract points for any object or building directly adjacent to buildsite
+				for (int g = listOfPossibilities[thisOne].endCordsOfTile.x - 1; g <= listOfPossibilities[thisOne].startCordsOfTile.x + 1; g++)
+				{
+					if (g >= 0 && g <= MAP_WIDTH)
+					{
+						int goalX;
+						if (g == listOfPossibilities[thisOne].endCordsOfTile.x - 1)
+						{
+							goalX = g + 1;
+						}
+						else if (g == listOfPossibilities[thisOne].startCordsOfTile.x + 1)
+						{
+							goalX = g - 1;
+						}
+						else
+						{
+							goalX = g;
+						}
+						if (!checkIfEmpty({ g, listOfPossibilities[thisOne].endCordsOfTile.y - 1 })) // tegels erboven
+						{
+							tempScore -= penaltyForAdjacentTileBlocked;
+						}
+						if (!checkIfEmpty({ g, listOfPossibilities[thisOne].startCordsOfTile.y + 1 }))	 //tegels eronder
+						{
+							tempScore -= penaltyForAdjacentTileBlocked;
+						}
+					}
+				}
+				//The row left and right of the building
+				for (int g = listOfPossibilities[thisOne].endCordsOfTile.y + 1; g <= listOfPossibilities[thisOne].startCordsOfTile.y; g++)
+				{
+					if (g >= 0 && g <= MAP_HEIGHT)
+					{
+						if (!checkIfEmpty({ listOfPossibilities[thisOne].endCordsOfTile.x - 1, g })) // tegels links
+						{
+							tempScore -= penaltyForAdjacentTileBlocked;
+						}
+
+						if (!checkIfEmpty({ listOfPossibilities[thisOne].startCordsOfTile.x + 1, g }))	 //tegels rechts
+						{
+							tempScore -= penaltyForAdjacentTileBlocked;
+						}
+					}
+				}
+
+				//Space for future evaluations
+				listOfPossibilities[thisOne].optimazationScore = tempScore;
+			}
+		}
+	}
+	if (!listOfPossibilities.empty()) {
+		//put the tile with the highest score at the front of the list
+		std::sort(listOfPossibilities.begin(), listOfPossibilities.end(), [](const possibleBuildTile& a, const possibleBuildTile& b)
+			{
+				return (a.optimazationScore > b.optimazationScore);
+			});
+		//return the 'best' tile
+		return listOfPossibilities[0].startCordsOfTile;
+	}
+	else {
+		//No suitable tile found!
+		return { -1, -1 };
+	}
+}
+
+
 cords simpleAI::getFreeBuildingSlot(int buildingId, cords closeToThis)
 {
+	//depricated function use getOptimalFreeBuildingSlot instead
 	int maximumDistance = 3;
 	bool freeFootprintFound = false;
 	cords suggestedCords;
@@ -343,6 +559,7 @@ cords simpleAI::getFreeBuildingSlot(int buildingId, cords closeToThis)
 	}
 }
 
+
 int simpleAI::isBuildingThereButIncomplete(int type) {
 	for (int i = 0; i < listOfBuildings.size(); i++) {
 		if (listOfBuildings[i].getType() == type && listOfBuildings[i].getTeam() == this->playerId) {
@@ -367,7 +584,7 @@ std::vector<int> simpleAI::getBuildingIdsOfType(int type) {
 bool simpleAI::hasBuildingType(int id)
 {
 	for (int i = 0; i < listOfBuildings.size(); i++) {
-		if (listOfBuildings[i].getType() == id && listOfBuildings[i].getTeam() == this->playerId) {
+		if (listOfBuildings[i].getType() == id && listOfBuildings[i].getTeam() == this->playerId && listOfBuildings[i].getCompleted()) {
 			return true;
 		}
 	}

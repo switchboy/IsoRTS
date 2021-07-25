@@ -25,7 +25,8 @@ private:
 	int isBuildingThereButIncomplete(int type);
 	std::vector<int> getBuildingIdsOfType(int type);
 	void sandboxScript();
-	cords getFreeBuildingSlot(int buildingId, cords closeToThis);
+	cords getFreeBuildingSlot(int buildingId, cords closeToThis); //Just a random slot
+	cords getOptimalFreeBuildingSlot(int buildingId, cords closeToVillager, bool closeToWood, bool closeToFood, bool closeToStone, bool closeToGold); //Best possible slot
 	int playerId;
 	int difficultyLevel;
 	bool hasBuildingType(int id);

@@ -141,6 +141,7 @@ private:
     bool isFindingAlternative;
     bool isIdle;
     bool realPath;
+    bool hasStartedSearchingForAlternatives;
     int actorType;
     int actorTeam;
     int actorHealth;

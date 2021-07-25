@@ -208,7 +208,7 @@ void simpleAI::sandboxScript()
 			//Er zijn idle villagers!
 			distributeIdleVillagers();
 		}
-		//Alway expand villagers
+		//Alway expand villagers, if possible
 		if (listOfPlayers[this->playerId].getVillagers() < 60) {
 			//Check if there is population room
 			if (listOfPlayers[this->playerId].getPopulationRoom() <= 0) {

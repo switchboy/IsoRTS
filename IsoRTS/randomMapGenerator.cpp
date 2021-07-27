@@ -56,10 +56,7 @@ void convertPerlinNoiseToMap(float* noisemap) {
 	}
 }
 
-int roll(int min, int max)
-{
-	return  min + (rand() % static_cast<int>(max - min + 1));
-}
+
 
 void placeTrees() {
 	srand(time(NULL));
@@ -146,16 +143,14 @@ void spawmFirstVillager(int distanceFromFood, int teamId) {
 		if (suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
 			if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y + 1))
 			{
-				listOfActorsMutex.lock();
 				actors newActor(0, suggestedCords.x, suggestedCords.y, teamId, listOfActors.size());
 				listOfActors.push_back(newActor);
 				actors newActor1(0, suggestedCords.x, suggestedCords.y+1, teamId, listOfActors.size());
 				listOfActors.push_back(newActor1);
 				actors newActor2(0, suggestedCords.x+1, suggestedCords.y, teamId, listOfActors.size());
 				listOfActors.push_back(newActor2);
-				actors newActor3(0, suggestedCords.x+1, suggestedCords.y, teamId, listOfActors.size());
+				actors newActor3(0, suggestedCords.x+1, suggestedCords.y+1, teamId, listOfActors.size());
 				listOfActors.push_back(newActor3);
-				listOfActorsMutex.unlock();
 				villagerIsPlaced = true;
 			}
 		}

@@ -151,6 +151,8 @@ actors::actors(int type, int actorX, int actorY, int actorTeam, int actorId)
     this->actorCords[0] = actorX;
     this->actorCords[1] = actorY;
     this->timeLastRetry = 0;
+    this->isIdle = true;
+    hasStartedSearchingForAlternatives = false;
     switch(type)
     {
     case 0://villager
@@ -325,6 +327,9 @@ void actors::doTaskIfNotWalking()
         {
             this->handleBuilding();
         }
+        else {
+            this->isIdle = true;
+        }
     }
 }
 
@@ -340,6 +345,25 @@ void actors::shootProjectile()
             this->isRangedAttacking = false;
         }
     }
+}
+
+bool actors::idle()
+{
+    return this->isIdle;
+}
+
+
+bool actors::isAlive()
+{
+    return this->actorAlive;
+}
+
+cords actors::getActorCords()
+{
+    cords blah;
+    blah.x = this->actorCords[0];
+    blah.y = this->actorCords[1];
+    return blah;
 }
 
 void actors::setIsDoingAttack()
@@ -439,6 +463,7 @@ void actors::updateGoal(int i, int j, int waitTime)
         this->offSetY = 0.0f;
         this->timeStartedGatheringRecource = 0.0f;
         this->isFindingAlternative = false;
+        this->isIdle = false;
     }
 }
 
@@ -636,6 +661,7 @@ void actors::retryWalkingOrChangeGoal() {
             this->pathFound = false;
             this->realPath = false;
             this->routeNeedsPath = false;
+            this->isIdle = true;
         }
     }
 }
@@ -1111,41 +1137,54 @@ void actors::setCommonGoalTrue()
 
 void actors::findNearestSimilairResource()
 {
-    std::cout << "searching for other resource" << std::endl;
     if (this->listOfResourceLocations.empty()) {
-        int lowSearchLimitX = this->actorCords[0] - 30;
-        if (lowSearchLimitX < 0)
-        {
-            lowSearchLimitX = 0;
-        }
-        int lowSearchLimitY = this->actorCords[1] - 30;
-        if (lowSearchLimitY < 0)
-        {
-            lowSearchLimitY = 0;
-        }
-        int highSearchLimitX = this->actorCords[0] + 30;
-        if (highSearchLimitX > MAP_WIDTH)
-        {
-            highSearchLimitX = MAP_WIDTH;
-        }
-        int highSearchLimitY = this->actorCords[1] + 30;
-        if (highSearchLimitY > MAP_HEIGHT)
-        {
-            highSearchLimitY = MAP_HEIGHT;
-        }
-        for (int i = lowSearchLimitX; i < highSearchLimitX; i++)
-        {
-            for (int j = lowSearchLimitY; j < highSearchLimitY; j++)
+        if (this->hasStartedSearchingForAlternatives == false) {
+            this->hasStartedSearchingForAlternatives = true;
+            int lowSearchLimitX = this->actorCords[0] - 30;
+            if (lowSearchLimitX < 0)
             {
-                if (currentGame.objectLocationList[i][j] != -1)
+                lowSearchLimitX = 0;
+            }
+            int lowSearchLimitY = this->actorCords[1] - 30;
+            if (lowSearchLimitY < 0)
+            {
+                lowSearchLimitY = 0;
+            }
+            int highSearchLimitX = this->actorCords[0] + 30;
+            if (highSearchLimitX > MAP_WIDTH)
+            {
+                highSearchLimitX = MAP_WIDTH;
+            }
+            int highSearchLimitY = this->actorCords[1] + 30;
+            if (highSearchLimitY > MAP_HEIGHT)
+            {
+                highSearchLimitY = MAP_HEIGHT;
+            }
+            for (int i = lowSearchLimitX; i < highSearchLimitX; i++)
+            {
+                for (int j = lowSearchLimitY; j < highSearchLimitY; j++)
                 {
-                    if (listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource() == this->ResourceBeingGatherd)
+                    if (currentGame.objectLocationList[i][j] != -1)
                     {
-                        float tempDeltaDistance = dist(this->actorCords[0], this->actorCords[1], i, j);
-                        this->listOfResourceLocations.push_back({ tempDeltaDistance, i, j, currentGame.objectLocationList[i][j], true });
+                        if (listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource() == this->ResourceBeingGatherd)
+                        {
+                            float tempDeltaDistance = dist(this->actorCords[0], this->actorCords[1], i, j);
+                            this->listOfResourceLocations.push_back({ tempDeltaDistance, i, j, currentGame.objectLocationList[i][j], true });
+                        }
                     }
                 }
             }
+        }
+        else {
+            //make villager idle, because search was ineffective
+            this->clearRoute();
+            this->pathFound = false;
+            this->realPath = false;
+            this->routeNeedsPath = false;
+            this->isIdle = true;
+            this->isGatheringRecources = false;
+            this->isBuilding = false;
+            return;
         }
         if (!this->listOfResourceLocations.empty())
         {
@@ -1675,6 +1714,26 @@ void actors::buildBuilding()
 int actors::getActorId()
 {
     return this->actorId;
+}
+
+bool actors::isGathering()
+{
+    return this->isGatheringRecources;
+}
+
+bool actors::getIsBuilding()
+{
+    return this->isBuilding;
+}
+
+int actors::getBuildingId()
+{
+    return this->buildingId;
+}
+
+int actors::getResourceGathered()
+{
+    return this->ResourceBeingGatherd;
 }
 
 void actors::setIsBuildingTrue(int buildingId, int& goalX, int& goalY)

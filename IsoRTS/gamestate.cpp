@@ -1003,14 +1003,16 @@ void gameState::getDefinitiveSelection()
                         return (id < 0 || id > listOfActors.size());
                     }
                 ), selectedUnits.end());
-            
-                //Haal vijanden eruit als er meer dan 1 unit geselecteerd is
-                selectedUnits.erase(std::remove_if(
-                    selectedUnits.begin(), selectedUnits.end(),
-                    [](const int& id) {
-                        return listOfActors[currentGame.selectedUnits[id]].getTeam() != currentPlayer.getTeam();
-                    }
-                ), selectedUnits.end());
+                
+                if (selectedUnits.size() > 1) {//We heve to check again
+                    //Haal vijanden eruit als er meer dan 1 unit geselecteerd is
+                    selectedUnits.erase(std::remove_if(
+                        selectedUnits.begin(), selectedUnits.end(),
+                        [](const int& idt) {
+                            return listOfActors[currentGame.selectedUnits[idt]].getTeam() != currentPlayer.getTeam();
+                        }
+                    ), selectedUnits.end());
+                }
             }
 
         }
@@ -1560,6 +1562,11 @@ mouseWorldCord gameState::getNextCord(int x, int y)
     }
 }
 
+int gameState::getPlayerCount()
+{
+    return players;
+}
+
 void drawMiniMapBackground(sf::RectangleShape& miniMapPixel)
 {
     if(!minimapTextureExist)
@@ -2035,6 +2042,9 @@ int getBuildingSpriteOffset(int& buildingId)
     case 5:
         return  640;
         break;
+    case 6:
+        return  640;
+        break;
 
     }
     return -1;
@@ -2071,6 +2081,9 @@ void createBuildingButtons(int& buildingId, int& startX, int& startY)
         }
         break;
     case 5:
+        //mingincamp
+        break;
+    case 6:
         //mingincamp
         break;
     default:
@@ -2379,8 +2392,42 @@ void gameState::drawTopBar()
     window.setView(topBar);
     playerStats tempStats = currentPlayer.getStats();
     std::stringstream resourcesText;
-    resourcesText   << "Wood: " << tempStats.amountOfWood <<" | Food: " << tempStats.amountOfFood << " | Stone: " << tempStats.amountOfStone << " | Gold: " << tempStats.amountOfGold
-                    << " | Population: "<< tempStats.currentPopulation<< "/"<<tempStats.populationRoom << " | Team: " << tempStats.team ;
+    int seconds = currentGame.elapsedTime; //Tijd in seconden
+    int minutes = 0;
+    int hours = 0;
+    if (seconds >= 60) {
+        minutes = seconds / 60;
+        seconds = seconds - (minutes*60);
+    }
+    if (minutes >= 60) {
+        hours = minutes/60;
+        minutes = minutes - (hours*60);
+    }
+    //vanwege esthetiek
+    std::stringstream  time;
+    if (hours < 10) {
+        time << "0";
+    }
+    time << hours << ":";
+    if (minutes < 10) {
+        time << "0";
+    }
+    time << minutes << ":";
+    if (seconds < 10) {
+        time << "0";
+    }
+    time << seconds;
+
+    resourcesText << "|  Wood: " << tempStats.amountOfWood << " (" << currentPlayer.getTotalGatheringWood() <<
+        ")  |  Food: " << tempStats.amountOfFood << " (" << currentPlayer.getTotalGatheringFood() <<
+        ")  |  Stone: " << tempStats.amountOfStone << " (" << currentPlayer.getTotalGatheringStone() <<
+        ")  |  Gold: " << tempStats.amountOfGold << " (" << currentPlayer.getTotalGatheringGold() <<
+        ")  |                |  Population: " << tempStats.currentPopulation << "/" << tempStats.populationRoom <<
+        "  |  Idle: " << currentPlayer.getIdleVillagers() <<
+        "  |  Building: " << currentPlayer.getTotalBuilding() <<
+        "  |                |  Team: " << tempStats.team << " |" <<
+        "  |                |  Time: " << time.str() << " |";
+
     text.setString(resourcesText.str());
     text.setCharacterSize(24);
     text.setOutlineColor(sf::Color::Black);
@@ -2493,13 +2540,16 @@ void gameState::loadBuildings()
     //Mining camp 5
     footprintOfBuildings.push_back({ 3,3 });
     priceOfBuilding.push_back({ 0,100,0,0 });
+    //Mining camp 6
+    footprintOfBuildings.push_back({ 3,3 });
+    priceOfBuilding.push_back({ 0,100,0,0 });
 }
 
 void loadActors()
 {
-    //food, wood, stone, gold
-    priceOfActor.push_back({ 50,0,0,0 });   //villager    0
-    priceOfActor.push_back({ 60,0,0,20 });  //Swordsman   1
+    //food, wood, stone, gold, production points
+    priceOfActor.push_back({ 50,0,0,0,25 });   //villager    0
+    priceOfActor.push_back({ 60,0,0,20,25 });  //Swordsman   1
 }
 
 void gameState::loadFonts()
@@ -2554,7 +2604,7 @@ void gameState::setDefaultValues()
     this->lastMistDraw = -1.0f;
     listOfBuildings.resize(1);
     listOfObjects.resize(1);
-    this->players = 1;
+    this->players = 2;
 }
 
 void setTeam() {

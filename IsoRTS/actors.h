@@ -3,6 +3,7 @@
 #include <cmath>
 #include <list>
 #include "gamestate.h"
+#include "globalfunctions.h"
 #include <SFML/System.hpp>
 #include <thread>
 
@@ -79,6 +80,10 @@ public:
     cords getLocation();
     int getType();
     int getActorId();
+    bool isGathering();
+    bool getIsBuilding();
+    int getBuildingId();
+    int getResourceGathered();
     void setIsBuildingTrue(int buildingId, int& goalX, int& goalY);
     std::pair<int, int> getHealth();
     void walkBackToOwnSquare();
@@ -105,6 +110,9 @@ public:
     void setIsDoingAttack();
     void doTaskIfNotWalking();
     void shootProjectile();
+    bool idle();
+    bool isAlive();
+    cords getActorCords();
 
 private:
     bool actorAlive;
@@ -131,14 +139,15 @@ private:
     bool isMeleeAttacking;
     bool isRangedAttacking;
     bool isFindingAlternative;
+    bool isIdle;
     bool realPath;
+    bool hasStartedSearchingForAlternatives;
     int actorType;
     int actorTeam;
     int actorHealth;
     int buildingId;
     int actorId;
     int hitPoints;
-    //int totalHitPoints;
     int meleeDamage;
     int rangedDamage;
     int range;

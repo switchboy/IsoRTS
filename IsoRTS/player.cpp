@@ -127,6 +127,148 @@ bool player::isPlayerDefeated()
     return this->isDefeated;
 }
 
+void player::clearLists()
+{
+    this->idleVillagersList.clear();
+    this->villagersList.clear();
+    this->gatheringWood.clear();
+    this->gatheringFood.clear();
+    this->gatheringStone.clear();
+    this->gatheringGold.clear();
+    this->building.clear();
+
+}
+
+
+int player::getVillagers() 
+{
+    return this->villagersList.size();
+}
+
+int player::getTotalGatheringWood() 
+{
+    return this->gatheringWood.size();
+}
+
+int player::getTotalGatheringFood() 
+{
+    return this->gatheringFood.size();
+}
+int player::getTotalGatheringStone() 
+{
+    return this->gatheringStone.size();
+}
+int player::getTotalGatheringGold() 
+{
+    return this->gatheringGold.size();
+}
+int player::getGatheringWood(int id)
+{
+    return this->gatheringWood[id];
+}
+
+int player::getGatheringFood(int id) 
+{
+    return this->gatheringFood[id];
+}
+
+int player::getGatheringStone(int id)
+{
+    return this->gatheringStone[id];
+}
+
+int player::getGatheringGold(int id) 
+{
+    return this->gatheringGold[id];
+}
+
+int player::getTotalBuilding()
+{
+    return this->building.size();
+}
+
+int player::getBuilder(int id)
+{
+    return this->building[id];
+}
+
+int player::getVillager(int id)
+{
+    return this->villagersList[id];
+}
+
+int player::getSwordsman(int id)
+{
+    return this->listOfSwordsman[id];
+}
+
+int player::getTotalSwordsman()
+{
+    return this->listOfSwordsman.size();
+}
+
+void player::insertSwordsman(int& id)
+{
+    this->listOfSwordsman.push_back(id);
+}
+
+
+void player::insertIdIntoIdleVillagerList(int& id)
+{
+    this->idleVillagersList.push_back(id);
+}
+
+void player::insertVillagerList(int& id)
+{
+    this->villagersList.push_back(id);
+}
+
+void player::insertGatheringWood(int& id)
+{
+    this->gatheringWood.push_back(id);
+}
+
+void player::insertGatheringFood(int& id)
+{
+    this->gatheringFood.push_back(id);
+}
+
+void player::insertGatheringStone(int& id)
+{
+    this->gatheringStone.push_back(id);
+}
+
+void player::insertGatheringGold(int& id)
+{
+    this->gatheringGold.push_back(id);
+
+}
+
+void player::insertBuilding(int& id)
+{
+    this->building.push_back(id);
+}
+
+int player::getPopulationRoom()
+{
+    return this->populationRoom - this->currentPopulation;
+}
+
+int player::getIdleVillagerId(int it)
+{
+    if (it < idleVillagersList.size()) {
+        return idleVillagersList[it];
+    }
+    else {
+        return -1;
+    }
+}
+
+int player::getIdleVillagers()
+{
+    return this->idleVillagersList.size();
+}
+
 playerStats player::getStats()
 {
     playerStats temp = {this->amountOfWood, this->amountOfFood, this->amountOfGold, this->amountOfStone,this->currentPopulation, this->populationRoom, this->getTeam()};

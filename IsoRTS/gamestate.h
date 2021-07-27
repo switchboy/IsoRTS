@@ -27,6 +27,7 @@ extern std::list<button> listOfButtons;
 
 extern double dist(double x1, double y1, double x2, double y2);
 
+extern double distEuclidean(double x1, double y1, double x2, double y2);
 
 
 struct actorOrBuildingPrice
@@ -35,6 +36,7 @@ struct actorOrBuildingPrice
     int wood;
     int stone;
     int gold;
+    int productionPoints;
 };
 
 extern std::vector<actorOrBuildingPrice> priceOfBuilding;
@@ -51,10 +53,7 @@ struct adjacentTile
     int actorId;
 };
 
-struct cords {
-    int x;
-    int y;
-};
+
 
 mouseWorldCord toWorldMousePosition(int mouseX, int mouseY);
 
@@ -149,6 +148,7 @@ public:
     int occupiedByBuildingList[MAP_WIDTH][MAP_HEIGHT];
     int occupiedByActorList[MAP_WIDTH][MAP_HEIGHT];
     bool showPaths;
+    int getPlayerCount();
 
 private:
     sf::Event event;
@@ -157,11 +157,11 @@ private:
     bool addSubstractX;
     bool addSubstractY;
     bool firstRound;
-    int players;
     int lastIandJ[2];
     float topBarHeigth;
     float lastMistDraw;
     bool focus;
+    int players;
     bool mousePressedLeft;
     bool equalIsPressed;
     bool mousePressedRight;

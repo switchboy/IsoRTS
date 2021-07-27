@@ -11,9 +11,10 @@
 #include "gametext.h"
 #include "projectile.h"
 #include "orderCursor.h"
+#include "player.h"
+#include "simpleAI.h"
 
 gameState currentGame;
-
 
 void routeHelper(int i)
 {
@@ -52,7 +53,47 @@ void clearOldCommandCursors()
 }
 
 void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& lastProjectile){
+    for (int i = 0; i < currentGame.getPlayerCount(); i++) {
+        listOfPlayers[i].clearLists();
 
+    }
+    for (int n = 0; n < listOfActors.size(); n++) {
+        if (listOfActors[n].isAlive()) {
+            if (listOfActors[n].getType() == 0) {
+                listOfPlayers[listOfActors[n].getTeam()].insertVillagerList(n);
+                if (listOfActors[n].idle()) {
+                    listOfPlayers[listOfActors[n].getTeam()].insertIdIntoIdleVillagerList(n);
+                }
+                else if (listOfActors[n].getIsBuilding()) {
+                    listOfPlayers[listOfActors[n].getTeam()].insertBuilding(n);
+                }
+                else if (listOfActors[n].isGathering()) {
+                    switch (listOfActors[n].getResourceGathered()) {
+                    case 0: //wood
+                        listOfPlayers[listOfActors[n].getTeam()].insertGatheringWood(n);
+                        break;
+                    case 1: //food
+                        listOfPlayers[listOfActors[n].getTeam()].insertGatheringFood(n);
+                        break;
+                    case 2: //stone
+                        listOfPlayers[listOfActors[n].getTeam()].insertGatheringStone(n);
+                        break;
+                    case 3: //gold
+                        listOfPlayers[listOfActors[n].getTeam()].insertGatheringGold(n);
+                        break;
+                    }
+                }
+            }
+            else if (listOfActors[n].getType() == 0) {
+                listOfPlayers[listOfActors[n].getTeam()].insertSwordsman(n);
+            }
+        }
+    }    
+    if (!listOfAI.empty()) {
+        for (int i = 0; i < listOfAI.size(); i++) {
+            listOfAI[i].update();
+        }
+    }
     if (!listOfProjectiles.empty()) {
         int endProjectile = lastProjectile + 100;
         if (listOfProjectiles.size() > 100) {
@@ -130,6 +171,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
             lastBuilding = endBuilding;
         }
     }
+  
 }
 
 int main()
@@ -140,6 +182,8 @@ int main()
     int lastPath=0;
     int lastProjectile=0;
     currentGame.loadGame();
+    simpleAI newAIPlayer(1, 0);
+    listOfAI.push_back(newAIPlayer);
     while(window.isOpen())
     {
         sf::Time elapsedMain = clockMain.getElapsedTime();

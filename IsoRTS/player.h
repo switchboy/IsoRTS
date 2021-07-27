@@ -1,5 +1,6 @@
 #ifndef PLAYER_H
 #define PLAYER_H
+#include <vector>
 
 struct playerStats
 {
@@ -30,6 +31,32 @@ public:
     int getTeam();
     void setTeam(int team);
     bool isPlayerDefeated();
+    void clearLists();
+    void insertIdIntoIdleVillagerList(int& id);
+    void insertVillagerList(int& id);
+    void insertGatheringWood(int& id);
+    void insertGatheringFood(int& id);
+    void insertGatheringStone(int& id);
+    void insertGatheringGold(int& id);
+    void insertBuilding(int& id);
+    int getPopulationRoom();
+    int getIdleVillagerId(int it);
+    int getIdleVillagers();
+    int getVillagers();
+    int getTotalGatheringWood();
+    int getTotalGatheringFood();
+    int getTotalGatheringStone();
+    int getTotalGatheringGold();
+    int getGatheringWood(int id);
+    int getGatheringFood(int id);
+    int getGatheringStone(int id);
+    int getGatheringGold(int id);
+    int getTotalBuilding();
+    int getBuilder(int id);
+    int getVillager(int id);
+    int getSwordsman(int id);
+    int getTotalSwordsman();
+    void insertSwordsman(int& id);
     playerStats getStats();
 
 private:
@@ -43,6 +70,14 @@ private:
     int friendOrFoo[8];
     bool isDefeated;
     bool isParticipating;
+    std::vector<int> villagersList;
+    std::vector<int> idleVillagersList;
+    std::vector<int> gatheringWood;
+    std::vector<int> gatheringFood;
+    std::vector<int> gatheringStone;
+    std::vector<int> gatheringGold;
+    std::vector<int> building;
+    std::vector<int> listOfSwordsman;
 };
 
 extern player& currentPlayer;

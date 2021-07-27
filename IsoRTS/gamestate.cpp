@@ -1003,14 +1003,16 @@ void gameState::getDefinitiveSelection()
                         return (id < 0 || id > listOfActors.size());
                     }
                 ), selectedUnits.end());
-            
-                //Haal vijanden eruit als er meer dan 1 unit geselecteerd is
-                selectedUnits.erase(std::remove_if(
-                    selectedUnits.begin(), selectedUnits.end(),
-                    [](const int& id) {
-                        return listOfActors[currentGame.selectedUnits[id]].getTeam() != currentPlayer.getTeam();
-                    }
-                ), selectedUnits.end());
+                
+                if (selectedUnits.size() > 1) {//We heve to check again
+                    //Haal vijanden eruit als er meer dan 1 unit geselecteerd is
+                    selectedUnits.erase(std::remove_if(
+                        selectedUnits.begin(), selectedUnits.end(),
+                        [](const int& idt) {
+                            return listOfActors[currentGame.selectedUnits[idt]].getTeam() != currentPlayer.getTeam();
+                        }
+                    ), selectedUnits.end());
+                }
             }
 
         }
@@ -2602,7 +2604,7 @@ void gameState::setDefaultValues()
     this->lastMistDraw = -1.0f;
     listOfBuildings.resize(1);
     listOfObjects.resize(1);
-    this->players = 1;
+    this->players = 2;
 }
 
 void setTeam() {

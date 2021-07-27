@@ -270,11 +270,10 @@ void simpleAI::sandboxScript()
 			//Check if there is population room
 			if (listOfPlayers[this->playerId].getPopulationRoom() <= 0) {
 				//We should build a house! Unless.. we are building a house of course...
-				if (listOfPlayers[this->playerId].getTotalGatheringFood() > 0) {
-					this->buildBuildingNearUnlessBuilding(0, listOfPlayers[this->playerId].getGatheringFood(0), -1);
+				if (listOfPlayers[this->playerId].getTotalGatheringWood() > 0) {
+					this->buildBuildingNearUnlessBuilding(0, listOfPlayers[this->playerId].getGatheringWood(0), -1);
 				}
 				else {
-					//Why is no one gathering food??
 					if (listOfPlayers[this->playerId].getVillagers() > 0) {
 						this->buildBuildingNearUnlessBuilding(0, listOfPlayers[this->playerId].getVillager(0), -1);
 					}

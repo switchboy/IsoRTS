@@ -118,7 +118,9 @@ bool buildings::getCompleted()
 void buildings::setCompleted()
 {
     this->buildingCompleted = true;
-    gameText.addNewMessage("- Building completed! -", 0);
+    if (this->ownedByPlayer == currentPlayer.getTeam()) {
+        gameText.addNewMessage("- Building completed! -", 0);
+    }
     listOfPlayers[this->ownedByPlayer].addToPopulationRoom(this->supportsPopulationOf);
 }
 

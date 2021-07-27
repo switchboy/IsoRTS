@@ -182,7 +182,7 @@ int main()
     int lastPath=0;
     int lastProjectile=0;
     currentGame.loadGame();
-    simpleAI newAIPlayer(0, 0);
+    simpleAI newAIPlayer(1, 0);
     listOfAI.push_back(newAIPlayer);
     while(window.isOpen())
     {

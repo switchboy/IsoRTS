@@ -21,6 +21,7 @@ The project goals that have been reached:
 - Working minimap
 - Buildable town centre, house, baracks, mill and lumbercamp
 - A basic Rock/Paper/Scissors for damage calculations during battle
+- Basic AI to play against
 
 Attainable project goals for the near future:
 - Fighting animations
@@ -28,7 +29,6 @@ Attainable project goals for the near future:
 - Different colors on units and buildings for the eight teams
 - Researchable upgrades for units and buildings
 - Flesh out the research with a tech tree
-- Basic AI to play against
 - Add sounds
 
 Aim for the moon project goal:

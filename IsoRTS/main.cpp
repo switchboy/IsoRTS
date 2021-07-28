@@ -184,7 +184,6 @@ int main()
     currentGame.loadGame();
     simpleAI newAIPlayer(1, 0);
     listOfAI.push_back(newAIPlayer);
-    std::cout << listOfObjects.size();
     while(window.isOpen())
     {
         sf::Time elapsedMain = clockMain.getElapsedTime();

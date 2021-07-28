@@ -730,7 +730,7 @@ void buildings::checkOnEnemyAndShoot()
                     if (listOfActors[currentGame.occupiedByActorList[cord.x][cord.y]].getTeam() != this->ownedByPlayer)
                     {
                         mouseWorldCord sourceTile = findCloseTile(buidlingFootprint, cord);
-                        projectile newProjectile(sourceTile.x, sourceTile.y, cord.x, cord.y, 0, this->amountOfRangedDamage, 0);
+                        projectile newProjectile(sourceTile.x, sourceTile.y, cord.x, cord.y, 0, this->amountOfRangedDamage, 0, -this->buildingId);
                         listOfProjectiles.push_back(newProjectile);
                         return;
                     }

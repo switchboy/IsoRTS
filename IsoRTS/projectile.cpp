@@ -25,7 +25,7 @@ float giveAnngleOfSpriteInDGR(float screenVelocityX, float screenVelocityY)
 	if (screenVelocityX > 0.0f && screenVelocityY < 0.0f) { return 360 - radiansToDegree( (90 + atan(fabs(screenVelocityY) / fabs(screenVelocityX))) ); }
 }
 
-projectile::projectile(int projectileStartX, int projectileStartY, int projectileTargetX, int projectileTargetY, int projectileType, int damageOnImpact, int splashDamageOnImpact)
+projectile::projectile(int projectileStartX, int projectileStartY, int projectileTargetX, int projectileTargetY, int projectileType, int damageOnImpact, int splashDamageOnImpact, int firedBy)
 {
 	this->X = worldSpace(projectileStartX, projectileStartY, true);
 	this->Y = worldSpace(projectileStartX, projectileStartY, false);
@@ -42,6 +42,7 @@ projectile::projectile(int projectileStartX, int projectileStartY, int projectil
 	this->timeFired = currentGame.getTime();
 	this->reachedTarget = false;
 	this->projectileRotation = 0.0f;
+	this->firedBy = firedBy;
 	this->X += 32;
 }
 
@@ -78,7 +79,7 @@ void projectile::drawProjectile()
 void projectile::doDamage()
 {
 	if (currentGame.occupiedByActorList[this->projectileTarget.x][this->projectileTarget.y] != -1) {
-		listOfActors[currentGame.occupiedByActorList[this->projectileTarget.x][this->projectileTarget.y]].takeDamage(this->damageOnImpact);
+		listOfActors[currentGame.occupiedByActorList[this->projectileTarget.x][this->projectileTarget.y]].takeDamage(this->damageOnImpact, this->firedBy);
 	}
 	else if (currentGame.occupiedByBuildingList[this->projectileTarget.x][this->projectileTarget.y] != -1)
 	{

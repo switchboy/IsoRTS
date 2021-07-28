@@ -10,7 +10,7 @@ struct screenPositionProjectile {
 class projectile
 {
 public:
-	projectile(int projectileStartX, int projectileStartY, int projectileTargetX, int projectileTargetY, int projectileType, int damageOnImpact, int splashDamageOnImpact);
+	projectile(int projectileStartX, int projectileStartY, int projectileTargetX, int projectileTargetY, int projectileType, int damageOnImpact, int splashDamageOnImpact, int firedBy);
 	void updatePosition();
 	void drawProjectile();
 	void doDamage();
@@ -24,6 +24,7 @@ private:
 	int projectileType;
 	int damageOnImpact;
 	int splashDamageOnImpact;
+	int firedBy;
 	float X;
 	float Y;
 	float Z;

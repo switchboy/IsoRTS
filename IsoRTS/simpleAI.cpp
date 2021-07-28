@@ -88,8 +88,7 @@ int distanceToResource(int kind, cords from) {
 				listOfResourceLocations.push_back({ tempDeltaDistance, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y, i, true });
 			}
 		}
-
-			/*int lowSearchLimitX = from.x - 60;
+		/*int lowSearchLimitX = from.x - 60;
 			if (lowSearchLimitX < 0)
 			{
 				lowSearchLimitX = 0;

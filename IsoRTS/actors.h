@@ -74,6 +74,7 @@ public:
     void findNearestSimilairResource();
     void getNewBuildingTileForSameBuilding();
     void pathAStar();
+    void fightOrFlight(int idOfAttacker);
     void routing(std::vector<Cells>& cellsList, int& endCell, int& startCell, bool& endReached);
     bool isInitialized();
     int getTeam();
@@ -95,7 +96,7 @@ public:
     void cleanUp();
     void killActor();
     void doMeleeDamage();
-    void takeDamage(int amountOfDamage);
+    void takeDamage(int amountOfDamage, int idOfAttacker);
     int getMeleeDMG();
     int getRangedDMG();
     void updateGoalPath();

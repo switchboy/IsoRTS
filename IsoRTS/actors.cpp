@@ -338,7 +338,7 @@ void actors::shootProjectile()
     if (this->timeStartedGatheringRecource + this->timeBetweenShots < currentGame.getTime()) {
         this->timeStartedGatheringRecource = currentGame.getTime();
         if (currentGame.occupiedByActorList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]] != -1) {
-            projectile newProjectile(this->actorCords[0], this->actorCords[1], this->actionPreformedOnTile[0], this->actionPreformedOnTile[1], this->projectileType, this->rangedDamage, this->splashDamage);
+            projectile newProjectile(this->actorCords[0], this->actorCords[1], this->actionPreformedOnTile[0], this->actionPreformedOnTile[1], this->projectileType, this->rangedDamage, this->splashDamage, this->actorId);
             listOfProjectiles.push_back(newProjectile);
         }
         else {
@@ -390,7 +390,7 @@ void actors::doMeleeDamage()
         if (currentGame.occupiedByActorList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]] != -1) {
            if (listOfActors[currentGame.occupiedByActorList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]]].getTeam() != this->actorTeam) 
            {
-                listOfActors[currentGame.occupiedByActorList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]]].takeDamage(this->meleeDamage);
+                listOfActors[currentGame.occupiedByActorList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]]].takeDamage(this->meleeDamage, this->actorId);
            }
         }
         else if (currentGame.occupiedByBuildingList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]] != -1)
@@ -406,12 +406,13 @@ void actors::doMeleeDamage()
     }
 }
 
-void actors::takeDamage(int amountOfDamage)
+void actors::takeDamage(int amountOfDamage, int idOfAttacker)
 {
     this->actorHealth -= amountOfDamage;
     if (this->actorHealth <= 0) {
         this->killActor();
     }
+    this->fightOrFlight(idOfAttacker);
 }
 
 void actors::killActor() {
@@ -1454,6 +1455,91 @@ void actors::pathAStar()
         }
         else {
             this->isFindingAlternative = true;
+        }
+    }
+}
+
+void actors::fightOrFlight(int idOfAttacker)
+{
+    if (idOfAttacker >= 0) {
+        //This unit is being Attaked! Whut do?
+
+        //How many attacks does it take to kill me?
+        int hitsUntilDead = 0;
+        if (listOfActors[idOfAttacker].getMeleeDMG() > listOfActors[idOfAttacker].getRangedDMG()) {
+            hitsUntilDead = this->actorHealth / listOfActors[idOfAttacker].getMeleeDMG();
+        }
+        else {
+            hitsUntilDead = this->actorHealth / listOfActors[idOfAttacker].getRangedDMG();
+        }
+
+        //How many hits do I need?
+        int hitsToWin = 0;
+        if (this->meleeDamage > this->rangedDamage) {
+            hitsToWin = listOfActors[idOfAttacker].getHealth().first / this->meleeDamage;
+        }
+        else {
+            hitsToWin = listOfActors[idOfAttacker].getHealth().first / this->rangedDamage;
+        }
+
+        if (hitsToWin < hitsUntilDead) {
+            //Fight
+            this->updateGoal(listOfActors[idOfAttacker].getActorCords().x, listOfActors[idOfAttacker].getActorCords().y, 0);
+            this->setIsDoingAttack();
+        }
+        else {
+            //Flight
+            int moveX = 0;
+            int moveY = 0;
+            if (this->actorCords[0] < listOfActors[idOfAttacker].getActorCords().x) {
+                //We want to go to a lower x
+                moveX = -1;
+            }
+            else if (this->actorCords[0] > listOfActors[idOfAttacker].getActorCords().x) {
+                //We want to go to a higher x
+                moveX = 1;
+            }
+            if (this->actorCords[0] < listOfActors[idOfAttacker].getActorCords().y) {
+                //We want to go to a lower Y
+                moveY = -1;
+            }
+            else if (this->actorCords[0] > listOfActors[idOfAttacker].getActorCords().y) {
+                //We want to go to a higher Y
+                moveY = 1;
+            }
+
+            if (currentGame.isPassable(this->actorCords[0] + moveX, this->actorCords[1] + moveY)) {
+                //Then do it!
+                this->updateGoal(this->actorCords[0] + moveX, this->actorCords[1] + moveY, 0);
+            }
+            else {
+                //try only x
+                if (currentGame.isPassable(this->actorCords[0] + moveX, this->actorCords[1])) {
+                    //Then do it!
+                    this->updateGoal(this->actorCords[0] + moveX, this->actorCords[1], 0);
+                }
+                else {
+                    //try only Y
+                    if (currentGame.isPassable(this->actorCords[0], this->actorCords[1] + moveY)) {
+                        //Then do it!
+                        this->updateGoal(this->actorCords[0], this->actorCords[1] + moveY, 0);
+                    }
+                    else {
+                        //Well, not good, just two options left!
+                        if (currentGame.isPassable(this->actorCords[0] - moveX, this->actorCords[1] + moveY)) {
+                            this->updateGoal(this->actorCords[0] - moveX, this->actorCords[1] + moveY, 0);
+                        }
+                        else if (currentGame.isPassable(this->actorCords[0] + moveX, this->actorCords[1] - moveY)) {
+                            this->updateGoal(this->actorCords[0] + moveX, this->actorCords[1] - moveY, 0);
+                        }
+                        else {
+                            //We are doomed, so fight till the last breath! Out in a blaze of glory and all of that
+                            this->updateGoal(listOfActors[idOfAttacker].getActorCords().x, listOfActors[idOfAttacker].getActorCords().y, 0);
+                            this->setIsDoingAttack();
+                        }
+                    }
+                }
+            }
         }
     }
 }

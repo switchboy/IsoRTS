@@ -80,39 +80,50 @@ void simpleAI::produceCommandBuilding(int buildingId, bool isResearch, int idOfU
 int distanceToResource(int kind, cords from) {
 	std::list <nearestBuildingTile> listOfResourceLocations;
 	cords targetCords;
-	int lowSearchLimitX = from.x - 60;
-	if (lowSearchLimitX < 0)
-	{
-		lowSearchLimitX = 0;
-	}
-	int lowSearchLimitY = from.y - 60;
-	if (lowSearchLimitY < 0)
-	{
-		lowSearchLimitY = 0;
-	}
-	int highSearchLimitX = from.x + 60;
-	if (highSearchLimitX > MAP_WIDTH)
-	{
-		highSearchLimitX = MAP_WIDTH;
-	}
-	int highSearchLimitY = from.y + 60;
-	if (highSearchLimitY > MAP_HEIGHT)
-	{
-		highSearchLimitY = MAP_HEIGHT;
-	}
-	for (int i = lowSearchLimitX; i < highSearchLimitX; i++)
-	{
-		for (int j = lowSearchLimitY; j < highSearchLimitY; j++)
-		{
-			if (currentGame.objectLocationList[i][j] != -1)
-			{
-				if (listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource() == kind)
-				{
-					float tempDeltaDistance = distEuclidean(from.x, from.y, i, j);
-					listOfResourceLocations.push_back({ tempDeltaDistance, i, j, currentGame.objectLocationList[i][j], true });
-				}
+	if (!listOfObjects.empty()) {
+		for (int i = 0; i < listOfObjects.size(); i++) {
+			if (listOfObjects[i].getTypeOfResource() == kind) {
+				float tempDeltaDistance = distEuclidean(from.x, from.y, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y);
+				listOfResourceLocations.push_back({ tempDeltaDistance, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y, i, true });
 			}
 		}
+
+			/*int lowSearchLimitX = from.x - 60;
+			if (lowSearchLimitX < 0)
+			{
+				lowSearchLimitX = 0;
+			}
+			int lowSearchLimitY = from.y - 60;
+			if (lowSearchLimitY < 0)
+			{
+				lowSearchLimitY = 0;
+			}
+			int highSearchLimitX = from.x + 60;
+			if (highSearchLimitX > MAP_WIDTH)
+			{
+				highSearchLimitX = MAP_WIDTH;
+			}
+			int highSearchLimitY = from.y + 60;
+			if (highSearchLimitY > MAP_HEIGHT)
+			{
+				highSearchLimitY = MAP_HEIGHT;
+			}
+			for (int i = lowSearchLimitX; i < highSearchLimitX; i++)
+			{
+				for (int j = lowSearchLimitY; j < highSearchLimitY; j++)
+				{
+					if (currentGame.objectLocationList[i][j] != -1)
+					{
+						if (listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource() == kind)
+						{
+							float tempDeltaDistance = distEuclidean(from.x, from.y, i, j);
+							listOfResourceLocations.push_back({ tempDeltaDistance, i, j, currentGame.objectLocationList[i][j], true });
+						}
+					}
+				}
+			}
+
+		*/
 	}
 	if (!listOfResourceLocations.empty())
 	{

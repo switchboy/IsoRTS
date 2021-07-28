@@ -1140,6 +1140,14 @@ void actors::findNearestSimilairResource()
     if (this->listOfResourceLocations.empty()) {
         if (this->hasStartedSearchingForAlternatives == false) {
             this->hasStartedSearchingForAlternatives = true;
+
+            for (int i = 0; i < listOfObjects.size(); i++) {
+                if (listOfObjects[i].getTypeOfResource() == this->ResourceBeingGatherd) {
+                    float tempDeltaDistance = distEuclidean(this->actorCords[0], this->actorCords[1], listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y);
+                    listOfResourceLocations.push_back({ tempDeltaDistance, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y, i, true });
+                }
+            }
+            /*
             int lowSearchLimitX = this->actorCords[0] - 30;
             if (lowSearchLimitX < 0)
             {
@@ -1174,6 +1182,7 @@ void actors::findNearestSimilairResource()
                     }
                 }
             }
+            */
         }
         else {
             //make villager idle, because search was ineffective

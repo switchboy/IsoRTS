@@ -83,7 +83,9 @@ public:
     int getActorId();
     bool isGathering();
     bool getIsBuilding();
+    cords getGoal();
     int getBuildingId();
+    void chaseTarget();
     int getResourceGathered();
     void setIsBuildingTrue(int buildingId, int& goalX, int& goalY);
     std::pair<int, int> getHealth();
@@ -143,6 +145,7 @@ private:
     bool isIdle;
     bool realPath;
     bool hasStartedSearchingForAlternatives;
+    int idOfTarget;
     int actorType;
     int actorTeam;
     int actorHealth;

@@ -224,11 +224,48 @@ actors::~actors()
     //dtor
 }
 
+void actors::chaseTarget() {
+    if (this->idOfTarget >= 0) {
+        if (listOfActors[this->idOfTarget].isAlive()) {
+            if (listOfActors[this->idOfTarget].getGoal().x != listOfActors[this->idOfTarget].getLocation().x || listOfActors[this->idOfTarget].getGoal().y != listOfActors[this->idOfTarget].getLocation().y) {
+                //target will move
+                //check if this move is allready been caught
+                if (!(this->actionPreformedOnTile[0] == listOfActors[this->idOfTarget].getGoal().x && this->actionPreformedOnTile[1] == listOfActors[this->idOfTarget].getGoal().y)) {
+                    //update goal
+                    this->updateGoal(listOfActors[this->idOfTarget].getGoal().x, listOfActors[this->idOfTarget].getGoal().y, 0);
+                    this->setIsDoingAttack();
+                }
+            }
+        }
+        else {
+            this->isMeleeAttacking = false;
+            this->isRangedAttacking = false;
+            this->clearRoute();
+            this->pathFound = false;
+            this->realPath = false;
+            this->routeNeedsPath = false;
+            this->isIdle = true;
+        }
+    }
+    else if (-currentGame.occupiedByBuildingList[this->actorGoal[0]][this->actorGoal[1]] != this->idOfTarget) {
+        //Building destroyed!
+        this->isMeleeAttacking = false;
+        this->isRangedAttacking = false;
+        this->clearRoute();
+        this->pathFound = false;
+        this->realPath = false;
+        this->routeNeedsPath = false;
+        this->isIdle = true;
+    }
+}
 
 void actors::update()
 {
     if (this->actorAlive)
     {
+        if ((this->isMeleeAttacking || this->isRangedAttacking)) {
+            this->chaseTarget();
+        }
         if (!this->isFindingAlternative) {
             if (this->goalNeedsUpdate)
             {
@@ -376,6 +413,12 @@ void actors::setIsDoingAttack()
     }
     this->actionPreformedOnTile[0] = this->actorGoal[0];
     this->actionPreformedOnTile[1] = this->actorGoal[1];
+    if (currentGame.occupiedByActorList[this->actorGoal[0]][this->actorGoal[1]] != -1) {
+        this->idOfTarget = currentGame.occupiedByActorList[this->actorGoal[0]][this->actorGoal[1]];
+    }
+    else if (currentGame.occupiedByBuildingList[this->actorGoal[0]][this->actorGoal[1]] != -1) {
+        this->idOfTarget = -currentGame.occupiedByActorList[this->actorGoal[0]][this->actorGoal[1]];
+    }
 }
 
 void actors::doMeleeDamage()
@@ -1819,6 +1862,11 @@ bool actors::isGathering()
 bool actors::getIsBuilding()
 {
     return this->isBuilding;
+}
+
+cords actors::getGoal()
+{
+    return { this->actorGoal[0], this->actorGoal[1] };
 }
 
 int actors::getBuildingId()

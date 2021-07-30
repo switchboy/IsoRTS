@@ -96,10 +96,8 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
     }
     if (!listOfProjectiles.empty()) {
         int endProjectile = lastProjectile + 100;
-        if (listOfProjectiles.size() > 100) {
-            if (endProjectile > listOfProjectiles.size()) {
-                endProjectile = listOfProjectiles.size();
-            }
+        if (endProjectile > listOfProjectiles.size()) {
+            endProjectile = listOfProjectiles.size();
         }
         //update porjectile positions
         for (int i = lastProjectile; i < endProjectile; i++) {
@@ -182,8 +180,10 @@ int main()
     int lastPath=0;
     int lastProjectile=0;
     currentGame.loadGame();
-    simpleAI newAIPlayer(1, 0);
-    listOfAI.push_back(newAIPlayer);
+    for (int i = 0; i < currentGame.getPlayerCount() - 1; i++) {
+        simpleAI newAIPlayer(1, 0);
+        listOfAI.push_back(newAIPlayer);
+    }
     while(window.isOpen())
     {
         sf::Time elapsedMain = clockMain.getElapsedTime();

@@ -9,7 +9,7 @@
 
 std::list<button> listOfButtons;
 
-button::button(int positionX, int positionY, int spriteId, int actionType, int actorOrBuildingId, int buttonId, int taskId)
+button::button(int positionX, int positionY, spriteTypes spriteId, actionTypes actionType, int actorOrBuildingId, int buttonId, int taskId)
 {
     this->positionX = positionX;
     this->positionY = positionY;
@@ -53,57 +53,57 @@ void button::showToolTip()
     std::stringstream toolTipDiscription;
     switch(this->actionType)
     {
-    case 0:
+    case ActionBuildTownCenter:
         toolTipTitle << "Town center";
         toolTipText << "Cost: Food: "<< priceOfBuilding[1].food <<" Wood: "<< priceOfBuilding[1].wood <<" Stone: "<< priceOfBuilding[1].stone <<" Gold: "<< priceOfBuilding[1].gold;
         toolTipDiscription << "Collection point of resources, production of new villagers and research facility. Grants 10 population.";
         break;
-    case 1:
+    case ActionBuildHouse:
         toolTipTitle << "House";
         toolTipText << "Cost: Food: "<< priceOfBuilding[0].food <<" Wood: "<< priceOfBuilding[0].wood <<" Stone: "<< priceOfBuilding[0].stone <<" Gold: "<< priceOfBuilding[0].gold;
         toolTipDiscription << "Grants 5 population.";
         break;
-    case 2:
+    case ActionUnitSelect:
         toolTipTitle << "Unit selection";
         toolTipText << listOfActors[this->actorOrBuildingId].nameOfActor();
         toolTipDiscription << "Selects this single unit from the current selection.";
         break;
-    case 3:
+    case ActionMakeVillager:
         toolTipTitle << "Make villager";
         toolTipText << "Cost: Food: "<< priceOfActor[0].food <<" Wood: "<< priceOfActor[0].wood <<" Stone: "<< priceOfActor[0].stone <<" Gold: "<< priceOfActor[0].gold;
         toolTipDiscription << "The town center will start to well... generate a new villager. Villagers can collect resources and build buildings.";
         break;
-    case 4:
+    case ActionCancelBuilding:
         toolTipTitle << "Cancel building";
         toolTipText << "Cancels building the current building.";
         toolTipDiscription << "Removes blueprint and returns half of the invested resources.";
         break;
-    case 5:
+    case ActionCancelProduction:
         toolTipTitle << "Cancel production";
         toolTipText << "Cancels research or unit production";
         toolTipDiscription << "Production ceases and half of the invested resources are returned.";
         break;
-    case 6:
+    case ActionBuildMill:
         toolTipTitle << "Build Mill";
         toolTipText << "Cost: Food: " << priceOfBuilding[2].food << " Wood: " << priceOfBuilding[2].wood << " Stone: " << priceOfBuilding[2].stone << " Gold: " << priceOfBuilding[2].gold;
         toolTipDiscription << "Collection point for food, build farms and research facility for food";
         break;
-    case 7:
+    case ActionBuildLumberCamp:
         toolTipTitle << "Build Lumber Camp";
         toolTipText << "Cost: Food: " << priceOfBuilding[3].food << " Wood: " << priceOfBuilding[3].wood << " Stone: " << priceOfBuilding[3].stone << " Gold: " << priceOfBuilding[3].gold;
         toolTipDiscription << "Collection point for wood and research new wood chopping abilities";
         break;
-    case 8:
+    case ActionBuildBarracks:
         toolTipTitle << "Build Barracks";
         toolTipText << "Cost: Food: " << priceOfBuilding[4].food << " Wood: " << priceOfBuilding[4].wood << " Stone: " << priceOfBuilding[4].stone << " Gold: " << priceOfBuilding[4].gold;
         toolTipDiscription << "Train and research melee soldiers and combat abilities";
         break;
-    case 9:
+    case ActionCreateSwordsman:
         toolTipTitle << "Create Swordsman";
         toolTipText << "Cost: Food: " << priceOfActor[1].food << " Wood: " << priceOfActor[1].wood << " Stone: " << priceOfActor[1].stone << " Gold: " << priceOfActor[1].gold;
         toolTipDiscription << "Train a basic melee sword wielding soldier";
         break;
-    case 10:
+    case ActionBuildMiningCamp:
         toolTipTitle << "Build Mining Camp";
         toolTipText << "Cost: Food: " << priceOfBuilding[5].food << " Wood: " << priceOfBuilding[5].wood << " Stone: " << priceOfBuilding[5].stone << " Gold: " << priceOfBuilding[5].gold;
         toolTipDiscription << "Collection point for gold and stone and research new mining abilities";
@@ -157,7 +157,7 @@ void button::performAction()
 {
     switch(this->actionType)
     {
-    case 0:
+    case ActionBuildTownCenter:
         if(priceOfBuilding[1].food <= currentPlayer.getStats().amountOfFood && priceOfBuilding[1].wood <= currentPlayer.getStats().amountOfWood && priceOfBuilding[1].stone <= currentPlayer.getStats().amountOfStone && priceOfBuilding[1].gold <= currentPlayer.getStats().amountOfGold)
         {
             currentGame.setBuildingType(1);
@@ -170,7 +170,7 @@ void button::performAction()
             gameText.addNewMessage(errortext.str(), 1);
         }
         break;
-    case 1:
+    case ActionBuildHouse:
         if(priceOfBuilding[0].food <= currentPlayer.getStats().amountOfFood && priceOfBuilding[0].wood <= currentPlayer.getStats().amountOfWood && priceOfBuilding[0].stone <= currentPlayer.getStats().amountOfStone && priceOfBuilding[0].gold <= currentPlayer.getStats().amountOfGold)
         {
             currentGame.setBuildingType(0);
@@ -184,11 +184,11 @@ void button::performAction()
 
         }
         break;
-    case 2:
+    case ActionUnitSelect:
         //select that unit
         currentGame.selectUnit(this->actorOrBuildingId);
         break;
-    case 3:
+    case ActionMakeVillager:
         //create villager
         if(priceOfActor[0].food <= currentPlayer.getStats().amountOfFood && priceOfActor[0].wood <= currentPlayer.getStats().amountOfWood && priceOfActor[0].stone <= currentPlayer.getStats().amountOfStone && priceOfActor[0].gold <= currentPlayer.getStats().amountOfGold)
         {
@@ -201,19 +201,19 @@ void button::performAction()
             gameText.addNewMessage(errortext.str(), 1);
         }
         break;
-    case 4:
+    case ActionCancelBuilding:
         //cancel building
-        currentPlayer.addResources(1, priceOfBuilding[listOfBuildings[this->actorOrBuildingId].getType()].food/2 );
-        currentPlayer.addResources(0, priceOfBuilding[listOfBuildings[this->actorOrBuildingId].getType()].wood/2 );
-        currentPlayer.addResources(2, priceOfBuilding[listOfBuildings[this->actorOrBuildingId].getType()].stone/2 );
-        currentPlayer.addResources(3, priceOfBuilding[listOfBuildings[this->actorOrBuildingId].getType()].gold/2 );
+        currentPlayer.addResources(ResourceFood, priceOfBuilding[listOfBuildings[this->actorOrBuildingId].getType()].food/2 );
+        currentPlayer.addResources(ResourceWood, priceOfBuilding[listOfBuildings[this->actorOrBuildingId].getType()].wood/2 );
+        currentPlayer.addResources(ResourceStone, priceOfBuilding[listOfBuildings[this->actorOrBuildingId].getType()].stone/2 );
+        currentPlayer.addResources(ResourceGold, priceOfBuilding[listOfBuildings[this->actorOrBuildingId].getType()].gold/2 );
         listOfBuildings[this->actorOrBuildingId].removeBuilding();
         break;
-    case 5:
+    case ActionCancelProduction:
         //cancel production or research
         break;
 
-    case 6:
+    case ActionBuildMill:
         if (priceOfBuilding[2].food <= currentPlayer.getStats().amountOfFood && priceOfBuilding[2].wood <= currentPlayer.getStats().amountOfWood && priceOfBuilding[2].stone <= currentPlayer.getStats().amountOfStone && priceOfBuilding[2].gold <= currentPlayer.getStats().amountOfGold)
         {
             currentGame.setBuildingType(2);
@@ -227,7 +227,7 @@ void button::performAction()
         }
         break;
 
-    case 7:
+    case ActionBuildLumberCamp:
         if (priceOfBuilding[3].food <= currentPlayer.getStats().amountOfFood && priceOfBuilding[3].wood <= currentPlayer.getStats().amountOfWood && priceOfBuilding[3].stone <= currentPlayer.getStats().amountOfStone && priceOfBuilding[3].gold <= currentPlayer.getStats().amountOfGold)
         {
             currentGame.setBuildingType(3);
@@ -241,7 +241,7 @@ void button::performAction()
         }
         break;
 
-    case 8:
+    case ActionBuildBarracks:
         if (priceOfBuilding[4].food <= currentPlayer.getStats().amountOfFood && priceOfBuilding[4].wood <= currentPlayer.getStats().amountOfWood && priceOfBuilding[4].stone <= currentPlayer.getStats().amountOfStone && priceOfBuilding[4].gold <= currentPlayer.getStats().amountOfGold)
         {
             currentGame.setBuildingType(4);
@@ -254,7 +254,7 @@ void button::performAction()
             gameText.addNewMessage(errortext.str(), 1);
         }
         break;
-    case 9:
+    case ActionCreateSwordsman:
         //create a swordman
         if (priceOfActor[1].food <= currentPlayer.getStats().amountOfFood && priceOfActor[1].wood <= currentPlayer.getStats().amountOfWood && priceOfActor[1].stone <= currentPlayer.getStats().amountOfStone && priceOfActor[1].gold <= currentPlayer.getStats().amountOfGold)
         {
@@ -267,7 +267,7 @@ void button::performAction()
             gameText.addNewMessage(errortext.str(), 1);
         }
         break;
-    case 10:
+    case ActionBuildMiningCamp:
         if (priceOfBuilding[5].food <= currentPlayer.getStats().amountOfFood && priceOfBuilding[5].wood <= currentPlayer.getStats().amountOfWood && priceOfBuilding[5].stone <= currentPlayer.getStats().amountOfStone && priceOfBuilding[5].gold <= currentPlayer.getStats().amountOfGold)
         {
             currentGame.setBuildingType(5);
@@ -290,39 +290,39 @@ void button::drawButton()
     int yOffset = 0;
     switch(this->spriteId)
     {
-    case 0:// town center
+    case SpriteTownCenter:// town center
         xOffSet = 0;
         yOffset = 0;
         break;
-    case 1:// house
+    case SpriteHouse:// house
         xOffSet = 0;
         yOffset = 64;
         break;
-    case 2://villager
+    case SpriteVillager://villager
         xOffSet = 64;
         yOffset = 0;
         break;
-    case 3:
+    case Sprite3:
         xOffSet = 192;
         yOffset = 0;
         break;
-    case 4: //Mill
+    case SpriteMill: //Mill
         xOffSet = 0;
         yOffset = 192;
         break;
-    case 5: //Lumber Camp
+    case SpriteLumberCamp: //Lumber Camp
         xOffSet = 0;
         yOffset = 128;
         break;
-    case 6: //barracks
+    case SpriteBarracks: //barracks
         xOffSet = 0;
         yOffset = 256;
         break;
-    case 7: //Swordsman
+    case SpriteSwordsman: //Swordsman
         xOffSet = 64;
         yOffset = 64;
         break;
-    case 8: //Mining Camp
+    case SpriteMiningCamp: //Mining Camp
         xOffSet = 0;
         yOffset = 320;
         break;

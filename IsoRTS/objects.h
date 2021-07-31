@@ -3,25 +3,7 @@
 #include <vector>
 #include <string>
 #include "globalfunctions.h"
-
-enum resourceTypes : int
-{
-    ResourceWood = 0,
-    ResourceFood = 1,
-    ResourceStone = 2,
-    ResourceGold = 3
-};
-
-enum objectTypes : int
-{
-    ObjectCactus,
-    ObjectCypress,
-    ObjectMaple,
-    ObjectPine,
-    ObjectStone,
-    ObjectGold,
-    ObjectBerry
-};
+#include "resourceids.h"
 
 class objects
 {

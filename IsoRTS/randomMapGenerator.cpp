@@ -5,6 +5,7 @@
 #include "objects.h"
 #include "actors.h"
 #include "player.h"
+#include "resourceids.h"
 
 void generatePerlinNoise(float scaleBias, int octaves, float* noiseSeed, float* output)
 {

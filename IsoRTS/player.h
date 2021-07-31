@@ -1,6 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 #include <vector>
+#include "resourceids.h"
 
 struct playerStats
 {
@@ -18,7 +19,7 @@ class player
 public:
     player();
     virtual ~player();
-    void addResources(int resource, int amount);
+    void addResources(resourceTypes resource, int amount);
     void substractResources(int resource, int amount);
     void addToCurrentPopulation(int amount);
     void substractFromCurrentPopulation(int amount);

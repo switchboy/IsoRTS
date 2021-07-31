@@ -6,6 +6,7 @@
 #include <list>
 #include <sstream>
 #include <set>
+#include "resourceids.h"
 
 extern int mainWindowWidth;
 extern int mainWindowHeigth;

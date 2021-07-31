@@ -149,7 +149,7 @@ void spawmFirstVillager(int distanceFromFood, int teamId) {
 				listOfActors.push_back(newActor1);
 				actors newActor2(0, suggestedCords.x+1, suggestedCords.y, teamId, listOfActors.size());
 				listOfActors.push_back(newActor2);
-				actors newActor3(0, suggestedCords.x+1, suggestedCords.y+1, teamId+1, listOfActors.size());
+				actors newActor3(0, suggestedCords.x+1, suggestedCords.y+1, teamId, listOfActors.size());
 				listOfActors.push_back(newActor3);
 				villagerIsPlaced = true;
 			}

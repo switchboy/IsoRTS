@@ -977,6 +977,10 @@ void gameState::mouseLeftClick()
     }
 }
 
+bool notSameTeam(const int& id){
+
+}
+
 void gameState::getDefinitiveSelection()
 {
     if (this->mousePressedLeft && !(mouseFakePosition.y > mainWindowHeigth * 0.8f))
@@ -992,27 +996,28 @@ void gameState::getDefinitiveSelection()
                 }
             }
             if (selectedUnits.size() > 1) {
+                std::cout << "New selection with " << selectedUnits.size() << " initial units" << std::endl;
                 //Haal duplicaten eruit
                 sort(selectedUnits.begin(), selectedUnits.end());
                 selectedUnits.erase(unique(selectedUnits.begin(), selectedUnits.end()), selectedUnits.end());
 
+                std::cout << "of which " << selectedUnits.size() << " are unique" << std::endl;
                 //Haal id's eruit die niet in de actor list zitten
                 selectedUnits.erase(std::remove_if(
                     selectedUnits.begin(), selectedUnits.end(),
-                    [](const int& id) {
-                        return (id < 0 || id > listOfActors.size());
-                    }
-                ), selectedUnits.end());
-                
-                if (selectedUnits.size() > 1) {//We heve to check again
-                    //Haal vijanden eruit als er meer dan 1 unit geselecteerd is
-                    selectedUnits.erase(std::remove_if(
-                        selectedUnits.begin(), selectedUnits.end(),
-                        [](const int& idt) {
-                            return listOfActors[currentGame.selectedUnits[idt]].getTeam() != currentPlayer.getTeam();
-                        }
-                    ), selectedUnits.end());
-                }
+                    [&](const int id) -> bool {
+                        {return (id < 0 || id > listOfActors.size()); }
+                    }),
+                    selectedUnits.end());
+
+                //haal id's eruit die niet 
+                selectedUnits.erase(std::remove_if(selectedUnits.begin(),
+                    selectedUnits.end(),
+                    [&](const int id) -> bool
+                    {
+                        return listOfActors[id].getTeam() != currentPlayer.getTeam();
+                    }), 
+                    selectedUnits.end());
             }
 
         }
@@ -2604,7 +2609,7 @@ void gameState::setDefaultValues()
     this->lastMistDraw = -1.0f;
     listOfBuildings.resize(1);
     listOfObjects.resize(1);
-    this->players = 1;
+    this->players = 2;
 }
 
 void setTeam() {

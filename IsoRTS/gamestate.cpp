@@ -869,7 +869,7 @@ void gameState::clickToPlaceObject()
         if (this->objectLocationList[mouseWorldPosition.x][mouseWorldPosition.y] == -1 && this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] == -1)
         {
             //Zet het object neer
-            objects newObject(this->objectTypeSelected, this->mouseWorldPosition.x, this->mouseWorldPosition.y, listOfObjects.size());
+            objects newObject((objectTypes)this->objectTypeSelected, this->mouseWorldPosition.x, this->mouseWorldPosition.y, listOfObjects.size());
             listOfObjects.push_back(newObject);
         }
     }
@@ -1498,7 +1498,7 @@ void gameState::drawMouseInteraction()
     }
     if(isPressedO)
     {
-        listOfObjects[0].drawObjectFootprint(this->objectTypeSelected, mouseWorldPosition.x, mouseWorldPosition.y);
+        listOfObjects[0].drawObjectFootprint((objectTypes)this->objectTypeSelected, mouseWorldPosition.x, mouseWorldPosition.y);
     }
 }
 
@@ -1887,24 +1887,24 @@ void createVillagerButtons(int& startX, int& startY, int& incrementalXOffset,  b
 {
     if (!villagerButtonsAreThere) {
         int startXOr = startX;
-        button newButton = { startX, startY, 0, 0, 0, static_cast<int>(listOfButtons.size()),0 };
+        button newButton = { startX, startY, spriteTownCenter, actionBuildTownCenter, 0, static_cast<int>(listOfButtons.size()),0 };
         listOfButtons.push_back(newButton);
         startX += incrementalXOffset;
-        button newButton1 = { startX, startY, 1, 1, 0, static_cast<int>(listOfButtons.size()),0 };
+        button newButton1 = { startX, startY, spriteHouse, actionBuildHouse, 0, static_cast<int>(listOfButtons.size()),0 };
         listOfButtons.push_back(newButton1);
         startX += incrementalXOffset;
-        button newButton2 = { startX, startY, 4, 6, 0, static_cast<int>(listOfButtons.size()),0 };
+        button newButton2 = { startX, startY, spriteMill, actionBuildMill, 0, static_cast<int>(listOfButtons.size()),0 };
         listOfButtons.push_back(newButton2);
         startX += incrementalXOffset;
-        button newButton3 = { startX, startY, 5, 7, 0, static_cast<int>(listOfButtons.size()),0 };
+        button newButton3 = { startX, startY, spriteLumberCamp, actionBuildLumberCamp, 0, static_cast<int>(listOfButtons.size()),0 };
         listOfButtons.push_back(newButton3);
         startX += incrementalXOffset;
-        button newButton4 = { startX, startY, 6, 8, 0, static_cast<int>(listOfButtons.size()),0 };
+        button newButton4 = { startX, startY, spriteBarracks, actionBuildBarracks, 0, static_cast<int>(listOfButtons.size()),0 };
         listOfButtons.push_back(newButton4);
         villagerButtonsAreThere = true;
         startX = startXOr;
         startY += incrementalXOffset;
-        button newButton5 = { startX, startY, 8, 10, 0, static_cast<int>(listOfButtons.size()),0 };
+        button newButton5 = { startX, startY, spriteMiningCamp, actionBuildMiningCamp, 0, static_cast<int>(listOfButtons.size()),0 };
         listOfButtons.push_back(newButton5);
         villagerButtonsAreThere = true;
     }
@@ -1923,7 +1923,7 @@ void addActorSelectorButton(int& actorId, int& startDeck, int& tempY, int& start
         buttonType = 7;
         break;
     }
-    button newButton = { startDeck, tempY, buttonType, 2, actorId, static_cast<int>(listOfButtons.size()),0 };
+    button newButton = { startDeck, tempY, (spriteTypes)buttonType, actionUnitSelect, actorId, static_cast<int>(listOfButtons.size()),0 };
     listOfButtons.push_back(newButton);
     if (tempY == startY)
     {
@@ -2065,7 +2065,7 @@ void createBuildingButtons(int& buildingId, int& startX, int& startY)
         //town center
         if (listOfBuildings[buildingId].getCompleted())
         {
-            button makeVillager = { startX, startY, 2, 3, buildingId, static_cast<int>(listOfButtons.size()),0 };
+            button makeVillager = { startX, startY, spriteVillager, actionBuildTownCenter, buildingId, static_cast<int>(listOfButtons.size()),0 };
             listOfButtons.push_back(makeVillager);
             //research will also go here
         }
@@ -2080,7 +2080,7 @@ void createBuildingButtons(int& buildingId, int& startX, int& startY)
         //Barracks
         if (listOfBuildings[buildingId].getCompleted())
         {
-            button makeSwordsman = { startX, startY, 7, 9, buildingId, static_cast<int>(listOfButtons.size()),0 };
+            button makeSwordsman = { startX, startY, spriteBarracks, actionBuildBarracks, buildingId, static_cast<int>(listOfButtons.size()),0 };
             listOfButtons.push_back(makeSwordsman);
             //research will also go here
         }
@@ -2243,7 +2243,7 @@ void gameState::drawBuildingTaskToolbar(int& startDeck, int& startY)
     this->spriteUIButton.setTextureRect(sf::IntRect(getSpriteOffSetTask(this->buildingSelectedId).x, getSpriteOffSetTask(this->buildingSelectedId).y, 64, 64));
     this->spriteUIButton.setPosition(iconStartX, iconStartY);
     window.draw(this->spriteUIButton);
-    button cancelTask = { static_cast<int>(startBarX + totalBarLength + (mainWindowWidth / 174.54)), iconStartY, 3, 5, this->buildingSelectedId, (int)listOfButtons.size(), 0 };
+    button cancelTask = { static_cast<int>(startBarX + totalBarLength + (mainWindowWidth / 174.54)), iconStartY, spriteCancel, actionCancelProduction, this->buildingSelectedId, (int)listOfButtons.size(), 0 };
     listOfButtons.push_back(cancelTask);
     if (listOfBuildings[this->buildingSelectedId].productionQueue.size() > 1)
     {
@@ -2251,7 +2251,7 @@ void gameState::drawBuildingTaskToolbar(int& startDeck, int& startY)
         tempYOffset = iconStartY + (mainWindowHeigth / 22.97);
         for (int i = 1; i < listOfBuildings[this->buildingSelectedId].productionQueue.size(); i++)
         {
-            button tempButton = { tempXOffset, tempYOffset, getCardForButtonByTask(this->buildingSelectedId, i), 5, this->buildingSelectedId, (int)listOfButtons.size(), i };
+            button tempButton = { tempXOffset, tempYOffset, (spriteTypes)getCardForButtonByTask(this->buildingSelectedId, i), actionCancelProduction, this->buildingSelectedId, (int)listOfButtons.size(), i };
             listOfButtons.push_back(tempButton);
             tempXOffset += 64 + (mainWindowWidth / 160);
         }
@@ -2273,7 +2273,7 @@ void gameState::drawBuildingConstructionToolbar(int& startDeck, int& startY)
     this->spriteUIButton.setTextureRect(sf::IntRect(0, (getBuildingSpriteOffset(this->buildingSelectedId) / 2), 64, 64));
     this->spriteUIButton.setPosition(iconStartX, iconStartY);
     window.draw(this->spriteUIButton);
-    button cancelBuilding = { static_cast<int>(startBarX + totalBarLength + (mainWindowWidth / 174.54)), iconStartY, 3, 4, this->buildingSelectedId, static_cast<int>(listOfButtons.size()),0 };
+    button cancelBuilding = { static_cast<int>(startBarX + totalBarLength + (mainWindowWidth / 174.54)), iconStartY, spriteCancel, actionCancelBuilding, this->buildingSelectedId, static_cast<int>(listOfButtons.size()),0 };
     listOfButtons.push_back(cancelBuilding);
 }
 

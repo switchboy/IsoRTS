@@ -3,49 +3,49 @@
 
 std::vector<objects> listOfObjects;
 
-objects::objects(int type, int startXlocation, int startYLocation, int objectId)
+objects::objects(objectTypes type, int startXlocation, int startYLocation, int objectId)
 {
     this->objectType = type;
     this->locationX = startXlocation;
     this->locationY = startYLocation;
-    this->objectId =objectId;
+    this->objectId = objectId;
     switch(type)
     {
-    case 0:
-        this->typeOfResource = 0; //wood
+    case objectCactus:
+        this->typeOfResource = resourceWood; 
         break;
-    case 1:
-        this->typeOfResource = 0;
+    case objectCypress:
+        this->typeOfResource = resourceWood;
         break;
-    case 2:
-        this->typeOfResource = 0;
+    case objectMaple:
+        this->typeOfResource = resourceWood;
         break;
-    case 3:
-        this->typeOfResource = 0;
+    case objectPine:
+        this->typeOfResource = resourceWood;
         break;
-    case 4:
-        this->typeOfResource = 2;//stone
+    case objectStone:
+        this->typeOfResource = resourceStone;
         break;
-    case 5:
-        this->typeOfResource = 3;//gold
+    case objectGold:
+        this->typeOfResource = resourceGold;
         break;
-    case 6:
-        this->typeOfResource = 1; //food
+    case objectBerry:
+        this->typeOfResource = resourceFood; 
         break;
     }
 
     switch(this->typeOfResource)
     {
-    case 0:
+    case resourceWood:
         this->resourceLeft = 200;
         break;
-    case 1:
+    case resourceFood:
         this->resourceLeft = 500;
         break;
-    case 2:
+    case resourceStone:
         this->resourceLeft = 2000;
         break;
-    case 3:
+    case resourceGold:
         this->resourceLeft = 1500;
         break;
     }
@@ -61,7 +61,7 @@ void objects::substractResource()
     }
 }
 
-mouseWorldCord  objects::getLocation() {
+mouseWorldCord objects::getLocation() {
 
     return { this->locationX, this->locationY };
 }
@@ -71,7 +71,7 @@ void objects::drawObject(int i, int j)
     drawObjectSprite(this->objectType, i, j);
 }
 
-int objects::getTypeOfResource()
+resourceTypes objects::getTypeOfResource()
 {
     return this->typeOfResource;
 }
@@ -116,25 +116,25 @@ std::string objects::getName()
 {
     switch(this->objectType)
     {
-    case 0:
+    case objectCactus:
         return "Cactus";
         break;
-    case 1:
+    case objectCypress:
         return "Cypress";
         break;
-    case 2:
+    case objectMaple:
         return "Maple";
         break;
-    case 3:
+    case objectPine:
         return "Pine";
         break;
-    case 4:
+    case objectStone:
         return "Stone";
         break;
-    case 5:
+    case objectGold:
         return "Gold";
         break;
-    case 6:
+    case objectBerry:
         return "Berry bush";
         break;
     default:
@@ -142,7 +142,7 @@ std::string objects::getName()
     }
 }
 
-int objects::getType()
+objectTypes objects::getType()
 {
     return this->objectType;
 }
@@ -156,16 +156,16 @@ std::string objects::nameOfResource()
 {
     switch(this->typeOfResource)
     {
-    case 0:
+    case resourceWood:
         return "Wood";
         break;
-    case 1:
+    case resourceFood:
         return "Food";
         break;
-    case 2:
+    case resourceStone:
         return "Stone";
         break;
-    case 3:
+    case resourceGold:
         return "Gold";
         break;
     default:
@@ -173,7 +173,7 @@ std::string objects::nameOfResource()
     }
 }
 
-void objects::drawObjectFootprint(int type, int mouseWorldX, int mouseWorldY)
+void objects::drawObjectFootprint(objectTypes type, int mouseWorldX, int mouseWorldY)
 {
     if(!(mouseWorldX < 0) && !(mouseWorldY < 0) && !(mouseWorldX >= MAP_WIDTH) && !(mouseWorldY >= MAP_HEIGHT))
     {

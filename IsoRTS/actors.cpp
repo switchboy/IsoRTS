@@ -1106,33 +1106,33 @@ void actors::unloadAndReturnToGathering()
     {
     case 0:
         //recieves only wood
-        listOfPlayers[this->actorTeam].addResources(0, this->amountOfWood);
+        listOfPlayers[this->actorTeam].addResources(resourceWood, this->amountOfWood);
         this->amountOfWood = 0;
         break;
     case 1:
         //recieves only food
-        listOfPlayers[this->actorTeam].addResources(1, this->amountOfFood);
+        listOfPlayers[this->actorTeam].addResources(resourceFood, this->amountOfFood);
         this->amountOfFood = 0;
         break;
     case 2:
         //recieves only stone
-        listOfPlayers[this->actorTeam].addResources(2, this->amountOfStone);
+        listOfPlayers[this->actorTeam].addResources(resourceStone, this->amountOfStone);
         this->amountOfStone = 0;
         break;
     case 3:
         //recieves only gold
-        listOfPlayers[this->actorTeam].addResources(3, this->amountOfGold);
+        listOfPlayers[this->actorTeam].addResources(resourceGold, this->amountOfGold);
         this->amountOfGold = 0;
         break;
     case 4:
         //recieves all the resources!
-        listOfPlayers[this->actorTeam].addResources(0, this->amountOfWood);
+        listOfPlayers[this->actorTeam].addResources(resourceWood, this->amountOfWood);
         this->amountOfWood = 0;
-        listOfPlayers[this->actorTeam].addResources(1, this->amountOfFood);
+        listOfPlayers[this->actorTeam].addResources(resourceFood, this->amountOfFood);
         this->amountOfFood = 0;
-        listOfPlayers[this->actorTeam].addResources(2, this->amountOfStone);
+        listOfPlayers[this->actorTeam].addResources(resourceStone, this->amountOfStone);
         this->amountOfStone = 0;
-        listOfPlayers[this->actorTeam].addResources(3, this->amountOfGold);
+        listOfPlayers[this->actorTeam].addResources(resourceGold, this->amountOfGold);
         this->amountOfGold = 0;
         break;
     }

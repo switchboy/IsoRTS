@@ -5,6 +5,7 @@
 #include "objects.h"
 #include "actors.h"
 #include "player.h"
+#include "humanReadableNames.h"
 
 void generatePerlinNoise(float scaleBias, int octaves, float* noiseSeed, float* output)
 {
@@ -66,12 +67,12 @@ void placeTrees() {
 		{
 			if (roll(0, 20) > 19) {
 				if (currentGame.currentMap[x][y] == 1) {
-					objects newObject(roll(1, 3), x, y, listOfObjects.size());
+					objects newObject((objectTypes)roll(1, 3), x, y, listOfObjects.size());
 					listOfObjects.push_back(newObject);
 				}
-				else if (currentGame.currentMap[x][y] == 2)
+				else if (currentGame.currentMap[x][y] == 2)//Cactus
 				{
-					objects newObject(0, x, y, listOfObjects.size());
+					objects newObject(objectCactus, x, y, listOfObjects.size());
 					listOfObjects.push_back(newObject);
 				}
 			}
@@ -92,13 +93,13 @@ void spawmFoodStoneGold(int resource)
 				if (suggestedCords.y - 1 >= 0 && suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
 					if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y - 1))
 					{
-						objects newObject(resource, suggestedCords.x, suggestedCords.y, listOfObjects.size());
+						objects newObject((objectTypes)resource, suggestedCords.x, suggestedCords.y, listOfObjects.size());
 						listOfObjects.push_back(newObject);
-						objects newObject1(resource, suggestedCords.x, suggestedCords.y+1, listOfObjects.size());
+						objects newObject1((objectTypes)resource, suggestedCords.x, suggestedCords.y+1, listOfObjects.size());
 						listOfObjects.push_back(newObject1);
-						objects newObject2(resource, suggestedCords.x+1, suggestedCords.y, listOfObjects.size());
+						objects newObject2((objectTypes)resource, suggestedCords.x+1, suggestedCords.y, listOfObjects.size());
 						listOfObjects.push_back(newObject2);
-						objects newObject3(resource, suggestedCords.x+1, suggestedCords.y-1, listOfObjects.size());
+						objects newObject3((objectTypes)resource, suggestedCords.x+1, suggestedCords.y-1, listOfObjects.size());
 						listOfObjects.push_back(newObject3);
 						resourcePlaced = true;
 					}

@@ -1,12 +1,12 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 #include <SFML/Graphics.hpp>
-
+#include "humanReadableNames.h"
 
 class button
 {
 public:
-    button(int positionX, int positionY, int spriteId, int actionType, int actorOrBuildingId, int buttonId, int taskId);
+    button(int positionX, int positionY, spriteTypes spriteId, actionTypes actionType, int actorOrBuildingId, int buttonId, int taskId);
     bool isClicked(sf::Vector2i mousePosition);
     void performAction();
     void drawButton();
@@ -21,9 +21,9 @@ private:
     int positionY;
     int realPositionX;
     int realPositionY;
-    int actionType;
+    actionTypes actionType;
     int actorOrBuildingId;
-    int spriteId;
+    spriteTypes spriteId;
     int buttonId;
     int taskId;
 };

@@ -23,25 +23,21 @@ player::~player()
 }
 
 
-void player::addResources(int resource, int amount)
+void player::addResources(resourceTypes resource, int amount)
 {
 
     switch(resource)
     {
-    case 0:
-        //wood
+    case resourceWood:
         this->amountOfWood += amount;
         break;
-    case 1:
-        //food
+    case resourceFood:
         this->amountOfFood += amount;
         break;
-    case 2:
-        //stone
+    case resourceStone:
         this->amountOfStone += amount;
         break;
-    case 3:
-        //gold
+    case resourceGold:
         this->amountOfGold += amount;
         break;
     }

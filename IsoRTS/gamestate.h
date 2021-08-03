@@ -131,13 +131,13 @@ public:
     sf::Text text;
     sf::Sprite  spriteSelectedTile,spriteSelectedTileForPath, spriteEmptyTile, spriteGrassTile, spriteSandTile, spriteSandTileNE, spriteBuildingMill, spriteBuildingLumberCamp, spriteBuildingBarracks,
     spriteSandTileNW,spriteSandTileSE,spriteSandTileSW, spriteCactusTile, spriteCypressTrileTile, spriteBigSelectedIcon, spriteSwordsman, spriteCommandCursor, spriteBuildingMiningCamp,
-    spriteNormalTreeTile, spritePineTreeTile, spriteTileObstructed, spriteTownCenter, spriteBlackTile, spriteArrow,
+    spriteNormalTreeTile, spritePineTreeTile, spriteTileObstructed, spriteTownCenter, spriteBlackTile, spriteArrow, spriteFlag,
     spriteStone, spriteGold, spriteBerryBush, spriteUIButton, spriteUnitSelectedTile, spriteMistTile,
     spriteWaterTile, spriteBeachTileNE, spriteBeachTileNW,spriteBeachTileSE,spriteBeachTileSW, spriteBuildingHouse, spriteVillager, spriteTotalBackground;
 
     sf::Texture textureSelectedTile, textureSelectedTileForPath, textureEmptyTile, textureGrassTile, textureSandTile, textureSandTileNE, textureBuildingMill, textureBuildingLumberCamp, textureBuildingBarracks, textureSwordsman,
     textureSandTileNW,textureSandTileSE,textureSandTileSW, textureCactusTile, textureCypressTrileTile, textureBigSelectedIcon, textureBlackTile, textureCommandCursor, textureBuildingMiningCamp,
-    textureNormalTreeTile, texturePineTreeTile, textureCheatTile, textureTileObstructed, textureTownCenter, textureMistTile, textureArrow,
+    textureNormalTreeTile, texturePineTreeTile, textureCheatTile, textureTileObstructed, textureTownCenter, textureMistTile, textureArrow, textureFlag,
     textureStone, textureGold, textureBerryBush, textureUIButton, textureUnitSelectedTile,
     textureWaterTile, textureBeachTileNE, textureBeachTileNW,textureBeachTileSE, textureBeachTileSW, textureBuildingHouse, textureVillager, textureTotalBackground;
     sf::RectangleShape selectionRectangle;

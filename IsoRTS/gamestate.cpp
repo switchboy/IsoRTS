@@ -585,6 +585,18 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: swordsman.png \n" << std::endl;
     }
+
+    if (this->textureFlag.loadFromFile("textures/flag.png"))
+    {
+        this->spriteFlag.setTexture(textureFlag);
+        this->spriteFlag.setTextureRect(sf::IntRect(0, 0, 16, 32));
+        this->spriteFlag.setOrigin(-24, 12);
+
+    }
+    else
+    {
+        std::cout << "Error loading texture: flag.png \n" << std::endl;
+    }
 }
 
 void gameState::setBuildingType(int id)

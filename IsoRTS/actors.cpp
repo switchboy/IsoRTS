@@ -1834,6 +1834,12 @@ void actors:: drawActor()
         currentGame.spriteUnitSelectedTile.setPosition(xPosition, yPosition);
         window.draw(currentGame.spriteUnitSelectedTile);
         drawHealth = true;
+        if (!this->listOfOrders.empty()) {
+            for (const orderStack order : this->listOfOrders) {
+                currentGame.spriteFlag.setPosition(worldSpace(order.goal.x, order.goal.y, true), worldSpace(order.goal.x, order.goal.y, false));
+                window.draw(currentGame.spriteFlag);
+            }
+        }
     }
 
     if (this->actorHealth < this->hitPoints) {

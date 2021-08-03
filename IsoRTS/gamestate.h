@@ -170,6 +170,7 @@ private:
     bool isPressedO;
     bool isPressedA;
     bool isPressedS;
+    bool isPressedShift;
     bool isPressedTab;
     bool isPlacingBuilding;
     bool mousePressOutofWorld;

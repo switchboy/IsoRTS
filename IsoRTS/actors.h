@@ -53,7 +53,11 @@ struct routeCell
     int backParent;
 };
 
-
+struct orderStack
+{
+    cords goal;
+    stackOrderTypes orderType;
+};
 
 class actors
 {
@@ -75,6 +79,7 @@ public:
     void getNewBuildingTileForSameBuilding();
     void pathAStar();
     void fightOrFlight(int idOfAttacker);
+    void stackOrder(cords Goal, stackOrderTypes orderType);
     void routing(std::vector<Cells>& cellsList, int& endCell, int& startCell, bool& endReached);
     bool isInitialized();
     int getTeam();
@@ -187,6 +192,7 @@ private:
     std::list<routeCell> route;
     std::list <nearestBuildingTile> listOfDropOffLocations;
     std::list <nearestBuildingTile> listOfResourceLocations;
+    std::list<orderStack> listOfOrders;
 };
 
 extern std::vector<actors> listOfActors;

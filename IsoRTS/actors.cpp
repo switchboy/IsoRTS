@@ -1587,6 +1587,11 @@ void actors::fightOrFlight(int idOfAttacker)
     }
 }
 
+void actors::stackOrder(cords goal, stackOrderTypes orderType)
+{
+    this->listOfOrders.push_back({ goal, orderType });
+}
+
 void actors::routing(std::vector<Cells>& cellsList, int& endCell, int& startCell, bool& endReached)
 {
     //Zet de tegel waarnaartoe gelopen wordt in de lijst

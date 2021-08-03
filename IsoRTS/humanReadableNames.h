@@ -48,4 +48,12 @@ enum actionTypes
     actionBuildMiningCamp
 };
 
+enum stackOrderTypes
+{
+    stackActionMove,
+    stackActionGather,
+    stackActionBuild,
+    stackActionAttack
+};
+
 #endif HUMANREADABLENAMES_H

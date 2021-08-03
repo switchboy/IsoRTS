@@ -263,38 +263,43 @@ void actors::update()
 {
     if (this->actorAlive)
     {
-        if ((this->isMeleeAttacking || this->isRangedAttacking)) {
-            this->chaseTarget();
+        if (this->isIdle) {
+            doNextStackedCommand();
         }
-        if (!this->isFindingAlternative) {
-            if (this->goalNeedsUpdate)
-            {
-                this->updateGoalPath();
+        else {
+            if ((this->isMeleeAttacking || this->isRangedAttacking)) {
+                this->chaseTarget();
             }
-            else if (!this->routeNeedsPath)
-            {
-                this->moveActorIfWalking();
-                this->doTaskIfNotWalking();
-            }
-            else {
-                bool actorInListForPathfinding = false;
-                if (!listOfActorsWhoNeedAPath.empty()) {
-                    for (int i = 0; i < listOfActorsWhoNeedAPath.size(); i++) {
-                        if (listOfActorsWhoNeedAPath[i] == this->actorId) {
-                            actorInListForPathfinding = true;
-                        }
-                    }
+            if (!this->isFindingAlternative) {
+                if (this->goalNeedsUpdate)
+                {
+                    this->updateGoalPath();
                 }
-                if (actorInListForPathfinding) {
+                else if (!this->routeNeedsPath)
+                {
+                    this->moveActorIfWalking();
+                    this->doTaskIfNotWalking();
                 }
                 else {
-                    this->retryWalkingOrChangeGoal();
+                    bool actorInListForPathfinding = false;
+                    if (!listOfActorsWhoNeedAPath.empty()) {
+                        for (int i = 0; i < listOfActorsWhoNeedAPath.size(); i++) {
+                            if (listOfActorsWhoNeedAPath[i] == this->actorId) {
+                                actorInListForPathfinding = true;
+                            }
+                        }
+                    }
+                    if (actorInListForPathfinding) {
+                    }
+                    else {
+                        this->retryWalkingOrChangeGoal();
+                    }
                 }
+                this->houseKeeping();
             }
-            this->houseKeeping();
-        }
-        else  {
-            this->searchAltetnative();
+            else {
+                this->searchAltetnative();
+            }
         }
     }
 }
@@ -1502,6 +1507,11 @@ void actors::pathAStar()
     }
 }
 
+void actors::clearCommandStack()
+{
+    this->listOfOrders.clear();
+}
+
 void actors::fightOrFlight(int idOfAttacker)
 {
     if (idOfAttacker >= 0) {
@@ -1585,6 +1595,42 @@ void actors::fightOrFlight(int idOfAttacker)
             }
         }
     }
+}
+
+void actors::doNextStackedCommand()
+{
+    if (!this->listOfOrders.empty()) {
+        switch (this->listOfOrders.front().orderType) {
+        case stackActionMove:
+            this->updateGoal(this->listOfOrders.front().goal.x, this->listOfOrders.front().goal.y, 0);
+            break;
+        case stackActionGather:
+            this->updateGoal(this->listOfOrders.front().goal.x, this->listOfOrders.front().goal.y, 0);
+            this->setGatheringRecource(true);
+            break;
+        case stackActionBuild:
+            if (currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y] != -1) {
+                if (!listOfBuildings[currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y]].getCompleted()
+                    && listOfBuildings[currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y]].getTeam() == this->actorTeam) {
+                    nearestBuildingTile tempTile = findNearestBuildingTile(currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y], this->actorId);
+                    this->updateGoal(tempTile.locationX, tempTile.locationY, 0);
+                    listOfBuildings[currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y]].claimFreeBuiildingTile(tempTile.buildingId, this->actorId);
+                    this->setIsBuildingTrue(currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y], this->listOfOrders.front().goal.x, this->listOfOrders.front().goal.y);
+                }
+            }
+            break;
+        case stackActionAttack:
+            this->updateGoal(this->listOfOrders.front().goal.x, this->listOfOrders.front().goal.y, 0);
+            this->setIsDoingAttack();
+            break;
+        }
+        listOfOrders.pop_front();
+    }
+}
+
+void actors::stackOrder(cords goal, stackOrderTypes orderType)
+{
+    this->listOfOrders.push_back({ goal, orderType });
 }
 
 void actors::routing(std::vector<Cells>& cellsList, int& endCell, int& startCell, bool& endReached)
@@ -1788,6 +1834,12 @@ void actors:: drawActor()
         currentGame.spriteUnitSelectedTile.setPosition(xPosition, yPosition);
         window.draw(currentGame.spriteUnitSelectedTile);
         drawHealth = true;
+        if (!this->listOfOrders.empty() && this->actorTeam == currentPlayer.getTeam()) {
+            for (const orderStack order : this->listOfOrders) {
+                currentGame.spriteFlag.setPosition(worldSpace(order.goal.x, order.goal.y, true), worldSpace(order.goal.x, order.goal.y, false));
+                window.draw(currentGame.spriteFlag);
+            }
+        }
     }
 
     if (this->actorHealth < this->hitPoints) {

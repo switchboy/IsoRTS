@@ -23,6 +23,11 @@ struct buildingQueue
     float lastTimeUpdate;
 };
 
+struct orderContainer {
+    cords goal;
+    stackOrderTypes orderType;
+    bool isSet;
+};
 
 class buildings
 {
@@ -42,6 +47,7 @@ public:
     bool                        getCompleted();
     void                        setCompleted();
     int                         getRangedDMG();
+    void                        setRallyPoint(cords goal, stackOrderTypes orderType);
     bool                        hasTask();
     void                        removeBuilding();
     void                        fillAdjacentTiles();
@@ -92,6 +98,7 @@ private:
     float                       lastShotFired;
     float                       lastFrameUpdate;
     std::vector<adjacentTile>   adjacentTiles;
+    orderContainer              rallyPoint;
 };
 
 

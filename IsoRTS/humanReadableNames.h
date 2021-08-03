@@ -44,7 +44,7 @@ enum actionTypes
     actionBuildMill,
     actionBuildLumberCamp,
     actionBuildBarracks,
-    actionCreateSwordsman,
+    actionMakeSwordsman,
     actionBuildMiningCamp
 };
 

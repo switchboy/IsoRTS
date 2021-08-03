@@ -98,7 +98,7 @@ void button::showToolTip()
         toolTipText << "Cost: Food: " << priceOfBuilding[4].food << " Wood: " << priceOfBuilding[4].wood << " Stone: " << priceOfBuilding[4].stone << " Gold: " << priceOfBuilding[4].gold;
         toolTipDiscription << "Train and research melee soldiers and combat abilities";
         break;
-    case actionCreateSwordsman:
+    case actionMakeSwordsman:
         toolTipTitle << "Create Swordsman";
         toolTipText << "Cost: Food: " << priceOfActor[1].food << " Wood: " << priceOfActor[1].wood << " Stone: " << priceOfActor[1].stone << " Gold: " << priceOfActor[1].gold;
         toolTipDiscription << "Train a basic melee sword wielding soldier";
@@ -254,7 +254,7 @@ void button::performAction()
             gameText.addNewMessage(errortext.str(), 1);
         }
         break;
-    case actionCreateSwordsman:
+    case actionMakeSwordsman:
         //create a swordman
         if (priceOfActor[1].food <= currentPlayer.getStats().amountOfFood && priceOfActor[1].wood <= currentPlayer.getStats().amountOfWood && priceOfActor[1].stone <= currentPlayer.getStats().amountOfStone && priceOfActor[1].gold <= currentPlayer.getStats().amountOfGold)
         {

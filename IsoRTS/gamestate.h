@@ -111,6 +111,7 @@ public:
     bool clickToBuildOrRepairBuilding();
     bool clickToAttack();
     void mouseRightClick();
+    void orderRallyPoint();
     void changeTiles();
     void edgeScrolling();
     void changeBuildingType();
@@ -119,6 +120,7 @@ public:
     void clickToGiveMinimapCommand();
     bool isPassable(int x, int y);
     bool isInSelectedActors(int id);
+    bool buildingIsSelected(int& id);
     void setBuildingType(int id);
     void setIsPlacingBuilding();
     void selectUnit(int id);

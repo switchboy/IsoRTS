@@ -153,6 +153,7 @@ buildings::buildings(int type, int startXlocation, int startYLocation, int build
     this->buildingCompleted = false;
     this->exists = true;
     this->lastShotFired = 0.0f;
+    this->rallyPoint = { {0,0}, stackActionMove, false }; //set dummy values for the rally point
     this->lastFrameUpdate = currentGame.getTime();
     currentGame.buildingLocationList[startXlocation][startYLocation] = buildingId;
     for(int i = 0; i < footprintOfBuildings[type].amountOfXFootprint; i++)
@@ -424,6 +425,7 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
         currentGame.spriteBuildingMiningCamp.setColor(sf::Color(255, 255, 255, transparant));
         window.draw(currentGame.spriteBuildingMiningCamp);
     }
+
     //Redraw possible overdrawn sprites
     if(!typeOverride)
     {
@@ -436,9 +438,16 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
         }
     }
 
+    //Draw rally point if set
+    if (currentGame.buildingIsSelected(this->buildingId)) {
+        if (this->rallyPoint.isSet) {
+            currentGame.spriteFlag.setPosition(worldSpace(this->rallyPoint.goal.x, this->rallyPoint.goal.y, true), worldSpace(this->rallyPoint.goal.x, this->rallyPoint.goal.y, false));
+            window.draw(currentGame.spriteFlag);
+        }
+    }
+
     if (currentGame.showPaths) {
         //draw adjecent tiles
-
         for (adjacentTile tile : adjacentTiles) {
             if (tile.occupied) {
                 currentGame.spriteTileObstructed.setPosition(worldSpace(tile.tileX, tile.tileY, true), worldSpace(tile.tileX, tile.tileY, false));
@@ -490,6 +499,11 @@ std::pair<int, int> buildings::getBuildingPoints()
 int buildings::getRangedDMG()
 {
     return this->amountOfRangedDamage;
+}
+
+void buildings::setRallyPoint(cords goal, stackOrderTypes orderType)
+{
+    this->rallyPoint = { goal, orderType, true };
 }
 
 void buildings::drawBuildingFootprint(int type, int mouseWorldX, int mouseWorldY)
@@ -659,6 +673,9 @@ void buildings::spawnProduce()
     {
         actors newActor(this->productionQueue.front().idOfUnitOrResearch, spawmCords.x, spawmCords.y, this->ownedByPlayer, listOfActors.size());
         listOfActors.push_back(newActor);
+        if (this->rallyPoint.isSet) {
+            listOfActors[newActor.getActorId()].stackOrder(this->rallyPoint.goal, this->rallyPoint.orderType); //Puts rally point order in command stackList of new unit
+        }
         if (this->ownedByPlayer == currentPlayer.getTeam()) {
             gameText.addNewMessage("-  " + newActor.nameOfActor() + " completed! -", 0);
         }

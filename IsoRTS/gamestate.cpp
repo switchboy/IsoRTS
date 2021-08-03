@@ -186,6 +186,16 @@ bool gameState::isInSelectedActors(int id)
     return false;
 }
 
+bool gameState::buildingIsSelected(int& id)
+{
+    if (this->buildingSelectedId == id) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 void gameState::drawMap()
 {
     mouseWorldCord lowX = toWorldMousePosition(viewOffsetX-(mainWindowWidth/2), viewOffsetY-((mainWindowWidth*0.8)/2));
@@ -1341,6 +1351,37 @@ void gameState::clickToGiveMinimapCommand()
  }
 
 
+void gameState::orderRallyPoint() {
+    if (this->isPassable(this->mouseWorldPosition.x, this->mouseWorldPosition.y))
+    {
+        listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionMove);
+    }
+    else if (this->objectLocationList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1)
+    {
+        listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionGather);
+    }
+    else if (this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1)
+    {
+        if (listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getTeam() == currentPlayer.getTeam())
+        {
+            listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionBuild);
+        }
+        else
+        {
+            listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionAttack);
+        }
+
+    }
+    else if (this->occupiedByActorList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1) {
+        if (listOfActors[this->occupiedByActorList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getTeam() != currentPlayer.getTeam())
+        {
+            listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionAttack);
+        }
+    }
+    orderCursor newOrderCursor(this->mousePosition);
+    listOfOrderCursors.push_back(newOrderCursor);
+}
+
 void gameState::mouseRightClick()
 {
     this->rectangleCords.clear();
@@ -1365,6 +1406,9 @@ void gameState::mouseRightClick()
         else if (!this->selectedUnits.empty())
         {
             this->clickToGiveCommand();
+        }
+        else if (this->buildingSelectedId != -1) {
+            this->orderRallyPoint();
         }
     }
 }
@@ -2142,7 +2186,7 @@ void createBuildingButtons(int& buildingId, int& startX, int& startY)
         //town center
         if (listOfBuildings[buildingId].getCompleted())
         {
-            button makeVillager = { startX, startY, spriteVillager, actionBuildTownCenter, buildingId, static_cast<int>(listOfButtons.size()),0 };
+            button makeVillager = { startX, startY, spriteVillager, actionMakeVillager, buildingId, static_cast<int>(listOfButtons.size()),0 };
             listOfButtons.push_back(makeVillager);
             //research will also go here
         }
@@ -2157,7 +2201,7 @@ void createBuildingButtons(int& buildingId, int& startX, int& startY)
         //Barracks
         if (listOfBuildings[buildingId].getCompleted())
         {
-            button makeSwordsman = { startX, startY, spriteBarracks, actionBuildBarracks, buildingId, static_cast<int>(listOfButtons.size()),0 };
+            button makeSwordsman = { startX, startY, spriteBarracks, actionMakeSwordsman, buildingId, static_cast<int>(listOfButtons.size()),0 };
             listOfButtons.push_back(makeSwordsman);
             //research will also go here
         }

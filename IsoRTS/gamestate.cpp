@@ -1008,12 +1008,9 @@ void gameState::getDefinitiveSelection()
                 }
             }
             if (selectedUnits.size() > 1) {
-                std::cout << "New selection with " << selectedUnits.size() << " initial units" << std::endl;
                 //Haal duplicaten eruit
                 sort(selectedUnits.begin(), selectedUnits.end());
                 selectedUnits.erase(unique(selectedUnits.begin(), selectedUnits.end()), selectedUnits.end());
-
-                std::cout << "of which " << selectedUnits.size() << " are unique" << std::endl;
                 //Haal id's eruit die niet in de actor list zitten
                 selectedUnits.erase(std::remove_if(
                     selectedUnits.begin(), selectedUnits.end(),

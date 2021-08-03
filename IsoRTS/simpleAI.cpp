@@ -192,10 +192,7 @@ void simpleAI::buildBuildingNearUnlessBuilding(int buildingId, int idleVillagerI
 			}
 		}
 		if (!hasBuilder) {
-			std::cout << idOfUnfinishedHousing << std::endl;
 			cords buildingCords = { listOfBuildings[idOfUnfinishedHousing].getLocationX() ,listOfBuildings[idOfUnfinishedHousing].getLocationY() };
-			std::cout << "actor location" << listOfActors[idleVillagerId].getLocation().x << " - " << listOfActors[idleVillagerId].getLocation().y << std::endl;
-			std::cout << "Building slot:" << buildingCords.x << " - " << buildingCords.y << std::endl;
 			buildCommandUnit(idleVillagerId, buildingCords);
 		}
 	}

@@ -79,7 +79,6 @@ void projectile::drawProjectile()
 
 void projectile::doDamage()
 {
-	std::cout << this->projectileTarget.x << " - " << this->projectileTarget.y << std::endl;
 	if (currentGame.occupiedByActorList[this->projectileTarget.x][this->projectileTarget.y] != -1) {
 		listOfActors[currentGame.occupiedByActorList[this->projectileTarget.x][this->projectileTarget.y]].takeDamage(this->damageOnImpact, this->firedBy);
 	}

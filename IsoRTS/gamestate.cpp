@@ -1046,6 +1046,7 @@ bool gameState::clickToMove(int posX, int posY, bool minimap)
                     listOfActors[this->selectedUnits[i]].stackOrder({ tempCords.x, tempCords.y }, stackActionMove);
                 }
                 else {
+                    listOfActors[this->selectedUnits[i]].clearCommandStack();
                     listOfActors[this->selectedUnits[i]].updateGoal(tempCords.x, tempCords.y, i / 5);
                     listOfActors[this->selectedUnits[i]].setCommonGoalTrue();//might be depricated
                 }
@@ -1062,6 +1063,7 @@ bool gameState::clickToMove(int posX, int posY, bool minimap)
                             listOfActors[this->selectedUnits[i]].stackOrder({ posX, posY }, stackActionMove);
                         }
                         else {
+                            listOfActors[this->selectedUnits[i]].clearCommandStack();
                             listOfActors[this->selectedUnits[i]].updateGoal(posX, posY, 0);
                         }
                     }
@@ -1071,6 +1073,7 @@ bool gameState::clickToMove(int posX, int posY, bool minimap)
                         listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionMove);
                     }
                     else {
+                        listOfActors[this->selectedUnits[i]].clearCommandStack();
                         listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, 0);
                     }
                     actionDone = true;
@@ -1098,6 +1101,7 @@ bool gameState::clickToGatherResource()
                     listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionGather);
                 }
                 else {
+                    listOfActors[this->selectedUnits[i]].clearCommandStack();
                     listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, i / 5);
                     listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
                 }
@@ -1112,6 +1116,7 @@ bool gameState::clickToGatherResource()
                     listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionGather);
                 }
                 else {
+                    listOfActors[this->selectedUnits[i]].clearCommandStack();
                     listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, 0);
                 }
                 actionDone = true;
@@ -1170,6 +1175,7 @@ bool gameState::clickToBuildOrRepairBuilding()
                             listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionBuild);
                         }
                         else {
+                            listOfActors[this->selectedUnits[i]].clearCommandStack();
                             listOfActors[this->selectedUnits[i]].updateGoal(tempTile.locationX, tempTile.locationY, i / 5);
                             listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
                             listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
@@ -1185,6 +1191,7 @@ bool gameState::clickToBuildOrRepairBuilding()
                             listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionBuild);
                         }
                         else {
+                            listOfActors[this->selectedUnits[i]].clearCommandStack();
                             listOfActors[this->selectedUnits[i]].updateGoal(tempTile.locationX, tempTile.locationY, i / 5);
                             listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
                             actionDone = true;
@@ -1240,6 +1247,7 @@ bool gameState::clickToAttack() {
                     listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionAttack);
                 }
                 else {
+                    listOfActors[this->selectedUnits[i]].clearCommandStack();
                     listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, i / 5);
                     listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
                     listOfActors[this->selectedUnits[i]].setIsDoingAttack();
@@ -1255,6 +1263,7 @@ bool gameState::clickToAttack() {
                     listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionAttack);
                 }
                 else {
+                    listOfActors[this->selectedUnits[i]].clearCommandStack();
                     listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, 0);
                     listOfActors[this->selectedUnits[i]].setIsDoingAttack();
                 }

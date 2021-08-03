@@ -78,7 +78,9 @@ public:
     void findNearestSimilairResource();
     void getNewBuildingTileForSameBuilding();
     void pathAStar();
+    void clearCommandStack();
     void fightOrFlight(int idOfAttacker);
+    void doNextStackedCommand();
     void stackOrder(cords Goal, stackOrderTypes orderType);
     void routing(std::vector<Cells>& cellsList, int& endCell, int& startCell, bool& endReached);
     bool isInitialized();

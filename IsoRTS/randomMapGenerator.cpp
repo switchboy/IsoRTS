@@ -5,7 +5,7 @@
 #include "objects.h"
 #include "actors.h"
 #include "player.h"
-#include "resourceids.h"
+#include "humanReadableNames.h"
 
 void generatePerlinNoise(float scaleBias, int octaves, float* noiseSeed, float* output)
 {
@@ -72,7 +72,7 @@ void placeTrees() {
 				}
 				else if (currentGame.currentMap[x][y] == 2)//Cactus
 				{
-					objects newObject(ObjectCactus, x, y, listOfObjects.size());
+					objects newObject(objectCactus, x, y, listOfObjects.size());
 					listOfObjects.push_back(newObject);
 				}
 			}

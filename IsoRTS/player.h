@@ -1,7 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 #include <vector>
-#include "resourceids.h"
+#include "humanReadableNames.h"
 
 struct playerStats
 {

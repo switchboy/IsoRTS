@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include "globalfunctions.h"
-#include "resourceids.h"
+#include "humanReadableNames.h"
 
 class objects
 {

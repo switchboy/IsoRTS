@@ -6,7 +6,7 @@
 #include <list>
 #include <sstream>
 #include <set>
-#include "resourceids.h"
+#include "humanReadableNames.h"
 
 extern int mainWindowWidth;
 extern int mainWindowHeigth;

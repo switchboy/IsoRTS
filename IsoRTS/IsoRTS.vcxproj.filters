@@ -57,6 +57,9 @@
     <ClInclude Include="simpleAI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="humanReadableNames.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

@@ -11,41 +11,41 @@ objects::objects(objectTypes type, int startXlocation, int startYLocation, int o
     this->objectId = objectId;
     switch(type)
     {
-    case ObjectCactus:
-        this->typeOfResource = ResourceWood; //wood
+    case objectCactus:
+        this->typeOfResource = resourceWood; 
         break;
-    case ObjectCypress:
-        this->typeOfResource = ResourceWood;
+    case objectCypress:
+        this->typeOfResource = resourceWood;
         break;
-    case ObjectMaple:
-        this->typeOfResource = ResourceWood;
+    case objectMaple:
+        this->typeOfResource = resourceWood;
         break;
-    case ObjectPine:
-        this->typeOfResource = ResourceWood;
+    case objectPine:
+        this->typeOfResource = resourceWood;
         break;
-    case ObjectStone:
-        this->typeOfResource = ResourceStone;//stone
+    case objectStone:
+        this->typeOfResource = resourceStone;
         break;
-    case ObjectGold:
-        this->typeOfResource = ResourceGold;//gold
+    case objectGold:
+        this->typeOfResource = resourceGold;
         break;
-    case ObjectBerry:
-        this->typeOfResource = ResourceFood; //food
+    case objectBerry:
+        this->typeOfResource = resourceFood; 
         break;
     }
 
     switch(this->typeOfResource)
     {
-    case ResourceWood:
+    case resourceWood:
         this->resourceLeft = 200;
         break;
-    case ResourceFood:
+    case resourceFood:
         this->resourceLeft = 500;
         break;
-    case ResourceStone:
+    case resourceStone:
         this->resourceLeft = 2000;
         break;
-    case ResourceGold:
+    case resourceGold:
         this->resourceLeft = 1500;
         break;
     }
@@ -116,25 +116,25 @@ std::string objects::getName()
 {
     switch(this->objectType)
     {
-    case ObjectCactus:
+    case objectCactus:
         return "Cactus";
         break;
-    case ObjectCypress:
+    case objectCypress:
         return "Cypress";
         break;
-    case ObjectMaple:
+    case objectMaple:
         return "Maple";
         break;
-    case ObjectPine:
+    case objectPine:
         return "Pine";
         break;
-    case ObjectStone:
+    case objectStone:
         return "Stone";
         break;
-    case ObjectGold:
+    case objectGold:
         return "Gold";
         break;
-    case ObjectBerry:
+    case objectBerry:
         return "Berry bush";
         break;
     default:
@@ -156,16 +156,16 @@ std::string objects::nameOfResource()
 {
     switch(this->typeOfResource)
     {
-    case ResourceWood:
+    case resourceWood:
         return "Wood";
         break;
-    case ResourceFood:
+    case resourceFood:
         return "Food";
         break;
-    case ResourceStone:
+    case resourceStone:
         return "Stone";
         break;
-    case ResourceGold:
+    case resourceGold:
         return "Gold";
         break;
     default:

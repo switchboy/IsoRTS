@@ -1834,7 +1834,7 @@ void actors:: drawActor()
         currentGame.spriteUnitSelectedTile.setPosition(xPosition, yPosition);
         window.draw(currentGame.spriteUnitSelectedTile);
         drawHealth = true;
-        if (!this->listOfOrders.empty()) {
+        if (!this->listOfOrders.empty() && this->actorTeam == currentPlayer.getTeam()) {
             for (const orderStack order : this->listOfOrders) {
                 currentGame.spriteFlag.setPosition(worldSpace(order.goal.x, order.goal.y, true), worldSpace(order.goal.x, order.goal.y, false));
                 window.draw(currentGame.spriteFlag);

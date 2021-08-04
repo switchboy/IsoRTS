@@ -31,9 +31,9 @@ void buildings::fillAdjacentTiles()
             {
                 goalX = i;
             }
-            adjacentTile newTileAbove = {this->adjacentTiles.size(), i, this->endYLocation-1, goalX, this->endYLocation, false,-1};
+            adjacentTile newTileAbove = {static_cast<int>(this->adjacentTiles.size()), i, this->endYLocation-1, goalX, this->endYLocation, false, -1};
             this->adjacentTiles.push_back(newTileAbove);
-            adjacentTile newTileBelow = {this->adjacentTiles.size(), i, this->startYLocation+1, goalX, this->startYLocation, false, -1};
+            adjacentTile newTileBelow = {static_cast<int>(this->adjacentTiles.size()), i, this->startYLocation+1, goalX, this->startYLocation, false, -1};
             this->adjacentTiles.push_back(newTileBelow);
         }
     }
@@ -42,9 +42,9 @@ void buildings::fillAdjacentTiles()
     {
         if(i >= 0 && i <= MAP_HEIGHT)
         {
-            adjacentTile newTileLeft = {this->adjacentTiles.size(), this->endXlocation-1, i, this->endXlocation, i, false, -1 };
+            adjacentTile newTileLeft = {static_cast<int>(this->adjacentTiles.size()), this->endXlocation-1, i, this->endXlocation, i, false, -1 };
             this->adjacentTiles.push_back(newTileLeft);
-            adjacentTile newTileRight = {this->adjacentTiles.size(), this->startXlocation+1, i, this->startXlocation, i, false, -1};
+            adjacentTile newTileRight = {static_cast<int>(this->adjacentTiles.size()), this->startXlocation+1, i, this->startXlocation, i, false, -1};
             this->adjacentTiles.push_back(newTileRight);
         }
     }
@@ -386,42 +386,42 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
     {
     case 0:
         currentGame.spriteBuildingHouse.setTextureRect(sf::IntRect(0, currentGame.spriteBuildingHouse.getTextureRect().height*offsetY, currentGame.spriteBuildingHouse.getTextureRect().width, currentGame.spriteBuildingHouse.getTextureRect().height));
-        currentGame.spriteBuildingHouse.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        currentGame.spriteBuildingHouse.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         currentGame.spriteBuildingHouse.setColor(sf::Color(255, 255, 255, transparant));
         window.draw(currentGame.spriteBuildingHouse);
         break;
     case 1:
         currentGame.spriteTownCenter.setTextureRect(sf::IntRect(0, currentGame.spriteTownCenter.getTextureRect().height*offsetY, currentGame.spriteTownCenter.getTextureRect().width, currentGame.spriteTownCenter.getTextureRect().height));
-        currentGame.spriteTownCenter.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        currentGame.spriteTownCenter.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         currentGame.spriteTownCenter.setColor(sf::Color(255, 255, 255, transparant));
         window.draw(currentGame.spriteTownCenter);
         break;
     case 2:
         currentGame.spriteBuildingMill.setTextureRect(sf::IntRect(0, currentGame.spriteBuildingMill.getTextureRect().height * offsetY, currentGame.spriteBuildingMill.getTextureRect().width, currentGame.spriteBuildingMill.getTextureRect().height));
-        currentGame.spriteBuildingMill.setPosition(worldSpace(i, j, true), worldSpace(i, j, false));
+        currentGame.spriteBuildingMill.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
         currentGame.spriteBuildingMill.setColor(sf::Color(255, 255, 255, transparant));
         window.draw(currentGame.spriteBuildingMill);
         break;
     case 3:
         currentGame.spriteBuildingLumberCamp.setTextureRect(sf::IntRect(0, currentGame.spriteBuildingLumberCamp.getTextureRect().height * offsetY, currentGame.spriteBuildingLumberCamp.getTextureRect().width, currentGame.spriteBuildingLumberCamp.getTextureRect().height));
-        currentGame.spriteBuildingLumberCamp.setPosition(worldSpace(i, j, true), worldSpace(i, j, false));
+        currentGame.spriteBuildingLumberCamp.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
         currentGame.spriteBuildingLumberCamp.setColor(sf::Color(255, 255, 255, transparant));
         window.draw(currentGame.spriteBuildingLumberCamp);
         break;
     case 4:
         currentGame.spriteBuildingBarracks.setTextureRect(sf::IntRect(0, currentGame.spriteBuildingBarracks.getTextureRect().height * offsetY, currentGame.spriteBuildingBarracks.getTextureRect().width, currentGame.spriteBuildingBarracks.getTextureRect().height));
-        currentGame.spriteBuildingBarracks.setPosition(worldSpace(i, j, true), worldSpace(i, j, false));
+        currentGame.spriteBuildingBarracks.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
         currentGame.spriteBuildingBarracks.setColor(sf::Color(255, 255, 255, transparant));
         window.draw(currentGame.spriteBuildingBarracks);
         break;
     case 5:
         currentGame.spriteBuildingMiningCamp.setTextureRect(sf::IntRect(0, currentGame.spriteBuildingMiningCamp.getTextureRect().height * offsetY, currentGame.spriteBuildingMiningCamp.getTextureRect().width, currentGame.spriteBuildingMiningCamp.getTextureRect().height));
-        currentGame.spriteBuildingMiningCamp.setPosition(worldSpace(i, j, true), worldSpace(i, j, false));
+        currentGame.spriteBuildingMiningCamp.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
         currentGame.spriteBuildingMiningCamp.setColor(sf::Color(255, 255, 255, transparant));
         window.draw(currentGame.spriteBuildingMiningCamp);
     case 6:
         currentGame.spriteBuildingMiningCamp.setTextureRect(sf::IntRect(0, currentGame.spriteBuildingMiningCamp.getTextureRect().height * offsetY, currentGame.spriteBuildingMiningCamp.getTextureRect().width, currentGame.spriteBuildingMiningCamp.getTextureRect().height));
-        currentGame.spriteBuildingMiningCamp.setPosition(worldSpace(i, j, true), worldSpace(i, j, false));
+        currentGame.spriteBuildingMiningCamp.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
         currentGame.spriteBuildingMiningCamp.setColor(sf::Color(255, 255, 255, transparant));
         window.draw(currentGame.spriteBuildingMiningCamp);
     }
@@ -441,7 +441,7 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
     //Draw rally point if set
     if (currentGame.buildingIsSelected(this->buildingId)) {
         if (this->rallyPoint.isSet) {
-            currentGame.spriteFlag.setPosition(worldSpace(this->rallyPoint.goal.x, this->rallyPoint.goal.y, true), worldSpace(this->rallyPoint.goal.x, this->rallyPoint.goal.y, false));
+            currentGame.spriteFlag.setPosition(static_cast<float>(worldSpace(this->rallyPoint.goal.x, this->rallyPoint.goal.y, true)), static_cast<float>(worldSpace(this->rallyPoint.goal.x, this->rallyPoint.goal.y, false)));
             window.draw(currentGame.spriteFlag);
         }
     }
@@ -450,14 +450,14 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
         //draw adjecent tiles
         for (adjacentTile tile : adjacentTiles) {
             if (tile.occupied) {
-                currentGame.spriteTileObstructed.setPosition(worldSpace(tile.tileX, tile.tileY, true), worldSpace(tile.tileX, tile.tileY, false));
+                currentGame.spriteTileObstructed.setPosition(static_cast<float>(worldSpace(tile.tileX, tile.tileY, true)), static_cast<float>(worldSpace(tile.tileX, tile.tileY, false)));
                 window.draw(currentGame.spriteTileObstructed);
             }
             else {
-                currentGame.spriteSelectedTileForPath.setPosition(worldSpace(tile.tileX, tile.tileY, true), worldSpace(tile.tileX, tile.tileY, false));
+                currentGame.spriteSelectedTileForPath.setPosition(static_cast<float>(worldSpace(tile.tileX, tile.tileY, true)), static_cast<float>(worldSpace(tile.tileX, tile.tileY, false)));
                 window.draw(currentGame.spriteSelectedTileForPath);
             }
-            currentGame.spriteUnitSelectedTile.setPosition(worldSpace(tile.goalX, tile.goalY, true), worldSpace(tile.goalX, tile.goalY, false));
+            currentGame.spriteUnitSelectedTile.setPosition(static_cast<float>(worldSpace(tile.goalX, tile.goalY, true)), static_cast<float>(worldSpace(tile.goalX, tile.goalY, false)));
             window.draw(currentGame.spriteUnitSelectedTile);
         }
     }
@@ -671,7 +671,7 @@ void buildings::spawnProduce()
     worldCords spawmCords = findEmptySpot({ this->startXlocation + 1, this->startYLocation + 1 });
     if (currentPlayer.getStats().currentPopulation < currentPlayer.getStats().populationRoom)
     {
-        actors newActor(this->productionQueue.front().idOfUnitOrResearch, spawmCords.x, spawmCords.y, this->ownedByPlayer, listOfActors.size());
+        actors newActor(this->productionQueue.front().idOfUnitOrResearch, spawmCords.x, spawmCords.y, this->ownedByPlayer, static_cast<int>(listOfActors.size()));
         listOfActors.push_back(newActor);
         if (this->rallyPoint.isSet) {
             listOfActors[newActor.getActorId()].stackOrder(this->rallyPoint.goal, this->rallyPoint.orderType); //Puts rally point order in command stackList of new unit
@@ -727,7 +727,7 @@ mouseWorldCord findCloseTile(const std::list<mouseWorldCord>& buidlingFootprint 
     for (const mouseWorldCord& footprintTile : buidlingFootprint) {
         if (distEuclidean(footprintTile.x, footprintTile.y, target.x, target.y) < lowestDist || lowestDist == 0) {
             closeTile = footprintTile;
-            lowestDist = distEuclidean(footprintTile.x, footprintTile.y, target.x, target.y);
+            lowestDist = static_cast<int>(distEuclidean(footprintTile.x, footprintTile.y, target.x, target.y));
         }
     }
     return closeTile;

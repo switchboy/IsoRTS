@@ -140,25 +140,25 @@ void player::clearLists()
 
 int player::getVillagers() 
 {
-    return this->villagersList.size();
+    return static_cast<int>(this->villagersList.size());
 }
 
 int player::getTotalGatheringWood() 
 {
-    return this->gatheringWood.size();
+    return static_cast<int>(this->gatheringWood.size());
 }
 
 int player::getTotalGatheringFood() 
 {
-    return this->gatheringFood.size();
+    return static_cast<int>(this->gatheringFood.size());
 }
 int player::getTotalGatheringStone() 
 {
-    return this->gatheringStone.size();
+    return static_cast<int>(this->gatheringStone.size());
 }
 int player::getTotalGatheringGold() 
 {
-    return this->gatheringGold.size();
+    return static_cast<int>(this->gatheringGold.size());
 }
 int player::getGatheringWood(int id)
 {
@@ -182,7 +182,7 @@ int player::getGatheringGold(int id)
 
 int player::getTotalBuilding()
 {
-    return this->building.size();
+    return static_cast<int>(this->building.size());
 }
 
 int player::getBuilder(int id)
@@ -202,7 +202,7 @@ int player::getSwordsman(int id)
 
 int player::getTotalSwordsman()
 {
-    return this->listOfSwordsman.size();
+    return static_cast<int>(this->listOfSwordsman.size());
 }
 
 void player::insertSwordsman(int& id)
@@ -239,7 +239,6 @@ void player::insertGatheringStone(int& id)
 void player::insertGatheringGold(int& id)
 {
     this->gatheringGold.push_back(id);
-
 }
 
 void player::insertBuilding(int& id)
@@ -264,7 +263,7 @@ int player::getIdleVillagerId(int it)
 
 int player::getIdleVillagers()
 {
-    return this->idleVillagersList.size();
+    return static_cast<int>(this->idleVillagersList.size());
 }
 
 playerStats player::getStats()

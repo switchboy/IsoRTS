@@ -81,32 +81,32 @@ void objects::drawObjectSprite(int spriteNumber, int i, int j)
     switch(spriteNumber)
     {
     case 0:
-        currentGame.spriteCactusTile.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        currentGame.spriteCactusTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spriteCactusTile);
         break;
     case 1:
-        currentGame.spriteCypressTrileTile.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        currentGame.spriteCypressTrileTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spriteCypressTrileTile);
         break;
     case 2:
-        currentGame.spriteNormalTreeTile.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        currentGame.spriteNormalTreeTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spriteNormalTreeTile);
         break;
     case 3:
-        currentGame.spritePineTreeTile.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        currentGame.spritePineTreeTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spritePineTreeTile);
         break;
 
     case 4:
-        currentGame.spriteStone.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        currentGame.spriteStone.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spriteStone);
         break;
     case 5:
-        currentGame.spriteGold.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        currentGame.spriteGold.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spriteGold);
         break;
     case 6:
-        currentGame.spriteBerryBush.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        currentGame.spriteBerryBush.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spriteBerryBush);
         break;
     }

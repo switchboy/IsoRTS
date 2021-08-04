@@ -1228,6 +1228,67 @@ void actors::findNearestSimilairResource()
         this->isGatheringRecources = false;
     }
 }
+            {
+                highSearchLimitX = MAP_WIDTH;
+            }
+            int highSearchLimitY = this->actorCords[1] + 30;
+            if (highSearchLimitY > MAP_HEIGHT)
+            {
+                highSearchLimitY = MAP_HEIGHT;
+            }
+            for (int i = lowSearchLimitX; i < highSearchLimitX; i++)
+            {
+                for (int j = lowSearchLimitY; j < highSearchLimitY; j++)
+                {
+                    if (currentGame.objectLocationList[i][j] != -1)
+                    {
+                        if (listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource() == this->ResourceBeingGatherd)
+                        {
+                            float tempDeltaDistance = dist(this->actorCords[0], this->actorCords[1], i, j);
+                            this->listOfResourceLocations.push_back({ tempDeltaDistance, i, j, currentGame.objectLocationList[i][j], true });
+                        }
+                    }
+                }
+            }
+            */
+        }
+        else {
+            //make villager idle, because search was ineffective
+            this->clearRoute();
+            this->pathFound = false;
+            this->realPath = false;
+            this->routeNeedsPath = false;
+            this->isIdle = true;
+            this->isGatheringRecources = false;
+            this->isBuilding = false;
+            return;
+        }
+        if (!this->listOfResourceLocations.empty())
+        {
+            this->listOfResourceLocations.sort([](const nearestBuildingTile& f, const nearestBuildingTile& s)
+                {
+                    return f.deltaDistance < s.deltaDistance;
+                });
+        }
+        this->pathFound = false;
+    }
+    else {
+        this->listOfResourceLocations.pop_front();
+    }
+
+    if(!this->pathFound && !this->listOfResourceLocations.empty())
+    {
+        this->actorGoal[0] = this->listOfResourceLocations.front().locationX;
+        this->actorGoal[1] = this->listOfResourceLocations.front().locationY;
+        this->actorCommandGoal[0] = this->listOfResourceLocations.front().locationX;
+        this->actorCommandGoal[1] = this->listOfResourceLocations.front().locationY;
+        this->actionPreformedOnTile[0] = this->actorGoal[0];
+        this->actionPreformedOnTile[1] = this->actorGoal[1];
+        this->waitForAmountOfFrames = 0;
+        this->routeNeedsPath = true;
+        listOfActorsWhoNeedAPath.push_back(this->actorId);
+    }
+}
 
 cords actors::getLocation(){
     return {this->actorCords[0], this->actorCords[1]};

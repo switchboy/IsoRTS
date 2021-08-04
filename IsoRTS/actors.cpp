@@ -8,6 +8,7 @@
 #include "globalfunctions.h"
 #include "gametext.h"
 #include "projectile.h"
+#include "simpleAI.h"
 
 std::vector<actorOrBuildingPrice> priceOfActor;
 std::vector<int> listOfActorsWhoNeedAPath;
@@ -289,9 +290,7 @@ void actors::update()
                             }
                         }
                     }
-                    if (actorInListForPathfinding) {
-                    }
-                    else {
+                    if (!actorInListForPathfinding){ 
                         this->retryWalkingOrChangeGoal();
                     }
                 }
@@ -345,6 +344,17 @@ void actors::getNewBuildingTileForSameBuilding() {
         this->updateGoal(tempTile.locationX, tempTile.locationY, 0); //this also releases the old building tile, but does not reset the 'buildingId', so we can still use it! But we have to claim new building tile...
         listOfBuildings[this->buildingId].claimFreeBuiildingTile(tempTile.buildingId, this->actorId);
         this->setIsBuildingTrue(this->buildingId, tempTile.actionLocationX, tempTile.actionLocationY);
+    }
+    else {
+        //This building is not reachable for this actor! Cancel the current task
+        this->clearRoute();
+        this->pathFound = false;
+        this->realPath = false;
+        this->routeNeedsPath = false;
+        this->isIdle = true;
+        this->isFindingAlternative = false;
+        this->isBuilding = false;
+        this->isGatheringRecources = false;
     }
 }
 
@@ -452,6 +462,11 @@ void actors::doMeleeDamage()
             this->isMeleeAttacking = false;
         }
     }
+}
+
+std::list<cords> actors::getRejectedTargetsList()
+{
+    return listOfTargetsToRejectUntilSuccesfullMovement;
 }
 
 void actors::takeDamage(int amountOfDamage, int idOfAttacker)
@@ -699,6 +714,8 @@ void actors::retryWalkingOrChangeGoal() {
         }
         else if (this->hasToUnloadResource || this->isGatheringRecources || this->isBuilding)
         {
+            this->listOfTargetsToRejectUntilSuccesfullMovement.push_back({ this->actorCommandGoal[0] , this->actorCommandGoal[1] });
+            this->clearRoute();
             this->routeNeedsPath = false;
             this->pathFound = false;
             this->realPath = false;
@@ -706,6 +723,7 @@ void actors::retryWalkingOrChangeGoal() {
         }
         else
         {
+            this->listOfTargetsToRejectUntilSuccesfullMovement.push_back({ this->actorCommandGoal[0] , this->actorCommandGoal[1] });
             this->clearRoute();
             this->pathFound = false;
             this->realPath = false;
@@ -734,6 +752,7 @@ void actors::walkToNextSquare() {
             //De actor staat met zijn neus de goede kant op en kan dus gaan lopen als de tegel vrij is!
             if (currentGame.occupiedByActorList[this->route.back().positionX][this->route.back().positionY] == -1)
             {
+                this->listOfTargetsToRejectUntilSuccesfullMovement.clear();
                 this->startWalking();
             }
             else {
@@ -1186,89 +1205,16 @@ void actors::setCommonGoalTrue()
 
 void actors::findNearestSimilairResource()
 {
-    if (this->listOfResourceLocations.empty()) {
-        if (this->hasStartedSearchingForAlternatives == false) {
-            this->hasStartedSearchingForAlternatives = true;
-
-            for (int i = 0; i < listOfObjects.size(); i++) {
-                if (listOfObjects[i].getTypeOfResource() == this->ResourceBeingGatherd) {
-                    float tempDeltaDistance = distEuclidean(this->actorCords[0], this->actorCords[1], listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y);
-                    listOfResourceLocations.push_back({ tempDeltaDistance, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y, i, true });
-                }
-            }
-            /*
-            int lowSearchLimitX = this->actorCords[0] - 30;
-            if (lowSearchLimitX < 0)
-            {
-                lowSearchLimitX = 0;
-            }
-            int lowSearchLimitY = this->actorCords[1] - 30;
-            if (lowSearchLimitY < 0)
-            {
-                lowSearchLimitY = 0;
-            }
-            int highSearchLimitX = this->actorCords[0] + 30;
-            if (highSearchLimitX > MAP_WIDTH)
-            {
-                highSearchLimitX = MAP_WIDTH;
-            }
-            int highSearchLimitY = this->actorCords[1] + 30;
-            if (highSearchLimitY > MAP_HEIGHT)
-            {
-                highSearchLimitY = MAP_HEIGHT;
-            }
-            for (int i = lowSearchLimitX; i < highSearchLimitX; i++)
-            {
-                for (int j = lowSearchLimitY; j < highSearchLimitY; j++)
-                {
-                    if (currentGame.objectLocationList[i][j] != -1)
-                    {
-                        if (listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource() == this->ResourceBeingGatherd)
-                        {
-                            float tempDeltaDistance = dist(this->actorCords[0], this->actorCords[1], i, j);
-                            this->listOfResourceLocations.push_back({ tempDeltaDistance, i, j, currentGame.objectLocationList[i][j], true });
-                        }
-                    }
-                }
-            }
-            */
-        }
-        else {
-            //make villager idle, because search was ineffective
-            this->clearRoute();
-            this->pathFound = false;
-            this->realPath = false;
-            this->routeNeedsPath = false;
-            this->isIdle = true;
-            this->isGatheringRecources = false;
-            this->isBuilding = false;
-            return;
-        }
-        if (!this->listOfResourceLocations.empty())
-        {
-            this->listOfResourceLocations.sort([](const nearestBuildingTile& f, const nearestBuildingTile& s)
-                {
-                    return f.deltaDistance < s.deltaDistance;
-                });
-        }
-        this->pathFound = false;
-    }
-    else {
-        this->listOfResourceLocations.pop_front();
-    }
-
-    if(!this->pathFound && !this->listOfResourceLocations.empty())
-    {
-        this->actorGoal[0] = this->listOfResourceLocations.front().locationX;
-        this->actorGoal[1] = this->listOfResourceLocations.front().locationY;
-        this->actorCommandGoal[0] = this->listOfResourceLocations.front().locationX;
-        this->actorCommandGoal[1] = this->listOfResourceLocations.front().locationY;
-        this->actionPreformedOnTile[0] = this->actorGoal[0];
-        this->actionPreformedOnTile[1] = this->actorGoal[1];
-        this->waitForAmountOfFrames = 0;
-        this->routeNeedsPath = true;
-        listOfActorsWhoNeedAPath.push_back(this->actorId);
-    }
+    cords newResourceCords = findResource(this->ResourceBeingGatherd, this->actorId);
+    this->actorGoal[0] = newResourceCords.x;
+    this->actorGoal[1] = newResourceCords.y;
+    this->actorCommandGoal[0] = newResourceCords.x;
+    this->actorCommandGoal[1] = newResourceCords.y;
+    this->actionPreformedOnTile[0] = this->actorGoal[0];
+    this->actionPreformedOnTile[1] = this->actorGoal[1];
+    this->waitForAmountOfFrames = 0;
+    this->routeNeedsPath = true;
+    listOfActorsWhoNeedAPath.push_back(this->actorId);
 }
 
 cords actors::getLocation(){

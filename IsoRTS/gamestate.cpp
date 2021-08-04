@@ -1168,8 +1168,28 @@ nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId)
                     return f.deltaDistance < s.deltaDistance;
                 });
         }
-        //listOfBuildLocations.front().buildingId
-        return  listOfBuildLocations.front();
+        bool firstLocationIsNotRejected = false;
+        while (!firstLocationIsNotRejected && !listOfBuildLocations.empty() && !listOfActors[actorId].getRejectedTargetsList().empty()) {
+            bool rejectionsDuringLoop = false;
+            for (const auto& reject : listOfActors[actorId].getRejectedTargetsList())
+            {
+                if (reject.x == listOfBuildLocations.front().locationX && reject.y == listOfBuildLocations.front().locationY) {
+                    //target rejected!
+                    listOfBuildLocations.pop_front();
+                    rejectionsDuringLoop = true;
+                }
+            }
+            if (!rejectionsDuringLoop) {
+                firstLocationIsNotRejected = true; //break the loop 
+            }
+        }
+        //Return the location if one is accepted
+        if (!listOfBuildLocations.empty()) {
+            return  listOfBuildLocations.front();
+        }
+        else {
+            return { 0, 0, 0, 0, false };
+        }
     }
     else {
         return { 0, 0, 0, 0, false };

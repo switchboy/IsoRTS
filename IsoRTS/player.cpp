@@ -12,7 +12,9 @@ player::player()
     this->amountOfStone = 100;
     this->currentPopulation = 0;
     this->populationRoom = 0;
-    this->friendOrFoo[8] ={0};
+    for (int i = 0; i < 8; i++) {
+        this->friendOrFoo[i] = 0;
+    }
     this->isDefeated = false;
     this->isParticipating = true;
 }

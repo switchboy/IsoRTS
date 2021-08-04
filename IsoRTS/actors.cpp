@@ -1229,6 +1229,7 @@ void actors::findNearestSimilairResource()
     }
 }
 
+
 cords actors::getLocation(){
     return {this->actorCords[0], this->actorCords[1]};
 }

@@ -109,41 +109,15 @@ int distanceToResource(int kind, cords from) {
 cords findResource(int kind, int unitId ) {
 	std::list <nearestBuildingTile> listOfResourceLocations;
 	cords actorCords = listOfActors[unitId].getActorCords();
-	cords targetCords;
-	int lowSearchLimitX = actorCords.x - 60;
-	if (lowSearchLimitX < 0)
-	{
-		lowSearchLimitX = 0;
-	}
-	int lowSearchLimitY = actorCords.y - 60;
-	if (lowSearchLimitY < 0)
-	{
-		lowSearchLimitY = 0;
-	}
-	int highSearchLimitX = actorCords.x + 60;
-	if (highSearchLimitX > MAP_WIDTH)
-	{
-		highSearchLimitX = MAP_WIDTH;
-	}
-	int highSearchLimitY = actorCords.y + 60;
-	if (highSearchLimitY > MAP_HEIGHT)
-	{
-		highSearchLimitY = MAP_HEIGHT;
-	}
-	for (int i = lowSearchLimitX; i < highSearchLimitX; i++)
-	{
-		for (int j = lowSearchLimitY; j < highSearchLimitY; j++)
-		{
-			if (currentGame.objectLocationList[i][j] != -1)
-			{
-				if (listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource() == kind)
-				{
-					float tempDeltaDistance =  distEuclidean(actorCords.x, actorCords.y, i, j);
-					listOfResourceLocations.push_back({ tempDeltaDistance, i, j, currentGame.objectLocationList[i][j], true });
-				}
-			}
+	cords targetCords{ -1, -1 };
+
+	for (int i = 0; i < listOfObjects.size(); i++) {
+		if (listOfObjects[i].getTypeOfResource() == kind) {
+			float tempDeltaDistance = distEuclidean(listOfActors[unitId].getLocation().x, listOfActors[unitId].getLocation().y, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y);
+			listOfResourceLocations.push_back({ tempDeltaDistance, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y, i, true });
 		}
 	}
+
 	if (!listOfResourceLocations.empty())
 	{
 		listOfResourceLocations.sort([](const nearestBuildingTile& f, const nearestBuildingTile& s)
@@ -151,8 +125,27 @@ cords findResource(int kind, int unitId ) {
 				return f.deltaDistance < s.deltaDistance;
 			});
 		
-		targetCords.x = listOfResourceLocations.front().locationX;
-		targetCords.y = listOfResourceLocations.front().locationY;
+		bool firstLocationIsNotRejected = false;
+		while (!firstLocationIsNotRejected && !listOfResourceLocations.empty() && !listOfActors[unitId].getRejectedTargetsList().empty()) {
+			bool rejectionsDuringLoop = false;
+			for (const auto& reject : listOfActors[unitId].getRejectedTargetsList())
+			{
+				if (reject.x == listOfResourceLocations.front().locationX && reject.y == listOfResourceLocations.front().locationY) {
+					//target rejected!
+					listOfResourceLocations.pop_front();
+					rejectionsDuringLoop = true;
+				}
+			}
+			if (!rejectionsDuringLoop) {
+				firstLocationIsNotRejected = true; //break the loop 
+			}
+		}
+
+		if (!listOfResourceLocations.empty()) {
+			targetCords.x = listOfResourceLocations.front().locationX;
+			targetCords.y = listOfResourceLocations.front().locationY;
+		}
+
 	}
 	return targetCords;
 }
@@ -225,9 +218,16 @@ void simpleAI::distributeIdleVillagers() {
 			//Get nearest food source
 			cords targetCords = findResource(resourceId, listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned));
 			//Order unit
-			gatherCommandUnit(listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned), targetCords);
-			villagersAssigned++;
-			gatheringNow++;
+			if (targetCords.x != -1) {
+				gatherCommandUnit(listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned), targetCords);
+				villagersAssigned++;
+				gatheringNow++;
+			}
+			else {
+				//This  resource is not available for this unit; Whut do?
+				villagersAssigned++;
+				gatheringNow++;
+			}
 		}
 	}
 }

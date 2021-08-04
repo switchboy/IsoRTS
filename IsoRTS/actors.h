@@ -105,6 +105,7 @@ public:
     void cleanUp();
     void killActor();
     void doMeleeDamage();
+    std::list<cords> getRejectedTargetsList();
     void takeDamage(int amountOfDamage, int idOfAttacker);
     int getMeleeDMG();
     int getRangedDMG();
@@ -191,6 +192,7 @@ private:
     float timeBetweenShots;
     float timeLastRetry;
     nearestBuildingTile dropOffTile;
+    std::list<cords> listOfTargetsToRejectUntilSuccesfullMovement;
     std::list<routeCell> route;
     std::list <nearestBuildingTile> listOfDropOffLocations;
     std::list <nearestBuildingTile> listOfResourceLocations;

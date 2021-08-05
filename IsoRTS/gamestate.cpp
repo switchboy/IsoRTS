@@ -2376,11 +2376,11 @@ void gameState::drawBuildingTaskToolbar(int& startDeck, int& startY)
     int startBarX = iconStartX + static_cast<int>(mainWindowWidth / 25.6);
     int startBarY = iconStartY + static_cast<int>(mainWindowHeigth / 46.9);
     int totalBarLength = static_cast<int>(mainWindowWidth / 6.4f);
-    int percentageCompleted = static_cast<int>(static_cast<float>(listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsGained) / static_cast<float>(listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsNeeded)) * 100;
+    float percentageCompleted = static_cast<float>(static_cast<float>(listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsGained) / static_cast<float>(listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsNeeded)) * 100;
     int tempXOffset = 0;
     int tempYOffset = 0;
     drawProgressBar(static_cast<float>(listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsGained), static_cast<float>(listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsNeeded), totalBarLength, startBarX, startBarY);
-    text.setString("Producing: " + getBuildingIsProducingName(this->buildingSelectedId) + " " + std::to_string(percentageCompleted) + "%...");
+    text.setString("Producing: " + getBuildingIsProducingName(this->buildingSelectedId) + " " + std::to_string(static_cast<int>(percentageCompleted)) + "%...");
     text.setPosition(static_cast<float>(startBarX), static_cast<float>(iconStartY));
     window.draw(text);
     this->spriteUIButton.setTextureRect(sf::IntRect(getSpriteOffSetTask(this->buildingSelectedId).x, getSpriteOffSetTask(this->buildingSelectedId).y, 64, 64));
@@ -2409,8 +2409,8 @@ void gameState::drawBuildingConstructionToolbar(int& startDeck, int& startY)
     int startBarY = iconStartY + static_cast<int>(mainWindowHeigth / 46.9);
     int totalBarLength = static_cast<int>(mainWindowWidth / 6.4f);
     drawProgressBar(static_cast<float>(listOfBuildings[this->buildingSelectedId].getBuildingPoints().first), static_cast<float>(listOfBuildings[this->buildingSelectedId].getBuildingPoints().second), totalBarLength, startBarX, startBarY);
-    int percentageCompleted = static_cast<int>(static_cast<float>(listOfBuildings[this->buildingSelectedId].getBuildingPoints().first) / static_cast<float>(listOfBuildings[this->buildingSelectedId].getBuildingPoints().second)) * 100;
-    text.setString("Building: " + listOfBuildings[this->buildingSelectedId].getName() + " " + std::to_string(percentageCompleted) + "%...");
+    float percentageCompleted = static_cast<float>(static_cast<float>(listOfBuildings[this->buildingSelectedId].getBuildingPoints().first) / static_cast<float>(listOfBuildings[this->buildingSelectedId].getBuildingPoints().second)) * 100;
+    text.setString("Building: " + listOfBuildings[this->buildingSelectedId].getName() + " " + std::to_string(static_cast<int>(percentageCompleted)) + "%...");
     text.setPosition(static_cast<float>(startBarX), static_cast<float>(iconStartY));
     window.draw(text);
     this->spriteUIButton.setTextureRect(sf::IntRect(0, (getBuildingSpriteOffset(this->buildingSelectedId) / 2), 64, 64));

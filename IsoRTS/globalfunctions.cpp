@@ -1,17 +1,17 @@
 #include "globalfunctions.h"
 #include "gamestate.h"
 
-bool sortCord(rectangleCord& lhs, rectangleCord& rhs)
+bool sortCord(cords& lhs, cords& rhs)
 {
     return (lhs.x < rhs.x) || (lhs.y < rhs.y);
 }
 
-bool compareCord(const rectangleCord& lhs, const rectangleCord& rhs)
+bool compareCord(const cords& lhs, const cords& rhs)
 {
     return ((lhs.x == rhs.x) && (lhs.y == rhs.y));
 }
 
-bool sortCordByX(const rectangleCord& lhs, const rectangleCord& rhs)
+bool sortCordByX(const cords& lhs, const cords& rhs)
 {
     if (lhs.x != rhs.x) {
         return lhs.x < rhs.x;
@@ -28,7 +28,7 @@ int roll(int min, int max)
     }
 }
 
-bool rectCord(rectangleCord& lhs, rectangleCord& rhs)
+bool rectCord(cords& lhs, cords& rhs)
 {
     return(lhs.y<rhs.y);
 }
@@ -61,9 +61,9 @@ int miniMapSpace(int x, int y, bool getX)
     }
 }
 
-std::list<mouseWorldCord> getListOfCordsInCircle(int startX, int startY, int r)
+std::list<cords> getListOfCordsInCircle(int startX, int startY, int r)
 {
-    std::list<mouseWorldCord> tempList;
+    std::list<cords> tempList;
     for (int x = startX - r; x < startX + r; x++) {
         for (int y = startY - r; y < startY + r; y++) {
             if (x >= 0 && y >= 0 && x < MAP_WIDTH && y < MAP_HEIGHT) {

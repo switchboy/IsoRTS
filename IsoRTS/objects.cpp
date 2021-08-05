@@ -61,7 +61,7 @@ void objects::substractResource()
     }
 }
 
-mouseWorldCord objects::getLocation() {
+cords objects::getLocation() {
 
     return { this->locationX, this->locationY };
 }

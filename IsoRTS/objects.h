@@ -18,7 +18,7 @@ public:
     void            drawObjectSprite(int spriteNumber, int i, int j);
     resourceTypes   getTypeOfResource();
     void            substractResource();
-    mouseWorldCord  getLocation();
+    cords  getLocation();
     int             amountOfResourcesLeft();
     std::string     nameOfResource();
 

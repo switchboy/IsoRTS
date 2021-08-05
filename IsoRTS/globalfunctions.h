@@ -8,33 +8,22 @@
 extern int mapOffsetX;
 extern int mapOffsetY;
 
-struct mouseWorldCord
-{
-    int x;
-    int y;
-};
-
-static mouseWorldCord toWorldMousePosition(int mouseX, int mouseY);
-
-struct rectangleCord
-{
-    int x, y;
-};
-
 struct cords {
     int x;
     int y;
 };
 
+
+static cords toWorldMousePosition(int mouseX, int mouseY);
 int roll(int min, int max);
 
 
-bool rectCord (rectangleCord& lhs, rectangleCord& rhs);
-bool compareCord(const rectangleCord& lhs, const rectangleCord& rhs);
-bool sortCordByX(const rectangleCord& lhs, const rectangleCord& rhs);
+bool rectCord (cords& lhs, cords& rhs);
+bool compareCord(const cords& lhs, const cords& rhs);
+bool sortCordByX(const cords& lhs, const cords& rhs);
 int worldSpace(int x, int y, bool getX);
 int miniMapSpace(int x, int y, bool getX);
-std::list<mouseWorldCord> getListOfCordsInCircle(int startX, int startY, int r);
+std::list<cords> getListOfCordsInCircle(int startX, int startY, int r);
 
 extern std::mutex listOfActorsMutex;
 

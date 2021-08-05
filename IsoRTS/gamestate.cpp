@@ -21,7 +21,7 @@ sf::RenderTexture minimapObjectsTexture;
 
 bool noNewBuildings;
 
-mouseWorldCord toWorldMousePosition(int mouseX, int mouseY)
+cords toWorldMousePosition(int mouseX, int mouseY)
 {
     if (!(mouseX < 0 || mouseY < 0))
     {
@@ -198,10 +198,10 @@ bool gameState::buildingIsSelected(int& id)
 
 void gameState::drawMap()
 {
-    mouseWorldCord lowX = toWorldMousePosition(viewOffsetX-(mainWindowWidth/2), viewOffsetY-((mainWindowWidth*0.8)/2));
-    mouseWorldCord highX = toWorldMousePosition(viewOffsetX+(mainWindowWidth/2), viewOffsetY+((mainWindowWidth*0.8)/2));
-    mouseWorldCord lowY = toWorldMousePosition(viewOffsetX, viewOffsetY-(mainWindowWidth/2));
-    mouseWorldCord highY = toWorldMousePosition(viewOffsetX, viewOffsetY+(mainWindowWidth/2));
+    cords lowX = toWorldMousePosition(viewOffsetX-(mainWindowWidth/2), viewOffsetY-((mainWindowWidth*0.8)/2));
+    cords highX = toWorldMousePosition(viewOffsetX+(mainWindowWidth/2), viewOffsetY+((mainWindowWidth*0.8)/2));
+    cords lowY = toWorldMousePosition(viewOffsetX, viewOffsetY-(mainWindowWidth/2));
+    cords highY = toWorldMousePosition(viewOffsetX, viewOffsetY+(mainWindowWidth/2));
     for(int j = 0; j < MAP_HEIGHT; j++)
     {
         for(int i = 0; i < MAP_WIDTH; i++ )
@@ -664,11 +664,11 @@ void gameState::calculateRectangle()
     }
 
     //Start filling the list!
-    this->rectangleCords.clear();
-    this->rectangleCords.push_back({startLocation2[0],startLocation2[1]});
-    this->rectangleCords.push_back({endLocation[0],endLocation[1]});
-    this->rectangleCords.push_back({highYLocation[0],highYLocation[1]});
-    this->rectangleCords.push_back({lowYLocation[0], lowYLocation[1]});
+    this->cordss.clear();
+    this->cordss.push_back({startLocation2[0],startLocation2[1]});
+    this->cordss.push_back({endLocation[0],endLocation[1]});
+    this->cordss.push_back({highYLocation[0],highYLocation[1]});
+    this->cordss.push_back({lowYLocation[0], lowYLocation[1]});
 
     //calculate the inbetweens form startLocation to lowYLocation
     int i = startLocation2[0]+1;
@@ -678,7 +678,7 @@ void gameState::calculateRectangle()
         //add new coördanate {i, j} to a list
         if(i != lowYLocation[0] && j != lowYLocation[1])
         {
-            this->rectangleCords.push_back({i, j});
+            this->cordss.push_back({i, j});
         }
         i++;
         j--;
@@ -692,13 +692,13 @@ void gameState::calculateRectangle()
         //add new coördenates {i, j} to a list
         if(i != endLocation[0] && j != endLocation[1])
         {
-            this->rectangleCords.push_back({i, j});
+            this->cordss.push_back({i, j});
         }
         else
         {
-            if(this->rectangleCords.back().y+1 != endLocation[1])
+            if(this->cordss.back().y+1 != endLocation[1])
             {
-                this->rectangleCords.push_back({this->rectangleCords.back().x+1, this->rectangleCords.back().y+1 });
+                this->cordss.push_back({this->cordss.back().x+1, this->cordss.back().y+1 });
             }
         }
 
@@ -714,14 +714,14 @@ void gameState::calculateRectangle()
         //add new coördenates {i, j} to a list
         if(i != endLocation[0] && j != endLocation[1])
         {
-            this->rectangleCords.push_back({i, j});
+            this->cordss.push_back({i, j});
 
         }
         else
         {
-            if(this->rectangleCords.back().y-1 != endLocation[1])
+            if(this->cordss.back().y-1 != endLocation[1])
             {
-                this->rectangleCords.push_back({this->rectangleCords.back().x+1, this->rectangleCords.back().y-1 });
+                this->cordss.push_back({this->cordss.back().x+1, this->cordss.back().y-1 });
             }
         }
         i++;
@@ -736,41 +736,41 @@ void gameState::calculateRectangle()
         //add new coördanates {i, j}to a list
         if( i != highYLocation[0] && j != highYLocation[1])
         {
-            this->rectangleCords.push_back({i, j});
+            this->cordss.push_back({i, j});
         }
         i++;
         j++;
     }
 
     //sort the list on the Y coördanates
-    if(!this->rectangleCords.empty())
+    if(!this->cordss.empty())
     {
-        std::sort(this->rectangleCords.begin(),this->rectangleCords.end(), rectCord);
+        std::sort(this->cordss.begin(),this->cordss.end(), rectCord);
     }
 
     //add cells on the list between the two cells with the same Y coördanets repeat until list is empty
-    if(!this->rectangleCords.empty())
+    if(!this->cordss.empty())
     {
-        int stopAt = this->rectangleCords.size();
+        int stopAt = this->cordss.size();
         for(int i = 0; i < stopAt; i++)
         {
             if (i < stopAt - 1) 
             {
-                if (this->rectangleCords[i].y == this->rectangleCords[i + 1].y)
+                if (this->cordss[i].y == this->cordss[i + 1].y)
                 {
-                    if (this->rectangleCords[i].x < this->rectangleCords[i + 1].x)
+                    if (this->cordss[i].x < this->cordss[i + 1].x)
                     {
-                        for (int j = this->rectangleCords[i].x + 1; j < this->rectangleCords[i + 1].x; j++)
+                        for (int j = this->cordss[i].x + 1; j < this->cordss[i + 1].x; j++)
                         {
-                            this->rectangleCords.push_back({ j, this->rectangleCords[i].y });
+                            this->cordss.push_back({ j, this->cordss[i].y });
 
                         }
                     }
                     else
                     {
-                        for (int j = this->rectangleCords[i + 1].x + 1; j < this->rectangleCords[i].x; j++)
+                        for (int j = this->cordss[i + 1].x + 1; j < this->cordss[i].x; j++)
                         {
-                            this->rectangleCords.push_back({ j, this->rectangleCords[i].y });
+                            this->cordss.push_back({ j, this->cordss[i].y });
                         }
                     }
                 }
@@ -779,14 +779,14 @@ void gameState::calculateRectangle()
     }
 
     //Throw out any cells which are out of bounds
-    if(!this->rectangleCords.empty())
+    if(!this->cordss.empty())
     {
-        for(int i = 0; i< this->rectangleCords.size();)
+        for(int i = 0; i< this->cordss.size();)
         {
-            if(this->rectangleCords[i].x < 0 || this->rectangleCords[i].x >= MAP_WIDTH || this->rectangleCords[i].y < 0 || this->rectangleCords[i].y >= MAP_HEIGHT)
+            if(this->cordss[i].x < 0 || this->cordss[i].x >= MAP_WIDTH || this->cordss[i].y < 0 || this->cordss[i].y >= MAP_HEIGHT)
             {
                 //Deze cell is out of bounds gooi hem weg
-                this->rectangleCords.erase(this->rectangleCords.begin()+ i);
+                this->cordss.erase(this->cordss.begin()+ i);
             }
             else
             {
@@ -796,10 +796,10 @@ void gameState::calculateRectangle()
     }
 
     //Throw out duplicates
-    if(!this->rectangleCords.empty())
+    if(!this->cordss.empty())
     {
-       std::sort(this->rectangleCords.begin(), this->rectangleCords.end(), sortCordByX);
-       this->rectangleCords.erase(std::unique(this->rectangleCords.begin(), this->rectangleCords.end(), compareCord), this->rectangleCords.end());
+       std::sort(this->cordss.begin(), this->cordss.end(), sortCordByX);
+       this->cordss.erase(std::unique(this->cordss.begin(), this->cordss.end(), compareCord), this->cordss.end());
     }
 }
 
@@ -1008,13 +1008,13 @@ void gameState::getDefinitiveSelection()
     if (this->mousePressedLeft && !(mouseFakePosition.y > mainWindowHeigth * 0.8f))
     {
         this->selectedUnits.clear();
-        if (!this->rectangleCords.empty())
+        if (!this->cordss.empty())
         {
-            for (int i = 0; i < this->rectangleCords.size(); i++)
+            for (int i = 0; i < this->cordss.size(); i++)
             {
-                if (this->occupiedByActorList[this->rectangleCords[i].x][this->rectangleCords[i].y] != -1)
+                if (this->occupiedByActorList[this->cordss[i].x][this->cordss[i].y] != -1)
                 {
-                    selectedUnits.push_back({ this->occupiedByActorList[this->rectangleCords[i].x][this->rectangleCords[i].y] });
+                    selectedUnits.push_back({ this->occupiedByActorList[this->cordss[i].x][this->cordss[i].y] });
                 }
             }
             if (selectedUnits.size() > 1) {
@@ -1052,7 +1052,7 @@ bool gameState::clickToMove(int posX, int posY, bool minimap)
         {
             if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
             {
-                mouseWorldCord tempCords;
+                cords tempCords;
                 if (minimap) {
                     if ((posX <= MAP_WIDTH && posY <= MAP_HEIGHT)) {
                         tempCords = currentGame.getNextCord(posX, posY);
@@ -1358,7 +1358,7 @@ void gameState::clickToGiveMinimapCommand()
     this->firstRound = true;
     this->lastIandJ[0] = 0;
     this->lastIandJ[1] = 0;
-    mouseWorldCord minimapToWorldPosition;
+    cords minimapToWorldPosition;
     minimapToWorldPosition = toWorldMousePosition(((mouseFakePosition.x - (mainWindowWidth * 0.8f)) / (0.2f * mainWindowWidth)) * (MAP_WIDTH * 64), ((mouseFakePosition.y - (mainWindowHeigth * 0.8f)) / (0.2f * mainWindowHeigth)) * (MAP_HEIGHT * 32));
     for (int posX = minimapToWorldPosition.x - 1; posX < minimapToWorldPosition.x + 2; posX++) {
         for (int posY = minimapToWorldPosition.y - 1; posY < minimapToWorldPosition.y + 2; posY++) {
@@ -1404,7 +1404,7 @@ void gameState::orderRallyPoint() {
 
 void gameState::mouseRightClick()
 {
-    this->rectangleCords.clear();
+    this->cordss.clear();
     this->mousePressedRight = true;
     if (mouseFakePosition.y > mainWindowHeigth * 0.8f)
     {
@@ -1435,12 +1435,12 @@ void gameState::mouseRightClick()
 
 void gameState::changeTiles()
 {
-    for (int i = 0; i < this->rectangleCords.size(); i++)
+    for (int i = 0; i < this->cordss.size(); i++)
     {
-        this->currentMap[this->rectangleCords[i].x][this->rectangleCords[i].y] += +1;
-        if (this->currentMap[this->rectangleCords[i].x][this->rectangleCords[i].y] > 11)
+        this->currentMap[this->cordss[i].x][this->cordss[i].y] += +1;
+        if (this->currentMap[this->cordss[i].x][this->cordss[i].y] > 11)
         {
-            this->currentMap[this->rectangleCords[i].x][this->rectangleCords[i].y] = 1;
+            this->currentMap[this->cordss[i].x][this->cordss[i].y] = 1;
         }
     }
     minimapTextureExist = false;
@@ -1512,7 +1512,7 @@ void gameState::interact()
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::A) && this->focus)
     {
         this->isPressedA = true;
-        this->rectangleCords.clear();
+        this->cordss.clear();
     }
     else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::A))
     {
@@ -1522,7 +1522,7 @@ void gameState::interact()
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::B) && this->focus)
     {
         this->isPressedB = true;
-        this->rectangleCords.clear();
+        this->cordss.clear();
     }
     else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::B))
     {
@@ -1547,7 +1547,7 @@ void gameState::interact()
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::O) && this->focus)
     {
         this->isPressedO = true;
-        this->rectangleCords.clear();
+        this->cordss.clear();
     }
     else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::B))
     {
@@ -1602,7 +1602,7 @@ void gameState::interact()
         this->mousePressedRight = false;
     }
 
-    if(!this->rectangleCords.empty() && sf::Keyboard::isKeyPressed(sf::Keyboard::Equal) &&!this->equalIsPressed && this->focus)
+    if(!this->cordss.empty() && sf::Keyboard::isKeyPressed(sf::Keyboard::Equal) &&!this->equalIsPressed && this->focus)
     {
         this->changeTiles();
     }
@@ -1623,12 +1623,12 @@ void gameState::drawMouseInteraction()
     if(this->mousePressedLeft && !this->mousePressOutofWorld)
     {
         drawMouseBox();
-        if(!rectangleCords.empty())
+        if(!cordss.empty())
         {
-            for(int i = 0; i < rectangleCords.size(); i++)
+            for(int i = 0; i < cordss.size(); i++)
             {
                 if (showPaths) {
-                    drawMousePosition(rectangleCords[i].x, rectangleCords[i].y, true);
+                    drawMousePosition(cordss[i].x, cordss[i].y, true);
                 }
             }
         }
@@ -1643,7 +1643,7 @@ void gameState::drawMouseInteraction()
     }
 }
 
-mouseWorldCord gameState::getNextCord(int x, int y)
+cords gameState::getNextCord(int x, int y)
 {
     if(!this->firstRound && this->roundDone)
     {
@@ -2322,7 +2322,7 @@ std::string getBuildingIsProducingName(int& buildingId)
     }
 }
 
-rectangleCord getSpriteOffSetTask(int& buildingId)
+cords getSpriteOffSetTask(int& buildingId)
 {
     if (listOfBuildings[buildingId].productionQueue.front().isResearch)
     {
@@ -2796,8 +2796,8 @@ void gameState::createFogOfWar()
     }
     for (int i = 0; i < listOfActors.size(); i++) {
         if (listOfActors[i].getTeam() == currentPlayer.getTeam()) {
-            std::list<mouseWorldCord> tempList = getListOfCordsInCircle(listOfActors[i].getLocation().x, listOfActors[i].getLocation().y, 6);
-            for (const mouseWorldCord& cord : tempList)
+            std::list<cords> tempList = getListOfCordsInCircle(listOfActors[i].getLocation().x, listOfActors[i].getLocation().y, 6);
+            for (const cords& cord : tempList)
             {
                 this->visability[(cord.x * MAP_HEIGHT) + cord.y] = 2;
             }
@@ -2809,10 +2809,10 @@ void gameState::createFogOfWar()
             if (listOfBuildings[i].getCompleted()) {
                 visRadius = 8;
             }
-            std::list<mouseWorldCord> buidlingFootprint = listOfBuildings[i].getFootprintOfBuilding();
-            for (const mouseWorldCord& footprintTile : buidlingFootprint) {
-                std::list<mouseWorldCord> tempList = getListOfCordsInCircle(footprintTile.x, footprintTile.y, visRadius);
-                for (const mouseWorldCord& cord : tempList)
+            std::list<cords> buidlingFootprint = listOfBuildings[i].getFootprintOfBuilding();
+            for (const cords& footprintTile : buidlingFootprint) {
+                std::list<cords> tempList = getListOfCordsInCircle(footprintTile.x, footprintTile.y, visRadius);
+                for (const cords& cord : tempList)
                 {
                     this->visability[(cord.x * MAP_HEIGHT) + cord.y] = 2;
                 }

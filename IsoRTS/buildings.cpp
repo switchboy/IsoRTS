@@ -648,8 +648,8 @@ worldCords findEmptySpot(worldCords startCords)
     }
 }
 
-std::list<mouseWorldCord>  buildings::getFootprintOfBuilding() {
-    std::list<mouseWorldCord> tempList;
+std::list<cords>  buildings::getFootprintOfBuilding() {
+    std::list<cords> tempList;
     for (int x = this->startXlocation; x > this->startXlocation - footprintOfBuildings[this->buildingType].amountOfXFootprint; x--) {
         for (int y = this->startYLocation; y > this->startYLocation - footprintOfBuildings[this->buildingType].amountOfYFootprint; y--) {
             tempList.push_back({ x, y });
@@ -720,11 +720,11 @@ void::buildings::doProduction()
 
 }
 
-mouseWorldCord findCloseTile(const std::list<mouseWorldCord>& buidlingFootprint , const mouseWorldCord& target)
+cords findCloseTile(const std::list<cords>& buidlingFootprint , const cords& target)
 {
     int lowestDist = 0;
-    mouseWorldCord closeTile = {-1, -1};
-    for (const mouseWorldCord& footprintTile : buidlingFootprint) {
+    cords closeTile = {-1, -1};
+    for (const cords& footprintTile : buidlingFootprint) {
         if (distEuclidean(footprintTile.x, footprintTile.y, target.x, target.y) < lowestDist || lowestDist == 0) {
             closeTile = footprintTile;
             lowestDist = distEuclidean(footprintTile.x, footprintTile.y, target.x, target.y);
@@ -737,16 +737,16 @@ void buildings::checkOnEnemyAndShoot()
 {
     if (lastShotFired + 2.f < currentGame.getTime()) {
         lastShotFired = currentGame.getTime();
-        std::list<mouseWorldCord> buidlingFootprint = this->getFootprintOfBuilding();
-        for (const mouseWorldCord& footprintTile : buidlingFootprint) {
-            std::list<mouseWorldCord> tempList = getListOfCordsInCircle(footprintTile.x, footprintTile.y, this->range);
-            for (const mouseWorldCord& cord : tempList)
+        std::list<cords> buidlingFootprint = this->getFootprintOfBuilding();
+        for (const cords& footprintTile : buidlingFootprint) {
+            std::list<cords> tempList = getListOfCordsInCircle(footprintTile.x, footprintTile.y, this->range);
+            for (const cords& cord : tempList)
             {
                 if (currentGame.occupiedByActorList[cord.x][cord.y] != -1)
                 {
                     if (listOfActors[currentGame.occupiedByActorList[cord.x][cord.y]].getTeam() != this->ownedByPlayer)
                     {
-                        mouseWorldCord sourceTile = findCloseTile(buidlingFootprint, cord);
+                        cords sourceTile = findCloseTile(buidlingFootprint, cord);
                         projectile newProjectile(sourceTile.x, sourceTile.y, cord.x, cord.y, 0, this->amountOfRangedDamage, 0, -this->buildingId);
                         listOfProjectiles.push_back(newProjectile);
                         return;

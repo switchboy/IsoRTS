@@ -664,11 +664,11 @@ void gameState::calculateRectangle()
     }
 
     //Start filling the list!
-    this->cordss.clear();
-    this->cordss.push_back({startLocation2[0],startLocation2[1]});
-    this->cordss.push_back({endLocation[0],endLocation[1]});
-    this->cordss.push_back({highYLocation[0],highYLocation[1]});
-    this->cordss.push_back({lowYLocation[0], lowYLocation[1]});
+    this->rectangleCords.clear();
+    this->rectangleCords.push_back({startLocation2[0],startLocation2[1]});
+    this->rectangleCords.push_back({endLocation[0],endLocation[1]});
+    this->rectangleCords.push_back({highYLocation[0],highYLocation[1]});
+    this->rectangleCords.push_back({lowYLocation[0], lowYLocation[1]});
 
     //calculate the inbetweens form startLocation to lowYLocation
     int i = startLocation2[0]+1;
@@ -678,7 +678,7 @@ void gameState::calculateRectangle()
         //add new coördanate {i, j} to a list
         if(i != lowYLocation[0] && j != lowYLocation[1])
         {
-            this->cordss.push_back({i, j});
+            this->rectangleCords.push_back({i, j});
         }
         i++;
         j--;
@@ -692,13 +692,13 @@ void gameState::calculateRectangle()
         //add new coördenates {i, j} to a list
         if(i != endLocation[0] && j != endLocation[1])
         {
-            this->cordss.push_back({i, j});
+            this->rectangleCords.push_back({i, j});
         }
         else
         {
-            if(this->cordss.back().y+1 != endLocation[1])
+            if(this->rectangleCords.back().y+1 != endLocation[1])
             {
-                this->cordss.push_back({this->cordss.back().x+1, this->cordss.back().y+1 });
+                this->rectangleCords.push_back({this->rectangleCords.back().x+1, this->rectangleCords.back().y+1 });
             }
         }
 
@@ -714,14 +714,14 @@ void gameState::calculateRectangle()
         //add new coördenates {i, j} to a list
         if(i != endLocation[0] && j != endLocation[1])
         {
-            this->cordss.push_back({i, j});
+            this->rectangleCords.push_back({i, j});
 
         }
         else
         {
-            if(this->cordss.back().y-1 != endLocation[1])
+            if(this->rectangleCords.back().y-1 != endLocation[1])
             {
-                this->cordss.push_back({this->cordss.back().x+1, this->cordss.back().y-1 });
+                this->rectangleCords.push_back({this->rectangleCords.back().x+1, this->rectangleCords.back().y-1 });
             }
         }
         i++;
@@ -736,41 +736,41 @@ void gameState::calculateRectangle()
         //add new coördanates {i, j}to a list
         if( i != highYLocation[0] && j != highYLocation[1])
         {
-            this->cordss.push_back({i, j});
+            this->rectangleCords.push_back({i, j});
         }
         i++;
         j++;
     }
 
     //sort the list on the Y coördanates
-    if(!this->cordss.empty())
+    if(!this->rectangleCords.empty())
     {
-        std::sort(this->cordss.begin(),this->cordss.end(), rectCord);
+        std::sort(this->rectangleCords.begin(),this->rectangleCords.end(), rectCord);
     }
 
     //add cells on the list between the two cells with the same Y coördanets repeat until list is empty
-    if(!this->cordss.empty())
+    if(!this->rectangleCords.empty())
     {
-        int stopAt = this->cordss.size();
+        int stopAt = this->rectangleCords.size();
         for(int i = 0; i < stopAt; i++)
         {
             if (i < stopAt - 1) 
             {
-                if (this->cordss[i].y == this->cordss[i + 1].y)
+                if (this->rectangleCords[i].y == this->rectangleCords[i + 1].y)
                 {
-                    if (this->cordss[i].x < this->cordss[i + 1].x)
+                    if (this->rectangleCords[i].x < this->rectangleCords[i + 1].x)
                     {
-                        for (int j = this->cordss[i].x + 1; j < this->cordss[i + 1].x; j++)
+                        for (int j = this->rectangleCords[i].x + 1; j < this->rectangleCords[i + 1].x; j++)
                         {
-                            this->cordss.push_back({ j, this->cordss[i].y });
+                            this->rectangleCords.push_back({ j, this->rectangleCords[i].y });
 
                         }
                     }
                     else
                     {
-                        for (int j = this->cordss[i + 1].x + 1; j < this->cordss[i].x; j++)
+                        for (int j = this->rectangleCords[i + 1].x + 1; j < this->rectangleCords[i].x; j++)
                         {
-                            this->cordss.push_back({ j, this->cordss[i].y });
+                            this->rectangleCords.push_back({ j, this->rectangleCords[i].y });
                         }
                     }
                 }
@@ -779,14 +779,14 @@ void gameState::calculateRectangle()
     }
 
     //Throw out any cells which are out of bounds
-    if(!this->cordss.empty())
+    if(!this->rectangleCords.empty())
     {
-        for(int i = 0; i< this->cordss.size();)
+        for(int i = 0; i< this->rectangleCords.size();)
         {
-            if(this->cordss[i].x < 0 || this->cordss[i].x >= MAP_WIDTH || this->cordss[i].y < 0 || this->cordss[i].y >= MAP_HEIGHT)
+            if(this->rectangleCords[i].x < 0 || this->rectangleCords[i].x >= MAP_WIDTH || this->rectangleCords[i].y < 0 || this->rectangleCords[i].y >= MAP_HEIGHT)
             {
                 //Deze cell is out of bounds gooi hem weg
-                this->cordss.erase(this->cordss.begin()+ i);
+                this->rectangleCords.erase(this->rectangleCords.begin()+ i);
             }
             else
             {
@@ -796,10 +796,10 @@ void gameState::calculateRectangle()
     }
 
     //Throw out duplicates
-    if(!this->cordss.empty())
+    if(!this->rectangleCords.empty())
     {
-       std::sort(this->cordss.begin(), this->cordss.end(), sortCordByX);
-       this->cordss.erase(std::unique(this->cordss.begin(), this->cordss.end(), compareCord), this->cordss.end());
+       std::sort(this->rectangleCords.begin(), this->rectangleCords.end(), sortCordByX);
+       this->rectangleCords.erase(std::unique(this->rectangleCords.begin(), this->rectangleCords.end(), compareCord), this->rectangleCords.end());
     }
 }
 
@@ -1008,13 +1008,13 @@ void gameState::getDefinitiveSelection()
     if (this->mousePressedLeft && !(mouseFakePosition.y > mainWindowHeigth * 0.8f))
     {
         this->selectedUnits.clear();
-        if (!this->cordss.empty())
+        if (!this->rectangleCords.empty())
         {
-            for (int i = 0; i < this->cordss.size(); i++)
+            for (int i = 0; i < this->rectangleCords.size(); i++)
             {
-                if (this->occupiedByActorList[this->cordss[i].x][this->cordss[i].y] != -1)
+                if (this->occupiedByActorList[this->rectangleCords[i].x][this->rectangleCords[i].y] != -1)
                 {
-                    selectedUnits.push_back({ this->occupiedByActorList[this->cordss[i].x][this->cordss[i].y] });
+                    selectedUnits.push_back({ this->occupiedByActorList[this->rectangleCords[i].x][this->rectangleCords[i].y] });
                 }
             }
             if (selectedUnits.size() > 1) {
@@ -1404,7 +1404,7 @@ void gameState::orderRallyPoint() {
 
 void gameState::mouseRightClick()
 {
-    this->cordss.clear();
+    this->rectangleCords.clear();
     this->mousePressedRight = true;
     if (mouseFakePosition.y > mainWindowHeigth * 0.8f)
     {
@@ -1435,12 +1435,12 @@ void gameState::mouseRightClick()
 
 void gameState::changeTiles()
 {
-    for (int i = 0; i < this->cordss.size(); i++)
+    for (int i = 0; i < this->rectangleCords.size(); i++)
     {
-        this->currentMap[this->cordss[i].x][this->cordss[i].y] += +1;
-        if (this->currentMap[this->cordss[i].x][this->cordss[i].y] > 11)
+        this->currentMap[this->rectangleCords[i].x][this->rectangleCords[i].y] += +1;
+        if (this->currentMap[this->rectangleCords[i].x][this->rectangleCords[i].y] > 11)
         {
-            this->currentMap[this->cordss[i].x][this->cordss[i].y] = 1;
+            this->currentMap[this->rectangleCords[i].x][this->rectangleCords[i].y] = 1;
         }
     }
     minimapTextureExist = false;
@@ -1512,7 +1512,7 @@ void gameState::interact()
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::A) && this->focus)
     {
         this->isPressedA = true;
-        this->cordss.clear();
+        this->rectangleCords.clear();
     }
     else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::A))
     {
@@ -1522,7 +1522,7 @@ void gameState::interact()
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::B) && this->focus)
     {
         this->isPressedB = true;
-        this->cordss.clear();
+        this->rectangleCords.clear();
     }
     else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::B))
     {
@@ -1547,7 +1547,7 @@ void gameState::interact()
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::O) && this->focus)
     {
         this->isPressedO = true;
-        this->cordss.clear();
+        this->rectangleCords.clear();
     }
     else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::B))
     {
@@ -1602,7 +1602,7 @@ void gameState::interact()
         this->mousePressedRight = false;
     }
 
-    if(!this->cordss.empty() && sf::Keyboard::isKeyPressed(sf::Keyboard::Equal) &&!this->equalIsPressed && this->focus)
+    if(!this->rectangleCords.empty() && sf::Keyboard::isKeyPressed(sf::Keyboard::Equal) &&!this->equalIsPressed && this->focus)
     {
         this->changeTiles();
     }
@@ -1623,12 +1623,12 @@ void gameState::drawMouseInteraction()
     if(this->mousePressedLeft && !this->mousePressOutofWorld)
     {
         drawMouseBox();
-        if(!cordss.empty())
+        if(!rectangleCords.empty())
         {
-            for(int i = 0; i < cordss.size(); i++)
+            for(int i = 0; i < rectangleCords.size(); i++)
             {
                 if (showPaths) {
-                    drawMousePosition(cordss[i].x, cordss[i].y, true);
+                    drawMousePosition(rectangleCords[i].x, rectangleCords[i].y, true);
                 }
             }
         }

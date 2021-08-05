@@ -188,7 +188,7 @@ private:
     float miniMapHeigth;
     int toolBarWidth;
     cords mouseWorldPosition;
-    std::vector<cords> cordss;
+    std::vector<cords> rectangleCords;
     sf::Vector2i mouseFakePosition;
     sf::Vector2f mousePosition;
     std::vector<int> selectedUnits;

@@ -269,10 +269,42 @@ void generateTerrain() {
 	delete []noiseSeed;
 }
 
-void generateRandomMap(int players, int amountOfFoodGroups, int amountOfStoneGroups, int amountOfGoldGroups, int tries) {
+void generateRandomMap(int players, int amountOfFoodGroups, int amountOfStoneGroups, int amountOfGoldGroups, int treeDensityLevel, int tries) {
 	bool mapGenerationSuccefull = true;
 	generateTerrain();
-	placeTrees(2,30);
+	switch (treeDensityLevel) {
+	case 0:
+		placeTrees(4, 200);
+		break;
+	case 1:
+		placeTrees(3, 200);
+		break;
+	case 2:
+		placeTrees(3, 150);
+		break;
+	case 3:
+		placeTrees(2, 150);
+		break;
+	case 4:
+		placeTrees(2, 100);
+		break;
+	case 5:
+		placeTrees(1, 100);
+		break;
+	case 6:
+		placeTrees(1, 75);
+		break;
+	case 7:
+		placeTrees(1, 50);
+		break;
+	case 8:
+		placeTrees(1, 25);
+		break;
+	case 9:
+		placeTrees(1, 10);
+		break;
+	}
+	
 	if (!spawmFoodStoneGold(6, amountOfFoodGroups)) { mapGenerationSuccefull = false; std::cout << "map generation failed on food sources!" << std::endl; }
 	for (int i = 0; i < players; i++) {
 		if (!spawmFirstVillager(8, i)) { mapGenerationSuccefull = false; std::cout << "map generation failed not enough food groups for players" << std::endl;}
@@ -282,6 +314,6 @@ void generateRandomMap(int players, int amountOfFoodGroups, int amountOfStoneGro
 	centerViewOnVillager();
 	if (!mapGenerationSuccefull && tries < 99) {
 		tries++;
-		generateRandomMap(players, amountOfFoodGroups, amountOfStoneGroups, amountOfGoldGroups, tries);
+		generateRandomMap(players, amountOfFoodGroups, amountOfStoneGroups, amountOfGoldGroups, treeDensityLevel, tries);
 	}
 }

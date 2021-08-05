@@ -1,15 +1,17 @@
 #ifndef HUMANREADABLENAMES_H
 #define HUMANREADABLENAMES_H
 
-enum resourceTypes
+enum class resourceTypes
 {
     resourceWood,
     resourceFood,
     resourceStone,
-    resourceGold
+    resourceGold,
+    All,
+    None
 };
 
-enum objectTypes
+enum class objectTypes
 {
     objectCactus,
     objectCypress,
@@ -20,7 +22,7 @@ enum objectTypes
     objectBerry
 };
 
-enum spriteTypes
+enum class spriteTypes
 {
     spriteTownCenter,
     spriteHouse,
@@ -33,7 +35,7 @@ enum spriteTypes
     spriteMiningCamp
 };
 
-enum actionTypes
+enum class actionTypes
 {
     actionBuildTownCenter,
     actionBuildHouse,
@@ -48,7 +50,7 @@ enum actionTypes
     actionBuildMiningCamp
 };
 
-enum stackOrderTypes
+enum class stackOrderTypes
 {
     stackActionMove,
     stackActionGather,

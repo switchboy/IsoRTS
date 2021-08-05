@@ -11,6 +11,16 @@
 class Cells
 {
 public:
+    Cells() {
+        positionX = 0;
+        positionY = 0; 
+        parentCellId = 0; 
+        cummulativeCost = 0; 
+        cellId = 0; 
+        backParent = 0;
+        costToGoal = 0;
+        totalCostGuess = 0;
+    }
     int positionX, positionY, parentCellId, cummulativeCost, cellId, backParent;
     double costToGoal, totalCostGuess;
     bool visited = false;
@@ -93,7 +103,7 @@ public:
     cords getGoal();
     int getBuildingId();
     void chaseTarget();
-    int getResourceGathered();
+    resourceTypes getResourceGathered();
     void setIsBuildingTrue(int buildingId, int& goalX, int& goalY);
     std::pair<int, int> getHealth();
     void walkBackToOwnSquare();
@@ -168,7 +178,7 @@ private:
     int actorRealGoal[2];
     int actorCommandGoal[2];
     int actionPreformedOnTile[2];
-    int ResourceBeingGatherd;
+    resourceTypes ResourceBeingGatherd;
     int amountOfGold;
     int amountOfWood;
     int amountOfStone;

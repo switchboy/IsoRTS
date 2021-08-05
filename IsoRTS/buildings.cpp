@@ -153,8 +153,9 @@ buildings::buildings(int type, int startXlocation, int startYLocation, int build
     this->buildingCompleted = false;
     this->exists = true;
     this->lastShotFired = 0.0f;
-    this->rallyPoint = { {0,0}, stackActionMove, false }; //set dummy values for the rally point
+    this->rallyPoint = { {0,0}, stackOrderTypes::stackActionMove, false }; //set dummy values for the rally point
     this->lastFrameUpdate = currentGame.getTime();
+    this->hasDisplayedError = false;
     currentGame.buildingLocationList[startXlocation][startYLocation] = buildingId;
     for(int i = 0; i < footprintOfBuildings[type].amountOfXFootprint; i++)
     {
@@ -314,31 +315,31 @@ int buildings::getBuildingId()
     return this->buildingId;
 }
 
-int buildings::getRecievesWhichResources()
+resourceTypes buildings::getRecievesWhichResources()
 {
     if(recievesFood && recievesGold && recievesStone && recievesWood)
     {
-        return 4;
+        return resourceTypes::All;
     }
     else if(recievesGold)
     {
-        return 3;
+        return resourceTypes::resourceGold;
     }
     else if(recievesStone)
     {
-        return 2;
+        return resourceTypes::resourceStone;
     }
     else if(recievesFood)
     {
-        return 1;
+        return resourceTypes::resourceFood;
     }
     else if(recievesWood)
     {
-        return 0;
+        return resourceTypes::resourceWood;
     }
     else
     {
-        return 5;
+        return resourceTypes::None;
     }
 }
 
@@ -448,7 +449,7 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
 
     if (currentGame.showPaths) {
         //draw adjecent tiles
-        for (adjacentTile tile : adjacentTiles) {
+        for (adjacentTile const &tile : adjacentTiles) {
             if (tile.occupied) {
                 currentGame.spriteTileObstructed.setPosition(static_cast<float>(worldSpace(tile.tileX, tile.tileY, true)), static_cast<float>(worldSpace(tile.tileX, tile.tileY, false)));
                 window.draw(currentGame.spriteTileObstructed);

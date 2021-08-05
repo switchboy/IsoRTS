@@ -9,13 +9,20 @@ class objects
 {
 
 public:
-    objects(){}
+    objects(){
+        objectId =0;
+        objectType = objectTypes::objectBerry;
+        locationX = 0;
+        locationY = 0;
+        typeOfResource = resourceTypes::resourceFood;
+        resourceLeft = 0;
+    }
     objects(objectTypes type, int startXlocation, int startYLocation, int buildingId);
     std::string     getName() const;
     objectTypes     getType() const;
     void            drawObjectFootprint(objectTypes type, int mouseWorldX, int mouseWorldY) const;
     void            drawObject(int i, int j) const;
-    void            drawObjectSprite(int spriteNumber, int i, int j) const;
+    void            drawObjectSprite(objectTypes spriteNumber, int i, int j) const;
     resourceTypes   getTypeOfResource() const;
     void            substractResource();
     cords  getLocation() const;

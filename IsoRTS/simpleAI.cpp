@@ -77,7 +77,7 @@ void simpleAI::produceCommandBuilding(int buildingId, bool isResearch, int idOfU
 }
 
 
-int distanceToResource(int kind, cords from) {
+int distanceToResource(resourceTypes kind, cords from) {
 	std::list <nearestBuildingTile> listOfResourceLocations;
 	if (!listOfObjects.empty()) {
 		//more efficient search method; searching in a range 3600 squares have to be evaluated. Searching in the object list ~3100 items should be evaluated within one loop
@@ -105,7 +105,7 @@ int distanceToResource(int kind, cords from) {
 
 
 
-cords findResource(int kind, int unitId ) {
+cords findResource(resourceTypes kind, int unitId ) {
 	std::list <nearestBuildingTile> listOfResourceLocations;
 	cords actorCords = listOfActors[unitId].getActorCords();
 	cords targetCords{ -1, -1 };
@@ -154,7 +154,7 @@ void simpleAI::buildBuildingNearUnlessBuilding(int buildingId, int idleVillagerI
 	int idOfUnfinishedHousing = isBuildingThereButIncomplete(buildingId);
 	if (idOfUnfinishedHousing == -1) {
 		if (priceOfBuilding[buildingId].food <= listOfPlayers[this->playerId].getStats().amountOfFood && priceOfBuilding[buildingId].wood <= listOfPlayers[this->playerId].getStats().amountOfWood && priceOfBuilding[buildingId].stone <= listOfPlayers[this->playerId].getStats().amountOfStone && priceOfBuilding[buildingId].gold <= listOfPlayers[this->playerId].getStats().amountOfGold) {
-			cords buildingSlot;
+			cords buildingSlot = {0,0};
 			switch (nearResource) {
 			case -1:
 				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getLocation(), false, false, false, false);
@@ -195,27 +195,32 @@ void simpleAI::distributeIdleVillagers() {
 	int gatheringNow;
 	int villagersAssigned = 0;
 	for (int resourceId = 0; resourceId < 4; resourceId++) {
+		resourceTypes resourceType;
 		switch (resourceId) {
 		case 0:
+			resourceType = resourceTypes::resourceWood;
 			gatheringNow = listOfPlayers[this->playerId].getTotalGatheringWood();
 			villagersThatShouldBeGathering = static_cast<int>(ceil(listOfPlayers[this->playerId].getVillagers() * 0.3f));
 			break;
 		case 1:
+			resourceType = resourceTypes::resourceFood;
 			gatheringNow = listOfPlayers[this->playerId].getTotalGatheringFood();
 			villagersThatShouldBeGathering = static_cast<int>(ceil(listOfPlayers[this->playerId].getVillagers() * 0.4f));
 			break;
 		case 2:
+			resourceType = resourceTypes::resourceStone;
 			gatheringNow = listOfPlayers[this->playerId].getTotalGatheringStone();
 			villagersThatShouldBeGathering = static_cast<int>(ceil(listOfPlayers[this->playerId].getVillagers() * 0.1f));
 			break;
 		case 3:
+			resourceType = resourceTypes::resourceGold;
 			gatheringNow = listOfPlayers[this->playerId].getTotalGatheringGold();
 			villagersThatShouldBeGathering = static_cast<int>(ceil(listOfPlayers[this->playerId].getVillagers() * 0.2f));
 			break;
 		}
 		while (gatheringNow < villagersThatShouldBeGathering && villagersAssigned < listOfPlayers[this->playerId].getIdleVillagers()) {
 			//Get nearest food source
-			cords targetCords = findResource(resourceId, listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned));
+			cords targetCords = findResource(resourceType, listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned));
 			//Order unit
 			if (targetCords.x != -1) {
 				gatherCommandUnit(listOfPlayers[this->playerId].getIdleVillagerId(villagersAssigned), targetCords);
@@ -414,19 +419,19 @@ cords simpleAI::getOptimalFreeBuildingSlot(int buildingId, cords closeToVillager
 				//Score for proximity to resource
 				if (closeToWood) {
 					//search for the closest source of a resource
-					tempScore += 15 - distanceToResource(0, listOfPossibilities[thisOne].startCordsOfTile) * bonusFactorProximityToResource;
+					tempScore += 15 - distanceToResource(resourceTypes::resourceWood, listOfPossibilities[thisOne].startCordsOfTile) * bonusFactorProximityToResource;
 				}
 				if (closeToFood) {
 					//search for the closest source of a resource
-					tempScore += 15 - distanceToResource(1, listOfPossibilities[thisOne].startCordsOfTile) * bonusFactorProximityToResource;
+					tempScore += 15 - distanceToResource(resourceTypes::resourceFood, listOfPossibilities[thisOne].startCordsOfTile) * bonusFactorProximityToResource;
 				}
 				if (closeToStone) {
 					//search for the closest source of a resource
-					tempScore += 15 - distanceToResource(2, listOfPossibilities[thisOne].startCordsOfTile) * bonusFactorProximityToResource;
+					tempScore += 15 - distanceToResource(resourceTypes::resourceStone, listOfPossibilities[thisOne].startCordsOfTile) * bonusFactorProximityToResource;
 				}
 				if (closeToGold) {
 					//search for the closest source of a resource
-					tempScore += 15 - distanceToResource(3, listOfPossibilities[thisOne].startCordsOfTile) * bonusFactorProximityToResource;
+					tempScore += 15 - distanceToResource(resourceTypes::resourceGold, listOfPossibilities[thisOne].startCordsOfTile) * bonusFactorProximityToResource;
 				}
 
 				//try not to block resources or paths so substract points for any object or building directly adjacent to buildsite

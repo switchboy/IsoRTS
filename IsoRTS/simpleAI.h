@@ -34,6 +34,6 @@ private:
 
 extern std::vector<simpleAI> listOfAI;
 
-extern cords findResource(int kind, int unitId);
+extern cords findResource(resourceTypes kind, int unitId);
 
 #endif

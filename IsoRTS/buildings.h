@@ -33,12 +33,41 @@ class buildings
 {
 
 public:
-    buildings() { this->exists = false; }
+    buildings() { 
+        this->exists = false; 
+        this->buildingType = 0;
+        this->startXlocation = 0;
+        this->startYLocation = 0;
+        this->endXlocation = 0;
+        this->endYLocation = 0;
+        this->buildingId = 0;
+        this->ownedByPlayer = 0;
+        this->buildingCompleted = false;
+        this->exists = true;
+        this->lastShotFired = 0.0f;
+        this->rallyPoint = { {0,0}, stackOrderTypes::stackActionMove, false }; //set dummy values for the rally point
+        this->lastFrameUpdate = 0.0f;
+        hitPointsTotal = 0;
+        hitPointsLeft = 0;
+        canDoRangedDamage = false;
+        amountOfRangedDamage = 0;
+        range = 0;
+        recievesWood = false;
+        recievesStone = false;
+        recievesGold = false;
+        recievesFood = false;
+        this->hasDisplayedError = false;
+        buildingPointsNeeded = 0;
+        buildingPointsRecieved = 0;
+        supportsPopulationOf = 0;
+        this->offSetYStore = 0;
+        this->amountOfAnimationSprites = 0;
+    }
     buildings(int type, int startXlocation, int startYLocation, int buildingId, int team);
     void                        update();
     void                        drawBuildingFootprint(int type, int mouseWorldX, int mouseWorldY);
     void                        drawBuilding(int i, int j, int type, bool typeOverride);
-    int                         getRecievesWhichResources();
+    resourceTypes               getRecievesWhichResources();
     int                         getType();
     int                         getLocationX();
     int                         getLocationY();
@@ -75,8 +104,7 @@ private:
     int                         hitPointsTotal;
     int                         hitPointsLeft;
     int                         amountOfAnimationSprites;
-    int                         spriteHeight;
-    int                         spriteWidth;
+
     int                         offSetYStore;
     bool                        buildingCompleted;
     bool                        canDoRangedDamage;

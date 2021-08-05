@@ -11,41 +11,41 @@ objects::objects(objectTypes type, int startXlocation, int startYLocation, int o
     this->objectId = objectId;
     switch(type)
     {
-    case objectCactus:
-        this->typeOfResource = resourceWood; 
+    case objectTypes::objectCactus:
+        this->typeOfResource = resourceTypes::resourceWood; 
         break;
-    case objectCypress:
-        this->typeOfResource = resourceWood;
+    case objectTypes::objectCypress:
+        this->typeOfResource = resourceTypes::resourceWood;
         break;
-    case objectMaple:
-        this->typeOfResource = resourceWood;
+    case objectTypes::objectMaple:
+        this->typeOfResource = resourceTypes::resourceWood;
         break;
-    case objectPine:
-        this->typeOfResource = resourceWood;
+    case objectTypes::objectPine:
+        this->typeOfResource = resourceTypes::resourceWood;
         break;
-    case objectStone:
-        this->typeOfResource = resourceStone;
+    case objectTypes::objectStone:
+        this->typeOfResource = resourceTypes::resourceStone;
         break;
-    case objectGold:
-        this->typeOfResource = resourceGold;
+    case objectTypes::objectGold:
+        this->typeOfResource = resourceTypes::resourceGold;
         break;
-    case objectBerry:
-        this->typeOfResource = resourceFood; 
+    case objectTypes::objectBerry:
+        this->typeOfResource = resourceTypes::resourceFood;
         break;
     }
 
     switch(this->typeOfResource)
     {
-    case resourceWood:
+    case resourceTypes::resourceWood:
         this->resourceLeft = 200;
         break;
-    case resourceFood:
+    case resourceTypes::resourceFood:
         this->resourceLeft = 500;
         break;
-    case resourceStone:
+    case resourceTypes::resourceStone:
         this->resourceLeft = 2000;
         break;
-    case resourceGold:
+    case resourceTypes::resourceGold:
         this->resourceLeft = 1500;
         break;
     }
@@ -76,36 +76,36 @@ resourceTypes objects::getTypeOfResource() const
     return this->typeOfResource;
 }
 
-void objects::drawObjectSprite(int spriteNumber, int i, int j) const
+void objects::drawObjectSprite(objectTypes spriteNumber, int i, int j) const
 {
     switch(spriteNumber)
     {
-    case objectCactus:
+    case objectTypes::objectCactus:
         currentGame.spriteCactusTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spriteCactusTile);
         break;
-    case objectCypress:
+    case objectTypes::objectCypress:
         currentGame.spriteCypressTrileTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spriteCypressTrileTile);
         break;
-    case objectMaple:
+    case objectTypes::objectMaple:
         currentGame.spriteNormalTreeTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spriteNormalTreeTile);
         break;
-    case objectPine:
+    case objectTypes::objectPine:
         currentGame.spritePineTreeTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spritePineTreeTile);
         break;
 
-    case objectStone:
+    case objectTypes::objectStone:
         currentGame.spriteStone.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spriteStone);
         break;
-    case objectGold:
+    case objectTypes::objectGold:
         currentGame.spriteGold.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spriteGold);
         break;
-    case objectBerry:
+    case objectTypes::objectBerry:
         currentGame.spriteBerryBush.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spriteBerryBush);
         break;
@@ -116,25 +116,25 @@ std::string objects::getName() const
 {
     switch(this->objectType)
     {
-    case objectCactus:
+    case objectTypes::objectCactus:
         return "Cactus";
         break;
-    case objectCypress:
+    case objectTypes::objectCypress:
         return "Cypress";
         break;
-    case objectMaple:
+    case objectTypes::objectMaple:
         return "Maple";
         break;
-    case objectPine:
+    case objectTypes::objectPine:
         return "Pine";
         break;
-    case objectStone:
+    case objectTypes::objectStone:
         return "Stone";
         break;
-    case objectGold:
+    case objectTypes::objectGold:
         return "Gold";
         break;
-    case objectBerry:
+    case objectTypes::objectBerry:
         return "Berry bush";
         break;
     default:
@@ -156,16 +156,16 @@ std::string objects::nameOfResource() const
 {
     switch(this->typeOfResource)
     {
-    case resourceWood:
+    case resourceTypes::resourceWood:
         return "Wood";
         break;
-    case resourceFood:
+    case resourceTypes::resourceFood:
         return "Food";
         break;
-    case resourceStone:
+    case resourceTypes::resourceStone:
         return "Stone";
         break;
-    case resourceGold:
+    case resourceTypes::resourceGold:
         return "Gold";
         break;
     default:

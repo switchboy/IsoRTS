@@ -153,7 +153,25 @@ actors::actors(int type, int actorX, int actorY, int actorTeam, int actorId)
     this->actorCords[1] = actorY;
     this->timeLastRetry = 0;
     this->isIdle = true;
-    hasStartedSearchingForAlternatives = false;
+    this->actorCommandGoal[0] = 0;
+    this->actorCommandGoal[1] = 0;
+    this->actorRealGoal[0] = 0;
+    this->actorRealGoal[1] = 0;
+    this->buildingId = 0;
+    this->commonGoal = false;
+    this->currentFrame = 0;
+    this->idOfTarget = 0;
+    this->isFindingAlternative = false;
+    this->isRangedAttacking = false;
+    this->movedMoreThanHalf = false;
+    this->noPathPossible = false;
+    this->realPath = false;
+    this->timeLastPathTry = currentGame.getTime();
+    this->timeLastUpdate = currentGame.getTime();
+    this->timeStartedGatheringRecource = 0.0f;
+    this->waitForAmountOfFrames = 0;
+    this->reachedUnloadingPoint = false;
+    this->hasStartedSearchingForAlternatives = false;
     switch(type)
     {
     case 0://villager
@@ -179,6 +197,18 @@ actors::actors(int type, int actorX, int actorY, int actorTeam, int actorId)
         this->projectileType = 0;
         this->doesRangedDamage = false;
         this->rateOfFire = 3;
+        break;
+    default:
+        this->actorHealth = 0;
+        this->hitPoints = 0;
+        this->meleeDamage = 0;
+        this->range = 0;
+        this->rangedDamage = 0;
+        this->timeBetweenShots = 0.0f;
+        this->splashDamage = 0;
+        this->projectileType = 0;
+        this->doesRangedDamage = false;
+        this->rateOfFire = 0;
         break;
     }
     this->timeLastRetry = 0.0f;
@@ -208,7 +238,7 @@ actors::actors(int type, int actorX, int actorY, int actorTeam, int actorId)
     this->offSetY = 0.0f;
     this->hasMoved= false;
     this->initialized = true;
-    this->ResourceBeingGatherd = false;
+    this->ResourceBeingGatherd = resourceTypes::resourceFood;
     this->actorAlive = true;
     this->carriesRecources = false;
     this->dropOffTile = {0,0,0,0,false };
@@ -865,7 +895,7 @@ void actors::walkBackToOwnSquare()
     int eastWest;
     int diagonalX;
     int diagonalY;
-    if(this->ResourceBeingGatherd == 0)
+    if(this->ResourceBeingGatherd == resourceTypes::resourceWood)
     {
         northSouth = 22;
         eastWest = 55;
@@ -947,7 +977,7 @@ void actors::startGatheringAnimation()
     int eastWest;
     int diagonalX;
     int diagonalY;
-    if(this->ResourceBeingGatherd == 0)
+    if(this->ResourceBeingGatherd == resourceTypes::resourceWood)
     {
         northSouth = 22;
         eastWest = 55;
@@ -1008,7 +1038,7 @@ void actors::animateWalkingToResource()
     int eastWest;
     int diagonalX;
     int diagonalY;
-    if(this->ResourceBeingGatherd == 0)
+    if(this->ResourceBeingGatherd == resourceTypes::resourceWood)
     {
         northSouth = 22;
         eastWest = 55;
@@ -1087,16 +1117,16 @@ void actors::gatherResource()
             {
                 switch (this->ResourceBeingGatherd)
                 {
-                case 0:  //wood
+                case resourceTypes::resourceWood:  //wood
                     this->amountOfWood += +1;
                     break;
-                case 1: //food
+                case resourceTypes::resourceFood: //food
                     this->amountOfFood += +1;
                     break;
-                case 2: //stone
+                case resourceTypes::resourceStone: //stone
                     this->amountOfStone += +1;
                     break;
-                case 3: // gold
+                case resourceTypes::resourceGold: // gold
                     this->amountOfGold += +1;
                     break;
                 }
@@ -1131,35 +1161,35 @@ void actors::unloadAndReturnToGathering()
 {
     switch(listOfBuildings[this->dropOffTile.buildingId].getRecievesWhichResources())
     {
-    case 0:
+    case resourceTypes::resourceWood:
         //recieves only wood
-        listOfPlayers[this->actorTeam].addResources(resourceWood, this->amountOfWood);
+        listOfPlayers[this->actorTeam].addResources(resourceTypes::resourceWood, this->amountOfWood);
         this->amountOfWood = 0;
         break;
-    case 1:
+    case resourceTypes::resourceFood:
         //recieves only food
-        listOfPlayers[this->actorTeam].addResources(resourceFood, this->amountOfFood);
+        listOfPlayers[this->actorTeam].addResources(resourceTypes::resourceFood, this->amountOfFood);
         this->amountOfFood = 0;
         break;
-    case 2:
+    case resourceTypes::resourceStone:
         //recieves only stone
-        listOfPlayers[this->actorTeam].addResources(resourceStone, this->amountOfStone);
+        listOfPlayers[this->actorTeam].addResources(resourceTypes::resourceStone, this->amountOfStone);
         this->amountOfStone = 0;
         break;
-    case 3:
+    case resourceTypes::resourceGold:
         //recieves only gold
-        listOfPlayers[this->actorTeam].addResources(resourceGold, this->amountOfGold);
+        listOfPlayers[this->actorTeam].addResources(resourceTypes::resourceGold, this->amountOfGold);
         this->amountOfGold = 0;
         break;
-    case 4:
+    case resourceTypes::All:
         //recieves all the resources!
-        listOfPlayers[this->actorTeam].addResources(resourceWood, this->amountOfWood);
+        listOfPlayers[this->actorTeam].addResources(resourceTypes::resourceWood, this->amountOfWood);
         this->amountOfWood = 0;
-        listOfPlayers[this->actorTeam].addResources(resourceFood, this->amountOfFood);
+        listOfPlayers[this->actorTeam].addResources(resourceTypes::resourceFood, this->amountOfFood);
         this->amountOfFood = 0;
-        listOfPlayers[this->actorTeam].addResources(resourceStone, this->amountOfStone);
+        listOfPlayers[this->actorTeam].addResources(resourceTypes::resourceStone, this->amountOfStone);
         this->amountOfStone = 0;
-        listOfPlayers[this->actorTeam].addResources(resourceGold, this->amountOfGold);
+        listOfPlayers[this->actorTeam].addResources(resourceTypes::resourceGold, this->amountOfGold);
         this->amountOfGold = 0;
         break;
     }
@@ -1253,7 +1283,7 @@ cords actors::getLocation(){
     return {this->actorCords[0], this->actorCords[1]};
 }
 
-int adjacentTileIsCorrectDropOffPoint(int& x, int& y, int& resourceGatherd, int& team) {
+int adjacentTileIsCorrectDropOffPoint(int& x, int& y, resourceTypes& resourceGatherd, int& team) {
     for (int xOffset = x - 1; xOffset < x + 2; xOffset++) 
     {
         for (int yOffset = y - 1; yOffset < y + 2; yOffset++) 
@@ -1261,7 +1291,7 @@ int adjacentTileIsCorrectDropOffPoint(int& x, int& y, int& resourceGatherd, int&
             if (currentGame.occupiedByBuildingList[xOffset][yOffset] != -1) 
             {
                 int i = currentGame.occupiedByBuildingList[xOffset][yOffset];
-                if ((listOfBuildings[i].getRecievesWhichResources() == resourceGatherd || listOfBuildings[i].getRecievesWhichResources() == 4) && listOfBuildings[i].getTeam() == team && listOfBuildings[i].getCompleted()) 
+                if ((listOfBuildings[i].getRecievesWhichResources() == resourceGatherd || listOfBuildings[i].getRecievesWhichResources() == resourceTypes::All) && listOfBuildings[i].getTeam() == team && listOfBuildings[i].getCompleted()) 
                 {
                     return i;
                 }
@@ -1291,7 +1321,7 @@ void actors::findNearestDropOffPoint()
             {
                 for (int i = 0; i < listOfBuildings.size(); i++)
                 {
-                    if ((listOfBuildings[i].getRecievesWhichResources() == this->ResourceBeingGatherd || listOfBuildings[i].getRecievesWhichResources() == 4) && listOfBuildings[i].getTeam() == this->actorTeam && listOfBuildings[i].getCompleted())
+                    if ((listOfBuildings[i].getRecievesWhichResources() == this->ResourceBeingGatherd || listOfBuildings[i].getRecievesWhichResources() == resourceTypes::All) && listOfBuildings[i].getTeam() == this->actorTeam && listOfBuildings[i].getCompleted())
                     {
                         std::vector<adjacentTile> tileList = listOfBuildings[i].getDropOffTiles();
                         for (int j = 1; j < tileList.size(); j++)
@@ -1579,14 +1609,14 @@ void actors::doNextStackedCommand()
 {
     if (!this->listOfOrders.empty()) {
         switch (this->listOfOrders.front().orderType) {
-        case stackActionMove:
+        case stackOrderTypes::stackActionMove:
             this->updateGoal(this->listOfOrders.front().goal.x, this->listOfOrders.front().goal.y, 0);
             break;
-        case stackActionGather:
+        case stackOrderTypes::stackActionGather:
             this->updateGoal(this->listOfOrders.front().goal.x, this->listOfOrders.front().goal.y, 0);
             this->setGatheringRecource(true);
             break;
-        case stackActionBuild:
+        case stackOrderTypes::stackActionBuild:
             if (currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y] != -1) {
                 if (!listOfBuildings[currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y]].getCompleted()
                     && listOfBuildings[currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y]].getTeam() == this->actorTeam) {
@@ -1597,7 +1627,7 @@ void actors::doNextStackedCommand()
                 }
             }
             break;
-        case stackActionAttack:
+        case stackOrderTypes::stackActionAttack:
             this->updateGoal(this->listOfOrders.front().goal.x, this->listOfOrders.front().goal.y, 0);
             this->setIsDoingAttack();
             break;
@@ -1606,7 +1636,7 @@ void actors::doNextStackedCommand()
     }
 }
 
-void actors::stackOrder(cords goal, stackOrderTypes orderType)
+void actors::stackOrder(cords goal, const stackOrderTypes orderType)
 {
     this->listOfOrders.push_back({ goal, orderType });
 }
@@ -1759,15 +1789,15 @@ void actors:: drawActor()
     int spriteOffset = 0;
     if(this->isAtRecource)
     {
-        if(this->ResourceBeingGatherd == 0)
+        if(this->ResourceBeingGatherd == resourceTypes::resourceWood)
         {
             spriteOffset = 128;
         }
-        else if(this->ResourceBeingGatherd == 2 || this->ResourceBeingGatherd == 3)
+        else if(this->ResourceBeingGatherd == resourceTypes::resourceFood || this->ResourceBeingGatherd == resourceTypes::resourceStone)
         {
             spriteOffset = 256;
         }
-        else if(this->ResourceBeingGatherd == 1)
+        else if(this->ResourceBeingGatherd == resourceTypes::resourceGold)
         {
             spriteOffset = 384;
         }
@@ -1904,7 +1934,7 @@ int actors::getBuildingId()
     return this->buildingId;
 }
 
-int actors::getResourceGathered()
+resourceTypes actors::getResourceGathered()
 {
     return this->ResourceBeingGatherd;
 }
@@ -1914,7 +1944,7 @@ void actors::setIsBuildingTrue(int buildingId, int& goalX, int& goalY)
     this->isBuilding = true;
     this->buildingId = buildingId;
     this->isGatheringRecources = false;
-    this->ResourceBeingGatherd = 1;
+    this->ResourceBeingGatherd = resourceTypes::resourceFood;
     this->actionPreformedOnTile[0] = goalX;
     this->actionPreformedOnTile[1] = goalY;
 }

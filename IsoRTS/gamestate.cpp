@@ -1050,7 +1050,7 @@ bool gameState::clickToMove(int posX, int posY, bool minimap)
         {
             if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
             {
-                cords tempCords;
+                cords tempCords = { 0,0 };
                 if (minimap) {
                     if ((posX <= MAP_WIDTH && posY <= MAP_HEIGHT)) {
                         tempCords = currentGame.getNextCord(posX, posY);
@@ -1060,7 +1060,7 @@ bool gameState::clickToMove(int posX, int posY, bool minimap)
                     tempCords = currentGame.getNextCord(this->mouseWorldPosition.x, this->mouseWorldPosition.y);
                 }
                 if (this->isPressedShift) {
-                    listOfActors[this->selectedUnits[i]].stackOrder({ tempCords.x, tempCords.y }, stackActionMove);
+                    listOfActors[this->selectedUnits[i]].stackOrder({ tempCords.x, tempCords.y }, stackOrderTypes::stackActionMove);
                 }
                 else {
                     listOfActors[this->selectedUnits[i]].clearCommandStack();
@@ -1077,7 +1077,7 @@ bool gameState::clickToMove(int posX, int posY, bool minimap)
                 if (minimap) {
                     if ((posX <= MAP_WIDTH && posY <= MAP_HEIGHT)) {
                         if (this->isPressedShift) {
-                            listOfActors[this->selectedUnits[i]].stackOrder({ posX, posY }, stackActionMove);
+                            listOfActors[this->selectedUnits[i]].stackOrder({ posX, posY }, stackOrderTypes::stackActionMove);
                         }
                         else {
                             listOfActors[this->selectedUnits[i]].clearCommandStack();
@@ -1087,7 +1087,7 @@ bool gameState::clickToMove(int posX, int posY, bool minimap)
                 }
                 else {
                     if (this->isPressedShift) {
-                        listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionMove);
+                        listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionMove);
                     }
                     else {
                         listOfActors[this->selectedUnits[i]].clearCommandStack();
@@ -1115,7 +1115,7 @@ bool gameState::clickToGatherResource()
             if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
             {
                 if (this->isPressedShift) {
-                    listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionGather);
+                    listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionGather);
                 }
                 else {
                     listOfActors[this->selectedUnits[i]].clearCommandStack();
@@ -1130,7 +1130,7 @@ bool gameState::clickToGatherResource()
             if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
             {
                 if (this->isPressedShift) {
-                    listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionGather);
+                    listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionGather);
                 }
                 else {
                     listOfActors[this->selectedUnits[i]].clearCommandStack();
@@ -1209,7 +1209,7 @@ bool gameState::clickToBuildOrRepairBuilding()
                     if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
                     {
                         if (this->isPressedShift) {
-                            listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionBuild);
+                            listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionBuild);
                         }
                         else {
                             listOfActors[this->selectedUnits[i]].clearCommandStack();
@@ -1225,7 +1225,7 @@ bool gameState::clickToBuildOrRepairBuilding()
                     if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
                     {
                         if (this->isPressedShift) {
-                            listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionBuild);
+                            listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionBuild);
                         }
                         else {
                             listOfActors[this->selectedUnits[i]].clearCommandStack();
@@ -1281,7 +1281,7 @@ bool gameState::clickToAttack() {
             if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
             {
                 if (this->isPressedShift) {
-                    listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionAttack);
+                    listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionAttack);
                 }
                 else {
                     listOfActors[this->selectedUnits[i]].clearCommandStack();
@@ -1297,7 +1297,7 @@ bool gameState::clickToAttack() {
             if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
             {
                 if (this->isPressedShift) {
-                    listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionAttack);
+                    listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionAttack);
                 }
                 else {
                     listOfActors[this->selectedUnits[i]].clearCommandStack();
@@ -1374,28 +1374,28 @@ void gameState::clickToGiveMinimapCommand()
 void gameState::orderRallyPoint() {
     if (this->isPassable(this->mouseWorldPosition.x, this->mouseWorldPosition.y))
     {
-        listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionMove);
+        listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionMove);
     }
     else if (this->objectLocationList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1)
     {
-        listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionGather);
+        listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionGather);
     }
     else if (this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1)
     {
         if (listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getTeam() == currentPlayer.getTeam())
         {
-            listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionBuild);
+            listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionBuild);
         }
         else
         {
-            listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionAttack);
+            listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionAttack);
         }
 
     }
     else if (this->occupiedByActorList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1) {
         if (listOfActors[this->occupiedByActorList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getTeam() != currentPlayer.getTeam())
         {
-            listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackActionAttack);
+            listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionAttack);
         }
     }
     orderCursor newOrderCursor(this->mousePosition);
@@ -1953,22 +1953,22 @@ void drawMiniMapObjects(sf::RectangleShape& miniMapPixel)
             {
                 switch(listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource())
                 {
-                case 0:
+                case resourceTypes::resourceWood:
                     miniMapPixel.setFillColor(sf::Color(33, 77, 33));
                     miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapObjectsTexture.draw(miniMapPixel);
                     break;
-                case 1:
+                case resourceTypes::resourceFood:
                     miniMapPixel.setFillColor(sf::Color(150, 88, 88));
                     miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapObjectsTexture.draw(miniMapPixel);
                     break;
-                case 2:
+                case resourceTypes::resourceStone:
                     miniMapPixel.setFillColor(sf::Color(65, 65, 65));
                     miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapObjectsTexture.draw(miniMapPixel);
                     break;
-                case 3:
+                case resourceTypes::resourceGold:
                     miniMapPixel.setFillColor(sf::Color(110, 90, 0 ));
                     miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapObjectsTexture.draw(miniMapPixel);
@@ -2028,24 +2028,24 @@ void createVillagerButtons(int& startX, int& startY, int& incrementalXOffset,  b
 {
     if (!villagerButtonsAreThere) {
         int startXOr = startX;
-        button newButton = { startX, startY, spriteTownCenter, actionBuildTownCenter, 0, static_cast<int>(listOfButtons.size()),0 };
+        button newButton = { startX, startY, spriteTypes::spriteTownCenter, actionTypes::actionBuildTownCenter, 0, static_cast<int>(listOfButtons.size()),0 };
         listOfButtons.push_back(newButton);
         startX += incrementalXOffset;
-        button newButton1 = { startX, startY, spriteHouse, actionBuildHouse, 0, static_cast<int>(listOfButtons.size()),0 };
+        button newButton1 = { startX, startY, spriteTypes::spriteHouse, actionTypes::actionBuildHouse, 0, static_cast<int>(listOfButtons.size()),0 };
         listOfButtons.push_back(newButton1);
         startX += incrementalXOffset;
-        button newButton2 = { startX, startY, spriteMill, actionBuildMill, 0, static_cast<int>(listOfButtons.size()),0 };
+        button newButton2 = { startX, startY, spriteTypes::spriteMill, actionTypes::actionBuildMill, 0, static_cast<int>(listOfButtons.size()),0 };
         listOfButtons.push_back(newButton2);
         startX += incrementalXOffset;
-        button newButton3 = { startX, startY, spriteLumberCamp, actionBuildLumberCamp, 0, static_cast<int>(listOfButtons.size()),0 };
+        button newButton3 = { startX, startY, spriteTypes::spriteLumberCamp, actionTypes::actionBuildLumberCamp, 0, static_cast<int>(listOfButtons.size()),0 };
         listOfButtons.push_back(newButton3);
         startX += incrementalXOffset;
-        button newButton4 = { startX, startY, spriteBarracks, actionBuildBarracks, 0, static_cast<int>(listOfButtons.size()),0 };
+        button newButton4 = { startX, startY, spriteTypes::spriteBarracks, actionTypes::actionBuildBarracks, 0, static_cast<int>(listOfButtons.size()),0 };
         listOfButtons.push_back(newButton4);
         villagerButtonsAreThere = true;
         startX = startXOr;
         startY += incrementalXOffset;
-        button newButton5 = { startX, startY, spriteMiningCamp, actionBuildMiningCamp, 0, static_cast<int>(listOfButtons.size()),0 };
+        button newButton5 = { startX, startY, spriteTypes::spriteMiningCamp, actionTypes::actionBuildMiningCamp, 0, static_cast<int>(listOfButtons.size()),0 };
         listOfButtons.push_back(newButton5);
         villagerButtonsAreThere = true;
     }
@@ -2053,7 +2053,7 @@ void createVillagerButtons(int& startX, int& startY, int& incrementalXOffset,  b
 
 void addActorSelectorButton(int& actorId, int& startDeck, int& tempY, int& startY, int& incrementalYOffset, int& offSetToNextCard)
 {
-    int buttonType;
+    int buttonType = 0;
     //Speelruimte is 730 pixels = 1920/2.63 = cardDecksize
     switch (listOfActors[actorId].getType())
     {
@@ -2064,7 +2064,7 @@ void addActorSelectorButton(int& actorId, int& startDeck, int& tempY, int& start
         buttonType = 7;
         break;
     }
-    button newButton = { startDeck, tempY, static_cast<spriteTypes>(buttonType), actionUnitSelect, actorId, static_cast<int>(listOfButtons.size()),0 };
+    button newButton = { startDeck, tempY, static_cast<spriteTypes>(buttonType), actionTypes::actionUnitSelect, actorId, static_cast<int>(listOfButtons.size()),0 };
     listOfButtons.push_back(newButton);
     if (tempY == startY)
     {
@@ -2206,7 +2206,7 @@ void createBuildingButtons(int& buildingId, int& startX, int& startY)
         //town center
         if (listOfBuildings[buildingId].getCompleted())
         {
-            button makeVillager = { startX, startY, spriteVillager, actionMakeVillager, buildingId, static_cast<int>(listOfButtons.size()),0 };
+            button makeVillager = { startX, startY, spriteTypes::spriteVillager, actionTypes::actionMakeVillager, buildingId, static_cast<int>(listOfButtons.size()),0 };
             listOfButtons.push_back(makeVillager);
             //research will also go here
         }
@@ -2221,7 +2221,7 @@ void createBuildingButtons(int& buildingId, int& startX, int& startY)
         //Barracks
         if (listOfBuildings[buildingId].getCompleted())
         {
-            button makeSwordsman = { startX, startY, spriteSwordsman, actionMakeSwordsman, buildingId, static_cast<int>(listOfButtons.size()),0 };
+            button makeSwordsman = { startX, startY, spriteTypes::spriteSwordsman, actionTypes::actionMakeSwordsman, buildingId, static_cast<int>(listOfButtons.size()),0 };
             listOfButtons.push_back(makeSwordsman);
             //research will also go here
         }
@@ -2401,7 +2401,7 @@ void gameState::drawBuildingTaskToolbar(int& startDeck, int& startY)
     this->spriteUIButton.setTextureRect(sf::IntRect(getSpriteOffSetTask(this->buildingSelectedId).x, getSpriteOffSetTask(this->buildingSelectedId).y, 64, 64));
     this->spriteUIButton.setPosition(static_cast<float>(iconStartX), static_cast<float>(iconStartY));
     window.draw(this->spriteUIButton);
-    button cancelTask = { static_cast<int>(startBarX + totalBarLength + static_cast<int>(mainWindowWidth / 174.54)), iconStartY, spriteCancel, actionCancelProduction, this->buildingSelectedId, static_cast<int>(listOfButtons.size()), 0 };
+    button cancelTask = { static_cast<int>(startBarX + totalBarLength + static_cast<int>(mainWindowWidth / 174.54)), iconStartY, spriteTypes::spriteCancel, actionTypes::actionCancelProduction, this->buildingSelectedId, static_cast<int>(listOfButtons.size()), 0 };
     listOfButtons.push_back(cancelTask);
     if (listOfBuildings[this->buildingSelectedId].productionQueue.size() > 1)
     {
@@ -2409,7 +2409,7 @@ void gameState::drawBuildingTaskToolbar(int& startDeck, int& startY)
         tempYOffset = iconStartY + static_cast<int>(mainWindowHeigth / 22.97);
         for (int i = 1; i < listOfBuildings[this->buildingSelectedId].productionQueue.size(); i++)
         {
-            button tempButton = { tempXOffset, tempYOffset, static_cast<spriteTypes>(getCardForButtonByTask(this->buildingSelectedId, i)), actionCancelProduction, this->buildingSelectedId, static_cast<int>(listOfButtons.size()), i };
+            button tempButton = { tempXOffset, tempYOffset, static_cast<spriteTypes>(getCardForButtonByTask(this->buildingSelectedId, i)), actionTypes::actionCancelProduction, this->buildingSelectedId, static_cast<int>(listOfButtons.size()), i };
             listOfButtons.push_back(tempButton);
             tempXOffset += 64 + static_cast<int>(mainWindowWidth / 160);
         }
@@ -2431,7 +2431,7 @@ void gameState::drawBuildingConstructionToolbar(int& startDeck, int& startY)
     this->spriteUIButton.setTextureRect(sf::IntRect(0, (getBuildingSpriteOffset(this->buildingSelectedId) / 2), 64, 64));
     this->spriteUIButton.setPosition(static_cast<float>(iconStartX), static_cast<float>(iconStartY));
     window.draw(this->spriteUIButton);
-    button cancelBuilding = { static_cast<int>(startBarX + totalBarLength + (mainWindowWidth / 174.54)), iconStartY, spriteCancel, actionCancelBuilding, this->buildingSelectedId, static_cast<int>(listOfButtons.size()),0 };
+    button cancelBuilding = { static_cast<int>(startBarX + totalBarLength + (mainWindowWidth / 174.54)), iconStartY, spriteTypes::spriteCancel, actionTypes::actionCancelBuilding, this->buildingSelectedId, static_cast<int>(listOfButtons.size()),0 };
     listOfButtons.push_back(cancelBuilding);
 }
 
@@ -2459,25 +2459,25 @@ int getObjectBigSpriteYOffset(int& objectId)
 {
     switch (listOfObjects[objectId].getType())
     {
-    case 0:
+    case objectTypes::objectCactus:
         return 0;
         break;
-    case 1:
+    case objectTypes::objectCypress:
         return 128;
         break;
-    case 2:
+    case objectTypes::objectMaple:
         return 256;
         break;
-    case 3:
+    case objectTypes::objectPine:
         return 384;
         break;
-    case 4:
+    case objectTypes::objectStone:
         return 512;
         break;
-    case 5:
+    case objectTypes::objectGold:
         return 640;
         break;
-    case 6:
+    case objectTypes::objectBerry:
         return 768;
         break;
     default:

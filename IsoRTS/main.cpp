@@ -69,16 +69,16 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
                 }
                 else if (listOfActors[n].isGathering()) {
                     switch (listOfActors[n].getResourceGathered()) {
-                    case 0: //wood
+                    case resourceTypes::resourceWood: //wood
                         listOfPlayers[listOfActors[n].getTeam()].insertGatheringWood(n);
                         break;
-                    case 1: //food
+                    case resourceTypes::resourceFood: //food
                         listOfPlayers[listOfActors[n].getTeam()].insertGatheringFood(n);
                         break;
-                    case 2: //stone
+                    case resourceTypes::resourceStone: //stone
                         listOfPlayers[listOfActors[n].getTeam()].insertGatheringStone(n);
                         break;
-                    case 3: //gold
+                    case resourceTypes::resourceGold: //gold
                         listOfPlayers[listOfActors[n].getTeam()].insertGatheringGold(n);
                         break;
                     }

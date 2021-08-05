@@ -64,7 +64,7 @@ void placeTree(int& x, int& y) {
 	}
 	else if (currentGame.currentMap[x][y] == 2)//Cactus
 	{
-		objects newObject(objectCactus, x, y, static_cast<int>(listOfObjects.size()));
+		objects newObject(objectTypes::objectCactus, x, y, static_cast<int>(listOfObjects.size()));
 		listOfObjects.push_back(newObject);
 	}
 }
@@ -75,10 +75,10 @@ bool neighbourHasTrees(int& x, int& y) {
 			if (i >= 0 && i < MAP_WIDTH && j >= 0 && j < MAP_HEIGHT) {
 				if (currentGame.objectLocationList[i][j] != -1) {
 					if (
-						listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectCypress ||
-						listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectCactus ||
-						listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectMaple ||
-						listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectPine
+						listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::objectCypress ||
+						listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::objectCactus ||
+						listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::objectMaple ||
+						listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::objectPine
 						)
 					{
 						return true;
@@ -159,7 +159,7 @@ cords findRandomFoodSource() {
 	std::vector<foodLocationData> foodLocations;
 	int nextFoodGroupId = 0;
 	for (int i = 0; i < listOfObjects.size(); i++) {
-		if (listOfObjects[i].getTypeOfResource() == 1) {
+		if (listOfObjects[i].getTypeOfResource() == resourceTypes::resourceFood) {
 			//check if this food source is next to another food source, if so it belongs to the same food group
 			int foodGroup = -1;
 			for (int j = 0; j < foodLocations.size(); j++) {
@@ -228,7 +228,8 @@ bool spawmFirstVillager(int distanceFromFood, int teamId) {
 	cords randomFoodSource = findRandomFoodSource();
 
 	if (randomFoodSource.x != -1) {
-		while (!villagerIsPlaced) {
+		int tries = 0;
+		while (!villagerIsPlaced && tries < 9000) {
 			cords suggestedCords = { roll(randomFoodSource.x - distanceFromFood,randomFoodSource.x + distanceFromFood), roll(randomFoodSource.y - distanceFromFood, randomFoodSource.y + distanceFromFood) };
 			if (suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
 				if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y + 1))
@@ -244,6 +245,7 @@ bool spawmFirstVillager(int distanceFromFood, int teamId) {
 					villagerIsPlaced = true;
 				}
 			}
+			tries++;
 		}
 		if (villagerIsPlaced) {
 			return true;

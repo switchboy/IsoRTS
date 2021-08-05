@@ -181,7 +181,7 @@ int main()
     int lastProjectile=0;
     currentGame.loadGame();
     for (int i = 0; i < currentGame.getPlayerCount() - 1; i++) {
-        simpleAI newAIPlayer(1, 0);
+        simpleAI newAIPlayer(i+1, 0);
         listOfAI.push_back(newAIPlayer);
     }
     while(window.isOpen())

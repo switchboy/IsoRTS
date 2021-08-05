@@ -18,8 +18,8 @@ public:
 	float getTimeLastUpdate();
 
 private:
-	mouseWorldCord projectilePosition;
-	mouseWorldCord projectileTarget;
+	cords projectilePosition;
+	cords projectileTarget;
 	float timeFired;
 	int projectileType;
 	int damageOnImpact;

@@ -21,7 +21,7 @@ sf::RenderTexture minimapObjectsTexture;
 
 bool noNewBuildings;
 
-mouseWorldCord toWorldMousePosition(int mouseX, int mouseY)
+cords toWorldMousePosition(int mouseX, int mouseY)
 {
     if (!(mouseX < 0 || mouseY < 0))
     {
@@ -198,10 +198,10 @@ bool gameState::buildingIsSelected(int& id)
 
 void gameState::drawMap()
 {
-    mouseWorldCord lowX = toWorldMousePosition(viewOffsetX-(mainWindowWidth/2), static_cast<int>(viewOffsetY-((mainWindowWidth*0.8)/2)));
-    mouseWorldCord highX = toWorldMousePosition(viewOffsetX+(mainWindowWidth/2), static_cast<int>(viewOffsetY+((mainWindowWidth*0.8)/2)));
-    mouseWorldCord lowY = toWorldMousePosition(viewOffsetX, viewOffsetY-(mainWindowWidth/2));
-    mouseWorldCord highY = toWorldMousePosition(viewOffsetX, viewOffsetY+(mainWindowWidth/2));
+    cords lowX = toWorldMousePosition(viewOffsetX-(mainWindowWidth/2), static_cast<int>(viewOffsetY-((mainWindowWidth*0.8)/2)));
+    cords highX = toWorldMousePosition(viewOffsetX+(mainWindowWidth/2), static_cast<int>(viewOffsetY+((mainWindowWidth*0.8)/2)));
+    cords lowY = toWorldMousePosition(viewOffsetX, viewOffsetY-(mainWindowWidth/2));
+    cords highY = toWorldMousePosition(viewOffsetX, viewOffsetY+(mainWindowWidth/2));
     for(int j = 0; j < MAP_HEIGHT; j++)
     {
         for(int i = 0; i < MAP_WIDTH; i++ )
@@ -675,7 +675,7 @@ void gameState::calculateRectangle()
     int j = startLocation2[1]-1;
     while(i <= lowYLocation[0] && j >= lowYLocation[1])
     {
-        //add new coördanate {i, j} to a list
+        //add new coÃ¶rdanate {i, j} to a list
         if(i != lowYLocation[0] && j != lowYLocation[1])
         {
             this->rectangleCords.push_back({i, j});
@@ -689,7 +689,7 @@ void gameState::calculateRectangle()
     j = lowYLocation[1]+1;
     while( i <= endLocation[0] && j <= endLocation[1])
     {
-        //add new coördenates {i, j} to a list
+        //add new coÃ¶rdenates {i, j} to a list
         if(i != endLocation[0] && j != endLocation[1])
         {
             this->rectangleCords.push_back({i, j});
@@ -711,7 +711,7 @@ void gameState::calculateRectangle()
     j = highYLocation[1]-1;
     while(i <= endLocation[0] && j >= endLocation[1])
     {
-        //add new coördenates {i, j} to a list
+        //add new coÃ¶rdenates {i, j} to a list
         if(i != endLocation[0] && j != endLocation[1])
         {
             this->rectangleCords.push_back({i, j});
@@ -733,7 +733,7 @@ void gameState::calculateRectangle()
     j = startLocation2[1]+1;
     while( i <= highYLocation[0] && j <= highYLocation[1])
     {
-        //add new coördanates {i, j}to a list
+        //add new coÃ¶rdanates {i, j}to a list
         if( i != highYLocation[0] && j != highYLocation[1])
         {
             this->rectangleCords.push_back({i, j});
@@ -742,13 +742,13 @@ void gameState::calculateRectangle()
         j++;
     }
 
-    //sort the list on the Y coördanates
+    //sort the list on the Y coÃ¶rdanates
     if(!this->rectangleCords.empty())
     {
         std::sort(this->rectangleCords.begin(),this->rectangleCords.end(), rectCord);
     }
 
-    //add cells on the list between the two cells with the same Y coördanets repeat until list is empty
+    //add cells on the list between the two cells with the same Y coÃ¶rdanets repeat until list is empty
     if(!this->rectangleCords.empty())
     {
         int stopAt = static_cast<int>(this->rectangleCords.size());
@@ -1052,7 +1052,7 @@ bool gameState::clickToMove(int posX, int posY, bool minimap)
         {
             if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
             {
-                mouseWorldCord tempCords;
+                cords tempCords;
                 if (minimap) {
                     if ((posX <= MAP_WIDTH && posY <= MAP_HEIGHT)) {
                         tempCords = currentGame.getNextCord(posX, posY);
@@ -1358,8 +1358,10 @@ void gameState::clickToGiveMinimapCommand()
     this->firstRound = true;
     this->lastIandJ[0] = 0;
     this->lastIandJ[1] = 0;
-    mouseWorldCord minimapToWorldPosition;
+
+    cords minimapToWorldPosition;
     minimapToWorldPosition = toWorldMousePosition(static_cast<int>(((mouseFakePosition.x - (mainWindowWidth * 0.8f)) / (0.2f * mainWindowWidth)) * (MAP_WIDTH * 64)), static_cast<int>(((mouseFakePosition.y - (mainWindowHeigth * 0.8f)) / (0.2f * mainWindowHeigth)) * (MAP_HEIGHT * 32)));
+
     for (int posX = minimapToWorldPosition.x - 1; posX < minimapToWorldPosition.x + 2; posX++) {
         for (int posY = minimapToWorldPosition.y - 1; posY < minimapToWorldPosition.y + 2; posY++) {
             clickToMove(posX, posY, true);
@@ -1643,7 +1645,7 @@ void gameState::drawMouseInteraction()
     }
 }
 
-mouseWorldCord gameState::getNextCord(int x, int y)
+cords gameState::getNextCord(int x, int y)
 {
     if(!this->firstRound && this->roundDone)
     {
@@ -2322,7 +2324,7 @@ std::string getBuildingIsProducingName(int& buildingId)
     }
 }
 
-rectangleCord getSpriteOffSetTask(int& buildingId)
+cords getSpriteOffSetTask(int& buildingId)
 {
     if (listOfBuildings[buildingId].productionQueue.front().isResearch)
     {
@@ -2796,8 +2798,8 @@ void gameState::createFogOfWar()
     }
     for (int i = 0; i < listOfActors.size(); i++) {
         if (listOfActors[i].getTeam() == currentPlayer.getTeam()) {
-            std::list<mouseWorldCord> tempList = getListOfCordsInCircle(listOfActors[i].getLocation().x, listOfActors[i].getLocation().y, 6);
-            for (const mouseWorldCord& cord : tempList)
+            std::list<cords> tempList = getListOfCordsInCircle(listOfActors[i].getLocation().x, listOfActors[i].getLocation().y, 6);
+            for (const cords& cord : tempList)
             {
                 this->visability[(cord.x * MAP_HEIGHT) + cord.y] = 2;
             }
@@ -2809,10 +2811,10 @@ void gameState::createFogOfWar()
             if (listOfBuildings[i].getCompleted()) {
                 visRadius = 8;
             }
-            std::list<mouseWorldCord> buidlingFootprint = listOfBuildings[i].getFootprintOfBuilding();
-            for (const mouseWorldCord& footprintTile : buidlingFootprint) {
-                std::list<mouseWorldCord> tempList = getListOfCordsInCircle(footprintTile.x, footprintTile.y, visRadius);
-                for (const mouseWorldCord& cord : tempList)
+            std::list<cords> buidlingFootprint = listOfBuildings[i].getFootprintOfBuilding();
+            for (const cords& footprintTile : buidlingFootprint) {
+                std::list<cords> tempList = getListOfCordsInCircle(footprintTile.x, footprintTile.y, visRadius);
+                for (const cords& cord : tempList)
                 {
                     this->visability[(cord.x * MAP_HEIGHT) + cord.y] = 2;
                 }

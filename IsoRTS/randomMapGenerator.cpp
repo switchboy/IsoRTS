@@ -89,7 +89,7 @@ void spawmFoodStoneGold(int resource)
 			bool resourcePlaced = false;
 			int maxTries = 0;
 			while (!resourcePlaced && maxTries < 100) {
-				mouseWorldCord suggestedCords = { roll(gridMinX,gridMaxX), roll(gridMinY,gridMaxY) };
+				cords suggestedCords = { roll(gridMinX,gridMaxX), roll(gridMinY,gridMaxY) };
 				if (suggestedCords.y - 1 >= 0 && suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
 					if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y - 1))
 					{
@@ -114,33 +114,74 @@ void spawmFoodStoneGold(int resource)
 
 std::list<int> occupiedFoodSources;
 
-mouseWorldCord findRandomFoodSource() {
+cords findRandomFoodSource() {
 	bool foodFound = false;
+	std::vector<foodLocationData> foodLocations;
+	int nextFoodGroupId = 0;
+	for (int i = 0; i < listOfObjects.size(); i++) {
+		if (listOfObjects[i].getTypeOfResource() == 1) {
+			//check if this food source is next to another food source, if so it belongs to the same food group
+			int foodGroup = -1;
+			for (int j = 0; j < foodLocations.size(); j++) {
+				if (
+					listOfObjects[i].getLocation().x + 1 == listOfObjects[foodLocations[j].id].getLocation().x && listOfObjects[i].getLocation().y == listOfObjects[foodLocations[j].id].getLocation().y ||
+					listOfObjects[i].getLocation().x - 1 == listOfObjects[foodLocations[j].id].getLocation().x && listOfObjects[i].getLocation().y == listOfObjects[foodLocations[j].id].getLocation().y ||
+					listOfObjects[i].getLocation().x == listOfObjects[foodLocations[j].id].getLocation().x && listOfObjects[i].getLocation().y + 1 == listOfObjects[foodLocations[j].id].getLocation().y ||
+					listOfObjects[i].getLocation().x == listOfObjects[foodLocations[j].id].getLocation().x && listOfObjects[i].getLocation().y - 1 == listOfObjects[foodLocations[j].id].getLocation().y ||
+					listOfObjects[i].getLocation().x + 1 == listOfObjects[foodLocations[j].id].getLocation().x && listOfObjects[i].getLocation().y + 1 == listOfObjects[foodLocations[j].id].getLocation().y ||
+					listOfObjects[i].getLocation().x + 1 == listOfObjects[foodLocations[j].id].getLocation().x && listOfObjects[i].getLocation().y - 1 == listOfObjects[foodLocations[j].id].getLocation().y ||
+					listOfObjects[i].getLocation().x - 1 == listOfObjects[foodLocations[j].id].getLocation().x && listOfObjects[i].getLocation().y + 1 == listOfObjects[foodLocations[j].id].getLocation().y ||
+					listOfObjects[i].getLocation().x - 1 == listOfObjects[foodLocations[j].id].getLocation().x && listOfObjects[i].getLocation().y - 1 == listOfObjects[foodLocations[j].id].getLocation().y
+					)
+				{
+					foodGroup = foodLocations[j].foodGroupId;
 
-	while (!foodFound) {
-		int possibleFood = roll(0, static_cast<int>(listOfObjects.size()));
-		if (listOfObjects[possibleFood].getTypeOfResource() == 1) {
-			bool foodSourceOccupied = false;
-			for (const int& foodOwned : occupiedFoodSources)
-			{
-				if (foodOwned == possibleFood) {
-					foodSourceOccupied = true;
 				}
 			}
-			if (!foodSourceOccupied) {
-				return  listOfObjects[possibleFood].getLocation();
+			if (foodGroup == -1) {
+				//create new food group
+				foodGroup = nextFoodGroupId;
+				nextFoodGroupId++;
 			}
+			foodLocations.push_back({ i , {listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y}, foodGroup });
 		}
 	}
-	return { 0,0 };
+
+
+	//Sort and remove food sources with the same foodGroupId to prevent players spawning on the same foodGroup
+	std::sort(foodLocations.begin(), foodLocations.end(),[](const foodLocationData& lhs, const foodLocationData& rhs) {return lhs.foodGroupId < rhs.foodGroupId;});
+	foodLocations.erase(std::unique(foodLocations.begin(), foodLocations.end(), [](const foodLocationData& lhs, const foodLocationData& rhs) {return lhs.foodGroupId == rhs.foodGroupId; }), foodLocations.end());
+
+	if (foodLocations.size() > 8) {
+		//Now the following while loop should always be able to finish
+		while (!foodFound) {
+			int possibleFood = roll(0, static_cast<int>(listOfObjects.size()));
+			bool foodSourceOccupied = false;
+			for (const int& foodOwned : occupiedFoodSources)
+				{
+				if (foodOwned == possibleFood) {
+						foodSourceOccupied = true;
+				}
+				}
+			if (!foodSourceOccupied) {
+				occupiedFoodSources.push_back(possibleFood);
+				return  foodLocations[possibleFood].foodCords;
+			}
+			
+		}
+	}
+	else {
+		//There is not enough food on the map!
+		return { 0,0 };
+	}
 }
 
 void spawmFirstVillager(int distanceFromFood, int teamId) {
 	bool villagerIsPlaced = false;
-	mouseWorldCord randomFoodSource = findRandomFoodSource();
+	cords randomFoodSource = findRandomFoodSource();
 
 	while (!villagerIsPlaced) {
-		mouseWorldCord suggestedCords = { roll(randomFoodSource.x - distanceFromFood,randomFoodSource.x + distanceFromFood), roll(randomFoodSource.y - distanceFromFood, randomFoodSource.y + distanceFromFood) };
+		cords suggestedCords = { roll(randomFoodSource.x - distanceFromFood,randomFoodSource.x + distanceFromFood), roll(randomFoodSource.y - distanceFromFood, randomFoodSource.y + distanceFromFood) };
 		if (suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
 			if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y + 1))
 			{

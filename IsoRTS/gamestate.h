@@ -56,7 +56,7 @@ struct adjacentTile
 
 
 
-mouseWorldCord toWorldMousePosition(int mouseX, int mouseY);
+cords toWorldMousePosition(int mouseX, int mouseY);
 
 class gameState
 {
@@ -125,7 +125,7 @@ public:
     void setIsPlacingBuilding();
     void selectUnit(int id);
     float getTime();
-    mouseWorldCord getNextCord(int x, int y);
+    cords getNextCord(int x, int y);
     float elapsedTime;
     int buildingSelectedId;
     int objectSelectedId;
@@ -187,8 +187,8 @@ private:
     float miniMapWidth;
     float miniMapHeigth;
     int toolBarWidth;
-    mouseWorldCord mouseWorldPosition;
-    std::vector<rectangleCord> rectangleCords;
+    cords mouseWorldPosition;
+    std::vector<cords> rectangleCords;
     sf::Vector2i mouseFakePosition;
     sf::Vector2f mousePosition;
     std::vector<int> selectedUnits;

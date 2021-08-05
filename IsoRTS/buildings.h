@@ -65,7 +65,7 @@ public:
     std::vector<adjacentTile>   getFreeBuildingTile();
     bool                        claimFreeBuiildingTile(int id, int actorId);
     void                        removeActorFromBuildingTile(int actorId);
-    std::list<mouseWorldCord>   getFootprintOfBuilding();
+    std::list<cords>   getFootprintOfBuilding();
     
 
 private:

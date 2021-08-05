@@ -2664,7 +2664,7 @@ void gameState::loadMap()
             this->visability.push_back(0);
         }
     }
-    generateRandomMap(this->players,16,16,16);
+    generateRandomMap(this->players,16,16,16,0);
 }
 
 void gameState::loadBuildings()
@@ -2769,15 +2769,17 @@ void showLoadingScreen() {
     currentGame.text.setOutlineThickness(1.f);
     currentGame.text.setFillColor(sf::Color::Yellow);
     currentGame.text.setString("Loading...");
+    sf::FloatRect textRect = currentGame.text.getLocalBounds();
+    currentGame.text.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
     currentGame.text.setPosition(static_cast<float>(mainWindowWidth/2), static_cast<float>(mainWindowHeigth/2));
     window.clear();
     window.draw(currentGame.text);
     window.display();
+    currentGame.text.setOrigin(0.0f, 0.0f);
 }
 
 void gameState::loadGame()
 {
-   
     loadFonts();
     setViewports();
     showLoadingScreen();

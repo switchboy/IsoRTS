@@ -81,7 +81,6 @@ bool neighbourHasTrees(int& x, int& y) {
 						listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectPine
 						)
 					{
-						std::cout << "Tree found! @" << i << " - " << j << std::endl;
 						return true;
 					}
 				}
@@ -113,17 +112,17 @@ void placeTrees(int chanceOfTreeNextToTree, int chanceOfNewTree) {
 	}
 }
 
-void spawmFoodStoneGold(int resource, int amountOfGroups)
+bool spawmFoodStoneGold(int resource, int amountOfGroups)
 {
 	int gridMinX=0;
 	int gridMinY=0;
-	for (int gridMaxX = 64; gridMaxX < 256; gridMaxX += 64) {
-		for (int gridMaxY = 64; gridMaxY < 256; gridMaxY += 64) {
+	int succesFullPlacements = 0;
+	for (int gridMaxX = 32; gridMaxX < MAP_WIDTH; gridMaxX += 32) {
+		for (int gridMaxY = 32; gridMaxY < MAP_HEIGHT; gridMaxY += 32) {
 			bool resourcePlaced = false;
 			int maxTries = 0;
-			int succesFullPlacements = 0;
-			while (!resourcePlaced && maxTries < 9999 && succesFullPlacements <= amountOfGroups ) {
-				cords suggestedCords = { roll(gridMinX,gridMaxX), roll(gridMinY,gridMaxY) };
+			while (!resourcePlaced && maxTries < 999999999999 && succesFullPlacements <= amountOfGroups ) {
+				cords suggestedCords = { roll(0,MAP_WIDTH), roll(0,MAP_HEIGHT) };
 				if (suggestedCords.y - 1 >= 0 && suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
 					if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y - 1))
 					{
@@ -144,6 +143,12 @@ void spawmFoodStoneGold(int resource, int amountOfGroups)
 			gridMinY = gridMaxY;
 		}
 		gridMinX = gridMaxX;
+	}
+	if (succesFullPlacements <= amountOfGroups) {
+		return false;
+	}
+	else {
+		return true;
 	}
 }
 
@@ -210,7 +215,7 @@ cords findRandomFoodSource() {
 	}
 }
 
-void spawmFirstVillager(int distanceFromFood, int teamId) {
+bool spawmFirstVillager(int distanceFromFood, int teamId) {
 	bool villagerIsPlaced = false;
 	cords randomFoodSource = findRandomFoodSource();
 
@@ -229,13 +234,14 @@ void spawmFirstVillager(int distanceFromFood, int teamId) {
 					actors newActor3(0, suggestedCords.x + 1, suggestedCords.y + 1, teamId, static_cast<int>(listOfActors.size()));
 					listOfActors.push_back(newActor3);
 					villagerIsPlaced = true;
+					return true;
 				}
 			}
 		}
 	}
 	else {
 		//there is not enough food on the map!
-
+		return false;
 	}
 }
 
@@ -263,14 +269,19 @@ void generateTerrain() {
 	delete []noiseSeed;
 }
 
-void generateRandomMap(int players, int amountOfFoodGroups, int amountOfStoneGroups, int amountOfGoldGroups) {
+void generateRandomMap(int players, int amountOfFoodGroups, int amountOfStoneGroups, int amountOfGoldGroups, int tries) {
+	bool mapGenerationSuccefull = true;
 	generateTerrain();
 	placeTrees(2,30);
-	spawmFoodStoneGold(6, amountOfFoodGroups);
+	if (!spawmFoodStoneGold(6, amountOfFoodGroups)) { mapGenerationSuccefull = false; std::cout << "map generation failed on food sources!" << std::endl; }
 	for (int i = 0; i < players; i++) {
-		spawmFirstVillager(8, i);
+		if (!spawmFirstVillager(8, i)) { mapGenerationSuccefull = false; std::cout << "map generation failed not enough food groups for players" << std::endl;}
 	}
-	spawmFoodStoneGold(4, amountOfStoneGroups);
-	spawmFoodStoneGold(5, amountOfGoldGroups);
+	if (!spawmFoodStoneGold(4, amountOfStoneGroups)) { mapGenerationSuccefull = false; std::cout << "map generation failed on stone sources!" << std::endl;	}
+	if (!spawmFoodStoneGold(5, amountOfGoldGroups)) { mapGenerationSuccefull = false; std::cout << "map generation failed on gold sources!" << std::endl; }
 	centerViewOnVillager();
+	if (!mapGenerationSuccefull && tries < 99) {
+		tries++;
+		generateRandomMap(players, amountOfFoodGroups, amountOfStoneGroups, amountOfGoldGroups, tries);
+	}
 }

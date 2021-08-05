@@ -10,5 +10,5 @@ struct foodLocationData
 
 };
 
-extern void generateRandomMap(int players, int amountOfFoodGroups, int amountOfStoneGroups, int amountOfGoldGroups);
+extern void generateRandomMap(int players, int amountOfFoodGroups, int amountOfStoneGroups, int amountOfGoldGroups, int tries);
 

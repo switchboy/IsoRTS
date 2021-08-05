@@ -2752,7 +2752,7 @@ void gameState::setDefaultValues()
     this->lastMistDraw = -1.0f;
     listOfBuildings.resize(1);
     listOfObjects.resize(1);
-    this->players = 2;
+    this->players = 1;
 }
 
 void setTeam() {
@@ -2779,7 +2779,7 @@ void gameState::loadGame()
    
     loadFonts();
     setViewports();
-    showLoadingScreen;
+    showLoadingScreen();
     createMiniMapTexture();
     loadTextures();
     loadActors();

@@ -2664,7 +2664,7 @@ void gameState::loadMap()
             this->visability.push_back(0);
         }
     }
-    generateRandomMap(this->players);
+    generateRandomMap(this->players,16,16,16);
 }
 
 void gameState::loadBuildings()

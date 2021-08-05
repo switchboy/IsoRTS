@@ -80,7 +80,7 @@ void placeTrees() {
 	}
 }
 
-void spawmFoodStoneGold(int resource)
+void spawmFoodStoneGold(int resource, int amountOfGroups)
 {
 	int gridMinX=0;
 	int gridMinY=0;
@@ -88,7 +88,8 @@ void spawmFoodStoneGold(int resource)
 		for (int gridMaxY = 64; gridMaxY < 256; gridMaxY += 64) {
 			bool resourcePlaced = false;
 			int maxTries = 0;
-			while (!resourcePlaced && maxTries < 100) {
+			int succesFullPlacements = 0;
+			while (!resourcePlaced && maxTries < 9999 && succesFullPlacements <= amountOfGroups ) {
 				cords suggestedCords = { roll(gridMinX,gridMaxX), roll(gridMinY,gridMaxY) };
 				if (suggestedCords.y - 1 >= 0 && suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
 					if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y - 1))
@@ -102,6 +103,7 @@ void spawmFoodStoneGold(int resource)
 						objects newObject3(static_cast<objectTypes>(resource), suggestedCords.x+1, suggestedCords.y-1, static_cast<int>(listOfObjects.size()));
 						listOfObjects.push_back(newObject3);
 						resourcePlaced = true;
+						succesFullPlacements++;
 					}
 				}
 				maxTries++;
@@ -198,6 +200,10 @@ void spawmFirstVillager(int distanceFromFood, int teamId) {
 			}
 		}
 	}
+	else {
+		//there is not enough food on the map!
+
+	}
 }
 
 void centerViewOnVillager() {
@@ -224,14 +230,14 @@ void generateTerrain() {
 	delete []noiseSeed;
 }
 
-void generateRandomMap(int players) {
+void generateRandomMap(int players, int amountOfFoodGroups, int amountOfStoneGroups, int amountOfGoldGroups) {
 	generateTerrain();
 	placeTrees();
-	spawmFoodStoneGold(6);
+	spawmFoodStoneGold(6, amountOfFoodGroups);
 	for (int i = 0; i < players; i++) {
 		spawmFirstVillager(8, i);
 	}
-	spawmFoodStoneGold(4);
-	spawmFoodStoneGold(5);
+	spawmFoodStoneGold(4, amountOfStoneGroups);
+	spawmFoodStoneGold(5, amountOfGoldGroups);
 	centerViewOnVillager();
 }

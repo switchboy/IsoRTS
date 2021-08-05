@@ -2223,7 +2223,7 @@ void createBuildingButtons(int& buildingId, int& startX, int& startY)
         //Barracks
         if (listOfBuildings[buildingId].getCompleted())
         {
-            button makeSwordsman = { startX, startY, spriteBarracks, actionMakeSwordsman, buildingId, static_cast<int>(listOfButtons.size()),0 };
+            button makeSwordsman = { startX, startY, spriteSwordsman, actionMakeSwordsman, buildingId, static_cast<int>(listOfButtons.size()),0 };
             listOfButtons.push_back(makeSwordsman);
             //research will also go here
         }

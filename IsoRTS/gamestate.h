@@ -175,6 +175,7 @@ private:
     bool isPressedShift;
     bool isPressedTab;
     bool isPlacingBuilding;
+    bool noFogOfWar;
     bool mousePressOutofWorld;
     int buildingTypeSelected;
     int objectTypeSelected;

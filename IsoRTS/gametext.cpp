@@ -43,7 +43,7 @@ void gametext::drawMessages()
             currentGame.text.setFillColor(sf::Color::Red);
             break;
         }
-        currentGame.text.setPosition(5, startPositionY);
+        currentGame.text.setPosition(5, static_cast<float>(startPositionY));
         window.draw(currentGame.text);
         startPositionY += +28;
     }

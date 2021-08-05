@@ -14,7 +14,7 @@ button::button(int positionX, int positionY, spriteTypes spriteId, actionTypes a
     this->positionX = positionX;
     this->positionY = positionY;
     this->realPositionX = positionX;
-    this->realPositionY = positionY+(mainWindowHeigth*0.8f);
+    this->realPositionY = static_cast<int>(positionY+(mainWindowHeigth*0.8f));
     this->spriteId = spriteId;
     this->actionType = actionType;
     this->actorOrBuildingId = actorOrBuildingId;
@@ -113,42 +113,42 @@ void button::showToolTip()
     int longestStringLength = 0;
     if(toolTipDiscription.str().length() >= toolTipText.str().length() && toolTipDiscription.str().length() >= toolTipTitle.str().length())
     {
-        longestStringLength = toolTipDiscription.str().length();
+        longestStringLength = static_cast<int>(toolTipDiscription.str().length());
     }
     else if(toolTipText.str().length() >= toolTipDiscription.str().length() && toolTipText.str().length() >= toolTipTitle.str().length())
     {
-        longestStringLength = toolTipText.str().length();
+        longestStringLength = static_cast<int>(toolTipText.str().length());
     }
     else
     {
-        longestStringLength = toolTipTitle.str().length();
+        longestStringLength = static_cast<int>(toolTipTitle.str().length());
     }
     int charSize = 20;
-    int startPositionY = (mainWindowHeigth*0.8)-(3*(charSize+2));
-    sf::RectangleShape toolTipBox(sf::Vector2f((longestStringLength*8), (3*(charSize+2))+5));
+    int startPositionY = static_cast<int>(mainWindowHeigth*0.8)-(3*(charSize+2));
+    sf::RectangleShape toolTipBox(sf::Vector2f(static_cast<float>(longestStringLength*8), static_cast<float>(3*(charSize+2))+5));
     toolTipBox.setFillColor(sf::Color(0, 0, 0, 75));
     toolTipBox.setOutlineThickness(2.f);
     toolTipBox.setOutlineColor(sf::Color(255, 255, 255,150));
-    toolTipBox.setPosition(2, startPositionY-7);
+    toolTipBox.setPosition(2, static_cast<float>(startPositionY-7));
     window.draw(toolTipBox);
     startPositionY -= 4;
     currentGame.text.setCharacterSize(charSize);
     currentGame.text.setOutlineColor(sf::Color::Black);
     currentGame.text.setOutlineThickness(1.f);
     currentGame.text.setFillColor(sf::Color::White);
-    currentGame.text.setPosition(5, startPositionY);
+    currentGame.text.setPosition(5, static_cast<float>(startPositionY));
     currentGame.text.setString(toolTipTitle.str());
     window.draw(currentGame.text);
     charSize = 16;
     startPositionY += 22;
     currentGame.text.setCharacterSize(charSize);
-    currentGame.text.setPosition(5, startPositionY);
+    currentGame.text.setPosition(5, static_cast<float>(startPositionY));
     currentGame.text.setString(toolTipText.str());
     window.draw(currentGame.text);
     startPositionY += 18;
     currentGame.text.setCharacterSize(14);
     currentGame.text.setCharacterSize(charSize);
-    currentGame.text.setPosition(5, startPositionY);
+    currentGame.text.setPosition(5, static_cast<float>(startPositionY));
     currentGame.text.setString(toolTipDiscription.str());
     window.draw(currentGame.text);
 }
@@ -328,7 +328,7 @@ void button::drawButton()
         break;
     }
     currentGame.spriteUIButton.setTextureRect(sf::IntRect(xOffSet, yOffset, 64, 64));
-    currentGame.spriteUIButton.setPosition(this->positionX, this->positionY);
+    currentGame.spriteUIButton.setPosition(static_cast<float>(this->positionX), static_cast<float>(this->positionY));
     window.draw(currentGame.spriteUIButton);
 }
 

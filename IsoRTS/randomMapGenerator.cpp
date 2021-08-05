@@ -25,8 +25,8 @@ void generatePerlinNoise(float scaleBias, int octaves, float* noiseSeed, float* 
 				int sampleX2 = (sampleX1 / pitch) % MAP_WIDTH;
 				int sampleY2 = (sampleY1 / pitch) % MAP_WIDTH;
 				
-				float blendX = (float)(x - sampleX1) / (float)pitch;
-				float blendY = (float)(y - sampleY1) / (float)pitch;
+				float blendX = static_cast<float>(x - sampleX1) / static_cast<float>(pitch);
+				float blendY = static_cast<float>(y - sampleY1) / static_cast<float>(pitch);
 
 				float sampleT = (1.0f - blendX) * noiseSeed[sampleY1 * MAP_WIDTH + sampleX1] + blendX * noiseSeed[sampleY1 * MAP_WIDTH + sampleX2];
 				float sampleB = (1.0f - blendX) * noiseSeed[sampleY2 * MAP_WIDTH + sampleX2] + blendX * noiseSeed[sampleY2 * MAP_WIDTH + sampleX2];
@@ -45,7 +45,7 @@ void convertPerlinNoiseToMap(float* noisemap) {
 	{
 		for (int y = 0; y < MAP_HEIGHT; y++)
 		{
-			int depth = (int)(noisemap[y * MAP_WIDTH + x] * 3.0f);
+			int depth = static_cast<int>(noisemap[y * MAP_WIDTH + x] * 3.0f);
 			switch (depth)
 			{
 			case 0: currentGame.currentMap[x][y] = 7; break;
@@ -60,19 +60,19 @@ void convertPerlinNoiseToMap(float* noisemap) {
 
 
 void placeTrees() {
-	srand(time(NULL));
+	srand(static_cast<int>(time(NULL)));
 	for (int x = 0; x < MAP_WIDTH; x++)
 	{
 		for (int y = 0; y < MAP_HEIGHT; y++)
 		{
 			if (roll(0, 20) > 19) {
 				if (currentGame.currentMap[x][y] == 1) {
-					objects newObject((objectTypes)roll(1, 3), x, y, listOfObjects.size());
+					objects newObject(static_cast<objectTypes>(roll(1, 3)), x, y, static_cast<int>(listOfObjects.size()));
 					listOfObjects.push_back(newObject);
 				}
 				else if (currentGame.currentMap[x][y] == 2)//Cactus
 				{
-					objects newObject(objectCactus, x, y, listOfObjects.size());
+					objects newObject(objectCactus, x, y, static_cast<int>(listOfObjects.size()));
 					listOfObjects.push_back(newObject);
 				}
 			}
@@ -93,13 +93,13 @@ void spawmFoodStoneGold(int resource)
 				if (suggestedCords.y - 1 >= 0 && suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
 					if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y - 1))
 					{
-						objects newObject((objectTypes)resource, suggestedCords.x, suggestedCords.y, listOfObjects.size());
+						objects newObject(static_cast<objectTypes>(resource), suggestedCords.x, suggestedCords.y, static_cast<int>(listOfObjects.size()));
 						listOfObjects.push_back(newObject);
-						objects newObject1((objectTypes)resource, suggestedCords.x, suggestedCords.y+1, listOfObjects.size());
+						objects newObject1(static_cast<objectTypes>(resource), suggestedCords.x, suggestedCords.y+1, static_cast<int>(listOfObjects.size()));
 						listOfObjects.push_back(newObject1);
-						objects newObject2((objectTypes)resource, suggestedCords.x+1, suggestedCords.y, listOfObjects.size());
+						objects newObject2(static_cast<objectTypes>(resource), suggestedCords.x+1, suggestedCords.y, static_cast<int>(listOfObjects.size()));
 						listOfObjects.push_back(newObject2);
-						objects newObject3((objectTypes)resource, suggestedCords.x+1, suggestedCords.y-1, listOfObjects.size());
+						objects newObject3(static_cast<objectTypes>(resource), suggestedCords.x+1, suggestedCords.y-1, static_cast<int>(listOfObjects.size()));
 						listOfObjects.push_back(newObject3);
 						resourcePlaced = true;
 					}
@@ -147,6 +147,7 @@ cords findRandomFoodSource() {
 		}
 	}
 
+
 	//Sort and remove food sources with the same foodGroupId to prevent players spawning on the same foodGroup
 	std::sort(foodLocations.begin(), foodLocations.end(),[](const foodLocationData& lhs, const foodLocationData& rhs) {return lhs.foodGroupId < rhs.foodGroupId;});
 	foodLocations.erase(std::unique(foodLocations.begin(), foodLocations.end(), [](const foodLocationData& lhs, const foodLocationData& rhs) {return lhs.foodGroupId == rhs.foodGroupId; }), foodLocations.end());
@@ -154,7 +155,7 @@ cords findRandomFoodSource() {
 	if (foodLocations.size() > 8) {
 		//Now the following while loop should always be able to finish
 		while (!foodFound) {
-			int possibleFood = roll(0, foodLocations.size());
+			int possibleFood = roll(0, static_cast<int>(listOfObjects.size()));
 			bool foodSourceOccupied = false;
 			for (const int& foodOwned : occupiedFoodSources)
 				{
@@ -184,13 +185,13 @@ void spawmFirstVillager(int distanceFromFood, int teamId) {
 		if (suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
 			if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y + 1))
 			{
-				actors newActor(0, suggestedCords.x, suggestedCords.y, teamId, listOfActors.size());
+				actors newActor(0, suggestedCords.x, suggestedCords.y, teamId, static_cast<int>(listOfActors.size()));
 				listOfActors.push_back(newActor);
-				actors newActor1(0, suggestedCords.x, suggestedCords.y+1, teamId, listOfActors.size());
+				actors newActor1(0, suggestedCords.x, suggestedCords.y+1, teamId, static_cast<int>(listOfActors.size()));
 				listOfActors.push_back(newActor1);
-				actors newActor2(0, suggestedCords.x+1, suggestedCords.y, teamId, listOfActors.size());
+				actors newActor2(0, suggestedCords.x+1, suggestedCords.y, teamId, static_cast<int>(listOfActors.size()));
 				listOfActors.push_back(newActor2);
-				actors newActor3(0, suggestedCords.x+1, suggestedCords.y+1, teamId, listOfActors.size());
+				actors newActor3(0, suggestedCords.x+1, suggestedCords.y+1, teamId, static_cast<int>(listOfActors.size()));
 				listOfActors.push_back(newActor3);
 				villagerIsPlaced = true;
 			}
@@ -208,13 +209,13 @@ void centerViewOnVillager() {
 }
 
 void generateTerrain() {
-	srand(time(NULL));
+	srand(static_cast<int>(time(NULL)));
 	float* noiseMap = nullptr;
 	float* noiseSeed = nullptr;
 	noiseSeed = new float[MAP_WIDTH * MAP_HEIGHT];
 	noiseMap = new float[MAP_WIDTH * MAP_HEIGHT];
 	for (int i = 0; i < MAP_WIDTH * MAP_HEIGHT; i++) {
-		noiseSeed[i] = (float)rand() / (float)RAND_MAX;
+		noiseSeed[i] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 	};
 	generatePerlinNoise(1.4f, 5, noiseSeed, noiseMap);
 	convertPerlinNoiseToMap(noiseMap);

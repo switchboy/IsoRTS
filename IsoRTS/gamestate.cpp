@@ -61,12 +61,12 @@ void gameState::drawMousePosition(int x,int y, bool noProblem)
 {
     if(noProblem)
     {
-        spriteSelectedTile.setPosition(worldSpace(x, y,true), worldSpace(x, y,false));
+        spriteSelectedTile.setPosition(static_cast<float>(worldSpace(x, y,true)), static_cast<float>(worldSpace(x, y,false)));
         window.draw(spriteSelectedTile);
     }
     else
     {
-        spriteTileObstructed.setPosition(worldSpace(x, y,true), worldSpace(x, y,false));
+        spriteTileObstructed.setPosition(static_cast<float>(worldSpace(x, y,true)), static_cast<float>(worldSpace(x, y,false)));
         window.draw(spriteTileObstructed);
     }
 }
@@ -94,57 +94,57 @@ void gameState::drawGround(int i, int j)
     switch(currentGame.currentMap[i][j])
     {
     case 0:
-        spriteEmptyTile.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        spriteEmptyTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(spriteEmptyTile);
         break;
     case 1:
-        spriteGrassTile.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        spriteGrassTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(spriteGrassTile);
         break;
     case 2:
-        spriteSandTile.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        spriteSandTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(spriteSandTile);
         break;
     case 3:
-        spriteSandTileNE.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        spriteSandTileNE.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(spriteSandTileNE);
         break;
     case 4:
-        spriteSandTileNW.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        spriteSandTileNW.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(spriteSandTileNW);
         break;
     case 5:
-        spriteSandTileSE.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        spriteSandTileSE.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(spriteSandTileSE);
         break;
     case 6:
-        spriteSandTileSW.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        spriteSandTileSW.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(spriteSandTileSW);
         break;
     case 7:
-        spriteWaterTile.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        spriteWaterTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(spriteWaterTile);
         break;
     case 8:
-        spriteBeachTileNE.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        spriteBeachTileNE.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(spriteBeachTileNE);
         break;
     case 9:
-        spriteBeachTileNW.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        spriteBeachTileNW.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(spriteBeachTileNW);
         break;
     case 10:
-        spriteBeachTileSE.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        spriteBeachTileSE.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(spriteBeachTileSE);
         break;
     case 11:
-        spriteBeachTileSW.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+        spriteBeachTileSW.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(spriteBeachTileSW);
         break;
     }
     if (this->showPaths) {
         if (!isPassable(i, j)) {
-            spriteTileObstructed.setPosition(worldSpace(i, j, true), worldSpace(i, j, false));
+            spriteTileObstructed.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
             window.draw(spriteTileObstructed);
         }
     }
@@ -198,8 +198,8 @@ bool gameState::buildingIsSelected(int& id)
 
 void gameState::drawMap()
 {
-    cords lowX = toWorldMousePosition(viewOffsetX-(mainWindowWidth/2), viewOffsetY-((mainWindowWidth*0.8)/2));
-    cords highX = toWorldMousePosition(viewOffsetX+(mainWindowWidth/2), viewOffsetY+((mainWindowWidth*0.8)/2));
+    cords lowX = toWorldMousePosition(viewOffsetX-(mainWindowWidth/2), static_cast<int>(viewOffsetY-((mainWindowWidth*0.8)/2)));
+    cords highX = toWorldMousePosition(viewOffsetX+(mainWindowWidth/2), static_cast<int>(viewOffsetY+((mainWindowWidth*0.8)/2)));
     cords lowY = toWorldMousePosition(viewOffsetX, viewOffsetY-(mainWindowWidth/2));
     cords highY = toWorldMousePosition(viewOffsetX, viewOffsetY+(mainWindowWidth/2));
     for(int j = 0; j < MAP_HEIGHT; j++)
@@ -212,7 +212,7 @@ void gameState::drawMap()
                     drawGround(i, j);
                 }
                 else {
-                    spriteBlackTile.setPosition(worldSpace(i, j, true), worldSpace(i, j, false));
+                    spriteBlackTile.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
                     window.draw(spriteBlackTile);
                 }
             }
@@ -235,7 +235,7 @@ void gameState::drawMap()
         for (int i = 0; i < MAP_WIDTH; i++)
         {
             if (this->visability[(i * MAP_HEIGHT) + j] <= 1) {
-                spriteMistTile.setPosition(worldSpace(i, j, true), worldSpace(i, j, false));
+                spriteMistTile.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
                 window.draw(spriteMistTile);
             }
         }
@@ -624,12 +624,12 @@ void gameState::calculateRectangle()
     endLocation[1] = this->mouseWorldPosition.y;
 
     //calculate highY = same screen Y but with start X
-    highYLocation[0] = toWorldMousePosition(this->startMouseCords[0], this->mousePosition.y).x;
-    highYLocation[1] = toWorldMousePosition(this->startMouseCords[0], this->mousePosition.y).y;
+    highYLocation[0] = toWorldMousePosition(this->startMouseCords[0], static_cast<int>(this->mousePosition.y)).x;
+    highYLocation[1] = toWorldMousePosition(this->startMouseCords[0], static_cast<int>(this->mousePosition.y)).y;
 
     //calculate lowY = same screen X but with start Y
-    lowYLocation[0] = toWorldMousePosition(this->mousePosition.x, this->startMouseCords[1]).x;
-    lowYLocation[1] = toWorldMousePosition(this->mousePosition.x, this->startMouseCords[1]).y;
+    lowYLocation[0] = toWorldMousePosition(static_cast<int>(this->mousePosition.x), this->startMouseCords[1]).x;
+    lowYLocation[1] = toWorldMousePosition(static_cast<int>(this->mousePosition.x), this->startMouseCords[1]).y;
 
     //Fix for edge-case: mouse Y is < start mouse Y
     int startLocation2[2] = {this->startLocation[0], this->startLocation[1]};
@@ -675,7 +675,7 @@ void gameState::calculateRectangle()
     int j = startLocation2[1]-1;
     while(i <= lowYLocation[0] && j >= lowYLocation[1])
     {
-        //add new coördanate {i, j} to a list
+        //add new coÃ¶rdanate {i, j} to a list
         if(i != lowYLocation[0] && j != lowYLocation[1])
         {
             this->rectangleCords.push_back({i, j});
@@ -689,7 +689,7 @@ void gameState::calculateRectangle()
     j = lowYLocation[1]+1;
     while( i <= endLocation[0] && j <= endLocation[1])
     {
-        //add new coördenates {i, j} to a list
+        //add new coÃ¶rdenates {i, j} to a list
         if(i != endLocation[0] && j != endLocation[1])
         {
             this->rectangleCords.push_back({i, j});
@@ -711,7 +711,7 @@ void gameState::calculateRectangle()
     j = highYLocation[1]-1;
     while(i <= endLocation[0] && j >= endLocation[1])
     {
-        //add new coördenates {i, j} to a list
+        //add new coÃ¶rdenates {i, j} to a list
         if(i != endLocation[0] && j != endLocation[1])
         {
             this->rectangleCords.push_back({i, j});
@@ -733,7 +733,7 @@ void gameState::calculateRectangle()
     j = startLocation2[1]+1;
     while( i <= highYLocation[0] && j <= highYLocation[1])
     {
-        //add new coördanates {i, j}to a list
+        //add new coÃ¶rdanates {i, j}to a list
         if( i != highYLocation[0] && j != highYLocation[1])
         {
             this->rectangleCords.push_back({i, j});
@@ -742,16 +742,16 @@ void gameState::calculateRectangle()
         j++;
     }
 
-    //sort the list on the Y coördanates
+    //sort the list on the Y coÃ¶rdanates
     if(!this->rectangleCords.empty())
     {
         std::sort(this->rectangleCords.begin(),this->rectangleCords.end(), rectCord);
     }
 
-    //add cells on the list between the two cells with the same Y coördanets repeat until list is empty
+    //add cells on the list between the two cells with the same Y coÃ¶rdanets repeat until list is empty
     if(!this->rectangleCords.empty())
     {
-        int stopAt = this->rectangleCords.size();
+        int stopAt = static_cast<int>(this->rectangleCords.size());
         for(int i = 0; i < stopAt; i++)
         {
             if (i < stopAt - 1) 
@@ -804,8 +804,8 @@ void gameState::calculateRectangle()
 }
 
 void gameState::changeViewFromMiniMap() {
-    viewOffsetX = ((mouseFakePosition.x - (mainWindowWidth * 0.8f)) / (0.2f * mainWindowWidth)) * (MAP_WIDTH * 64);
-    viewOffsetY = ((mouseFakePosition.y - (mainWindowHeigth * 0.8f)) / (0.2f * mainWindowHeigth)) * (MAP_HEIGHT * 32);
+    viewOffsetX = static_cast<int>(((mouseFakePosition.x - (mainWindowWidth * 0.8f)) / (0.2f * mainWindowWidth)) * (MAP_WIDTH * 64));
+    viewOffsetY = static_cast<int>(((mouseFakePosition.y - (mainWindowHeigth * 0.8f)) / (0.2f * mainWindowHeigth)) * (MAP_HEIGHT * 32));
 }
 
 void gameState::clickUIButton() {
@@ -840,7 +840,7 @@ void gameState::clickToPlaceBuilding() {
         if (buildingPlacable)
         {
             //Zet het gebouw neer
-            buildings newBuilding(this->buildingTypeSelected, this->mouseWorldPosition.x, this->mouseWorldPosition.y, listOfBuildings.size(), currentPlayer.getTeam());
+            buildings newBuilding(this->buildingTypeSelected, this->mouseWorldPosition.x, this->mouseWorldPosition.y, static_cast<int>(listOfBuildings.size()), currentPlayer.getTeam());
             listOfBuildings.push_back(newBuilding);
             if (this->isPlacingBuilding)
             {
@@ -891,7 +891,7 @@ void gameState::clickToPlaceObject()
         if (this->objectLocationList[mouseWorldPosition.x][mouseWorldPosition.y] == -1 && this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] == -1)
         {
             //Zet het object neer
-            objects newObject((objectTypes)this->objectTypeSelected, this->mouseWorldPosition.x, this->mouseWorldPosition.y, listOfObjects.size());
+            objects newObject(static_cast<objectTypes>(this->objectTypeSelected), this->mouseWorldPosition.x, this->mouseWorldPosition.y, static_cast<int>(listOfObjects.size()));
             listOfObjects.push_back(newObject);
         }
     }
@@ -906,7 +906,7 @@ void gameState::clickToPlaceActor()
         {
             //Zet de actor neer
             listOfActorsMutex.lock();
-            actors newActor(0, this->mouseWorldPosition.x, this->mouseWorldPosition.y, currentPlayer.getTeam(), listOfActors.size());
+            actors newActor(0, this->mouseWorldPosition.x, this->mouseWorldPosition.y, currentPlayer.getTeam(), static_cast<int>(listOfActors.size()));
             listOfActors.push_back(newActor);
             listOfActorsMutex.unlock();
         }
@@ -939,18 +939,18 @@ void gameState::clickToSelect()
     {
         this->startLocation[0] = this->mouseWorldPosition.x;
         this->startLocation[1] = this->mouseWorldPosition.y;
-        this->startMouseCords[0] = this->mousePosition.x;
-        this->startMouseCords[1] = this->mousePosition.y;
+        this->startMouseCords[0] = static_cast<int>(this->mousePosition.x);
+        this->startMouseCords[1] = static_cast<int>(this->mousePosition.y);
         clickToSelectObjectOrBuilding();
     }
 }
 
 void gameState::drawMouseBox() {
     if (!(this->startLocation[0] == this->mouseWorldPosition.x && this->startLocation[1] == this->mouseWorldPosition.y)) {
-        int diffX = this->startMouseCords[0] - (int)this->mousePosition.x;
-        int diffY = this->startMouseCords[1] - (int)this->mousePosition.y;
-        this->selectionRectangle.setSize(sf::Vector2f(diffX, diffY));
-        this->selectionRectangle.setPosition((int)this->mousePosition.x, (int)this->mousePosition.y);
+        int diffX = this->startMouseCords[0] - static_cast<int>(this->mousePosition.x);
+        int diffY = this->startMouseCords[1] - static_cast<int>(this->mousePosition.y);
+        this->selectionRectangle.setSize(sf::Vector2f(static_cast<float>(diffX), static_cast<float>(diffY)));
+        this->selectionRectangle.setPosition(mousePosition.x, this->mousePosition.y);
         window.draw(this->selectionRectangle);
     }
 }
@@ -1158,7 +1158,7 @@ nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId)
     if (!tileList.empty()) {
         for (int j = 0; j < tileList.size(); j++)
         {
-            float tempDeltaDistance = dist(listOfActors[actorId].getLocation().x, listOfActors[actorId].getLocation().y, tileList[j].tileX, tileList[j].tileY);
+            float tempDeltaDistance = static_cast<float>(dist(listOfActors[actorId].getLocation().x, listOfActors[actorId].getLocation().y, tileList[j].tileX, tileList[j].tileY));
             listOfBuildLocations.push_back({ tempDeltaDistance, tileList[j].tileX, tileList[j].tileY, tileList[j].goalX , tileList[j].goalY, tileList[j].tileId, true });
         }
         if (!listOfBuildLocations.empty())
@@ -1358,8 +1358,10 @@ void gameState::clickToGiveMinimapCommand()
     this->firstRound = true;
     this->lastIandJ[0] = 0;
     this->lastIandJ[1] = 0;
+
     cords minimapToWorldPosition;
-    minimapToWorldPosition = toWorldMousePosition(((mouseFakePosition.x - (mainWindowWidth * 0.8f)) / (0.2f * mainWindowWidth)) * (MAP_WIDTH * 64), ((mouseFakePosition.y - (mainWindowHeigth * 0.8f)) / (0.2f * mainWindowHeigth)) * (MAP_HEIGHT * 32));
+    minimapToWorldPosition = toWorldMousePosition(static_cast<int>(((mouseFakePosition.x - (mainWindowWidth * 0.8f)) / (0.2f * mainWindowWidth)) * (MAP_WIDTH * 64)), static_cast<int>(((mouseFakePosition.y - (mainWindowHeigth * 0.8f)) / (0.2f * mainWindowHeigth)) * (MAP_HEIGHT * 32)));
+
     for (int posX = minimapToWorldPosition.x - 1; posX < minimapToWorldPosition.x + 2; posX++) {
         for (int posY = minimapToWorldPosition.y - 1; posY < minimapToWorldPosition.y + 2; posY++) {
             clickToMove(posX, posY, true);
@@ -1488,7 +1490,7 @@ void gameState::interact()
 
     if (this->focus)
     {
-        this->mouseWorldPosition = toWorldMousePosition(this->mousePosition.x, this->mousePosition.y);
+        this->mouseWorldPosition = toWorldMousePosition(static_cast<int>(this->mousePosition.x), static_cast<int>(this->mousePosition.y));
         edgeScrolling();
     }
 
@@ -1639,7 +1641,7 @@ void gameState::drawMouseInteraction()
     }
     if(isPressedO)
     {
-        listOfObjects[0].drawObjectFootprint((objectTypes)this->objectTypeSelected, mouseWorldPosition.x, mouseWorldPosition.y);
+        listOfObjects[0].drawObjectFootprint(static_cast<objectTypes>(this->objectTypeSelected), mouseWorldPosition.x, mouseWorldPosition.y);
     }
 }
 
@@ -1726,62 +1728,62 @@ void drawMiniMapBackground(sf::RectangleShape& miniMapPixel)
                 {
                 case 0:
                     miniMapPixel.setFillColor(sf::Color(0, 0, 0));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapTexture.draw(miniMapPixel);
                     break;
                 case 1:
                     miniMapPixel.setFillColor(sf::Color(152, 205, 115));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapTexture.draw(miniMapPixel);
                     break;
                 case 2:
                     miniMapPixel.setFillColor(sf::Color(200, 160, 80));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapTexture.draw(miniMapPixel);
                     break;
                 case 3:
                     miniMapPixel.setFillColor(sf::Color(200, 160, 80));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapTexture.draw(miniMapPixel);
                     break;
                 case 4:
                     miniMapPixel.setFillColor(sf::Color(200, 160, 80));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapTexture.draw(miniMapPixel);
                     break;
                 case 5:
                     miniMapPixel.setFillColor(sf::Color(200, 160, 80));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapTexture.draw(miniMapPixel);
                     break;
                 case 6:
                     miniMapPixel.setFillColor(sf::Color(200, 160, 80));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapTexture.draw(miniMapPixel);
                     break;
                 case 7:
                     miniMapPixel.setFillColor(sf::Color(69, 164, 208));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapTexture.draw(miniMapPixel);
                     break;
                 case 8:
                     miniMapPixel.setFillColor(sf::Color(69, 164, 208));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapTexture.draw(miniMapPixel);
                     break;
                 case 9:
                     miniMapPixel.setFillColor(sf::Color(69, 164, 208));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapTexture.draw(miniMapPixel);
                     break;
                 case 10:
                     miniMapPixel.setFillColor(sf::Color(69, 164, 208));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapTexture.draw(miniMapPixel);
                     break;
                 case 11:
                     miniMapPixel.setFillColor(sf::Color(69, 164, 208));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapTexture.draw(miniMapPixel);
                     break;
                 }
@@ -1808,42 +1810,42 @@ void drawMiniMapBuildings(sf::RectangleShape& miniMapPixel)
                     {
                     case 0:
                         miniMapPixel.setFillColor(sf::Color(0, 0, 255));
-                        miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                         minimapBuildingsTexture.draw(miniMapPixel);
                         break;
                     case 1:
                         miniMapPixel.setFillColor(sf::Color(0, 255, 0));
-                        miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                         minimapBuildingsTexture.draw(miniMapPixel);
                         break;
                     case 2:
                         miniMapPixel.setFillColor(sf::Color(255, 0, 0));
-                        miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                         minimapBuildingsTexture.draw(miniMapPixel);
                         break;
                     case 3:
                         miniMapPixel.setFillColor(sf::Color(255, 255, 0 ));
-                        miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                         minimapBuildingsTexture.draw(miniMapPixel);
                         break;
                     case 4:
                         miniMapPixel.setFillColor(sf::Color(0, 255, 255));
-                        miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                         minimapBuildingsTexture.draw(miniMapPixel);
                         break;
                     case 5:
                         miniMapPixel.setFillColor(sf::Color(255, 0, 255));
-                        miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                         minimapBuildingsTexture.draw(miniMapPixel);
                         break;
                     case 6:
                         miniMapPixel.setFillColor(sf::Color(255, 127, 0));
-                        miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                         minimapBuildingsTexture.draw(miniMapPixel);
                         break;
                     case 7:
                         miniMapPixel.setFillColor(sf::Color(127, 127, 127));
-                        miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                         minimapBuildingsTexture.draw(miniMapPixel);
                         break;
                     }
@@ -1869,42 +1871,42 @@ void gameState::drawMiniMapActors(sf::RectangleShape& miniMapPixel)
                     {
                     case 0:
                         miniMapPixel.setFillColor(sf::Color(0, 0, 255));
-                        miniMapPixel.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
                         minimapActorsTexture.draw(miniMapPixel);
                         break;
                     case 1:
                         miniMapPixel.setFillColor(sf::Color(0, 255, 0));
-                        miniMapPixel.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
                         minimapActorsTexture.draw(miniMapPixel);
                         break;
                     case 2:
                         miniMapPixel.setFillColor(sf::Color(255, 0, 0));
-                        miniMapPixel.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
                         minimapActorsTexture.draw(miniMapPixel);
                         break;
                     case 3:
                         miniMapPixel.setFillColor(sf::Color(255, 255, 0));
-                        miniMapPixel.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
                         minimapActorsTexture.draw(miniMapPixel);
                         break;
                     case 4:
                         miniMapPixel.setFillColor(sf::Color(0, 255, 255));
-                        miniMapPixel.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
                         minimapActorsTexture.draw(miniMapPixel);
                         break;
                     case 5:
                         miniMapPixel.setFillColor(sf::Color(255, 0, 255));
-                        miniMapPixel.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
                         minimapActorsTexture.draw(miniMapPixel);
                         break;
                     case 6:
                         miniMapPixel.setFillColor(sf::Color(255, 127, 0));
-                        miniMapPixel.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
                         minimapActorsTexture.draw(miniMapPixel);
                         break;
                     case 7:
                         miniMapPixel.setFillColor(sf::Color(127, 127, 127));
-                        miniMapPixel.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
                         minimapActorsTexture.draw(miniMapPixel);
                         break;
                     }
@@ -1928,11 +1930,11 @@ void gameState::drawMiniMapMist(sf::RectangleShape& miniMapPixel)
             for (int i = 0; i < MAP_WIDTH; i++)
             {
                 if (this->visability[(i * MAP_HEIGHT) + j] == 0) {
-                    miniMapPixel.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
                     minimapMistTexture.draw(miniMapPixel);
                 }
                 else if (this->visability[(i * MAP_HEIGHT) + j] == 1) {
-                    miniMapPixelTL.setPosition(miniMapSpace(i, j, true), miniMapSpace(i, j, false));
+                    miniMapPixelTL.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
                     minimapMistTexture.draw(miniMapPixelTL);
                 }
             }
@@ -1955,22 +1957,22 @@ void drawMiniMapObjects(sf::RectangleShape& miniMapPixel)
                 {
                 case 0:
                     miniMapPixel.setFillColor(sf::Color(33, 77, 33));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapObjectsTexture.draw(miniMapPixel);
                     break;
                 case 1:
                     miniMapPixel.setFillColor(sf::Color(150, 88, 88));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapObjectsTexture.draw(miniMapPixel);
                     break;
                 case 2:
                     miniMapPixel.setFillColor(sf::Color(65, 65, 65));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapObjectsTexture.draw(miniMapPixel);
                     break;
                 case 3:
                     miniMapPixel.setFillColor(sf::Color(110, 90, 0 ));
-                    miniMapPixel.setPosition(miniMapSpace(i,j,true), miniMapSpace(i,j,false));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapObjectsTexture.draw(miniMapPixel);
                     break;
                 }
@@ -2017,8 +2019,8 @@ void gameState::drawMiniMap()
     viewBox.setFillColor(sf::Color(0,0,0,0));
     viewBox.setOutlineThickness(3.f);
     viewBox.setOutlineColor(sf::Color(255,255,255));
-    float xBoxLocation = (viewOffsetX/(float)this->mapPixelWidth)*this->miniMapWidth;
-    float yBoxLocation = (viewOffsetY/(float)this->mapPixelHeigth)*this->miniMapHeigth;
+    float xBoxLocation = (viewOffsetX/ static_cast<float>(this->mapPixelWidth)*this->miniMapWidth);
+    float yBoxLocation = (viewOffsetY/ static_cast<float>(this->mapPixelHeigth)*this->miniMapHeigth);
     viewBox.setPosition(xBoxLocation, yBoxLocation);
     window.draw(viewBox);
     window.setView(worldView);
@@ -2064,7 +2066,7 @@ void addActorSelectorButton(int& actorId, int& startDeck, int& tempY, int& start
         buttonType = 7;
         break;
     }
-    button newButton = { startDeck, tempY, (spriteTypes)buttonType, actionUnitSelect, actorId, static_cast<int>(listOfButtons.size()),0 };
+    button newButton = { startDeck, tempY, static_cast<spriteTypes>(buttonType), actionUnitSelect, actorId, static_cast<int>(listOfButtons.size()),0 };
     listOfButtons.push_back(newButton);
     if (tempY == startY)
     {
@@ -2096,14 +2098,14 @@ void gameState::drawActorTitle(int& actorId, int& textStartX, int& textStartY)
     text.setOutlineColor(sf::Color::Black);
     text.setOutlineThickness(2.f);
     text.setFillColor(sf::Color::White);
-    text.setPosition(textStartX, textStartY);
+    text.setPosition(static_cast<float>(textStartX), static_cast<float>(textStartY));
     window.draw(text);
 }
 
 void gameState::drawActorBigSprite(int& actorId)
 {
     this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(128, getActorSpriteOffSet(actorId), 128, 128));
-    this->spriteBigSelectedIcon.setPosition(mainWindowWidth / 4.08, mainWindowHeigth / 30);
+    this->spriteBigSelectedIcon.setPosition(static_cast<float>(mainWindowWidth / 4.08), static_cast<float>(mainWindowHeigth / 30));
     window.draw(this->spriteBigSelectedIcon);
 }
 
@@ -2114,30 +2116,30 @@ void gameState::drawActorStats(int& actorId, int& textStartX, int& textStartY)
     healthText << "Hitpoints: " << listOfActors[actorId].getHealth().first << "/" << listOfActors[actorId].getHealth().second;
     text.setString(healthText.str());
     textStartY += 50;
-    text.setPosition(textStartX, textStartY);
+    text.setPosition(static_cast<float>(textStartX), static_cast<float>(textStartY));
     window.draw(text);
     textStartY += 20;
     std::stringstream attakPoints;
     attakPoints << "Melee damage: " << listOfActors[actorId].getMeleeDMG();
     text.setString(attakPoints.str());
-    text.setPosition(textStartX, textStartY);
+    text.setPosition(static_cast<float>(textStartX), static_cast<float>(textStartY));
     window.draw(text);
     std::stringstream rangedDamage;
     rangedDamage << "Ranged damage: " << listOfActors[actorId].getRangedDMG();
     textStartY += 20;
     text.setString(rangedDamage.str());
-    text.setPosition(textStartX, textStartY);
+    text.setPosition(static_cast<float>(textStartX), static_cast<float>(textStartY));
     window.draw(text);
     std::stringstream teamId;
     teamId << "Team: " << listOfActors[actorId].getTeam();
     textStartY += 20;
     text.setString(teamId.str());
-    text.setPosition(textStartX, textStartY);
+    text.setPosition(static_cast<float>(textStartX), static_cast<float>(textStartY));
     window.draw(text);
     if (listOfActors[actorId].getType() == 0) {
         textStartY += 20;
         text.setString(listOfActors[actorId].getRecources());
-        text.setPosition(textStartX, textStartY);
+        text.setPosition(static_cast<float>(textStartX), static_cast<float>(textStartY));
         window.draw(text);
     }
 }
@@ -2145,8 +2147,8 @@ void gameState::drawActorStats(int& actorId, int& textStartX, int& textStartY)
 void gameState::drawActorToolbar(int &startX, int &startY, int &incrementalXOffset, int &spriteYOffset, int &startDeck, int &tempY, int &incrementalYOffset, int &offSetTonextCard)
 {
     bool villagerButtonsAreThere = false;
-    int textStartX = (mainWindowWidth / 4.08) + (128 + (mainWindowWidth / 160));
-    int textStartY = mainWindowHeigth / 30;
+    int textStartX = static_cast<int>((mainWindowWidth / 4.08) + (128 + (mainWindowWidth / 160)));
+    int textStartY = static_cast<int>(mainWindowHeigth / 30);
     for (int i = 0; i < this->selectedUnits.size(); i++)
     {
         if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
@@ -2240,7 +2242,7 @@ void createBuildingButtons(int& buildingId, int& startX, int& startY)
 void gameState::drawBuildingBigSprite(int& buildingId)
 {
     this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(0, getBuildingSpriteOffset(buildingId), 128, 128));
-    this->spriteBigSelectedIcon.setPosition(mainWindowWidth / 4.08, mainWindowHeigth / 30);
+    this->spriteBigSelectedIcon.setPosition(static_cast<float>(mainWindowWidth / 4.08), static_cast<float>(mainWindowHeigth / 30));
     window.draw(this->spriteBigSelectedIcon);
 }
 
@@ -2251,7 +2253,7 @@ void gameState::drawBuildingToolbarTitle(int& textStartX, int& textStartY)
     text.setOutlineColor(sf::Color::Black);
     text.setOutlineThickness(2.f);
     text.setFillColor(sf::Color::White);
-    text.setPosition(textStartX, textStartY);
+    text.setPosition(static_cast<float>(textStartX), static_cast<float>(textStartY));
     window.draw(text);
 }
 
@@ -2262,40 +2264,40 @@ void gameState::drawBuildingToolbarStats(int& textStartX, int& textStartY)
     healthText << "Hitpoints: " << listOfBuildings[this->buildingSelectedId].getHealth().first << "/" << listOfBuildings[this->buildingSelectedId].getHealth().second;
     text.setString(healthText.str());
     textStartY += 50;
-    text.setPosition(textStartX, textStartY);
+    text.setPosition(static_cast<float>(textStartX), static_cast<float>(textStartY));
     window.draw(text);
     textStartY += 20;
     std::stringstream attakPoints;
     attakPoints << "Occupants: TBI";
     text.setString(attakPoints.str());
-    text.setPosition(textStartX, textStartY);
+    text.setPosition(static_cast<float>(textStartX), static_cast<float>(textStartY));
     window.draw(text);
     std::stringstream rangedDamage;
     rangedDamage << "Ranged damage: " << listOfBuildings[this->buildingSelectedId].getRangedDMG();
     textStartY += 20;
     text.setString(rangedDamage.str());
-    text.setPosition(textStartX, textStartY);
+    text.setPosition(static_cast<float>(textStartX), static_cast<float>(textStartY));
     window.draw(text);
     std::stringstream teamId;
     teamId << "Team: " << listOfBuildings[this->buildingSelectedId].getTeam();
     textStartY += 20;
     text.setString(teamId.str());
-    text.setPosition(textStartX, textStartY);
+    text.setPosition(static_cast<float>(textStartX), static_cast<float>(textStartY));
     window.draw(text);
 }
 
 void gameState::drawProgressBar(float pointsGained, float pointsRequired, int& totalBarLength, int& startBarX, int& startBarY)
 {
-    sf::RectangleShape totalBar(sf::Vector2f(totalBarLength, 18.f));
+    sf::RectangleShape totalBar(sf::Vector2f(static_cast<float>(totalBarLength), 18.f));
     sf::RectangleShape completeBar(sf::Vector2f((pointsGained /pointsRequired ) * totalBarLength, 18.f));
     totalBar.setFillColor(sf::Color(255, 0, 0));
     totalBar.setOutlineThickness(1.f);
     totalBar.setOutlineColor(sf::Color(0, 0, 0));
-    totalBar.setPosition(startBarX, startBarY);
+    totalBar.setPosition(static_cast<float>(startBarX), static_cast<float>(startBarY));
     completeBar.setFillColor(sf::Color(0, 255, 0));
     completeBar.setOutlineThickness(1.f);
     completeBar.setOutlineColor(sf::Color(0, 0, 0));
-    completeBar.setPosition(startBarX, startBarY);
+    completeBar.setPosition(static_cast<float>(startBarX), static_cast<float>(startBarY));
     window.draw(totalBar);
     window.draw(completeBar);
 }
@@ -2369,50 +2371,50 @@ int getCardForButtonByTask(int& buildingId, int& taskId)
 
 void gameState::drawBuildingTaskToolbar(int& startDeck, int& startY)
 {
-    int iconStartX = startDeck + (mainWindowWidth / 30);
-    int iconStartY = startY + (mainWindowHeigth / 27);
-    int startBarX = iconStartX + (mainWindowWidth / 25.6);
-    int startBarY = iconStartY + (mainWindowHeigth / 46.9);
-    int totalBarLength = mainWindowWidth / 6.4f;
-    int percentageCompleted = ((float)listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsGained / (float)listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsNeeded) * 100;
+    int iconStartX = startDeck + static_cast<int>(mainWindowWidth / 30);
+    int iconStartY = startY + static_cast<int>(mainWindowHeigth / 27);
+    int startBarX = iconStartX + static_cast<int>(mainWindowWidth / 25.6);
+    int startBarY = iconStartY + static_cast<int>(mainWindowHeigth / 46.9);
+    int totalBarLength = static_cast<int>(mainWindowWidth / 6.4f);
+    int percentageCompleted = static_cast<int>(static_cast<float>(listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsGained) / static_cast<float>(listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsNeeded)) * 100;
     int tempXOffset = 0;
     int tempYOffset = 0;
-    drawProgressBar(listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsGained, listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsNeeded, totalBarLength, startBarX, startBarY);
+    drawProgressBar(static_cast<float>(listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsGained), static_cast<float>(listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsNeeded), totalBarLength, startBarX, startBarY);
     text.setString("Producing: " + getBuildingIsProducingName(this->buildingSelectedId) + " " + std::to_string(percentageCompleted) + "%...");
-    text.setPosition(startBarX, iconStartY);
+    text.setPosition(static_cast<float>(startBarX), static_cast<float>(iconStartY));
     window.draw(text);
     this->spriteUIButton.setTextureRect(sf::IntRect(getSpriteOffSetTask(this->buildingSelectedId).x, getSpriteOffSetTask(this->buildingSelectedId).y, 64, 64));
-    this->spriteUIButton.setPosition(iconStartX, iconStartY);
+    this->spriteUIButton.setPosition(static_cast<float>(iconStartX), static_cast<float>(iconStartY));
     window.draw(this->spriteUIButton);
-    button cancelTask = { static_cast<int>(startBarX + totalBarLength + (mainWindowWidth / 174.54)), iconStartY, spriteCancel, actionCancelProduction, this->buildingSelectedId, (int)listOfButtons.size(), 0 };
+    button cancelTask = { static_cast<int>(startBarX + totalBarLength + static_cast<int>(mainWindowWidth / 174.54)), iconStartY, spriteCancel, actionCancelProduction, this->buildingSelectedId, static_cast<int>(listOfButtons.size()), 0 };
     listOfButtons.push_back(cancelTask);
     if (listOfBuildings[this->buildingSelectedId].productionQueue.size() > 1)
     {
-        tempXOffset = iconStartX + (mainWindowWidth / 24.93);
-        tempYOffset = iconStartY + (mainWindowHeigth / 22.97);
+        tempXOffset = iconStartX + static_cast<int>(mainWindowWidth / 24.93);
+        tempYOffset = iconStartY + static_cast<int>(mainWindowHeigth / 22.97);
         for (int i = 1; i < listOfBuildings[this->buildingSelectedId].productionQueue.size(); i++)
         {
-            button tempButton = { tempXOffset, tempYOffset, (spriteTypes)getCardForButtonByTask(this->buildingSelectedId, i), actionCancelProduction, this->buildingSelectedId, (int)listOfButtons.size(), i };
+            button tempButton = { tempXOffset, tempYOffset, static_cast<spriteTypes>(getCardForButtonByTask(this->buildingSelectedId, i)), actionCancelProduction, this->buildingSelectedId, static_cast<int>(listOfButtons.size()), i };
             listOfButtons.push_back(tempButton);
-            tempXOffset += 64 + (mainWindowWidth / 160);
+            tempXOffset += 64 + static_cast<int>(mainWindowWidth / 160);
         }
     }
 }
 
 void gameState::drawBuildingConstructionToolbar(int& startDeck, int& startY)
 {
-    int iconStartX = startDeck + (mainWindowWidth / 30);
-    int iconStartY = startY + (mainWindowHeigth / 27);
-    int startBarX = iconStartX + (mainWindowWidth / 25.6);
-    int startBarY = iconStartY + (mainWindowHeigth / 46.9);
-    int totalBarLength = mainWindowWidth / 6.4f;
-    drawProgressBar((float)listOfBuildings[this->buildingSelectedId].getBuildingPoints().first, (float)listOfBuildings[this->buildingSelectedId].getBuildingPoints().second, totalBarLength, startBarX, startBarY);
-    int percentageCompleted = ((float)listOfBuildings[this->buildingSelectedId].getBuildingPoints().first / (float)listOfBuildings[this->buildingSelectedId].getBuildingPoints().second) * 100;
+    int iconStartX = startDeck + static_cast<int>(mainWindowWidth / 30);
+    int iconStartY = startY + static_cast<int>(mainWindowHeigth / 27);
+    int startBarX = iconStartX + static_cast<int>(mainWindowWidth / 25.6);
+    int startBarY = iconStartY + static_cast<int>(mainWindowHeigth / 46.9);
+    int totalBarLength = static_cast<int>(mainWindowWidth / 6.4f);
+    drawProgressBar(static_cast<float>(listOfBuildings[this->buildingSelectedId].getBuildingPoints().first), static_cast<float>(listOfBuildings[this->buildingSelectedId].getBuildingPoints().second), totalBarLength, startBarX, startBarY);
+    int percentageCompleted = static_cast<int>(static_cast<float>(listOfBuildings[this->buildingSelectedId].getBuildingPoints().first) / static_cast<float>(listOfBuildings[this->buildingSelectedId].getBuildingPoints().second)) * 100;
     text.setString("Building: " + listOfBuildings[this->buildingSelectedId].getName() + " " + std::to_string(percentageCompleted) + "%...");
-    text.setPosition(startBarX, iconStartY);
+    text.setPosition(static_cast<float>(startBarX), static_cast<float>(iconStartY));
     window.draw(text);
     this->spriteUIButton.setTextureRect(sf::IntRect(0, (getBuildingSpriteOffset(this->buildingSelectedId) / 2), 64, 64));
-    this->spriteUIButton.setPosition(iconStartX, iconStartY);
+    this->spriteUIButton.setPosition(static_cast<float>(iconStartX), static_cast<float>(iconStartY));
     window.draw(this->spriteUIButton);
     button cancelBuilding = { static_cast<int>(startBarX + totalBarLength + (mainWindowWidth / 174.54)), iconStartY, spriteCancel, actionCancelBuilding, this->buildingSelectedId, static_cast<int>(listOfButtons.size()),0 };
     listOfButtons.push_back(cancelBuilding);
@@ -2420,8 +2422,8 @@ void gameState::drawBuildingConstructionToolbar(int& startDeck, int& startY)
 
 void gameState::drawBuildingToolbar(int& startX, int& startY, int& incrementalXOffset, int& spriteYOffset, int& startDeck, int& tempY, int& incrementalYOffset, int& offSetTonextCard)
 {
-    int textStartX = (mainWindowWidth / 4.08) + (128 + (mainWindowWidth / 160));
-    int textStartY = mainWindowHeigth / 30;
+    int textStartX = static_cast<int>((mainWindowWidth / 4.08) + (128 + (mainWindowWidth / 160)));
+    int textStartY = static_cast<int>(mainWindowHeigth / 30);
     createBuildingButtons(this->buildingSelectedId, startX, startY);
     drawBuildingBigSprite(this->buildingSelectedId);
     drawBuildingToolbarTitle(textStartX, textStartY);
@@ -2469,23 +2471,23 @@ int getObjectBigSpriteYOffset(int& objectId)
 void gameState::drawObjectToolbar(int& startX, int& startY, int& incrementalXOffset, int& spriteYOffset, int& startDeck, int& tempY, int& incrementalYOffset, int& offSetTonextCard)
 {
     this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(256, getObjectBigSpriteYOffset(this->objectSelectedId), 128, 128));
-    this->spriteBigSelectedIcon.setPosition(mainWindowWidth / 4.08, mainWindowHeigth / 30);
+    this->spriteBigSelectedIcon.setPosition(static_cast<float>(mainWindowWidth / 4.08), static_cast<float>(mainWindowHeigth / 30));
     window.draw(this->spriteBigSelectedIcon);
     text.setString(listOfObjects[this->objectSelectedId].getName());
     text.setCharacterSize(26);
     text.setOutlineColor(sf::Color::Black);
     text.setOutlineThickness(2.f);
     text.setFillColor(sf::Color::White);
-    int textStartX = (mainWindowWidth / 4.08) + (128 + (mainWindowWidth / 160));
-    int textStartY = mainWindowHeigth / 30;
-    text.setPosition(textStartX, textStartY);
+    int textStartX = static_cast<int>((mainWindowWidth / 4.08) + (128 + (mainWindowWidth / 160)));
+    int textStartY = static_cast<int>(mainWindowHeigth / 30);
+    text.setPosition(static_cast<float>(textStartX), static_cast<float>(textStartY));
     window.draw(text);
     text.setCharacterSize(18);
     std::stringstream resourcesLeftText;
     resourcesLeftText << listOfObjects[this->objectSelectedId].nameOfResource() << " left: " << listOfObjects[this->objectSelectedId].amountOfResourcesLeft();
     text.setString(resourcesLeftText.str());
     textStartY += 50;
-    text.setPosition(textStartX, textStartY);
+    text.setPosition(static_cast<float>(textStartX), static_cast<float>(textStartY));
     window.draw(text);
 }
 
@@ -2507,15 +2509,15 @@ void gameState::drawToolbar()
     int incrementalXOffset = 64+(mainWindowWidth/160);
     int incrementalYOffset = 64+(mainWindowHeigth/90);
     int spriteYOffset;
-    int cardDeckSize = mainWindowWidth / 1.82;
-    int amountOfCardsPerRow = (this->selectedUnits.size()+1)/2;
+    int cardDeckSize = static_cast<int>(mainWindowWidth / 1.82);
+    int amountOfCardsPerRow = static_cast<int>((this->selectedUnits.size()+1)/2);
     int requiredSize = amountOfCardsPerRow*64;
-    int devider = (this->selectedUnits.size()+1)/2;
+    int devider = static_cast<int>((this->selectedUnits.size()+1)/2);
     if(devider == 0) devider = 1;
     int spaceBetweenCards = (cardDeckSize - requiredSize)/devider;
     int offSetTonextCard = 64 + spaceBetweenCards;
-    int startDeck = mainWindowWidth / 4.2;
-    int startProgress = mainWindowWidth / 2.48;
+    int startDeck = static_cast<int>(mainWindowWidth / 4.2);
+    int startProgress = static_cast<int>(mainWindowWidth / 2.48);
 
     if(!this->selectedUnits.empty())
     {
@@ -2538,7 +2540,7 @@ void gameState::drawTopBar()
     window.setView(topBar);
     playerStats tempStats = currentPlayer.getStats();
     std::stringstream resourcesText;
-    int seconds = currentGame.elapsedTime; //Tijd in seconden
+    int seconds = static_cast<int>(currentGame.elapsedTime); //Tijd in seconden
     int minutes = 0;
     int hours = 0;
     if (seconds >= 60) {
@@ -2623,7 +2625,7 @@ void drawCommandCursors()
 void gameState::drawGame()
 {
     window.clear(sf::Color(0, 0, 0));
-    worldView.setCenter(viewOffsetX, viewOffsetY);
+    worldView.setCenter(static_cast<float>(viewOffsetX), static_cast<float>(viewOffsetY));
     window.setView(totalView);
     window.draw(spriteTotalBackground);
     window.setView(worldView);
@@ -2740,7 +2742,7 @@ void gameState::setDefaultValues()
     this->topBarHeigth = mainWindowHeigth * 0.03f;
     this->viewBoxX = mainWindowWidth / (this->mapPixelWidth / this->miniMapWidth);
     this->viewBoxY = (mainWindowHeigth * 0.77f) / (this->mapPixelHeigth / this->miniMapHeigth);
-    this->toolBarWidth = mainWindowWidth - miniMapWidth;
+    this->toolBarWidth = static_cast<int>(mainWindowWidth - miniMapWidth);
     this->isPlacingBuilding = false;
     this->buildingSelectedId = -1;
     this->objectSelectedId = -1;
@@ -2766,7 +2768,7 @@ void showLoadingScreen() {
     currentGame.text.setOutlineThickness(1.f);
     currentGame.text.setFillColor(sf::Color::Yellow);
     currentGame.text.setString("Loading...");
-    currentGame.text.setPosition(mainWindowWidth/2, mainWindowHeigth/2);
+    currentGame.text.setPosition(static_cast<float>(mainWindowWidth/2), static_cast<float>(mainWindowHeigth/2));
     window.clear();
     window.draw(currentGame.text);
     window.display();

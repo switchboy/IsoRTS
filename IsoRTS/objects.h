@@ -11,16 +11,17 @@ class objects
 public:
     objects(){}
     objects(objectTypes type, int startXlocation, int startYLocation, int buildingId);
-    std::string     getName();
-    objectTypes     getType();
-    void            drawObjectFootprint(objectTypes type, int mouseWorldX, int mouseWorldY);
-    void            drawObject(int i, int j);
-    void            drawObjectSprite(int spriteNumber, int i, int j);
-    resourceTypes   getTypeOfResource();
+    std::string     getName() const;
+    objectTypes     getType() const;
+    void            drawObjectFootprint(objectTypes type, int mouseWorldX, int mouseWorldY) const;
+    void            drawObject(int i, int j) const;
+    void            drawObjectSprite(int spriteNumber, int i, int j) const;
+    resourceTypes   getTypeOfResource() const;
     void            substractResource();
-    cords  getLocation();
-    int             amountOfResourcesLeft();
-    std::string     nameOfResource();
+    cords  getLocation() const;
+    int             amountOfResourcesLeft() const;
+    std::string     nameOfResource() const;
+
 
 private:
     int           objectId;

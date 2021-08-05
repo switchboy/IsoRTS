@@ -5,12 +5,12 @@
 #include <math.h>
 #include <iostream>
 
-float PI = acos(-1); 
+const float PI = static_cast<float>(acos(-1));
 std::vector<projectile> listOfProjectiles;
 
 
 float radiansToDegree(float radians) {
-	return radians * (180.0 / PI);
+	return static_cast<float>(radians * (180.0 / PI));
 }
 
 float giveAnngleOfSpriteInDGR(float screenVelocityX, float screenVelocityY)
@@ -28,17 +28,17 @@ float giveAnngleOfSpriteInDGR(float screenVelocityX, float screenVelocityY)
 
 projectile::projectile(int projectileStartX, int projectileStartY, int projectileTargetX, int projectileTargetY, int projectileType, int damageOnImpact, int splashDamageOnImpact, int firedBy)
 {
-	this->X = worldSpace(projectileStartX, projectileStartY, true);
-	this->Y = worldSpace(projectileStartX, projectileStartY, false);
+	this->X = static_cast<float>(worldSpace(projectileStartX, projectileStartY, true));
+	this->Y = static_cast<float>(worldSpace(projectileStartX, projectileStartY, false));
 	this->Z = 0;
 	this->projectileType = projectileType;
 	this->damageOnImpact = damageOnImpact;
 	this->projectileTarget = { projectileTargetX, projectileTargetY };
 	this->projectilePosition = {projectileStartX, projectileStartY};
 	this->splashDamageOnImpact = splashDamageOnImpact;
-	float travelTimeInSeconds = distEuclidean(projectileStartX * 32.f, projectileStartY * 32.f, projectileTargetX * 32.f, projectileTargetY * 32.f) / 128.f; //32 pixel/s
-	this->deltaX = (this->X - float(worldSpace(this->projectileTarget.x, this->projectileTarget.y, true))) / travelTimeInSeconds;
-	this->deltaY = (this->Y - float(worldSpace(this->projectileTarget.x, this->projectileTarget.y, false))) / travelTimeInSeconds;
+	float travelTimeInSeconds = static_cast<float>(distEuclidean(projectileStartX * 32.f, projectileStartY * 32.f, projectileTargetX * 32.f, projectileTargetY * 32.f)) / 128.f; //32 pixel/s
+	this->deltaX = (this->X - static_cast<float>(worldSpace(this->projectileTarget.x, this->projectileTarget.y, true))) / travelTimeInSeconds;
+	this->deltaY = (this->Y - static_cast<float>(worldSpace(this->projectileTarget.x, this->projectileTarget.y, false))) / travelTimeInSeconds;
 	this->deltaZ = travelTimeInSeconds*3;
 	this->timeFired = currentGame.getTime();
 	this->reachedTarget = false;

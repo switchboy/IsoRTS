@@ -965,35 +965,35 @@ void actors::startGatheringAnimation()
     {
     case 0:
         this->offSetX = 0;
-        this->offSetY = -northSouth;
+        this->offSetY = static_cast<float>(-northSouth);
         break;
     case 1:
-        this->offSetX = diagonalX;
-        this->offSetY = -diagonalY;
+        this->offSetX = static_cast<float>(diagonalX);
+        this->offSetY = static_cast<float>(-diagonalY);
         break;
     case 2:
-        this->offSetX = eastWest;
+        this->offSetX = static_cast<float>(eastWest);
         this->offSetY = 0;
         break;
     case 3:
-        this->offSetX = diagonalX;
-        this->offSetY = diagonalY;
+        this->offSetX = static_cast<float>(diagonalX);
+        this->offSetY = static_cast<float>(diagonalY);
         break;
     case 4:
         this->offSetX = 0;
-        this->offSetY = northSouth;
+        this->offSetY = static_cast<float>(northSouth);
         break;
     case 5:
-        this->offSetX = -diagonalX;
-        this->offSetY = diagonalY;
+        this->offSetX = static_cast<float>(-diagonalX);
+        this->offSetY = static_cast<float>(diagonalY);
         break;
     case 6:
-        this->offSetX = -eastWest;
+        this->offSetX = static_cast<float>(-eastWest);
         this->offSetY = 0;
         break;
     case 7:
-        this->offSetX = -diagonalX;
-        this->offSetY = -diagonalY;
+        this->offSetX = static_cast<float>(-diagonalX);
+        this->offSetY = static_cast<float>(-diagonalY);
         break;
 
     }
@@ -1277,7 +1277,7 @@ void actors::findNearestDropOffPoint()
                         std::vector<adjacentTile> tileList = listOfBuildings[i].getDropOffTiles();
                         for (int j = 1; j < tileList.size(); j++)
                         {
-                            float tempDeltaDistance = dist(this->actorCords[0], this->actorCords[1], tileList[j].goalX, tileList[j].goalY);
+                            float tempDeltaDistance = static_cast<float>(dist(this->actorCords[0], this->actorCords[1], tileList[j].goalX, tileList[j].goalY));
                             listOfDropOffLocations.push_back({ tempDeltaDistance, tileList[j].tileX, tileList[j].tileY, tileList[j].goalX, tileList[j].goalY, i, true, tileList[j].tileId });
                         }
                     }
@@ -1699,8 +1699,8 @@ void actors:: drawActor()
             float deltaTime = currentGame.elapsedTime - this->timeLastUpdate;
             float deltaXCompleted = deltaX * deltaTime;
             float deltaYCompleted = deltaY * deltaTime;
-            xPosition = xPosition - deltaXCompleted;
-            yPosition = yPosition - deltaYCompleted;
+            xPosition = xPosition - static_cast<int>(deltaXCompleted);
+            yPosition = yPosition - static_cast<int>(deltaYCompleted);
         }
     }
     else if(this->isAtRecource)
@@ -1783,19 +1783,19 @@ void actors:: drawActor()
         spriteXoffset = 0 + spriteOffset;
         break;
     }
-    xPosition = xPosition + this->offSetX;
-    yPosition = yPosition + this->offSetY;
+    xPosition = xPosition + static_cast<int>(this->offSetX);
+    yPosition = yPosition + static_cast<int>(this->offSetY);
 
     bool drawHealth = false;
 
     if(currentGame.isInSelectedActors(this->actorId))
     {
-        currentGame.spriteUnitSelectedTile.setPosition(xPosition, yPosition);
+        currentGame.spriteUnitSelectedTile.setPosition(static_cast<float>(xPosition), static_cast<float>(yPosition));
         window.draw(currentGame.spriteUnitSelectedTile);
         drawHealth = true;
         if (!this->listOfOrders.empty() && this->actorTeam == currentPlayer.getTeam()) {
             for (const orderStack order : this->listOfOrders) {
-                currentGame.spriteFlag.setPosition(worldSpace(order.goal.x, order.goal.y, true), worldSpace(order.goal.x, order.goal.y, false));
+                currentGame.spriteFlag.setPosition(static_cast<float>(worldSpace(order.goal.x, order.goal.y, true)), static_cast<float>(worldSpace(order.goal.x, order.goal.y, false)));
                 window.draw(currentGame.spriteFlag);
             }
         }
@@ -1809,12 +1809,12 @@ void actors:: drawActor()
     switch (this->actorType) 
     {
     case 0:
-        currentGame.spriteVillager.setPosition(xPosition, yPosition);
+        currentGame.spriteVillager.setPosition(static_cast<float>(xPosition), static_cast<float>(yPosition));
         currentGame.spriteVillager.setTextureRect(sf::IntRect(spriteXoffset, spriteYoffset, 16, 32));
         window.draw(currentGame.spriteVillager);
         break;
     case 1:
-        currentGame.spriteSwordsman.setPosition(xPosition, yPosition);
+        currentGame.spriteSwordsman.setPosition(static_cast<float>(xPosition), static_cast<float>(yPosition));
         currentGame.spriteSwordsman.setTextureRect(sf::IntRect(spriteXoffset, spriteYoffset, 16, 32));
         window.draw(currentGame.spriteSwordsman);
     }
@@ -1823,9 +1823,9 @@ void actors:: drawActor()
         currentGame.healthBarBackground.setFillColor(sf::Color(255, 0, 0));
         currentGame.healthBarBackground.setSize(sf::Vector2f(32, 3));
         currentGame.healthBarGreenBar.setFillColor(sf::Color(0, 255, 0));
-        currentGame.healthBarGreenBar.setSize(sf::Vector2f(((float)this->actorHealth / (float)this->hitPoints) * 32, 3));
-        currentGame.healthBarBackground.setPosition(xPosition+16, yPosition-28);
-        currentGame.healthBarGreenBar.setPosition(xPosition+16, yPosition-28);
+        currentGame.healthBarGreenBar.setSize(sf::Vector2f((static_cast<float>(this->actorHealth) / static_cast<float>(this->hitPoints)) * 32, 3));
+        currentGame.healthBarBackground.setPosition(static_cast<float>(xPosition+16), static_cast<float>(yPosition-28));
+        currentGame.healthBarGreenBar.setPosition(static_cast<float>(xPosition+16), static_cast<float>(yPosition-28));
         window.draw(currentGame.healthBarBackground);
         window.draw(currentGame.healthBarGreenBar);
 
@@ -1905,7 +1905,7 @@ void actors::renderPath()
     std::list<routeCell>::iterator it;
     for(it = route.begin(); it!=route.end(); it++)
     {
-        currentGame.spriteSelectedTileForPath.setPosition(worldSpace(it->positionX, it->positionY, true), worldSpace(it->positionX, it->positionY, false));
+        currentGame.spriteSelectedTileForPath.setPosition(static_cast<float>(worldSpace(it->positionX, it->positionY, true)), static_cast<float>(worldSpace(it->positionX, it->positionY, false)));
         window.draw(currentGame.spriteSelectedTileForPath);
     }
 }

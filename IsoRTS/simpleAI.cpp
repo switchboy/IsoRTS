@@ -39,7 +39,7 @@ void simpleAI::update()
 
 void simpleAI::buildBuilding(int buildingId, cords buildingCords)
 {
-	buildings newBuilding(buildingId, buildingCords.x, buildingCords.y, listOfBuildings.size(), this->playerId);
+	buildings newBuilding(buildingId, buildingCords.x, buildingCords.y, static_cast<int>(listOfBuildings.size()), this->playerId);
 	listOfBuildings.push_back(newBuilding);
 	listOfPlayers[this->playerId].substractResources(0, priceOfBuilding[buildingId].wood);
 	listOfPlayers[this->playerId].substractResources(1, priceOfBuilding[buildingId].food);
@@ -84,7 +84,7 @@ int distanceToResource(int kind, cords from) {
 		//more efficient search method; searching in a range 3600 squares have to be evaluated. Searching in the object list ~3100 items should be evaluated within one loop
 		for (int i = 0; i < listOfObjects.size(); i++) {
 			if (listOfObjects[i].getTypeOfResource() == kind) {
-				float tempDeltaDistance = distEuclidean(from.x, from.y, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y);
+				float tempDeltaDistance = static_cast<float>(distEuclidean(from.x, from.y, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y));
 				listOfResourceLocations.push_back({ tempDeltaDistance, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y, i, true });
 			}
 		}
@@ -95,7 +95,7 @@ int distanceToResource(int kind, cords from) {
 			{
 				return f.deltaDistance < s.deltaDistance;
 			});
-		return listOfResourceLocations.front().deltaDistance;
+		return static_cast<int>(listOfResourceLocations.front().deltaDistance);
 	}
 	else {
 		return 9999;
@@ -113,7 +113,7 @@ cords findResource(int kind, int unitId ) {
 
 	for (int i = 0; i < listOfObjects.size(); i++) {
 		if (listOfObjects[i].getTypeOfResource() == kind) {
-			float tempDeltaDistance = distEuclidean(listOfActors[unitId].getLocation().x, listOfActors[unitId].getLocation().y, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y);
+			float tempDeltaDistance = static_cast<float>(distEuclidean(listOfActors[unitId].getLocation().x, listOfActors[unitId].getLocation().y, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y));
 			listOfResourceLocations.push_back({ tempDeltaDistance, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y, i, true });
 		}
 	}
@@ -199,19 +199,19 @@ void simpleAI::distributeIdleVillagers() {
 		switch (resourceId) {
 		case 0:
 			gatheringNow = listOfPlayers[this->playerId].getTotalGatheringWood();
-			villagersThatShouldBeGathering = ceil((float)listOfPlayers[this->playerId].getVillagers() * 0.3f);
+			villagersThatShouldBeGathering = static_cast<int>(ceil(listOfPlayers[this->playerId].getVillagers() * 0.3f));
 			break;
 		case 1:
 			gatheringNow = listOfPlayers[this->playerId].getTotalGatheringFood();
-			villagersThatShouldBeGathering = ceil((float)listOfPlayers[this->playerId].getVillagers() * 0.4f);
+			villagersThatShouldBeGathering = static_cast<int>(ceil(listOfPlayers[this->playerId].getVillagers() * 0.4f));
 			break;
 		case 2:
 			gatheringNow = listOfPlayers[this->playerId].getTotalGatheringStone();
-			villagersThatShouldBeGathering = ceil((float)listOfPlayers[this->playerId].getVillagers() * 0.1f);
+			villagersThatShouldBeGathering = static_cast<int>(ceil(listOfPlayers[this->playerId].getVillagers() * 0.1f));
 			break;
 		case 3:
 			gatheringNow = listOfPlayers[this->playerId].getTotalGatheringGold();
-			villagersThatShouldBeGathering = ceil((float)listOfPlayers[this->playerId].getVillagers() * 0.2f);
+			villagersThatShouldBeGathering = static_cast<int>(ceil(listOfPlayers[this->playerId].getVillagers() * 0.2f));
 			break;
 		}
 		while (gatheringNow < villagersThatShouldBeGathering && villagersAssigned < listOfPlayers[this->playerId].getIdleVillagers()) {
@@ -401,7 +401,7 @@ cords simpleAI::getOptimalFreeBuildingSlot(int buildingId, cords closeToVillager
 			}
 			if (buildingPossible) {
 				listOfPossibilities.push_back({ {x,y}, {x - footprintOfBuildings[buildingId].amountOfXFootprint, y - footprintOfBuildings[buildingId].amountOfYFootprint}, 0 });
-				int thisOne = listOfPossibilities.size() - 1;
+				int thisOne = static_cast<int>(listOfPossibilities.size()) - 1;
 
 				//Lets calculate the score
 				int tempScore = 0;
@@ -410,7 +410,7 @@ cords simpleAI::getOptimalFreeBuildingSlot(int buildingId, cords closeToVillager
 				int penaltyForAdjacentTileBlocked = 10;
 
 				//calculate distance to actor
-				tempScore += (15 - distEuclidean(listOfPossibilities[thisOne].startCordsOfTile.x, listOfPossibilities[thisOne].startCordsOfTile.y, closeToVillager.x, closeToVillager.y)) * bonusFactorDistance;
+				tempScore += static_cast<int>(15 - distEuclidean(listOfPossibilities[thisOne].startCordsOfTile.x, listOfPossibilities[thisOne].startCordsOfTile.y, closeToVillager.x, closeToVillager.y)) * bonusFactorDistance;
 
 				//Score for proximity to resource
 				if (closeToWood) {

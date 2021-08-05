@@ -37,4 +37,4 @@ private:
 
 extern std::vector<projectile> listOfProjectiles;
 extern double distEuclidean(double x1, double y1, double x2, double y2);
-extern float PI; 
+extern const float PI; 

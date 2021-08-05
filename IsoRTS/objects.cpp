@@ -61,58 +61,58 @@ void objects::substractResource()
     }
 }
 
-cords objects::getLocation() {
 
+cords objects::getLocation() const {
     return { this->locationX, this->locationY };
 }
 
-void objects::drawObject(int i, int j)
+void objects::drawObject(int i, int j) const
 {
     drawObjectSprite(this->objectType, i, j);
 }
 
-resourceTypes objects::getTypeOfResource()
+resourceTypes objects::getTypeOfResource() const
 {
     return this->typeOfResource;
 }
 
-void objects::drawObjectSprite(int spriteNumber, int i, int j)
+void objects::drawObjectSprite(int spriteNumber, int i, int j) const
 {
     switch(spriteNumber)
     {
-    case 0:
-        currentGame.spriteCactusTile.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+    case objectCactus:
+        currentGame.spriteCactusTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spriteCactusTile);
         break;
-    case 1:
-        currentGame.spriteCypressTrileTile.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+    case objectCypress:
+        currentGame.spriteCypressTrileTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spriteCypressTrileTile);
         break;
-    case 2:
-        currentGame.spriteNormalTreeTile.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+    case objectMaple:
+        currentGame.spriteNormalTreeTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spriteNormalTreeTile);
         break;
-    case 3:
-        currentGame.spritePineTreeTile.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+    case objectPine:
+        currentGame.spritePineTreeTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spritePineTreeTile);
         break;
 
-    case 4:
-        currentGame.spriteStone.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+    case objectStone:
+        currentGame.spriteStone.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spriteStone);
         break;
-    case 5:
-        currentGame.spriteGold.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+    case objectGold:
+        currentGame.spriteGold.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spriteGold);
         break;
-    case 6:
-        currentGame.spriteBerryBush.setPosition(worldSpace(i,j,true), worldSpace(i,j,false));
+    case objectBerry:
+        currentGame.spriteBerryBush.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
         window.draw(currentGame.spriteBerryBush);
         break;
     }
 }
 
-std::string objects::getName()
+std::string objects::getName() const
 {
     switch(this->objectType)
     {
@@ -142,17 +142,17 @@ std::string objects::getName()
     }
 }
 
-objectTypes objects::getType()
+objectTypes objects::getType() const
 {
     return this->objectType;
 }
 
-int objects::amountOfResourcesLeft()
+int objects::amountOfResourcesLeft() const
 {
     return this->resourceLeft;
 }
 
-std::string objects::nameOfResource()
+std::string objects::nameOfResource() const
 {
     switch(this->typeOfResource)
     {
@@ -173,7 +173,7 @@ std::string objects::nameOfResource()
     }
 }
 
-void objects::drawObjectFootprint(objectTypes type, int mouseWorldX, int mouseWorldY)
+void objects::drawObjectFootprint(objectTypes type, int mouseWorldX, int mouseWorldY) const
 {
     if(!(mouseWorldX < 0) && !(mouseWorldY < 0) && !(mouseWorldX >= MAP_WIDTH) && !(mouseWorldY >= MAP_HEIGHT))
     {

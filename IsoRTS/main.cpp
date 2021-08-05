@@ -108,7 +108,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
             [&](projectile& p) {return p.getTimeLastUpdate() + 30.0f < currentGame.getTime(); });
         if (iter != listOfProjectiles.end())
             listOfProjectiles.erase(iter);
-        if (endProjectile = listOfProjectiles.size()) {
+        if (endProjectile == listOfProjectiles.size()) {
             lastProjectile = 0;
         }
         else {

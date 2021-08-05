@@ -151,11 +151,11 @@ cords findRandomFoodSource() {
 	//Sort and remove food sources with the same foodGroupId to prevent players spawning on the same foodGroup
 	std::sort(foodLocations.begin(), foodLocations.end(),[](const foodLocationData& lhs, const foodLocationData& rhs) {return lhs.foodGroupId < rhs.foodGroupId;});
 	foodLocations.erase(std::unique(foodLocations.begin(), foodLocations.end(), [](const foodLocationData& lhs, const foodLocationData& rhs) {return lhs.foodGroupId == rhs.foodGroupId; }), foodLocations.end());
-
-	if (foodLocations.size() > 8) {
+	
+	if (foodLocations.size() >= currentGame.getPlayerCount()) {
 		//Now the following while loop should always be able to finish
 		while (!foodFound) {
-			int possibleFood = roll(0, static_cast<int>(listOfObjects.size()));
+			int possibleFood = roll(0, static_cast<int>(foodLocations.size()));
 			bool foodSourceOccupied = false;
 			for (const int& foodOwned : occupiedFoodSources)
 				{
@@ -167,12 +167,11 @@ cords findRandomFoodSource() {
 				occupiedFoodSources.push_back(possibleFood);
 				return  foodLocations[possibleFood].foodCords;
 			}
-			
 		}
 	}
 	else {
 		//There is not enough food on the map!
-		return { 0,0 };
+		return { -1,-1 };
 	}
 }
 
@@ -180,20 +179,22 @@ void spawmFirstVillager(int distanceFromFood, int teamId) {
 	bool villagerIsPlaced = false;
 	cords randomFoodSource = findRandomFoodSource();
 
-	while (!villagerIsPlaced) {
-		cords suggestedCords = { roll(randomFoodSource.x - distanceFromFood,randomFoodSource.x + distanceFromFood), roll(randomFoodSource.y - distanceFromFood, randomFoodSource.y + distanceFromFood) };
-		if (suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
-			if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y + 1))
-			{
-				actors newActor(0, suggestedCords.x, suggestedCords.y, teamId, static_cast<int>(listOfActors.size()));
-				listOfActors.push_back(newActor);
-				actors newActor1(0, suggestedCords.x, suggestedCords.y+1, teamId, static_cast<int>(listOfActors.size()));
-				listOfActors.push_back(newActor1);
-				actors newActor2(0, suggestedCords.x+1, suggestedCords.y, teamId, static_cast<int>(listOfActors.size()));
-				listOfActors.push_back(newActor2);
-				actors newActor3(0, suggestedCords.x+1, suggestedCords.y+1, teamId, static_cast<int>(listOfActors.size()));
-				listOfActors.push_back(newActor3);
-				villagerIsPlaced = true;
+	if (randomFoodSource.x != -1) {
+		while (!villagerIsPlaced) {
+			cords suggestedCords = { roll(randomFoodSource.x - distanceFromFood,randomFoodSource.x + distanceFromFood), roll(randomFoodSource.y - distanceFromFood, randomFoodSource.y + distanceFromFood) };
+			if (suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
+				if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y + 1))
+				{
+					actors newActor(0, suggestedCords.x, suggestedCords.y, teamId, static_cast<int>(listOfActors.size()));
+					listOfActors.push_back(newActor);
+					actors newActor1(0, suggestedCords.x, suggestedCords.y + 1, teamId, static_cast<int>(listOfActors.size()));
+					listOfActors.push_back(newActor1);
+					actors newActor2(0, suggestedCords.x + 1, suggestedCords.y, teamId, static_cast<int>(listOfActors.size()));
+					listOfActors.push_back(newActor2);
+					actors newActor3(0, suggestedCords.x + 1, suggestedCords.y + 1, teamId, static_cast<int>(listOfActors.size()));
+					listOfActors.push_back(newActor3);
+					villagerIsPlaced = true;
+				}
 			}
 		}
 	}

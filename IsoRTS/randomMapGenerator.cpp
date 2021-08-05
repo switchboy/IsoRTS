@@ -57,25 +57,58 @@ void convertPerlinNoiseToMap(float* noisemap) {
 	}
 }
 
+void placeTree(int& x, int& y) {
+	if (currentGame.currentMap[x][y] == 1) {
+		objects newObject(static_cast<objectTypes>(roll(1, 3)), x, y, static_cast<int>(listOfObjects.size()));
+		listOfObjects.push_back(newObject);
+	}
+	else if (currentGame.currentMap[x][y] == 2)//Cactus
+	{
+		objects newObject(objectCactus, x, y, static_cast<int>(listOfObjects.size()));
+		listOfObjects.push_back(newObject);
+	}
+}
 
+bool neighbourHasTrees(int& x, int& y) {
+	for (int i = x - 1; i < x + 1; i++) {
+		for (int j = y - 1; j < y + 1; j++) {
+			if (i >= 0 && i < MAP_WIDTH && j >= 0 && j < MAP_HEIGHT) {
+				if (currentGame.objectLocationList[i][j] != -1) {
+					if (
+						listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectCypress ||
+						listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectCactus ||
+						listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectMaple ||
+						listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectPine
+						)
+					{
+						std::cout << "Tree found! @" << i << " - " << j << std::endl;
+						return true;
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
 
-void placeTrees() {
+void placeTrees(int chanceOfTreeNextToTree, int chanceOfNewTree) {
 	srand(static_cast<int>(time(NULL)));
 	for (int x = 0; x < MAP_WIDTH; x++)
 	{
 		for (int y = 0; y < MAP_HEIGHT; y++)
 		{
-			if (roll(0, 20) > 19) {
-				if (currentGame.currentMap[x][y] == 1) {
-					objects newObject(static_cast<objectTypes>(roll(1, 3)), x, y, static_cast<int>(listOfObjects.size()));
-					listOfObjects.push_back(newObject);
-				}
-				else if (currentGame.currentMap[x][y] == 2)//Cactus
-				{
-					objects newObject(objectCactus, x, y, static_cast<int>(listOfObjects.size()));
-					listOfObjects.push_back(newObject);
+			//check if neigbnoring tile is a tree if so the chance of a tree is lager
+			if (neighbourHasTrees(x, y)) {
+				if (roll(0, chanceOfTreeNextToTree) > chanceOfTreeNextToTree-1) {
+					placeTree(x, y);
 				}
 			}
+			else {
+				if (roll(0, chanceOfNewTree) > chanceOfNewTree-1) {
+					placeTree(x, y);
+				}
+			}
+
 		}
 	}
 }
@@ -232,7 +265,7 @@ void generateTerrain() {
 
 void generateRandomMap(int players, int amountOfFoodGroups, int amountOfStoneGroups, int amountOfGoldGroups) {
 	generateTerrain();
-	placeTrees();
+	placeTrees(2,30);
 	spawmFoodStoneGold(6, amountOfFoodGroups);
 	for (int i = 0; i < players; i++) {
 		spawmFirstVillager(8, i);

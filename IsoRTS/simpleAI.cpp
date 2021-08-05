@@ -79,7 +79,6 @@ void simpleAI::produceCommandBuilding(int buildingId, bool isResearch, int idOfU
 
 int distanceToResource(int kind, cords from) {
 	std::list <nearestBuildingTile> listOfResourceLocations;
-	cords targetCords;
 	if (!listOfObjects.empty()) {
 		//more efficient search method; searching in a range 3600 squares have to be evaluated. Searching in the object list ~3100 items should be evaluated within one loop
 		for (int i = 0; i < listOfObjects.size(); i++) {

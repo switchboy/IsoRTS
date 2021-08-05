@@ -15,15 +15,16 @@ float radiansToDegree(float radians) {
 
 float giveAnngleOfSpriteInDGR(float screenVelocityX, float screenVelocityY)
 {
-	if (screenVelocityX == 0.0f && screenVelocityY > 0.0f) { return 0.0f; }
-	if (screenVelocityX == 0.0f && screenVelocityY < 0.0f) { return 180.0f; }
-	if (screenVelocityX == 0.0f && screenVelocityY == 0.0f) { return 0.0f; }
-	if (screenVelocityY == 0.0f && screenVelocityX > 0.0f) { return 90.0f; }
-	if (screenVelocityY == 0.0f && screenVelocityX < 0.0f) { return 270.0f; }
-	if (screenVelocityX < 0.0f && screenVelocityY > 0.0f) { return 90 - radiansToDegree( atan(fabs(screenVelocityY) / fabs(screenVelocityX)) ); }
-	if (screenVelocityX > 0.0f && screenVelocityY > 0.0f) { return 360 - radiansToDegree( (90 - atan(fabs(screenVelocityY) / fabs(screenVelocityX))) ); }
-	if (screenVelocityX < 0.0f && screenVelocityY < 0.0f) { return 90 + radiansToDegree( atan(fabs(screenVelocityY) / fabs(screenVelocityX)) ); }
-	if (screenVelocityX > 0.0f && screenVelocityY < 0.0f) { return 360 - radiansToDegree( (90 + atan(fabs(screenVelocityY) / fabs(screenVelocityX))) ); }
+	if (screenVelocityX == 0.0f && screenVelocityY > 0.0f) { return 0.0f; } 
+	else if (screenVelocityX == 0.0f && screenVelocityY < 0.0f) { return 180.0f; }
+	else if (screenVelocityX == 0.0f && screenVelocityY == 0.0f) { return 0.0f; }
+	else if (screenVelocityY == 0.0f && screenVelocityX > 0.0f) { return 90.0f; }
+	else if (screenVelocityY == 0.0f && screenVelocityX < 0.0f) { return 270.0f; }
+	else if (screenVelocityX < 0.0f && screenVelocityY > 0.0f) { return 90 - radiansToDegree( atan(fabs(screenVelocityY) / fabs(screenVelocityX)) ); }
+	else if (screenVelocityX > 0.0f && screenVelocityY > 0.0f) { return 360 - radiansToDegree( (90 - atan(fabs(screenVelocityY) / fabs(screenVelocityX))) ); }
+	else if (screenVelocityX < 0.0f && screenVelocityY < 0.0f) { return 90 + radiansToDegree( atan(fabs(screenVelocityY) / fabs(screenVelocityX)) ); }
+	else if (screenVelocityX > 0.0f && screenVelocityY < 0.0f) { return 360 - radiansToDegree( (90 + atan(fabs(screenVelocityY) / fabs(screenVelocityX))) ); }
+	else { return 0.0f; }
 }
 
 projectile::projectile(int projectileStartX, int projectileStartY, int projectileTargetX, int projectileTargetY, int projectileType, int damageOnImpact, int splashDamageOnImpact, int firedBy)

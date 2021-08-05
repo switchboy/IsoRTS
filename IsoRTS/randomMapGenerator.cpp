@@ -193,6 +193,7 @@ cords findRandomFoodSource() {
 	foodLocations.erase(std::unique(foodLocations.begin(), foodLocations.end(), [](const foodLocationData& lhs, const foodLocationData& rhs) {return lhs.foodGroupId == rhs.foodGroupId; }), foodLocations.end());
 	
 	if (foodLocations.size() >= currentGame.getPlayerCount()) {
+		cords foodcords;
 		//Now the following while loop should always be able to finish
 		while (!foodFound) {
 			int possibleFood = roll(0, static_cast<int>(foodLocations.size()));
@@ -204,9 +205,16 @@ cords findRandomFoodSource() {
 				}
 				}
 			if (!foodSourceOccupied) {
+				foodFound = true;
 				occupiedFoodSources.push_back(possibleFood);
-				return  foodLocations[possibleFood].foodCords;
+				foodcords = foodLocations[possibleFood].foodCords;
 			}
+		}
+		if (foodFound) {
+			return foodcords;
+		}
+		else {
+			return { -1,-1 };
 		}
 	}
 	else {
@@ -234,9 +242,14 @@ bool spawmFirstVillager(int distanceFromFood, int teamId) {
 					actors newActor3(0, suggestedCords.x + 1, suggestedCords.y + 1, teamId, static_cast<int>(listOfActors.size()));
 					listOfActors.push_back(newActor3);
 					villagerIsPlaced = true;
-					return true;
 				}
 			}
+		}
+		if (villagerIsPlaced) {
+			return true;
+		}
+		else {
+			return false;
 		}
 	}
 	else {

@@ -498,6 +498,9 @@ std::string actors::nameOfActor()
     case 1:
         return "Swordsman";
         break;
+    default:
+        return "NameOfActorNotSet";
+        break;
     }
 }
 

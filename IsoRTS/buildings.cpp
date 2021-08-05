@@ -565,11 +565,7 @@ bool buildings::hasTask()
     }
 }
 
-struct worldCords
-{
-    int x;
-    int y;
-};
+
 
 void addNeighboursOfImpassableNeighbours(int& i, std::vector<Cells> &cellsList, std::list<Cells*>& listToCheck)
 {
@@ -615,7 +611,7 @@ void addNeighboursOfImpassableNeighbours(int& i, std::vector<Cells> &cellsList, 
     }
 }
 
-worldCords findEmptySpot(worldCords startCords)
+cords findEmptySpot(cords startCords)
 {
     if(currentGame.isPassable(startCords.x, startCords.y))
     {
@@ -623,6 +619,7 @@ worldCords findEmptySpot(worldCords startCords)
     }
     else
     {
+        cords foundCords;
         std::vector<Cells> cellsList;
         cellsList.reserve(MAP_HEIGHT*MAP_WIDTH);
         int startCell = (startCords.x*MAP_HEIGHT)+startCords.y;
@@ -637,13 +634,19 @@ worldCords findEmptySpot(worldCords startCords)
             for (std::vector<int>::const_iterator iterator =  (*listToCheck.front()).neighbours.begin(), end =  (*listToCheck.front()).neighbours.end(); iterator != end; ++iterator)
             {
                 freeCellFound = true;
-                return {cellsList[*iterator].positionX, cellsList[*iterator].positionY};
+                foundCords = {cellsList[*iterator].positionX, cellsList[*iterator].positionY};
             }
             if(!freeCellFound)
             {
                 addNeighboursOfImpassableNeighbours((*listToCheck.front()).cellId, cellsList, listToCheck);
             }
             listToCheck.pop_front();
+        }
+        if (freeCellFound) {
+            return foundCords;
+        }
+        else {
+            return { 0,0 };
         }
     }
 }
@@ -668,7 +671,7 @@ void buildings::takeDamage(int amountOfDamage)
 
 void buildings::spawnProduce()
 {
-    worldCords spawmCords = findEmptySpot({ this->startXlocation + 1, this->startYLocation + 1 });
+    cords spawmCords = findEmptySpot({ this->startXlocation + 1, this->startYLocation + 1 });
     if (currentPlayer.getStats().currentPopulation < currentPlayer.getStats().populationRoom)
     {
         actors newActor(this->productionQueue.front().idOfUnitOrResearch, spawmCords.x, spawmCords.y, this->ownedByPlayer, static_cast<int>(listOfActors.size()));

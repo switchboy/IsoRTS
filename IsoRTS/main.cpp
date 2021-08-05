@@ -101,7 +101,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
         }
         //update porjectile positions
         for (int i = lastProjectile; i < endProjectile; i++) {
-            std::async(std::launch::async, projectileHelper, i);
+            auto projectileCalculations = std::async(std::launch::async, projectileHelper, i);
         }
         //Erase old projectiles (older then 30 sec)
         auto iter = std::find_if(listOfProjectiles.begin(), listOfProjectiles.end(),
@@ -125,7 +125,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
                 endPath = static_cast<int>(listOfActorsWhoNeedAPath.size());
             }
             for (int i = lastPath; i < endPath; i++){
-                std::async(std::launch::async, routeHelper, listOfActorsWhoNeedAPath[i]);
+                auto routing = std::async(std::launch::async, routeHelper, listOfActorsWhoNeedAPath[i]);
             }
             int after = static_cast<int>(listOfActorsWhoNeedAPath.size());
             if (endPath == listOfActorsWhoNeedAPath.size()) {
@@ -143,7 +143,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
         }
         for (int i = lastActor; i < endActor; i++)
         {
-            std::async(std::launch::async, updateActorHelper, i);
+            auto actorUpdater = std::async(std::launch::async, updateActorHelper, i);
         }
         if (endActor == static_cast<int>(listOfActors.size())) {
             lastActor = 0;
@@ -160,7 +160,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
         }
         for (int i = lastBuilding; i < endBuilding; i++)
         {
-            std::async(std::launch::async, updateBuildingsHelper, i);
+            auto buildingUpdater = std::async(std::launch::async, updateBuildingsHelper, i);
         }
         if (endBuilding == static_cast<int>(listOfBuildings.size())) {
             lastBuilding = 0;

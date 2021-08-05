@@ -999,9 +999,7 @@ void gameState::mouseLeftClick()
     }
 }
 
-bool notSameTeam(const int& id){
 
-}
 
 void gameState::getDefinitiveSelection()
 {
@@ -1706,7 +1704,7 @@ cords gameState::getNextCord(int x, int y)
     }
     else
     {
-        currentGame.getNextCord(x, y);
+        return currentGame.getNextCord(x, y);
     }
 }
 
@@ -2309,7 +2307,10 @@ std::string getBuildingIsProducingName(int& buildingId)
         switch (listOfBuildings[buildingId].productionQueue.front().idOfUnitOrResearch)
         {
         case 0:
+            return "placeholder name";
             break;
+        default:
+            return "Name of research not set";
         }
     }
     else
@@ -2320,6 +2321,8 @@ std::string getBuildingIsProducingName(int& buildingId)
             return "Villager";
         case 1:
             return "Swordsman";
+        default:
+            return "Name of production not set";
         }
     }
 }
@@ -2331,6 +2334,9 @@ cords getSpriteOffSetTask(int& buildingId)
         switch (listOfBuildings[buildingId].productionQueue.front().idOfUnitOrResearch)
         {
         case 0:
+            return { 64, 0 };//placeholder change to icon of research 
+        default:
+            return { 64, 0 };//placeholder change to icon of research 
             break;
         }
     }
@@ -2342,6 +2348,9 @@ cords getSpriteOffSetTask(int& buildingId)
             return { 64, 0 };
         case 1:
             return { 64, 64 };
+        default:
+            return { 64, 0 };//placeholder change to icon of research 
+            break;
         }
     }
 }
@@ -2355,6 +2364,9 @@ int getCardForButtonByTask(int& buildingId, int& taskId)
         case 0:
             return 0;
             break;
+        default:
+            return 0;
+            break;
         }
     }
     else
@@ -2365,6 +2377,9 @@ int getCardForButtonByTask(int& buildingId, int& taskId)
             return 2;
         case 1:
             return 7;
+        default:
+            return 0;
+            break;
         }
     }
 }
@@ -2464,6 +2479,9 @@ int getObjectBigSpriteYOffset(int& objectId)
         break;
     case 6:
         return 768;
+        break;
+    default:
+        return 0;
         break;
     }
 }
@@ -2752,8 +2770,8 @@ void gameState::setDefaultValues()
     this->lastMistDraw = -1.0f;
     listOfBuildings.resize(1);
     listOfObjects.resize(1);
-    this->players = 8;
-    this->noFogOfWar = true;
+    this->players = 2;
+    this->noFogOfWar = false;
 }
 
 void setTeam() {

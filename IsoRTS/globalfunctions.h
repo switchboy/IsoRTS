@@ -1,9 +1,10 @@
 #ifndef GLOBALFUNCTIONS_H
 #define GLOBALFUNCTIONS_H
-#define MAP_WIDTH	256
-#define MAP_HEIGHT	256
+
 #include <mutex>
 #include <list>
+const int MAP_WIDTH = 256;
+const int MAP_HEIGHT = 256;
 
 extern int mapOffsetX;
 extern int mapOffsetY;

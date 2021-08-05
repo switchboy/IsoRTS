@@ -1160,18 +1160,33 @@ void actors::unloadAndReturnToGathering()
         this->amountOfGold = 0;
         break;
     }
-    if(currentGame.objectLocationList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]] != -1)
-    {
-        this->updateGoal(this->actionPreformedOnTile[0], this->actionPreformedOnTile[1], 0);
-        this->isWalkingToUnloadingPoint = false;
-        this->isAtCarryCapacity = false;
-        this->carriesRecources = false;
-        this->isAtRecource = false;
-        this->hasToUnloadResource = false;
-        this->timeStartedWalkingToRecource = 0.0f;
+    if (this->actionPreformedOnTile[0] >= 0 || this->actionPreformedOnTile[0] < MAP_WIDTH || this->actionPreformedOnTile[1] >= 0 || this->actionPreformedOnTile[1] < MAP_HEIGHT) {
+        if (currentGame.objectLocationList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]] != -1)
+        {
+            this->updateGoal(this->actionPreformedOnTile[0], this->actionPreformedOnTile[1], 0);
+            this->isWalkingToUnloadingPoint = false;
+            this->isAtCarryCapacity = false;
+            this->carriesRecources = false;
+            this->isAtRecource = false;
+            this->hasToUnloadResource = false;
+            this->timeStartedWalkingToRecource = 0.0f;
+        }
+        else
+        {
+            this->routeNeedsPath = false;
+            this->pathFound = false;
+            this->actionPreformedOnTile[0] = this->actorGoal[0];
+            this->actionPreformedOnTile[1] = this->actorGoal[1];
+            this->isWalkingToUnloadingPoint = false;
+            this->isAtCarryCapacity = false;
+            this->carriesRecources = false;
+            this->isAtRecource = false;
+            this->hasToUnloadResource = false;
+            this->timeStartedWalkingToRecource = 0.0f;
+            this->isFindingAlternative = true;
+        }
     }
-    else
-    {
+    else {
         this->routeNeedsPath = false;
         this->pathFound = false;
         this->actionPreformedOnTile[0] = this->actorGoal[0];
@@ -1184,6 +1199,7 @@ void actors::unloadAndReturnToGathering()
         this->timeStartedWalkingToRecource = 0.0f;
         this->isFindingAlternative = true;
     }
+    
 }
 
 void actors::setGatheringRecource(bool flag)

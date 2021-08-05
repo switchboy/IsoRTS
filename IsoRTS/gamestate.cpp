@@ -2752,7 +2752,7 @@ void gameState::setDefaultValues()
     this->lastMistDraw = -1.0f;
     listOfBuildings.resize(1);
     listOfObjects.resize(1);
-    this->players = 1;
+    this->players = 8;
     this->noFogOfWar = true;
 }
 

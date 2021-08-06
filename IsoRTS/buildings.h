@@ -131,5 +131,4 @@ private:
 extern std::vector<buildings>           listOfBuildings;
 extern std::vector<footprintOfBuilding> footprintOfBuildings;
 extern bool                             noNewBuildings;
-
 #endif // BUILDINGS_H

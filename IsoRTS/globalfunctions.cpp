@@ -1,7 +1,7 @@
 #include "globalfunctions.h"
 #include "gamestate.h"
 
-bool sortCord(cords& lhs, cords& rhs)
+bool sortCord(const cords& lhs, const cords& rhs)
 {
     return (lhs.x < rhs.x) || (lhs.y < rhs.y);
 }

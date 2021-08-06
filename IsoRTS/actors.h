@@ -40,9 +40,6 @@ struct nearestBuildingTile
     int tileId;
 };
 
-extern void updateCells(int goalId, int startId, std::vector<Cells> &cellsList);
-extern nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId);
-
 struct islandCell
 {
     int positionX;
@@ -96,7 +93,7 @@ public:
     void pathAStar();
     void renderPath();
     void retryWalkingOrChangeGoal();
-    void routing(std::vector<Cells>& cellsList, int& endCell, int& startCell, bool& endReached);
+    void routing(std::vector<Cells>& cellsList, int endCell, int startCell, bool endReached);
     void searchAltetnative();
     void setCommonGoalTrue();
     void setGatheringRecource(bool flag);
@@ -131,7 +128,7 @@ public:
     std::string nameOfActor() const;
     std::string getResources() const;
 
-    void setIsBuildingTrue(int buildingId, int& goalX, int& goalY);
+    void setIsBuildingTrue(int buildingId, int goalX, int goalY);
     void setIsDoingAttack();
 
 private:
@@ -209,6 +206,9 @@ private:
 };
 
 extern std::vector<actors> listOfActors;
-extern std::vector<int> listOfActorsWhoNeedAPath;
+extern std::vector<int>    listOfActorsWhoNeedAPath;
+
+extern void                updateCells(int goalId, int startId, std::vector<Cells>& cellsList);
+extern nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId);
 
 #endif // ACTORS_H

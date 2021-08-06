@@ -188,4 +188,3 @@ void objects::drawObjectFootprint(objectTypes type, int mouseWorldX, int mouseWo
         drawObjectSprite(type, mouseWorldX, mouseWorldY);
     }
 }
-

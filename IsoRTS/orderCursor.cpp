@@ -1,7 +1,9 @@
-#include "orderCursor.h"
 #include "gamestate.h"
+#include "orderCursor.h"
 
-orderCursor::orderCursor(sf::Vector2f& clickCords)
+std::vector<orderCursor> listOfOrderCursors;
+
+orderCursor::orderCursor(const sf::Vector2f& clickCords)
 {
 	this->locationOfClick = clickCords;
 	this->finished = false;
@@ -24,9 +26,7 @@ void orderCursor::drawCursor()
 	window.draw(currentGame.spriteCommandCursor);
 }
 
-bool orderCursor::isFinished()
+bool orderCursor::isFinished() const
 {
 	return this->finished;
 }
-
-std::vector<orderCursor> listOfOrderCursors;

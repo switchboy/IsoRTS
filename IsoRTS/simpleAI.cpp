@@ -1,5 +1,9 @@
-#include "simpleAI.h"
 #include <iostream>
+#include "actors.h"
+#include "buildings.h"
+#include "objects.h"
+#include "player.h"
+#include "simpleAI.h"
 
 std::vector<simpleAI> listOfAI;
 
@@ -47,11 +51,11 @@ void simpleAI::buildBuilding(int buildingId, cords buildingCords)
 	listOfPlayers[this->playerId].substractResources(3, priceOfBuilding[buildingId].gold);
 }
 
-void simpleAI::moveCommandUnit(int& unitId, cords targetCords)
+void simpleAI::moveCommandUnit(int unitId, cords targetCords)
 {
 }
 
-void simpleAI::buildCommandUnit(int& unitId, cords targetCords)
+void simpleAI::buildCommandUnit(int unitId, cords targetCords)
 {
 	nearestBuildingTile tempTile = findNearestBuildingTile(currentGame.occupiedByBuildingList[targetCords.x][targetCords.y], unitId);
 	if (tempTile.isSet) {
@@ -67,7 +71,7 @@ void simpleAI::gatherCommandUnit(int unitId, cords targetCords)
 	listOfActors[unitId].setGatheringRecource(true);
 }
 
-void simpleAI::attakCommandUnit(int& unitId, cords targetCords)
+void simpleAI::attakCommandUnit(int unitId, cords targetCords)
 {
 }
 
@@ -100,10 +104,6 @@ int distanceToResource(resourceTypes kind, cords from) {
 		return 9999;
 	}
 }
-
-
-
-
 
 cords findResource(resourceTypes kind, int unitId ) {
 	std::list <nearestBuildingTile> listOfResourceLocations;
@@ -148,7 +148,6 @@ cords findResource(resourceTypes kind, int unitId ) {
 	}
 	return targetCords;
 }
-
 
 void simpleAI::buildBuildingNearUnlessBuilding(int buildingId, int idleVillagerId, int nearResource) {
 	int idOfUnfinishedHousing = isBuildingThereButIncomplete(buildingId);

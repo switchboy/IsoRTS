@@ -114,8 +114,8 @@ namespace
 
 	bool spawnFoodStoneGold(int resource, int amountOfGroups)
 	{
-		int gridMinX = 0;
-		int gridMinY = 0;
+		int gridMinX = 0;//TODO: these variables are never used
+		int gridMinY = 0;//TODO: these variables are never used
 		int succesFullPlacements = 0;
 		for (int gridMaxX = 32; gridMaxX < MAP_WIDTH; gridMaxX += 32) {
 			for (int gridMaxY = 32; gridMaxY < MAP_HEIGHT; gridMaxY += 32) {
@@ -204,7 +204,7 @@ namespace
 					foodcords = foodLocations[possibleFood].foodCords;
 				}
 			}
-			if (foodFound) {
+			if (foodFound) {//TODO: this is always true
 				return foodcords;
 			}
 			else {

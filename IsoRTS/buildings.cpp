@@ -640,10 +640,10 @@ void buildings::getTask(bool isResearch, int idOfUnitOrResearch)
     {
         if (!isResearch) {
             this->productionQueue.push_back({isResearch, idOfUnitOrResearch, 0, priceOfActor[idOfUnitOrResearch].productionPoints, 0});
-            listOfPlayers[ownedByPlayer].substractResources( 1, priceOfActor[idOfUnitOrResearch].food);
-            listOfPlayers[ownedByPlayer].substractResources( 0, priceOfActor[idOfUnitOrResearch].wood);
-            listOfPlayers[ownedByPlayer].substractResources( 2, priceOfActor[idOfUnitOrResearch].stone);
-            listOfPlayers[ownedByPlayer].substractResources( 3, priceOfActor[idOfUnitOrResearch].gold);
+            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceFood, priceOfActor[idOfUnitOrResearch].food);
+            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceWood, priceOfActor[idOfUnitOrResearch].wood);
+            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceStone, priceOfActor[idOfUnitOrResearch].stone);
+            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceGold, priceOfActor[idOfUnitOrResearch].gold);
         }
     }
     else

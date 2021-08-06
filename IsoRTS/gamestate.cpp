@@ -810,10 +810,10 @@ void gameState::clickToPlaceBuilding() {
             listOfBuildings.push_back(newBuilding);
             if (this->isPlacingBuilding)
             {
-                currentPlayer.substractResources(0, priceOfBuilding[this->buildingTypeSelected].wood);
-                currentPlayer.substractResources(1, priceOfBuilding[this->buildingTypeSelected].food);
-                currentPlayer.substractResources(2, priceOfBuilding[this->buildingTypeSelected].stone);
-                currentPlayer.substractResources(3, priceOfBuilding[this->buildingTypeSelected].gold);
+                currentPlayer.substractResources(resourceTypes::resourceWood, priceOfBuilding[this->buildingTypeSelected].wood);
+                currentPlayer.substractResources(resourceTypes::resourceFood, priceOfBuilding[this->buildingTypeSelected].food);
+                currentPlayer.substractResources(resourceTypes::resourceStone, priceOfBuilding[this->buildingTypeSelected].stone);
+                currentPlayer.substractResources(resourceTypes::resourceGold, priceOfBuilding[this->buildingTypeSelected].gold);
                 for (int i = 0; i < this->selectedUnits.size(); i++)
                 {
                     nearestBuildingTile tempTile = findNearestBuildingTile(this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y], this->selectedUnits[i]);

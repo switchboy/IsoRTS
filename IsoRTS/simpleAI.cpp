@@ -45,10 +45,10 @@ void simpleAI::buildBuilding(int buildingId, cords buildingCords)
 {
 	buildings newBuilding(buildingId, buildingCords.x, buildingCords.y, static_cast<int>(listOfBuildings.size()), this->playerId);
 	listOfBuildings.push_back(newBuilding);
-	listOfPlayers[this->playerId].substractResources(0, priceOfBuilding[buildingId].wood);
-	listOfPlayers[this->playerId].substractResources(1, priceOfBuilding[buildingId].food);
-	listOfPlayers[this->playerId].substractResources(2, priceOfBuilding[buildingId].stone);
-	listOfPlayers[this->playerId].substractResources(3, priceOfBuilding[buildingId].gold);
+	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceWood, priceOfBuilding[buildingId].wood);
+	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceFood, priceOfBuilding[buildingId].food);
+	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceStone, priceOfBuilding[buildingId].stone);
+	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceGold, priceOfBuilding[buildingId].gold);
 }
 
 void simpleAI::moveCommandUnit(int unitId, cords targetCords)

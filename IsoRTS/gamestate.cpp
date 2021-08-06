@@ -21,41 +21,7 @@ sf::RenderTexture minimapObjectsTexture;
 
 bool noNewBuildings;
 
-cords toWorldMousePosition(int mouseX, int mouseY)
-{
-    if (!(mouseX < 0 || mouseY < 0))
-    {
-        auto cheatTile = currentGame.textureCheatTile.copyToImage();
-        int cellX = mouseX / 64;
-        int cellY = mouseY / 32;
-        int offSetX = mouseX % 64;
-        int offSetY = mouseY % 32;
-        int worldX = (cellY - mapOffsetY) + (cellX - mapOffsetX);
-        int worldY = (cellY - mapOffsetY) - (cellX - mapOffsetX);
-        auto color = cheatTile.getPixel(offSetX, offSetY);
-        if (color == sf::Color::Red)
-        {
-            worldX += -1;
-        }
-        else if (color == sf::Color::Green)
-        {
-            worldY += +1;
-        }
-        else if (color == sf::Color::Blue)
-        {
-            worldY += -1;
-        }
-        else if (color == sf::Color::Yellow)
-        {
-            worldX += +1;
-        }
-        return { worldX, worldY };
-    }
-    else
-    {
-        return { 0,0 };
-    }
-}
+
 
 void gameState::drawMousePosition(int x,int y, bool noProblem)
 {

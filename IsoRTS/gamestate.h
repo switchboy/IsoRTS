@@ -1,12 +1,35 @@
 #ifndef GAMESTATE_H
 #define GAMESTATE_H
-#include <SFML/Graphics.hpp>
-#include "globalfunctions.h"
-#include "button.h"
 #include <list>
-#include <sstream>
 #include <set>
+#include <sstream>
+#include <SFML/Graphics.hpp>
+#include "button.h"
+#include "globalfunctions.h"
 #include "humanReadableNames.h"
+
+struct adjacentTile
+{
+    int tileId;
+    int tileX;
+    int tileY;
+    int goalX;
+    int goalY;
+    bool occupied;
+    int actorId;
+};
+
+struct actorOrBuildingPrice
+{
+    int food;
+    int wood;
+    int stone;
+    int gold;
+    int productionPoints;
+};
+
+extern std::vector<actorOrBuildingPrice> priceOfBuilding;
+extern std::vector<actorOrBuildingPrice> priceOfActor;
 
 extern int mainWindowWidth;
 extern int mainWindowHeigth;
@@ -25,38 +48,6 @@ extern sf::RenderTexture minimapObjectsTexture;
 extern bool noNewBuildings;
 extern bool minimapTextureExist;
 extern std::list<button> listOfButtons;
-
-extern double dist(double x1, double y1, double x2, double y2);
-
-extern double distEuclidean(double x1, double y1, double x2, double y2);
-
-
-struct actorOrBuildingPrice
-{
-    int food;
-    int wood;
-    int stone;
-    int gold;
-    int productionPoints;
-};
-
-extern std::vector<actorOrBuildingPrice> priceOfBuilding;
-extern std::vector<actorOrBuildingPrice> priceOfActor;
-
-struct adjacentTile
-{
-    int tileId;
-    int tileX;
-    int tileY;
-    int goalX;
-    int goalY;
-    bool occupied;
-    int actorId;
-};
-
-
-
-cords toWorldMousePosition(int mouseX, int mouseY);
 
 class gameState
 {

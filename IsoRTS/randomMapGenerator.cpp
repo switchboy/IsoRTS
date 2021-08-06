@@ -263,8 +263,8 @@ bool spawmFirstVillager(int distanceFromFood, int teamId) {
 void centerViewOnVillager() {
 	for (int i = 0; i < listOfActors.size(); i++) {
 		if (listOfActors[i].getTeam() == currentPlayer.getTeam()) {
-			viewOffsetX = worldSpace(listOfActors[i].getLocation().x, listOfActors[i].getLocation().y, true);
-			viewOffsetY = worldSpace(listOfActors[i].getLocation().x, listOfActors[i].getLocation().y, false);
+			viewOffsetX = worldSpace(listOfActors[i].getActorCords().x, listOfActors[i].getActorCords().y, true);
+			viewOffsetY = worldSpace(listOfActors[i].getActorCords().x, listOfActors[i].getActorCords().y, false);
 		}
 	}
 }

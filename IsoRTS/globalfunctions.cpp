@@ -23,14 +23,12 @@ bool sortCordByX(const cords& lhs, const cords& rhs)
 
 int roll(int min, int max)
 {
-    {
-        return  min + (rand() % static_cast<int>(max - min + 1));
-    }
+    return  min + (rand() % static_cast<int>(max - min + 1));
 }
 
-bool rectCord(cords& lhs, cords& rhs)
+bool rectCord(const cords& lhs, const cords& rhs)
 {
-    return(lhs.y<rhs.y);
+    return (lhs.y<rhs.y);
 }
 
 int worldSpace(int x, int y, bool getX)
@@ -74,4 +72,16 @@ std::list<cords> getListOfCordsInCircle(int startX, int startY, int r)
         }
     }
     return tempList;
+}
+
+double dist(double x1, double y1, double x2, double y2)
+{
+    //Manhattan distance
+    return fabs(x2 - x1) + fabs(y2 - y1);
+}
+
+double distEuclidean(double x1, double y1, double x2, double y2)
+{
+    //Euclidean distance
+    return sqrt(pow((x1 - x2), 2) + pow((y1 - y2), 2));
 }

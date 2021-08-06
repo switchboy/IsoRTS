@@ -1156,7 +1156,7 @@ nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId)
     if (!tileList.empty()) {
         for (int j = 0; j < tileList.size(); j++)
         {
-            float tempDeltaDistance = static_cast<float>(dist(listOfActors[actorId].getLocation().x, listOfActors[actorId].getLocation().y, tileList[j].tileX, tileList[j].tileY));
+            float tempDeltaDistance = static_cast<float>(dist(listOfActors[actorId].getActorCords().x, listOfActors[actorId].getActorCords().y, tileList[j].tileX, tileList[j].tileY));
             listOfBuildLocations.push_back({ tempDeltaDistance, tileList[j].tileX, tileList[j].tileY, tileList[j].goalX , tileList[j].goalY, tileList[j].tileId, true });
         }
         if (!listOfBuildLocations.empty())
@@ -2136,7 +2136,7 @@ void gameState::drawActorStats(int& actorId, int& textStartX, int& textStartY)
     window.draw(text);
     if (listOfActors[actorId].getType() == 0) {
         textStartY += 20;
-        text.setString(listOfActors[actorId].getRecources());
+        text.setString(listOfActors[actorId].getResources());
         text.setPosition(static_cast<float>(textStartX), static_cast<float>(textStartY));
         window.draw(text);
     }
@@ -2820,7 +2820,7 @@ void gameState::createFogOfWar()
         }
         for (int i = 0; i < listOfActors.size(); i++) {
             if (listOfActors[i].getTeam() == currentPlayer.getTeam()) {
-                std::list<cords> tempList = getListOfCordsInCircle(listOfActors[i].getLocation().x, listOfActors[i].getLocation().y, 6);
+                std::list<cords> tempList = getListOfCordsInCircle(listOfActors[i].getActorCords().x, listOfActors[i].getActorCords().y, 6);
                 for (const cords& cord : tempList)
                 {
                     this->visability[(cord.x * MAP_HEIGHT) + cord.y] = 2;

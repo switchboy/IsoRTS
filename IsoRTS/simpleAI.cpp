@@ -112,7 +112,7 @@ cords findResource(resourceTypes kind, int unitId ) {
 
 	for (int i = 0; i < listOfObjects.size(); i++) {
 		if (listOfObjects[i].getTypeOfResource() == kind) {
-			float tempDeltaDistance = static_cast<float>(distEuclidean(listOfActors[unitId].getLocation().x, listOfActors[unitId].getLocation().y, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y));
+			float tempDeltaDistance = static_cast<float>(distEuclidean(listOfActors[unitId].getActorCords().x, listOfActors[unitId].getActorCords().y, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y));
 			listOfResourceLocations.push_back({ tempDeltaDistance, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y, i, true });
 		}
 	}
@@ -157,19 +157,19 @@ void simpleAI::buildBuildingNearUnlessBuilding(int buildingId, int idleVillagerI
 			cords buildingSlot = {0,0};
 			switch (nearResource) {
 			case -1:
-				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getLocation(), false, false, false, false);
+				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getActorCords(), false, false, false, false);
 				break;
 			case 0:
-				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getLocation(), true, false, false, false);
+				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getActorCords(), true, false, false, false);
 				break;
 			case 1:
-				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getLocation(), false, true, false, false);
+				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getActorCords(), false, true, false, false);
 				break;
 			case 2:
-				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getLocation(), false, false, true, false);
+				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getActorCords(), false, false, true, false);
 				break;
 			case 3:
-				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getLocation(), false, false, false, true);
+				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getActorCords(), false, false, false, true);
 				break;
 			}
 			buildBuilding(buildingId, buildingSlot);

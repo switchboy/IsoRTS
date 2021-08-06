@@ -1,12 +1,12 @@
+//#include <future>
+#include <iostream>
+#include <string>
 #include "actors.h"
+#include "buildings.h"
+#include "gametext.h"
+#include "globalfunctions.h"
 #include "objects.h"
 #include "player.h"
-#include "buildings.h"
-#include <iostream>
-#include <future>
-#include <string>
-#include "globalfunctions.h"
-#include "gametext.h"
 #include "projectile.h"
 #include "simpleAI.h"
 
@@ -22,8 +22,7 @@ void updateCells(int goalId, int startId, std::vector<Cells> &cellsList)
     {
         for(int j = 0; j < MAP_HEIGHT; j++)
         {
-            Cells test;
-            cellsList.push_back(test);
+            cellsList.push_back(Cells());
             cellsList[n].positionX = i;
             cellsList[n].positionY = j;
             if(n == goalId || n == startId)
@@ -49,7 +48,7 @@ void updateCells(int goalId, int startId, std::vector<Cells> &cellsList)
     }
 }
 
-void Cells::addNeighbours(std::vector<Cells> &cellsList)
+void Cells::addNeighbours(const std::vector<Cells> &cellsList)
 {
     if(this->positionX > 0)
     {
@@ -89,7 +88,7 @@ void Cells::addNeighbours(std::vector<Cells> &cellsList)
         //de cell rechtsonder kan toegevoegd worden
         if(!cellsList[this->cellId+1+MAP_HEIGHT].obstacle )
         {
-            if(!(cellsList[this->cellId+1].obstacle  && cellsList[this->cellId+MAP_HEIGHT].obstacle))
+            if(!(cellsList[this->cellId+1].obstacle && cellsList[this->cellId+MAP_HEIGHT].obstacle))
             {
                 this->neighbours.push_back(this->cellId+1+MAP_HEIGHT);
             }
@@ -128,18 +127,6 @@ void Cells::addNeighbours(std::vector<Cells> &cellsList)
             }
         }
     }
-}
-
-double dist(double x1, double y1, double x2, double y2)
-{
-//Manhattan distance
-    return fabs(x2 - x1) + fabs(y2 - y1);
-}
-
-double distEuclidean(double x1, double y1, double x2, double y2)
-{
-    //Euclidean distance
-    return sqrt(pow((x1 - x2), 2) + pow((y1 - y2), 2));
 }
 
 actors::actors(int type, int actorX, int actorY, int actorTeam, int actorId)
@@ -258,7 +245,7 @@ actors::~actors()
 void actors::chaseTarget() {
     if (this->idOfTarget >= 0) {
         if (listOfActors[this->idOfTarget].isAlive()) {
-            if (listOfActors[this->idOfTarget].getGoal().x != listOfActors[this->idOfTarget].getLocation().x || listOfActors[this->idOfTarget].getGoal().y != listOfActors[this->idOfTarget].getLocation().y) {
+            if (listOfActors[this->idOfTarget].getGoal().x != listOfActors[this->idOfTarget].getActorCords().x || listOfActors[this->idOfTarget].getGoal().y != listOfActors[this->idOfTarget].getActorCords().y) {
                 //target will move
                 //check if this move is allready been caught
                 if (!(this->actionPreformedOnTile[0] == listOfActors[this->idOfTarget].getGoal().x && this->actionPreformedOnTile[1] == listOfActors[this->idOfTarget].getGoal().y)) {
@@ -332,6 +319,7 @@ void actors::update()
         }
     }
 }
+
 void actors::searchAltetnative() {
     if (!this->routeNeedsPath){
         if (!this->pathFound) {
@@ -342,7 +330,7 @@ void actors::searchAltetnative() {
                 this->findNearestDropOffPoint();
             }
             else if (this->isGatheringRecources) {
-                this->findNearestSimilairResource();
+                this->findNearestSimilarResource();
             }
         }
         else {
@@ -361,7 +349,7 @@ void actors::searchAltetnative() {
     }
 }
 
-std::string actors::getRecources() {
+std::string actors::getResources() const {
     std::stringstream output;
     output << "Wood: " << this->amountOfWood << " Food: " << this->amountOfFood << " Stone: " << this->amountOfStone << " Gold: " << this->amountOfGold;
     return output.str();
@@ -429,23 +417,19 @@ void actors::shootProjectile()
     }
 }
 
-bool actors::idle()
+bool actors::idle() const
 {
     return this->isIdle;
 }
 
-
-bool actors::isAlive()
+bool actors::isAlive() const
 {
     return this->actorAlive;
 }
 
-cords actors::getActorCords()
+cords actors::getActorCords() const
 {
-    cords blah;
-    blah.x = this->actorCords[0];
-    blah.y = this->actorCords[1];
-    return blah;
+    return cords{ this->actorCords[0], this->actorCords[1] };
 }
 
 void actors::setIsDoingAttack()
@@ -494,7 +478,7 @@ void actors::doMeleeDamage()
     }
 }
 
-std::list<cords> actors::getRejectedTargetsList()
+const std::list<cords>& actors::getRejectedTargetsList() const
 {
     return listOfTargetsToRejectUntilSuccesfullMovement;
 }
@@ -513,12 +497,12 @@ void actors::killActor() {
     currentGame.occupiedByActorList[this->actorCords[0]][this->actorCords[1]] = -1;
 }
 
-int actors::getType()
+int actors::getType() const
 {
     return this->actorType;
 }
 
-std::string actors::nameOfActor()
+std::string actors::nameOfActor() const
 {
     switch(this->actorType)
     {
@@ -1097,7 +1081,7 @@ void actors::animateWalkingToResource()
     }
 }
 
-bool isRealyNextToRecource(int& unitX, int& unitY, int& resourceX, int& resourceY) {
+bool isReallyNextToResource(int& unitX, int& unitY, int& resourceX, int& resourceY) {
     int distX = unitX - resourceX;
     int distY = unitY - resourceY;
     if ((distX == 0 || distX == 1 || distX == -1) && (distY == 0 || distY == 1 || distY == -1)) {
@@ -1110,7 +1094,7 @@ bool isRealyNextToRecource(int& unitX, int& unitY, int& resourceX, int& resource
 
 void actors::gatherResource()
 {
-    if (isRealyNextToRecource(this->actorCords[0], this->actorCords[1], this->actionPreformedOnTile[0], this->actionPreformedOnTile[1])) {
+    if (isReallyNextToResource(this->actorCords[0], this->actorCords[1], this->actionPreformedOnTile[0], this->actionPreformedOnTile[1])) {
         if (currentGame.objectLocationList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]] != -1)
         {
             if (currentGame.elapsedTime - this->timeStartedGatheringRecource > 2)
@@ -1252,7 +1236,7 @@ void actors::setCommonGoalTrue()
     this->commonGoal = true;
 }
 
-void actors::findNearestSimilairResource()
+void actors::findNearestSimilarResource()
 {
     cords newResourceCords = findResource(this->ResourceBeingGatherd, this->actorId);
     if (newResourceCords.x != -1) {
@@ -1276,11 +1260,6 @@ void actors::findNearestSimilairResource()
         this->isBuilding = false;
         this->isGatheringRecources = false;
     }
-}
-
-
-cords actors::getLocation(){
-    return {this->actorCords[0], this->actorCords[1]};
 }
 
 int adjacentTileIsCorrectDropOffPoint(int& x, int& y, resourceTypes& resourceGatherd, int& team) {
@@ -1352,12 +1331,12 @@ void actors::findNearestDropOffPoint()
     }
 }
 
-int actors::getTeam()
+int actors::getTeam() const
 {
     return this->actorTeam;
 }
 
-bool actors::isInitialized()
+bool actors::isInitialized() const
 {
     return this->initialized;
 }
@@ -1391,7 +1370,6 @@ void actors::pathAStar()
     std::list<Cells*> listToCheck;
     std::list<Cells*> checkedList;
     bool endReached = false;
-
 
     //check of de doelcel niet 1 hokje weg is 
     if(((actorCords[0]-actorGoal[0] == 0) ||(actorCords[0]-actorGoal[0] == -1) ||(actorCords[0]-actorGoal[0] == 1)) && ((actorCords[1]-actorGoal[1] == 0) ||(actorCords[1]-actorGoal[1] == -1) ||(actorCords[1]-actorGoal[1] == 1)))
@@ -1702,22 +1680,22 @@ void actors::cleanUp()
     currentGame.occupiedByActorList[this->actorCords[0]][this->actorCords[1]] = this->actorId;
 }
 
-std::pair<int, int> actors::getHealth()
+std::pair<int, int> actors::getHealth() const
 {
     return {this->actorHealth, this->hitPoints};
 }
 
-int actors::getMeleeDMG()
+int actors::getMeleeDMG() const
 {
     return this->meleeDamage;
 }
 
-int actors::getRangedDMG()
+int actors::getRangedDMG() const
 {
     return this->rangedDamage;
 }
 
-void actors:: drawActor()
+void actors::drawActor()
 {
     int i = this->actorCords[0];
     int j = this->actorCords[1];
@@ -1909,32 +1887,32 @@ void actors::buildBuilding()
     }
 }
 
-int actors::getActorId()
+int actors::getActorId()  const
 {
     return this->actorId;
 }
 
-bool actors::isGathering()
+bool actors::isGathering() const
 {
     return this->isGatheringRecources;
 }
 
-bool actors::getIsBuilding()
+bool actors::getIsBuilding() const
 {
     return this->isBuilding;
 }
 
-cords actors::getGoal()
+cords actors::getGoal() const
 {
     return { this->actorGoal[0], this->actorGoal[1] };
 }
 
-int actors::getBuildingId()
+int actors::getBuildingId() const
 {
     return this->buildingId;
 }
 
-resourceTypes actors::getResourceGathered()
+resourceTypes actors::getResourceGathered() const
 {
     return this->ResourceBeingGatherd;
 }

@@ -1,18 +1,19 @@
-#include "gamestate.h"
-#include "buildings.h"
-#include "objects.h"
 #include "actors.h"
+#include "buildings.h"
+#include "buildings.h"
+#include "gamestate.h"
+#include "gametext.h"
+#include "objects.h"
+#include "orderCursor.h"
 #include "player.h"
-#include <iostream>
-#include <sstream>
+#include "projectile.h"
+#include "randomMapGenerator.h"
 #include <algorithm> 
 #include <future>
+#include <iostream>
+#include <sstream>
 #include <vector>
-#include "gametext.h"
-#include "buildings.h"
-#include "randomMapGenerator.h"
-#include "projectile.h"
-#include "orderCursor.h"
+
 
 sf::RenderTexture minimapBuildingsTexture;
 sf::RenderTexture minimapActorsTexture;
@@ -21,7 +22,65 @@ sf::RenderTexture minimapObjectsTexture;
 
 bool noNewBuildings;
 
+namespace
+{
+    const sf::Color teamColors[] =
+    {
+        {0, 0, 255},
+        {0, 255, 0},
+        {255, 0, 0},
+        {255, 255, 0},
+        {0, 255, 255},
+        {255, 0, 255},
+        {255, 127, 0},
+        {127, 127, 127}
+    };
+}
 
+nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId)
+{
+    std::list <nearestBuildingTile> listOfBuildLocations;
+    std::vector<adjacentTile> tileList = listOfBuildings[buildingId].getFreeBuildingTile();
+    if (!tileList.empty()) {
+        for (int j = 0; j < tileList.size(); j++)
+        {
+            float tempDeltaDistance = static_cast<float>(dist(listOfActors[actorId].getActorCords().x, listOfActors[actorId].getActorCords().y, tileList[j].tileX, tileList[j].tileY));
+            listOfBuildLocations.push_back({ tempDeltaDistance, tileList[j].tileX, tileList[j].tileY, tileList[j].goalX , tileList[j].goalY, tileList[j].tileId, true });
+        }
+        if (!listOfBuildLocations.empty())
+        {
+            listOfBuildLocations.sort([](const nearestBuildingTile& f, const nearestBuildingTile& s)
+                {
+                    return f.deltaDistance < s.deltaDistance;
+                });
+        }
+        bool firstLocationIsNotRejected = false;
+        while (!firstLocationIsNotRejected && !listOfBuildLocations.empty() && !listOfActors[actorId].getRejectedTargetsList().empty()) {
+            bool rejectionsDuringLoop = false;
+            for (const auto& reject : listOfActors[actorId].getRejectedTargetsList())
+            {
+                if (reject.x == listOfBuildLocations.front().locationX && reject.y == listOfBuildLocations.front().locationY) {
+                    //target rejected!
+                    listOfBuildLocations.pop_front();
+                    rejectionsDuringLoop = true;
+                }
+            }
+            if (!rejectionsDuringLoop) {
+                firstLocationIsNotRejected = true; //break the loop 
+            }
+        }
+        //Return the location if one is accepted
+        if (!listOfBuildLocations.empty()) {
+            return  listOfBuildLocations.front();
+        }
+        else {
+            return { 0, 0, 0, 0, false };
+        }
+    }
+    else {
+        return { 0, 0, 0, 0, false };
+    }
+}
 
 void gameState::drawMousePosition(int x,int y, bool noProblem)
 {
@@ -37,7 +96,7 @@ void gameState::drawMousePosition(int x,int y, bool noProblem)
     }
 }
 
-bool gameState::isPassable(int x, int y)
+bool gameState::isPassable(int x, int y) const
 {
     //check if the terrain is passable 1-6 and within map bounds
     if (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT) {
@@ -137,7 +196,7 @@ void gameState::drawThingsOnTile(int i, int j)
     }
 }
 
-bool gameState::isInSelectedActors(int id)
+bool gameState::isInSelectedActors(int id) const
 {
     if(!this->selectedUnits.empty())
     {
@@ -152,7 +211,7 @@ bool gameState::isInSelectedActors(int id)
     return false;
 }
 
-bool gameState::buildingIsSelected(int& id)
+bool gameState::buildingIsSelected(int id) const
 {
     if (this->buildingSelectedId == id) {
         return true;
@@ -207,8 +266,6 @@ void gameState::drawMap()
         }
     }
 }
-
-
 
 void gameState::loadTextures()
 {
@@ -769,12 +826,12 @@ void gameState::calculateRectangle()
     }
 }
 
-void gameState::changeViewFromMiniMap() {
+void gameState::changeViewFromMiniMap() const {
     viewOffsetX = static_cast<int>(((mouseFakePosition.x - (mainWindowWidth * 0.8f)) / (0.2f * mainWindowWidth)) * (MAP_WIDTH * 64));
     viewOffsetY = static_cast<int>(((mouseFakePosition.y - (mainWindowHeigth * 0.8f)) / (0.2f * mainWindowHeigth)) * (MAP_HEIGHT * 32));
 }
 
-void gameState::clickUIButton() {
+void gameState::clickUIButton() const {
     //check if a UI button was pressed
     for (auto& Button : listOfButtons)
     {
@@ -849,7 +906,7 @@ void gameState::clickToPlaceBuilding() {
     }
 }
 
-void gameState::clickToPlaceObject()
+void gameState::clickToPlaceObject() const
 {
     if (!(this->mouseWorldPosition.x < 0) && !(this->mouseWorldPosition.y < 0) && !(this->mouseWorldPosition.x >= MAP_WIDTH) && !(this->mouseWorldPosition.y >= MAP_HEIGHT))
     {
@@ -857,13 +914,12 @@ void gameState::clickToPlaceObject()
         if (this->objectLocationList[mouseWorldPosition.x][mouseWorldPosition.y] == -1 && this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] == -1)
         {
             //Zet het object neer
-            objects newObject(static_cast<objectTypes>(this->objectTypeSelected), this->mouseWorldPosition.x, this->mouseWorldPosition.y, static_cast<int>(listOfObjects.size()));
-            listOfObjects.push_back(newObject);
+            listOfObjects.push_back(objects(static_cast<objectTypes>(this->objectTypeSelected), this->mouseWorldPosition.x, this->mouseWorldPosition.y, static_cast<int>(listOfObjects.size())));
         }
     }
 }
 
-void gameState::clickToPlaceActor()
+void gameState::clickToPlaceActor() const
 {
     if (!(this->mouseWorldPosition.x < 0) && !(this->mouseWorldPosition.y < 0) && !(this->mouseWorldPosition.x >= MAP_WIDTH) && !(this->mouseWorldPosition.y >= MAP_HEIGHT))
     {
@@ -871,9 +927,8 @@ void gameState::clickToPlaceActor()
         if (this->objectLocationList[mouseWorldPosition.x][mouseWorldPosition.y] == -1 && this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] == -1 && this->occupiedByActorList[mouseWorldPosition.x][mouseWorldPosition.y] == -1)
         {
             //Zet de actor neer
-            listOfActorsMutex.lock();
-            actors newActor(0, this->mouseWorldPosition.x, this->mouseWorldPosition.y, currentPlayer.getTeam(), static_cast<int>(listOfActors.size()));
-            listOfActors.push_back(newActor);
+            listOfActorsMutex.lock(); 
+            listOfActors.push_back(actors(0, this->mouseWorldPosition.x, this->mouseWorldPosition.y, currentPlayer.getTeam(), static_cast<int>(listOfActors.size())));
             listOfActorsMutex.unlock();
         }
     }
@@ -965,8 +1020,6 @@ void gameState::mouseLeftClick()
     }
 }
 
-
-
 void gameState::getDefinitiveSelection()
 {
     if (this->mousePressedLeft && !(mouseFakePosition.y > mainWindowHeigth * 0.8f))
@@ -1007,7 +1060,7 @@ void gameState::getDefinitiveSelection()
     }
 }
 
-bool gameState::clickToMove(int posX, int posY, bool minimap)
+bool gameState::clickToMove(int posX, int posY, bool minimap) const
 {
     bool actionDone = false;
     for (int i = 0; i < this->selectedUnits.size(); i++)
@@ -1071,7 +1124,7 @@ bool gameState::clickToMove(int posX, int posY, bool minimap)
     return actionDone;
 }
 
-bool gameState::clickToGatherResource()
+bool gameState::clickToGatherResource() const
 {
     bool actionDone = false;
     for (int i = 0; i < this->selectedUnits.size(); i++)
@@ -1115,52 +1168,7 @@ bool gameState::clickToGatherResource()
     return actionDone;
 }
 
-nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId)
-{
-    std::list <nearestBuildingTile> listOfBuildLocations;
-    std::vector<adjacentTile> tileList = listOfBuildings[buildingId].getFreeBuildingTile();
-    if (!tileList.empty()) {
-        for (int j = 0; j < tileList.size(); j++)
-        {
-            float tempDeltaDistance = static_cast<float>(dist(listOfActors[actorId].getActorCords().x, listOfActors[actorId].getActorCords().y, tileList[j].tileX, tileList[j].tileY));
-            listOfBuildLocations.push_back({ tempDeltaDistance, tileList[j].tileX, tileList[j].tileY, tileList[j].goalX , tileList[j].goalY, tileList[j].tileId, true });
-        }
-        if (!listOfBuildLocations.empty())
-        {
-            listOfBuildLocations.sort([](const nearestBuildingTile& f, const nearestBuildingTile& s)
-                {
-                    return f.deltaDistance < s.deltaDistance;
-                });
-        }
-        bool firstLocationIsNotRejected = false;
-        while (!firstLocationIsNotRejected && !listOfBuildLocations.empty() && !listOfActors[actorId].getRejectedTargetsList().empty()) {
-            bool rejectionsDuringLoop = false;
-            for (const auto& reject : listOfActors[actorId].getRejectedTargetsList())
-            {
-                if (reject.x == listOfBuildLocations.front().locationX && reject.y == listOfBuildLocations.front().locationY) {
-                    //target rejected!
-                    listOfBuildLocations.pop_front();
-                    rejectionsDuringLoop = true;
-                }
-            }
-            if (!rejectionsDuringLoop) {
-                firstLocationIsNotRejected = true; //break the loop 
-            }
-        }
-        //Return the location if one is accepted
-        if (!listOfBuildLocations.empty()) {
-            return  listOfBuildLocations.front();
-        }
-        else {
-            return { 0, 0, 0, 0, false };
-        }
-    }
-    else {
-        return { 0, 0, 0, 0, false };
-    }
-}
-
-bool gameState::clickToBuildOrRepairBuilding()
+bool gameState::clickToBuildOrRepairBuilding() const
 {
     bool actionDone = false;
     if (!listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getCompleted())
@@ -1238,7 +1246,7 @@ void testfunctiuon(int testVar)
     }
 }
 
-bool gameState::clickToAttack() {
+bool gameState::clickToAttack() const {
     bool actionDone = false;
     for (int i = 0; i < this->selectedUnits.size(); i++)
     {
@@ -1311,8 +1319,7 @@ void gameState::clickToGiveCommand()
     }
 
     if (actionPreformed) {
-        orderCursor newOrderCursor(this->mousePosition);
-        listOfOrderCursors.push_back(newOrderCursor);
+        listOfOrderCursors.push_back(orderCursor(this->mousePosition));
     }
 
 }
@@ -1329,15 +1336,13 @@ void gameState::clickToGiveMinimapCommand()
     for (int posX = minimapToWorldPosition.x - 1; posX < minimapToWorldPosition.x + 2; posX++) {
         for (int posY = minimapToWorldPosition.y - 1; posY < minimapToWorldPosition.y + 2; posY++) {
             clickToMove(posX, posY, true);
-            orderCursor newOrderCursor(this->mousePosition);
-            listOfOrderCursors.push_back(newOrderCursor);
+            listOfOrderCursors.push_back(orderCursor(this->mousePosition));
             return;
         }
     }
  }
 
-
-void gameState::orderRallyPoint() {
+void gameState::orderRallyPoint() const {
     if (this->isPassable(this->mouseWorldPosition.x, this->mouseWorldPosition.y))
     {
         listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionMove);
@@ -1364,8 +1369,7 @@ void gameState::orderRallyPoint() {
             listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionAttack);
         }
     }
-    orderCursor newOrderCursor(this->mousePosition);
-    listOfOrderCursors.push_back(newOrderCursor);
+    listOfOrderCursors.push_back(orderCursor(this->mousePosition));
 }
 
 void gameState::mouseRightClick()
@@ -1413,7 +1417,7 @@ void gameState::changeTiles()
     this->equalIsPressed = true;
 }
 
-void gameState::edgeScrolling()
+void gameState::edgeScrolling() const
 {
     if (mouseFakePosition.x < 0) {
         viewOffsetX += -10;
@@ -1674,13 +1678,29 @@ cords gameState::getNextCord(int x, int y)
     }
 }
 
-int gameState::getPlayerCount()
+int gameState::getPlayerCount() const
 {
     return players;
 }
 
 void drawMiniMapBackground(sf::RectangleShape& miniMapPixel)
 {
+    static const sf::Color colors[] =
+    {
+        {0, 0, 0},
+        {152, 205, 115},
+        {200, 160, 80},
+        {200, 160, 80},
+        {200, 160, 80},
+        {200, 160, 80},
+        {200, 160, 80},
+        {69, 164, 208},
+        {69, 164, 208},
+        {69, 164, 208},
+        {69, 164, 208},
+        {69, 164, 208}
+    };
+
     if(!minimapTextureExist)
     {
         minimapTexture.clear(sf::Color(0,0,0,0));
@@ -1688,7 +1708,11 @@ void drawMiniMapBackground(sf::RectangleShape& miniMapPixel)
         {
             for(int i = 0; i < MAP_WIDTH; i++ )
             {
-                switch(currentGame.currentMap[i][j])
+                miniMapPixel.setFillColor(colors[currentGame.currentMap[i][j]]);
+                miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
+                minimapTexture.draw(miniMapPixel);
+                /*
+                switch (currentGame.currentMap[i][j])
                 {
                 case 0:
                     miniMapPixel.setFillColor(sf::Color(0, 0, 0));
@@ -1750,7 +1774,7 @@ void drawMiniMapBackground(sf::RectangleShape& miniMapPixel)
                     miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
                     minimapTexture.draw(miniMapPixel);
                     break;
-                }
+                }*/
             }
 
         }
@@ -1770,7 +1794,11 @@ void drawMiniMapBuildings(sf::RectangleShape& miniMapPixel)
             {
                 if(currentGame.occupiedByBuildingList[i][j] != -1)
                 {
-                    switch(listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam())
+                    miniMapPixel.setFillColor(teamColors[listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam()]);
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
+                    minimapBuildingsTexture.draw(miniMapPixel);
+                    /*
+                    switch (listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam())
                     {
                     case 0:
                         miniMapPixel.setFillColor(sf::Color(0, 0, 255));
@@ -1813,6 +1841,7 @@ void drawMiniMapBuildings(sf::RectangleShape& miniMapPixel)
                         minimapBuildingsTexture.draw(miniMapPixel);
                         break;
                     }
+                    */
                 }
             }
         }
@@ -1831,7 +1860,11 @@ void gameState::drawMiniMapActors(sf::RectangleShape& miniMapPixel)
             if (this->visability[(i * MAP_HEIGHT) + j] > 1) {
                 if (currentGame.occupiedByActorList[i][j] != -1)
                 {
-                    switch (listOfActors[currentGame.occupiedByActorList[i][j]].getTeam())
+                    miniMapPixel.setFillColor(teamColors[listOfActors[currentGame.occupiedByActorList[i][j]].getTeam()]);
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
+                    minimapActorsTexture.draw(miniMapPixel);
+                    
+                    /*switch (listOfActors[currentGame.occupiedByActorList[i][j]].getTeam())
                     {
                     case 0:
                         miniMapPixel.setFillColor(sf::Color(0, 0, 255));
@@ -1874,6 +1907,7 @@ void gameState::drawMiniMapActors(sf::RectangleShape& miniMapPixel)
                         minimapActorsTexture.draw(miniMapPixel);
                         break;
                     }
+                    */
                 }
             }
         }
@@ -1909,6 +1943,13 @@ void gameState::drawMiniMapMist(sf::RectangleShape& miniMapPixel)
 
 void drawMiniMapObjects(sf::RectangleShape& miniMapPixel)
 {
+    static const sf::Color colors[] =
+    {
+        {33, 77, 33}, //Wood
+        {150, 88, 88}, //Food
+        {65, 65, 65}, //Stone
+        {110, 90, 0} //Gold
+    };
 
     minimapObjectsTexture.clear(sf::Color(0,0,0,0));
     for(int j = 0; j < MAP_HEIGHT; j++)
@@ -1917,7 +1958,12 @@ void drawMiniMapObjects(sf::RectangleShape& miniMapPixel)
         {
             if(currentGame.objectLocationList[i][j] != -1)
             {
-                switch(listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource())
+                miniMapPixel.setFillColor(colors[static_cast<int>(listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource())]);
+                miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
+                minimapObjectsTexture.draw(miniMapPixel);
+
+                /*
+                switch (listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource())
                 {
                 case resourceTypes::resourceWood:
                     miniMapPixel.setFillColor(sf::Color(33, 77, 33));
@@ -1940,6 +1986,7 @@ void drawMiniMapObjects(sf::RectangleShape& miniMapPixel)
                     minimapObjectsTexture.draw(miniMapPixel);
                     break;
                 }
+                */
             }
         }
     }
@@ -1990,34 +2037,34 @@ void gameState::drawMiniMap()
     window.setView(worldView);
 }
 
-void createVillagerButtons(int& startX, int& startY, int& incrementalXOffset,  bool& villagerButtonsAreThere)
+void createVillagerButtons(int startX, int startY, int incrementalXOffset,  bool villagerButtonsAreThere)
 {
     if (!villagerButtonsAreThere) {
         int startXOr = startX;
-        button newButton = { startX, startY, spriteTypes::spriteTownCenter, actionTypes::actionBuildTownCenter, 0, static_cast<int>(listOfButtons.size()),0 };
-        listOfButtons.push_back(newButton);
+
+        listOfButtons.push_back({ startX, startY, spriteTypes::spriteTownCenter, actionTypes::actionBuildTownCenter, 0, static_cast<int>(listOfButtons.size()), 0 });
         startX += incrementalXOffset;
-        button newButton1 = { startX, startY, spriteTypes::spriteHouse, actionTypes::actionBuildHouse, 0, static_cast<int>(listOfButtons.size()),0 };
-        listOfButtons.push_back(newButton1);
+
+        listOfButtons.push_back({ startX, startY, spriteTypes::spriteHouse, actionTypes::actionBuildHouse, 0, static_cast<int>(listOfButtons.size()), 0 });
         startX += incrementalXOffset;
-        button newButton2 = { startX, startY, spriteTypes::spriteMill, actionTypes::actionBuildMill, 0, static_cast<int>(listOfButtons.size()),0 };
-        listOfButtons.push_back(newButton2);
+
+        listOfButtons.push_back({ startX, startY, spriteTypes::spriteMill, actionTypes::actionBuildMill, 0, static_cast<int>(listOfButtons.size()), 0 });
         startX += incrementalXOffset;
-        button newButton3 = { startX, startY, spriteTypes::spriteLumberCamp, actionTypes::actionBuildLumberCamp, 0, static_cast<int>(listOfButtons.size()),0 };
-        listOfButtons.push_back(newButton3);
+
+        listOfButtons.push_back({ startX, startY, spriteTypes::spriteLumberCamp, actionTypes::actionBuildLumberCamp, 0, static_cast<int>(listOfButtons.size()), 0 });
         startX += incrementalXOffset;
-        button newButton4 = { startX, startY, spriteTypes::spriteBarracks, actionTypes::actionBuildBarracks, 0, static_cast<int>(listOfButtons.size()),0 };
-        listOfButtons.push_back(newButton4);
+
+        listOfButtons.push_back({ startX, startY, spriteTypes::spriteBarracks, actionTypes::actionBuildBarracks, 0, static_cast<int>(listOfButtons.size()), 0 });
+
         villagerButtonsAreThere = true;
         startX = startXOr;
         startY += incrementalXOffset;
-        button newButton5 = { startX, startY, spriteTypes::spriteMiningCamp, actionTypes::actionBuildMiningCamp, 0, static_cast<int>(listOfButtons.size()),0 };
-        listOfButtons.push_back(newButton5);
+        listOfButtons.push_back({ startX, startY, spriteTypes::spriteMiningCamp, actionTypes::actionBuildMiningCamp, 0, static_cast<int>(listOfButtons.size()), 0 });
         villagerButtonsAreThere = true;
     }
 }
 
-void addActorSelectorButton(int& actorId, int& startDeck, int& tempY, int& startY, int& incrementalYOffset, int& offSetToNextCard)
+void addActorSelectorButton(int actorId, int startDeck, int tempY, int startY, int incrementalYOffset, int offSetToNextCard)
 {
     int buttonType = 0;
     //Speelruimte is 730 pixels = 1920/2.63 = cardDecksize
@@ -2030,8 +2077,8 @@ void addActorSelectorButton(int& actorId, int& startDeck, int& tempY, int& start
         buttonType = 7;
         break;
     }
-    button newButton = { startDeck, tempY, static_cast<spriteTypes>(buttonType), actionTypes::actionUnitSelect, actorId, static_cast<int>(listOfButtons.size()),0 };
-    listOfButtons.push_back(newButton);
+
+    listOfButtons.push_back({ startDeck, tempY, static_cast<spriteTypes>(buttonType), actionTypes::actionUnitSelect, actorId, static_cast<int>(listOfButtons.size()), 0 });
     if (tempY == startY)
     {
         tempY += incrementalYOffset;
@@ -2043,7 +2090,7 @@ void addActorSelectorButton(int& actorId, int& startDeck, int& tempY, int& start
     }
 }
 
-int getActorSpriteOffSet(int& actorId)
+int getActorSpriteOffSet(int actorId)
 {
     switch (listOfActors[actorId].getType())
     {
@@ -2055,7 +2102,7 @@ int getActorSpriteOffSet(int& actorId)
     return -1;
 }
 
-void gameState::drawActorTitle(int& actorId, int& textStartX, int& textStartY)
+void gameState::drawActorTitle(int actorId, int textStartX, int textStartY)
 {
     text.setString(listOfActors[actorId].nameOfActor());
     text.setCharacterSize(26);
@@ -2066,14 +2113,14 @@ void gameState::drawActorTitle(int& actorId, int& textStartX, int& textStartY)
     window.draw(text);
 }
 
-void gameState::drawActorBigSprite(int& actorId)
+void gameState::drawActorBigSprite(int actorId)
 {
     this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(128, getActorSpriteOffSet(actorId), 128, 128));
     this->spriteBigSelectedIcon.setPosition(static_cast<float>(mainWindowWidth / 4.08), static_cast<float>(mainWindowHeigth / 30));
     window.draw(this->spriteBigSelectedIcon);
 }
 
-void gameState::drawActorStats(int& actorId, int& textStartX, int& textStartY)
+void gameState::drawActorStats(int actorId, int textStartX, int textStartY)
 {
     text.setCharacterSize(18);
     std::stringstream healthText;
@@ -2108,7 +2155,7 @@ void gameState::drawActorStats(int& actorId, int& textStartX, int& textStartY)
     }
 }
 
-void gameState::drawActorToolbar(int &startX, int &startY, int &incrementalXOffset, int &spriteYOffset, int &startDeck, int &tempY, int &incrementalYOffset, int &offSetTonextCard)
+void gameState::drawActorToolbar(int startX, int startY, int incrementalXOffset, int spriteYOffset, int startDeck, int tempY, int incrementalYOffset, int offSetTonextCard)
 {
     bool villagerButtonsAreThere = false;
     int textStartX = static_cast<int>((mainWindowWidth / 4.08) + (128 + (mainWindowWidth / 160)));
@@ -2132,7 +2179,7 @@ void gameState::drawActorToolbar(int &startX, int &startY, int &incrementalXOffs
     }
 }
 
-int getBuildingSpriteOffset(int& buildingId)
+int getBuildingSpriteOffset(int buildingId)
 {
     switch (listOfBuildings[buildingId].getType())
     {
@@ -2162,7 +2209,7 @@ int getBuildingSpriteOffset(int& buildingId)
     return -1;
 }
 
-void createBuildingButtons(int& buildingId, int& startX, int& startY)
+void createBuildingButtons(int buildingId, int startX, int startY)
 {
     switch (listOfBuildings[buildingId].getType())
     {
@@ -2203,14 +2250,14 @@ void createBuildingButtons(int& buildingId, int& startX, int& startY)
     }
 }
 
-void gameState::drawBuildingBigSprite(int& buildingId)
+void gameState::drawBuildingBigSprite(int buildingId)
 {
     this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(0, getBuildingSpriteOffset(buildingId), 128, 128));
     this->spriteBigSelectedIcon.setPosition(static_cast<float>(mainWindowWidth / 4.08), static_cast<float>(mainWindowHeigth / 30));
     window.draw(this->spriteBigSelectedIcon);
 }
 
-void gameState::drawBuildingToolbarTitle(int& textStartX, int& textStartY)
+void gameState::drawBuildingToolbarTitle(int textStartX, int textStartY)
 {
     text.setString(listOfBuildings[this->buildingSelectedId].getName());
     text.setCharacterSize(26);
@@ -2221,7 +2268,7 @@ void gameState::drawBuildingToolbarTitle(int& textStartX, int& textStartY)
     window.draw(text);
 }
 
-void gameState::drawBuildingToolbarStats(int& textStartX, int& textStartY)
+void gameState::drawBuildingToolbarStats(int textStartX, int textStartY)
 {
     text.setCharacterSize(18);
     std::stringstream healthText;
@@ -2250,7 +2297,7 @@ void gameState::drawBuildingToolbarStats(int& textStartX, int& textStartY)
     window.draw(text);
 }
 
-void gameState::drawProgressBar(float pointsGained, float pointsRequired, int& totalBarLength, int& startBarX, int& startBarY)
+void gameState::drawProgressBar(float pointsGained, float pointsRequired, int totalBarLength, int startBarX, int startBarY)
 {
     sf::RectangleShape totalBar(sf::Vector2f(static_cast<float>(totalBarLength), 18.f));
     sf::RectangleShape completeBar(sf::Vector2f((pointsGained /pointsRequired ) * totalBarLength, 18.f));
@@ -2266,7 +2313,7 @@ void gameState::drawProgressBar(float pointsGained, float pointsRequired, int& t
     window.draw(completeBar);
 }
 
-std::string getBuildingIsProducingName(int& buildingId)
+std::string getBuildingIsProducingName(int buildingId)
 {
     if (listOfBuildings[buildingId].productionQueue.front().isResearch)
     {
@@ -2293,7 +2340,7 @@ std::string getBuildingIsProducingName(int& buildingId)
     }
 }
 
-cords getSpriteOffSetTask(int& buildingId)
+cords getSpriteOffSetTask(int buildingId)
 {
     if (listOfBuildings[buildingId].productionQueue.front().isResearch)
     {
@@ -2321,7 +2368,7 @@ cords getSpriteOffSetTask(int& buildingId)
     }
 }
 
-int getCardForButtonByTask(int& buildingId, int& taskId)
+int getCardForButtonByTask(int buildingId, int taskId)
 {
     if (listOfBuildings[buildingId].productionQueue[taskId].isResearch)
     {
@@ -2350,7 +2397,7 @@ int getCardForButtonByTask(int& buildingId, int& taskId)
     }
 }
 
-void gameState::drawBuildingTaskToolbar(int& startDeck, int& startY)
+void gameState::drawBuildingTaskToolbar(int startDeck, int startY)
 {
     int iconStartX = startDeck + static_cast<int>(mainWindowWidth / 30);
     int iconStartY = startY + static_cast<int>(mainWindowHeigth / 27);
@@ -2382,7 +2429,7 @@ void gameState::drawBuildingTaskToolbar(int& startDeck, int& startY)
     }
 }
 
-void gameState::drawBuildingConstructionToolbar(int& startDeck, int& startY)
+void gameState::drawBuildingConstructionToolbar(int startDeck, int startY)
 {
     int iconStartX = startDeck + static_cast<int>(mainWindowWidth / 30);
     int iconStartY = startY + static_cast<int>(mainWindowHeigth / 27);
@@ -2401,7 +2448,7 @@ void gameState::drawBuildingConstructionToolbar(int& startDeck, int& startY)
     listOfButtons.push_back(cancelBuilding);
 }
 
-void gameState::drawBuildingToolbar(int& startX, int& startY, int& incrementalXOffset, int& spriteYOffset, int& startDeck, int& tempY, int& incrementalYOffset, int& offSetTonextCard)
+void gameState::drawBuildingToolbar(int startX, int startY, int incrementalXOffset, int spriteYOffset, int startDeck, int tempY, int incrementalYOffset, int offSetTonextCard)
 {
     int textStartX = static_cast<int>((mainWindowWidth / 4.08) + (128 + (mainWindowWidth / 160)));
     int textStartY = static_cast<int>(mainWindowHeigth / 30);
@@ -2421,7 +2468,7 @@ void gameState::drawBuildingToolbar(int& startX, int& startY, int& incrementalXO
     }
 }
 
-int getObjectBigSpriteYOffset(int& objectId)
+int getObjectBigSpriteYOffset(int objectId)
 {
     switch (listOfObjects[objectId].getType())
     {
@@ -2452,7 +2499,7 @@ int getObjectBigSpriteYOffset(int& objectId)
     }
 }
 
-void gameState::drawObjectToolbar(int& startX, int& startY, int& incrementalXOffset, int& spriteYOffset, int& startDeck, int& tempY, int& incrementalYOffset, int& offSetTonextCard)
+void gameState::drawObjectToolbar(int startX, int startY, int incrementalXOffset, int spriteYOffset, int startDeck, int tempY, int incrementalYOffset, int offSetTonextCard)
 {
     this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(256, getObjectBigSpriteYOffset(this->objectSelectedId), 128, 128));
     this->spriteBigSelectedIcon.setPosition(static_cast<float>(mainWindowWidth / 4.08), static_cast<float>(mainWindowHeigth / 30));
@@ -2492,7 +2539,7 @@ void gameState::drawToolbar()
     int tempY = startY;
     int incrementalXOffset = 64+(mainWindowWidth/160);
     int incrementalYOffset = 64+(mainWindowHeigth/90);
-    int spriteYOffset;
+    int spriteYOffset = 0;
     int cardDeckSize = static_cast<int>(mainWindowWidth / 1.82);
     int amountOfCardsPerRow = static_cast<int>((this->selectedUnits.size()+1)/2);
     int requiredSize = amountOfCardsPerRow*64;
@@ -2629,7 +2676,7 @@ void gameState::drawGame()
     window.display();
 }
 
-float gameState::getTime()
+float gameState::getTime() const
 {
     return this->elapsedTime;
 }
@@ -2816,4 +2863,3 @@ void gameState::createFogOfWar()
         }
     }
 }
-

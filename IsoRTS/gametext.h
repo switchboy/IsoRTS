@@ -13,11 +13,9 @@ struct gameMessage
 class gametext
 {
 public:
-    gametext();
     void addNewMessage(std::string message, int color);
-    void drawMessages();
+    void drawMessages() const;
     void throwOutOldMessages();
-    virtual ~gametext();
 
 private:
     std::list<gameMessage> listOfMessages;

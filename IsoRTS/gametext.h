@@ -1,8 +1,7 @@
 #ifndef GAMETEXT_H
 #define GAMETEXT_H
-#include <string>
 #include <list>
-
+#include <string>
 
 struct gameMessage
 {

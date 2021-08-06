@@ -2576,7 +2576,7 @@ void gameState::drawToolTip()
     {
         for (auto& Button : listOfButtons)
         {
-            Button.isHoverd(mouseFakePosition);
+            Button.isHovered(mouseFakePosition);
         }
     }
 }

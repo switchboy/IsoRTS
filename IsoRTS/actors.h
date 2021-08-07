@@ -159,6 +159,11 @@ private:
     bool isIdle;
     bool realPath;
     bool hasStartedSearchingForAlternatives;
+    cords actorCords;
+    cords actorGoal;
+    cords actorRealGoal;
+    cords actorCommandGoal;
+    cords actionPreformedOnTile;
     int idOfTarget;
     int actorType;
     int actorTeam;
@@ -169,11 +174,6 @@ private:
     int meleeDamage;
     int rangedDamage;
     int range;
-    int actorCords[2];
-    int actorGoal[2];
-    int actorRealGoal[2];
-    int actorCommandGoal[2];
-    int actionPreformedOnTile[2];
     resourceTypes ResourceBeingGatherd;
     int amountOfGold;
     int amountOfWood;

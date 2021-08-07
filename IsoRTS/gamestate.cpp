@@ -190,7 +190,7 @@ void gameState::drawThingsOnTile(int i, int j)
     {
         listOfObjects[this->objectLocationList[i][j]].drawObject(i, j);
     }
-    else if(this->occupiedByActorList[i][j] != -1 && this->visability[(i * MAP_HEIGHT) + j] > 1)
+    else if(this->occupiedByActorList[i][j] != -1 && this->visability[i][j] > 1)
     {
         listOfActors[this->occupiedByActorList[i][j]].drawActor();
     }
@@ -223,43 +223,41 @@ bool gameState::buildingIsSelected(int id) const
 
 void gameState::drawMap()
 {
-    cords lowX = toWorldMousePosition(viewOffsetX-(mainWindowWidth/2), static_cast<int>(viewOffsetY-((mainWindowWidth*0.8)/2)));
-    cords highX = toWorldMousePosition(viewOffsetX+(mainWindowWidth/2), static_cast<int>(viewOffsetY+((mainWindowWidth*0.8)/2)));
-    cords lowY = toWorldMousePosition(viewOffsetX, viewOffsetY-(mainWindowWidth/2));
-    cords highY = toWorldMousePosition(viewOffsetX, viewOffsetY+(mainWindowWidth/2));
-    for(int j = 0; j < MAP_HEIGHT; j++)
+    int lowX = toWorldMousePosition(viewOffsetX - (mainWindowWidth / 2), static_cast<int>(viewOffsetY - ((mainWindowWidth * 0.8) / 2))).x;
+    int highX = toWorldMousePosition(viewOffsetX + (mainWindowWidth / 2), static_cast<int>(viewOffsetY + ((mainWindowWidth * 0.8) / 2))).x;
+    int lowY = toWorldMousePosition(viewOffsetX, viewOffsetY - (mainWindowWidth / 2)).y;
+    int highY = toWorldMousePosition(viewOffsetX, viewOffsetY + (mainWindowWidth / 2)).y;
+    if (lowX < 0) { lowX = 0; }
+    if (highX >= MAP_WIDTH) { highX = MAP_WIDTH; }
+    if (lowY < 0) { lowY = 0; }
+    if (highY >= MAP_HEIGHT) { highY = MAP_HEIGHT; }
+    for (int j = lowY; j < highY; j++)
     {
-        for(int i = 0; i < MAP_WIDTH; i++ )
+        for (int i = lowX; i < highX; i++)
         {
-            if((i >= lowX.x && i <= highX.x)&&(j >= lowY.y && j <= highY.y))
-            {
-                if (this->visability[(i * MAP_HEIGHT) + j] > 0) {
-                    drawGround(i, j);
-                }
-                else {
-                    spriteBlackTile.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
-                    window.draw(spriteBlackTile);
-                }
+            if (this->visability[i][j] > 0) {
+                drawGround(i, j);
+            }
+            else {
+                spriteBlackTile.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
+                window.draw(spriteBlackTile);
             }
         }
     }
-    for(int j = 0; j < MAP_HEIGHT; j++)
+    for (int j = lowY; j < highY; j++)
     {
-        for(int i = 0; i < MAP_WIDTH; i++ )
+        for (int i = lowX; i < highX; i++)
         {
-            if((i >= lowX.x && i <= highX.x)&&(j >= lowY.y && j <= highY.y))
-            {
-                if (this->visability[(i * MAP_HEIGHT) + j] > 0) {
-                    drawThingsOnTile(i, j);
-                }
+            if (this->visability[i][j] > 0) {
+                drawThingsOnTile(i, j);
             }
         }
     }
-    for (int j = 0; j < MAP_HEIGHT; j++)
+    for (int j = lowY; j < highY; j++)
     {
-        for (int i = 0; i < MAP_WIDTH; i++)
+        for (int i = lowX; i < highX; i++)
         {
-            if (this->visability[(i * MAP_HEIGHT) + j] <= 1) {
+            if (this->visability[i][j] <= 1) {
                 spriteMistTile.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
                 window.draw(spriteMistTile);
             }
@@ -1711,70 +1709,6 @@ void drawMiniMapBackground(sf::RectangleShape& miniMapPixel)
                 miniMapPixel.setFillColor(colors[currentGame.currentMap[i][j]]);
                 miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
                 minimapTexture.draw(miniMapPixel);
-                /*
-                switch (currentGame.currentMap[i][j])
-                {
-                case 0:
-                    miniMapPixel.setFillColor(sf::Color(0, 0, 0));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 1:
-                    miniMapPixel.setFillColor(sf::Color(152, 205, 115));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 2:
-                    miniMapPixel.setFillColor(sf::Color(200, 160, 80));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 3:
-                    miniMapPixel.setFillColor(sf::Color(200, 160, 80));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 4:
-                    miniMapPixel.setFillColor(sf::Color(200, 160, 80));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 5:
-                    miniMapPixel.setFillColor(sf::Color(200, 160, 80));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 6:
-                    miniMapPixel.setFillColor(sf::Color(200, 160, 80));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 7:
-                    miniMapPixel.setFillColor(sf::Color(69, 164, 208));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 8:
-                    miniMapPixel.setFillColor(sf::Color(69, 164, 208));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 9:
-                    miniMapPixel.setFillColor(sf::Color(69, 164, 208));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 10:
-                    miniMapPixel.setFillColor(sf::Color(69, 164, 208));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 11:
-                    miniMapPixel.setFillColor(sf::Color(69, 164, 208));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                }*/
             }
 
         }
@@ -1797,51 +1731,6 @@ void drawMiniMapBuildings(sf::RectangleShape& miniMapPixel)
                     miniMapPixel.setFillColor(teamColors[listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam()]);
                     miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
                     minimapBuildingsTexture.draw(miniMapPixel);
-                    /*
-                    switch (listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam())
-                    {
-                    case 0:
-                        miniMapPixel.setFillColor(sf::Color(0, 0, 255));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                        minimapBuildingsTexture.draw(miniMapPixel);
-                        break;
-                    case 1:
-                        miniMapPixel.setFillColor(sf::Color(0, 255, 0));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                        minimapBuildingsTexture.draw(miniMapPixel);
-                        break;
-                    case 2:
-                        miniMapPixel.setFillColor(sf::Color(255, 0, 0));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                        minimapBuildingsTexture.draw(miniMapPixel);
-                        break;
-                    case 3:
-                        miniMapPixel.setFillColor(sf::Color(255, 255, 0 ));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                        minimapBuildingsTexture.draw(miniMapPixel);
-                        break;
-                    case 4:
-                        miniMapPixel.setFillColor(sf::Color(0, 255, 255));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                        minimapBuildingsTexture.draw(miniMapPixel);
-                        break;
-                    case 5:
-                        miniMapPixel.setFillColor(sf::Color(255, 0, 255));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                        minimapBuildingsTexture.draw(miniMapPixel);
-                        break;
-                    case 6:
-                        miniMapPixel.setFillColor(sf::Color(255, 127, 0));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                        minimapBuildingsTexture.draw(miniMapPixel);
-                        break;
-                    case 7:
-                        miniMapPixel.setFillColor(sf::Color(127, 127, 127));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                        minimapBuildingsTexture.draw(miniMapPixel);
-                        break;
-                    }
-                    */
                 }
             }
         }
@@ -1857,57 +1746,12 @@ void gameState::drawMiniMapActors(sf::RectangleShape& miniMapPixel)
     {
         for(int i = 0; i < MAP_WIDTH; i++ )
         {
-            if (this->visability[(i * MAP_HEIGHT) + j] > 1) {
+            if (this->visability[i][j] > 1) {
                 if (currentGame.occupiedByActorList[i][j] != -1)
                 {
                     miniMapPixel.setFillColor(teamColors[listOfActors[currentGame.occupiedByActorList[i][j]].getTeam()]);
                     miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
                     minimapActorsTexture.draw(miniMapPixel);
-                    
-                    /*switch (listOfActors[currentGame.occupiedByActorList[i][j]].getTeam())
-                    {
-                    case 0:
-                        miniMapPixel.setFillColor(sf::Color(0, 0, 255));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
-                        minimapActorsTexture.draw(miniMapPixel);
-                        break;
-                    case 1:
-                        miniMapPixel.setFillColor(sf::Color(0, 255, 0));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
-                        minimapActorsTexture.draw(miniMapPixel);
-                        break;
-                    case 2:
-                        miniMapPixel.setFillColor(sf::Color(255, 0, 0));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
-                        minimapActorsTexture.draw(miniMapPixel);
-                        break;
-                    case 3:
-                        miniMapPixel.setFillColor(sf::Color(255, 255, 0));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
-                        minimapActorsTexture.draw(miniMapPixel);
-                        break;
-                    case 4:
-                        miniMapPixel.setFillColor(sf::Color(0, 255, 255));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
-                        minimapActorsTexture.draw(miniMapPixel);
-                        break;
-                    case 5:
-                        miniMapPixel.setFillColor(sf::Color(255, 0, 255));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
-                        minimapActorsTexture.draw(miniMapPixel);
-                        break;
-                    case 6:
-                        miniMapPixel.setFillColor(sf::Color(255, 127, 0));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
-                        minimapActorsTexture.draw(miniMapPixel);
-                        break;
-                    case 7:
-                        miniMapPixel.setFillColor(sf::Color(127, 127, 127));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
-                        minimapActorsTexture.draw(miniMapPixel);
-                        break;
-                    }
-                    */
                 }
             }
         }
@@ -1927,11 +1771,11 @@ void gameState::drawMiniMapMist(sf::RectangleShape& miniMapPixel)
         {
             for (int i = 0; i < MAP_WIDTH; i++)
             {
-                if (this->visability[(i * MAP_HEIGHT) + j] == 0) {
+                if (this->visability[i][j] == 0) {
                     miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
                     minimapMistTexture.draw(miniMapPixel);
                 }
-                else if (this->visability[(i * MAP_HEIGHT) + j] == 1) {
+                else if (this->visability[i][j] == 1) {
                     miniMapPixelTL.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
                     minimapMistTexture.draw(miniMapPixelTL);
                 }
@@ -1943,7 +1787,7 @@ void gameState::drawMiniMapMist(sf::RectangleShape& miniMapPixel)
 
 void drawMiniMapObjects(sf::RectangleShape& miniMapPixel)
 {
-    static const sf::Color colors[] =
+    static const sf::Color resourceColors[] =
     {
         {33, 77, 33}, //Wood
         {150, 88, 88}, //Food
@@ -1958,35 +1802,9 @@ void drawMiniMapObjects(sf::RectangleShape& miniMapPixel)
         {
             if(currentGame.objectLocationList[i][j] != -1)
             {
-                miniMapPixel.setFillColor(colors[static_cast<int>(listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource())]);
+                miniMapPixel.setFillColor(resourceColors[static_cast<int>(listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource())]);
                 miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
                 minimapObjectsTexture.draw(miniMapPixel);
-
-                /*
-                switch (listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource())
-                {
-                case resourceTypes::resourceWood:
-                    miniMapPixel.setFillColor(sf::Color(33, 77, 33));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapObjectsTexture.draw(miniMapPixel);
-                    break;
-                case resourceTypes::resourceFood:
-                    miniMapPixel.setFillColor(sf::Color(150, 88, 88));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapObjectsTexture.draw(miniMapPixel);
-                    break;
-                case resourceTypes::resourceStone:
-                    miniMapPixel.setFillColor(sf::Color(65, 65, 65));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapObjectsTexture.draw(miniMapPixel);
-                    break;
-                case resourceTypes::resourceGold:
-                    miniMapPixel.setFillColor(sf::Color(110, 90, 0 ));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapObjectsTexture.draw(miniMapPixel);
-                    break;
-                }
-                */
             }
         }
     }
@@ -1999,32 +1817,36 @@ void gameState::drawMiniMap()
     sf::RectangleShape miniMapPixel(sf::Vector2f(20.f,10.f));
     sf::Sprite miniMapBackground;
 
-    drawMiniMapBackground(miniMapPixel);
+    if (this->lastMiniMapRefresh + 1 < this->elapsedTime) {
+        drawMiniMapBackground(miniMapPixel);
+        drawMiniMapObjects(miniMapPixel);
+        drawMiniMapBuildings(miniMapPixel);
+        drawMiniMapMist(miniMapPixel);
+        drawMiniMapActors(miniMapPixel);
+        this->lastMiniMapRefresh = this->elapsedTime;
+    }
+
     miniMapBackground.setTexture(minimapTexture.getTexture());
     miniMapBackground.setScale(this->miniMapWidth/(20*MAP_WIDTH), this->miniMapHeigth/(10*MAP_HEIGHT));
-    window.draw(miniMapBackground);
+    window.draw(miniMapBackground);  
 
-    drawMiniMapObjects(miniMapPixel);
     miniMapBackground.setTexture(minimapObjectsTexture.getTexture());
     miniMapBackground.setScale(this->miniMapWidth/(20*MAP_WIDTH), this->miniMapHeigth/(10*MAP_HEIGHT));
     window.draw(miniMapBackground);
 
-    drawMiniMapBuildings(miniMapPixel);
     miniMapBackground.setTexture(minimapBuildingsTexture.getTexture());
     miniMapBackground.setScale(this->miniMapWidth/(20*MAP_WIDTH), this->miniMapHeigth/(10*MAP_HEIGHT));
     window.draw(miniMapBackground);
 
-    drawMiniMapActors(miniMapPixel);
+    
     miniMapBackground.setTexture(minimapActorsTexture.getTexture());
     miniMapBackground.setScale(this->miniMapWidth / (20 * MAP_WIDTH), this->miniMapHeigth / (10 * MAP_HEIGHT));
     window.draw(miniMapBackground);
 
-    drawMiniMapMist(miniMapPixel);
     miniMapBackground.setTexture(minimapMistTexture.getTexture());
     miniMapBackground.setScale(this->miniMapWidth / (20 * MAP_WIDTH), this->miniMapHeigth / (10 * MAP_HEIGHT));
     window.draw(miniMapBackground);
   
-
     sf::RectangleShape viewBox(sf::Vector2f(this->viewBoxX, this->viewBoxY));
     viewBox.setOrigin(sf::Vector2f(viewBoxX/2.f, viewBoxY/2.f));
     viewBox.setFillColor(sf::Color(0,0,0,0));
@@ -2692,7 +2514,7 @@ void gameState::loadMap()
             this->occupiedByBuildingList[j][i] = -1;
             this->objectLocationList[j][i] = -1;
             this->occupiedByActorList[j][i] = -1;
-            this->visability.push_back(0);
+            this->visability[j][i] = 0;
         }
     }
     generateRandomMap(this->players,16,16,16,5,0);
@@ -2825,41 +2647,48 @@ void gameState::loadGame()
 
 void gameState::createFogOfWar() 
 {
-    if (!noFogOfWar) {
-        for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++) {
-            if (this->visability[i] == 2) {
-                this->visability[i] = 1;
-            }
-        }
-        for (int i = 0; i < listOfActors.size(); i++) {
-            if (listOfActors[i].getTeam() == currentPlayer.getTeam()) {
-                std::list<cords> tempList = getListOfCordsInCircle(listOfActors[i].getActorCords().x, listOfActors[i].getActorCords().y, 6);
-                for (const cords& cord : tempList)
-                {
-                    this->visability[(cord.x * MAP_HEIGHT) + cord.y] = 2;
+    if (lastFogOfWarUpdated + 0.5f < this->elapsedTime) {
+        if (!noFogOfWar) {
+            for (int i = 0; i <MAP_WIDTH; i++) {
+                for (int j = 0; j < MAP_WIDTH; j++) {
+                    if (this->visability[i][j] == 2) {
+                        this->visability[i][j] = 1;
+                    }
                 }
             }
-        }
-        for (int i = 1; i < listOfBuildings.size(); i++) {
-            if (listOfBuildings[i].getTeam() == currentPlayer.getTeam()) {
-                int visRadius = 1;
-                if (listOfBuildings[i].getCompleted()) {
-                    visRadius = 8;
-                }
-                std::list<cords> buidlingFootprint = listOfBuildings[i].getFootprintOfBuilding();
-                for (const cords& footprintTile : buidlingFootprint) {
-                    std::list<cords> tempList = getListOfCordsInCircle(footprintTile.x, footprintTile.y, visRadius);
+            for (int i = 0; i < listOfActors.size(); i++) {
+                if (listOfActors[i].getTeam() == currentPlayer.getTeam()) {
+                    std::list<cords> tempList = getListOfCordsInCircle(listOfActors[i].getActorCords().x, listOfActors[i].getActorCords().y, 6);
                     for (const cords& cord : tempList)
                     {
-                        this->visability[(cord.x * MAP_HEIGHT) + cord.y] = 2;
+                        this->visability[cord.x][cord.y] = 2;
+                    }
+                }
+            }
+            for (int i = 1; i < listOfBuildings.size(); i++) {
+                if (listOfBuildings[i].getTeam() == currentPlayer.getTeam()) {
+                    int visRadius = 1;
+                    if (listOfBuildings[i].getCompleted()) {
+                        visRadius = 8;
+                    }
+                    std::list<cords> buidlingFootprint = listOfBuildings[i].getFootprintOfBuilding();
+                    for (const cords& footprintTile : buidlingFootprint) {
+                        std::list<cords> tempList = getListOfCordsInCircle(footprintTile.x, footprintTile.y, visRadius);
+                        for (const cords& cord : tempList)
+                        {
+                            this->visability[cord.x][cord.y] = 2;
+                        }
                     }
                 }
             }
         }
-    }
-    else {
-        for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++) {
-                this->visability[i] = 2;
+        else {
+            for (int i = 0; i < MAP_WIDTH; i++) {
+                for (int j = 0; j < MAP_WIDTH; j++) {
+                    this->visability[i][j] = 2;
+                }
+            }
         }
+        lastFogOfWarUpdated = this->elapsedTime;
     }
 }

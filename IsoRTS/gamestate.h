@@ -167,7 +167,9 @@ private:
     bool mousePressOutofWorld;
     bool noFogOfWar;
     bool roundDone;
-    float lastMistDraw;
+    float lastFogOfWarUpdated = 0.0f;
+    float lastMistDraw = 0.0f;
+    float lastMiniMapRefresh = 0.0f;
     float miniMapHeigth;
     float miniMapWidth;
     float topBarHeigth;
@@ -182,11 +184,11 @@ private:
     int startLocation[2];
     int startMouseCords[2];
     int toolBarWidth;
+    int visability[MAP_WIDTH][MAP_HEIGHT];
 
     cords mouseWorldPosition;
     sf::Event event;
     std::vector<int> selectedUnits;
-    std::vector<int> visability;
     std::vector<cords> rectangleCords;
     sf::Vector2i mouseFakePosition;
     sf::Vector2f mousePosition;

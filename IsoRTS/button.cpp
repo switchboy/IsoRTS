@@ -1,11 +1,11 @@
-#include "button.h"
-#include "gamestate.h"
 #include <iostream>
 #include <sstream>
-#include "player.h"
-#include "gametext.h"
+#include <SFML/Graphics.hpp>
 #include "actors.h"
 #include "buildings.h"
+#include "button.h"
+#include "gametext.h"
+#include "player.h"
 
 std::list<button> listOfButtons;
 
@@ -24,9 +24,7 @@ button::button(int positionX, int positionY, spriteTypes spriteId, actionTypes a
 
 bool button::isClicked(sf::Vector2i mousePosition)
 {
-
-    sf::IntRect rect(this->realPositionX, this->realPositionY, 64, 64);
-    if (rect.contains(mousePosition))
+    if (sf::IntRect(this->realPositionX, this->realPositionY, 64, 64).contains(mousePosition))
     {
         performAction();
         return true;
@@ -35,10 +33,9 @@ bool button::isClicked(sf::Vector2i mousePosition)
 
 }
 
-bool button::isHoverd(sf::Vector2i mousePosition)
+bool button::isHovered(sf::Vector2i mousePosition) const
 {
-    sf::IntRect rect(this->realPositionX, this->realPositionY, 64, 64);
-    if (rect.contains(mousePosition))
+    if (sf::IntRect(this->realPositionX, this->realPositionY, 64, 64).contains(mousePosition))
     {
         showToolTip();
         return true;
@@ -46,7 +43,7 @@ bool button::isHoverd(sf::Vector2i mousePosition)
     return false;
 }
 
-void button::showToolTip()
+void button::showToolTip() const
 {
     std::stringstream toolTipTitle;
     std::stringstream toolTipText;
@@ -283,8 +280,7 @@ void button::performAction()
     }
 }
 
-
-void button::drawButton()
+void button::drawButton() const
 {
     int xOffSet = 0;
     int yOffset = 0;

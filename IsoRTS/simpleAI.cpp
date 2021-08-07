@@ -1,5 +1,9 @@
-#include "simpleAI.h"
 #include <iostream>
+#include "actors.h"
+#include "buildings.h"
+#include "objects.h"
+#include "player.h"
+#include "simpleAI.h"
 
 std::vector<simpleAI> listOfAI;
 
@@ -41,17 +45,17 @@ void simpleAI::buildBuilding(int buildingId, cords buildingCords)
 {
 	buildings newBuilding(buildingId, buildingCords.x, buildingCords.y, static_cast<int>(listOfBuildings.size()), this->playerId);
 	listOfBuildings.push_back(newBuilding);
-	listOfPlayers[this->playerId].substractResources(0, priceOfBuilding[buildingId].wood);
-	listOfPlayers[this->playerId].substractResources(1, priceOfBuilding[buildingId].food);
-	listOfPlayers[this->playerId].substractResources(2, priceOfBuilding[buildingId].stone);
-	listOfPlayers[this->playerId].substractResources(3, priceOfBuilding[buildingId].gold);
+	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceWood, priceOfBuilding[buildingId].wood);
+	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceFood, priceOfBuilding[buildingId].food);
+	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceStone, priceOfBuilding[buildingId].stone);
+	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceGold, priceOfBuilding[buildingId].gold);
 }
 
-void simpleAI::moveCommandUnit(int& unitId, cords targetCords)
+void simpleAI::moveCommandUnit(int unitId, cords targetCords)
 {
 }
 
-void simpleAI::buildCommandUnit(int& unitId, cords targetCords)
+void simpleAI::buildCommandUnit(int unitId, cords targetCords)
 {
 	nearestBuildingTile tempTile = findNearestBuildingTile(currentGame.occupiedByBuildingList[targetCords.x][targetCords.y], unitId);
 	if (tempTile.isSet) {
@@ -67,7 +71,7 @@ void simpleAI::gatherCommandUnit(int unitId, cords targetCords)
 	listOfActors[unitId].setGatheringRecource(true);
 }
 
-void simpleAI::attakCommandUnit(int& unitId, cords targetCords)
+void simpleAI::attakCommandUnit(int unitId, cords targetCords)
 {
 }
 
@@ -101,10 +105,6 @@ int distanceToResource(resourceTypes kind, cords from) {
 	}
 }
 
-
-
-
-
 cords findResource(resourceTypes kind, int unitId ) {
 	std::list <nearestBuildingTile> listOfResourceLocations;
 	cords actorCords = listOfActors[unitId].getActorCords();
@@ -112,7 +112,7 @@ cords findResource(resourceTypes kind, int unitId ) {
 
 	for (int i = 0; i < listOfObjects.size(); i++) {
 		if (listOfObjects[i].getTypeOfResource() == kind) {
-			float tempDeltaDistance = static_cast<float>(distEuclidean(listOfActors[unitId].getLocation().x, listOfActors[unitId].getLocation().y, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y));
+			float tempDeltaDistance = static_cast<float>(distEuclidean(listOfActors[unitId].getActorCords().x, listOfActors[unitId].getActorCords().y, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y));
 			listOfResourceLocations.push_back({ tempDeltaDistance, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y, i, true });
 		}
 	}
@@ -149,7 +149,6 @@ cords findResource(resourceTypes kind, int unitId ) {
 	return targetCords;
 }
 
-
 void simpleAI::buildBuildingNearUnlessBuilding(int buildingId, int idleVillagerId, int nearResource) {
 	int idOfUnfinishedHousing = isBuildingThereButIncomplete(buildingId);
 	if (idOfUnfinishedHousing == -1) {
@@ -157,19 +156,19 @@ void simpleAI::buildBuildingNearUnlessBuilding(int buildingId, int idleVillagerI
 			cords buildingSlot = {0,0};
 			switch (nearResource) {
 			case -1:
-				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getLocation(), false, false, false, false);
+				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getActorCords(), false, false, false, false);
 				break;
 			case 0:
-				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getLocation(), true, false, false, false);
+				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getActorCords(), true, false, false, false);
 				break;
 			case 1:
-				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getLocation(), false, true, false, false);
+				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getActorCords(), false, true, false, false);
 				break;
 			case 2:
-				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getLocation(), false, false, true, false);
+				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getActorCords(), false, false, true, false);
 				break;
 			case 3:
-				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getLocation(), false, false, false, true);
+				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getActorCords(), false, false, false, true);
 				break;
 			}
 			buildBuilding(buildingId, buildingSlot);

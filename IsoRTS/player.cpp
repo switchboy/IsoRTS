@@ -5,7 +5,7 @@ player& currentPlayer = listOfPlayers[0];
 
 player::player()
 {
-    this->team;
+    this->team = 0;
     this->amountOfWood = 300;
     this->amountOfFood = 100;
     this->amountOfGold = 100;
@@ -24,10 +24,9 @@ player::~player()
     //dtor
 }
 
-
+//TODO the addResources and subtractResources are essentially the same function; I propose we make a "modifyResources" and just use a positive or negative value
 void player::addResources(resourceTypes resource, int amount)
 {
-
     switch(resource)
     {
     case resourceTypes::resourceWood:
@@ -43,7 +42,25 @@ void player::addResources(resourceTypes resource, int amount)
         this->amountOfGold += amount;
         break;
     }
+}
 
+void player::substractResources(resourceTypes resource, int amount)
+{
+    switch (resource)
+    {
+    case resourceTypes::resourceWood:
+        this->amountOfWood -= amount;
+        break;
+    case resourceTypes::resourceFood:
+        this->amountOfFood -= amount;
+        break;
+    case resourceTypes::resourceStone:
+        this->amountOfStone -= amount;
+        break;
+    case resourceTypes::resourceGold:
+        this->amountOfGold -= amount;
+        break;
+    }
 }
 
 void player::setTeam(int team)
@@ -51,44 +68,25 @@ void player::setTeam(int team)
     this->team = team;
 }
 
-void player::substractResources(int resource, int amount)
-{
-    switch(resource)
-    {
-    case 0:
-        //wood
-        this->amountOfWood -= amount;
-        break;
-    case 1:
-        //food
-        this->amountOfFood -= amount;
-        break;
-    case 2:
-        //stone
-        this->amountOfStone -= amount;
-        break;
-    case 3:
-        //gold
-        this->amountOfGold -= amount;
-        break;
-    }
-}
-
+//TODO: see comment above about add/subtract functions
 void player::addToCurrentPopulation(int amount)
 {
     this->currentPopulation += amount;
 }
 
+//TODO: see comment above about add/subtract functions
 void player::substractFromCurrentPopulation(int amount)
 {
     this->currentPopulation -= amount;
 }
 
+//TODO: see comment above about add/subtract functions
 void player::addToPopulationRoom(int amount)
 {
     this->populationRoom += amount;
 }
 
+//TODO: see comment above about add/subtract functions
 void player::substractFromPopulationRoom(int amount)
 {
     this->populationRoom -= amount;
@@ -115,12 +113,12 @@ int player::getFriendOrFoo(int team)
     return 0;
 }
 
-int player::getTeam()
+int player::getTeam() const
 {
     return this->team;
 }
 
-bool player::isPlayerDefeated()
+bool player::isPlayerDefeated() const
 {
     return this->isDefeated;
 }
@@ -134,124 +132,124 @@ void player::clearLists()
     this->gatheringStone.clear();
     this->gatheringGold.clear();
     this->building.clear();
-
 }
 
-
-int player::getVillagers() 
+int player::getVillagers() const
 {
     return static_cast<int>(this->villagersList.size());
 }
 
-int player::getTotalGatheringWood() 
+int player::getTotalGatheringWood()  const
 {
     return static_cast<int>(this->gatheringWood.size());
 }
 
-int player::getTotalGatheringFood() 
+int player::getTotalGatheringFood()  const
 {
     return static_cast<int>(this->gatheringFood.size());
 }
-int player::getTotalGatheringStone() 
+
+int player::getTotalGatheringStone()  const
 {
     return static_cast<int>(this->gatheringStone.size());
 }
-int player::getTotalGatheringGold() 
+
+int player::getTotalGatheringGold()  const
 {
     return static_cast<int>(this->gatheringGold.size());
 }
-int player::getGatheringWood(int id)
+
+int player::getGatheringWood(int id) const
 {
     return this->gatheringWood[id];
 }
 
-int player::getGatheringFood(int id) 
+int player::getGatheringFood(int id) const
 {
     return this->gatheringFood[id];
 }
 
-int player::getGatheringStone(int id)
+int player::getGatheringStone(int id) const
 {
     return this->gatheringStone[id];
 }
 
-int player::getGatheringGold(int id) 
+int player::getGatheringGold(int id)  const
 {
     return this->gatheringGold[id];
 }
 
-int player::getTotalBuilding()
+int player::getTotalBuilding() const
 {
     return static_cast<int>(this->building.size());
 }
 
-int player::getBuilder(int id)
+int player::getBuilder(int id) const
 {
     return this->building[id];
 }
 
-int player::getVillager(int id)
+int player::getVillager(int id) const
 {
     return this->villagersList[id];
 }
 
-int player::getSwordsman(int id)
+int player::getSwordsman(int id) const
 {
     return this->listOfSwordsman[id];
 }
 
-int player::getTotalSwordsman()
+int player::getTotalSwordsman() const
 {
     return static_cast<int>(this->listOfSwordsman.size());
 }
 
-void player::insertSwordsman(int& id)
+void player::insertSwordsman(int id)
 {
     this->listOfSwordsman.push_back(id);
 }
 
-
-void player::insertIdIntoIdleVillagerList(int& id)
+void player::insertIdIntoIdleVillagerList(int id)
 {
     this->idleVillagersList.push_back(id);
 }
 
-void player::insertVillagerList(int& id)
+void player::insertVillagerList(int id)
 {
     this->villagersList.push_back(id);
 }
 
-void player::insertGatheringWood(int& id)
+void player::insertGatheringWood(int id)
 {
     this->gatheringWood.push_back(id);
 }
 
-void player::insertGatheringFood(int& id)
+void player::insertGatheringFood(int id)
 {
     this->gatheringFood.push_back(id);
 }
 
-void player::insertGatheringStone(int& id)
+void player::insertGatheringStone(int id)
 {
     this->gatheringStone.push_back(id);
 }
 
-void player::insertGatheringGold(int& id)
+void player::insertGatheringGold(int id)
 {
     this->gatheringGold.push_back(id);
 }
 
-void player::insertBuilding(int& id)
+void player::insertBuilding(int id)
 {
     this->building.push_back(id);
 }
 
-int player::getPopulationRoom()
+int player::getPopulationRoom() const
 {
     return this->populationRoom - this->currentPopulation;
 }
 
-int player::getIdleVillagerId(int it)
+int player::getIdleVillagerId(int it) const
 {
     if (it < idleVillagersList.size()) {
         return idleVillagersList[it];
@@ -261,14 +259,13 @@ int player::getIdleVillagerId(int it)
     }
 }
 
-int player::getIdleVillagers()
+int player::getIdleVillagers() const
 {
     return static_cast<int>(this->idleVillagersList.size());
 }
 
-playerStats player::getStats()
+playerStats player::getStats() const
 {
-    playerStats temp = {this->amountOfWood, this->amountOfFood, this->amountOfGold, this->amountOfStone,this->currentPopulation, this->populationRoom, this->getTeam()};
-    return  temp;
+    return playerStats {this->amountOfWood, this->amountOfFood, this->amountOfGold, this->amountOfStone,this->currentPopulation, this->populationRoom, this->getTeam()};
 }
 

@@ -1,14 +1,114 @@
-#include "buildings.h"
-#include "gamestate.h"
-#include "player.h"
-#include "gametext.h"
-#include "projectile.h"
 #include <iostream>
+#include "actors.h"
+#include "buildings.h"
+#include "gametext.h"
+#include "player.h"
+#include "projectile.h"
 
-
-std::vector<footprintOfBuilding> footprintOfBuildings;
 std::vector<actorOrBuildingPrice> priceOfBuilding;
-std::vector<buildings> listOfBuildings;
+std::vector<buildings>            listOfBuildings;
+std::vector<footprintOfBuilding>  footprintOfBuildings;
+
+namespace
+{
+    cords findCloseTile(const std::list<cords>& buidlingFootprint, const cords& target)
+    {
+        int lowestDist = 0;
+        cords closeTile = { -1, -1 };
+        for (const cords& footprintTile : buidlingFootprint) {
+            if (distEuclidean(footprintTile.x, footprintTile.y, target.x, target.y) < lowestDist || lowestDist == 0) {
+                closeTile = footprintTile;
+                lowestDist = static_cast<int>(distEuclidean(footprintTile.x, footprintTile.y, target.x, target.y));
+            }
+        }
+        return closeTile;
+    }
+
+    void addNeighboursOfImpassableNeighbours(int& i, std::vector<Cells>& cellsList, std::list<Cells*>& listToCheck)
+    {
+        if (cellsList[i].positionX > 0)
+        {
+            cellsList[i - MAP_HEIGHT].addNeighbours(cellsList);
+            listToCheck.push_back(&cellsList[i - MAP_HEIGHT]);
+        }
+        if (cellsList[i].positionX < MAP_WIDTH - 1)
+        {
+            cellsList[i + MAP_HEIGHT].addNeighbours(cellsList);
+            listToCheck.push_back(&cellsList[i + MAP_HEIGHT]);
+        }
+        if (cellsList[i].positionY > 0)
+        {
+            cellsList[i - 1].addNeighbours(cellsList);
+            listToCheck.push_back(&cellsList[i - 1]);
+        }
+        if (cellsList[i].positionY != MAP_HEIGHT - 1)
+        {
+            cellsList[i + 1].addNeighbours(cellsList);
+            listToCheck.push_back(&cellsList[i + 1]);
+        }
+        if (cellsList[i].positionY != MAP_HEIGHT - 1 && cellsList[i].positionX < MAP_WIDTH - 1)
+        {
+            cellsList[i + 1 + MAP_HEIGHT].addNeighbours(cellsList);
+            listToCheck.push_back(&cellsList[i + 1 + MAP_HEIGHT]);
+        }
+        if (cellsList[i].positionY > 0 && cellsList[i].positionX < MAP_WIDTH - 1)
+        {
+            cellsList[i - 1 + MAP_HEIGHT].addNeighbours(cellsList);
+            listToCheck.push_back(&cellsList[i - 1 + MAP_HEIGHT]);
+        }
+        if (cellsList[i].positionY != MAP_HEIGHT - 1 && cellsList[i].positionX > 0)
+        {
+            cellsList[i + 1 - MAP_HEIGHT].addNeighbours(cellsList);
+            listToCheck.push_back(&cellsList[i + 1 - MAP_HEIGHT]);
+        }
+        if (cellsList[i].positionY > 0 && cellsList[i].positionX > 0)
+        {
+            cellsList[i - 1 - MAP_HEIGHT].addNeighbours(cellsList);
+            listToCheck.push_back(&cellsList[i - 1 - MAP_HEIGHT]);
+        }
+    }
+
+    cords findEmptySpot(cords startCords)
+    {
+        if (currentGame.isPassable(startCords.x, startCords.y))
+        {
+            return startCords;
+        }
+        else
+        {
+            cords foundCords;
+            std::vector<Cells> cellsList;
+            cellsList.reserve(MAP_HEIGHT * MAP_WIDTH);
+            int startCell = (startCords.x * MAP_HEIGHT) + startCords.y;
+            updateCells(-1, -1, cellsList);
+            std::list<Cells*> listToCheck;
+            cellsList[startCell].addNeighbours(cellsList);
+            cellsList[startCell].visited = true;
+            listToCheck.push_back(&cellsList[startCell]);
+            bool freeCellFound = false;
+            while (!freeCellFound && !listToCheck.empty())
+            {
+                for (std::vector<int>::const_iterator iterator = (*listToCheck.front()).neighbours.begin(), end = (*listToCheck.front()).neighbours.end(); iterator != end; ++iterator)
+                {
+                    freeCellFound = true;
+                    foundCords = { cellsList[*iterator].positionX, cellsList[*iterator].positionY };
+                }
+                if (!freeCellFound)
+                {
+                    addNeighboursOfImpassableNeighbours((*listToCheck.front()).cellId, cellsList, listToCheck);
+                }
+                listToCheck.pop_front();
+            }
+            if (freeCellFound) {
+                return foundCords;
+            }
+            else {
+                return { 0,0 };
+            }
+        }
+    }
+
+}
 
 
 void buildings::fillAdjacentTiles()
@@ -31,10 +131,12 @@ void buildings::fillAdjacentTiles()
             {
                 goalX = i;
             }
-            adjacentTile newTileAbove = {static_cast<int>(this->adjacentTiles.size()), i, this->endYLocation-1, goalX, this->endYLocation, false, -1};
-            this->adjacentTiles.push_back(newTileAbove);
-            adjacentTile newTileBelow = {static_cast<int>(this->adjacentTiles.size()), i, this->startYLocation+1, goalX, this->startYLocation, false, -1};
-            this->adjacentTiles.push_back(newTileBelow);
+
+            //adjacent tile above
+            this->adjacentTiles.push_back({ static_cast<int>(this->adjacentTiles.size()), i, this->endYLocation - 1, goalX, this->endYLocation, false, -1 });
+            
+            //adjacent tile below
+            this->adjacentTiles.push_back({ static_cast<int>(this->adjacentTiles.size()), i, this->startYLocation + 1, goalX, this->startYLocation, false, -1 });
         }
     }
     //The row left and right of the building
@@ -42,10 +144,11 @@ void buildings::fillAdjacentTiles()
     {
         if(i >= 0 && i <= MAP_HEIGHT)
         {
-            adjacentTile newTileLeft = {static_cast<int>(this->adjacentTiles.size()), this->endXlocation-1, i, this->endXlocation, i, false, -1 };
-            this->adjacentTiles.push_back(newTileLeft);
-            adjacentTile newTileRight = {static_cast<int>(this->adjacentTiles.size()), this->startXlocation+1, i, this->startXlocation, i, false, -1};
-            this->adjacentTiles.push_back(newTileRight);
+            //new left tile
+            this->adjacentTiles.push_back({ static_cast<int>(this->adjacentTiles.size()), this->endXlocation - 1, i, this->endXlocation, i, false, -1 });
+
+            //new right tile
+            this->adjacentTiles.push_back({ static_cast<int>(this->adjacentTiles.size()), this->startXlocation + 1, i, this->startXlocation, i, false, -1 });
         }
     }
 }
@@ -63,7 +166,7 @@ void buildings::removeActorFromBuildingTile(int actorId)
 
 }
 
-std::vector<adjacentTile> buildings::getFreeBuildingTile()
+std::vector<adjacentTile> buildings::getFreeBuildingTile() const
 {
     std::vector<adjacentTile> tileList;
     for(int i = 0; i < this->adjacentTiles.size(); i++)
@@ -79,9 +182,7 @@ std::vector<adjacentTile> buildings::getFreeBuildingTile()
     return tileList;
 }
 
-
-
-std::vector<adjacentTile> buildings::getDropOffTiles()
+std::vector<adjacentTile> buildings::getDropOffTiles() const
 {
     std::vector<adjacentTile> tileList;
     for(int i = 0; i < this->adjacentTiles.size(); i++)
@@ -96,7 +197,6 @@ std::vector<adjacentTile> buildings::getDropOffTiles()
     return tileList;
 }
 
-
 bool buildings::claimFreeBuiildingTile(int id, int actorId)
 {
     if(this->adjacentTiles[id].actorId == -1)
@@ -110,7 +210,7 @@ bool buildings::claimFreeBuiildingTile(int id, int actorId)
     }
 }
 
-bool buildings::getCompleted()
+bool buildings::getCompleted() const
 {
     return this->buildingCompleted;
 }
@@ -141,6 +241,7 @@ void buildings::removeBuilding()
     }
     noNewBuildings = false;
 }
+
 buildings::buildings(int type, int startXlocation, int startYLocation, int buildingId, int team)
 {
     this->buildingType = type;
@@ -290,32 +391,32 @@ buildings::buildings(int type, int startXlocation, int startYLocation, int build
     fillAdjacentTiles();
 }
 
-int buildings::getTeam()
+int buildings::getTeam() const
 {
     return this->ownedByPlayer;
 }
 
-int buildings::getType()
+int buildings::getType() const
 {
     return this->buildingType;
 }
 
-int buildings::getLocationX()
+int buildings::getLocationX() const
 {
     return this->startXlocation;
 }
 
-int buildings::getLocationY()
+int buildings::getLocationY() const
 {
     return this->startYLocation;
 }
 
-int buildings::getBuildingId()
+int buildings::getBuildingId() const
 {
     return this->buildingId;
 }
 
-resourceTypes buildings::getRecievesWhichResources()
+resourceTypes buildings::getRecievesWhichResources() const
 {
     if(recievesFood && recievesGold && recievesStone && recievesWood)
     {
@@ -464,7 +565,7 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
     }
 }
 
-std::string buildings::getName()
+std::string buildings::getName() const
 {
     switch(this->buildingType)
     {
@@ -486,18 +587,17 @@ std::string buildings::getName()
 
 }
 
-std::pair<int, int> buildings::getHealth()
+std::pair<int, int> buildings::getHealth() const
 {
     return {this->hitPointsLeft, this->hitPointsTotal};
 }
 
-std::pair<int, int> buildings::getBuildingPoints()
+std::pair<int, int> buildings::getBuildingPoints() const
 {
     return {this->buildingPointsRecieved, this->buildingPointsNeeded};
 }
 
-
-int buildings::getRangedDMG()
+int buildings::getRangedDMG() const
 {
     return this->amountOfRangedDamage;
 }
@@ -534,16 +634,16 @@ void buildings::drawBuildingFootprint(int type, int mouseWorldX, int mouseWorldY
     }
 }
 
-void  buildings::getTask(bool isResearch, int idOfUnitOrResearch)
+void buildings::getTask(bool isResearch, int idOfUnitOrResearch)
 {
     if(this->productionQueue.size() < 5 )
     {
         if (!isResearch) {
             this->productionQueue.push_back({isResearch, idOfUnitOrResearch, 0, priceOfActor[idOfUnitOrResearch].productionPoints, 0});
-            listOfPlayers[ownedByPlayer].substractResources( 1, priceOfActor[idOfUnitOrResearch].food);
-            listOfPlayers[ownedByPlayer].substractResources( 0, priceOfActor[idOfUnitOrResearch].wood);
-            listOfPlayers[ownedByPlayer].substractResources( 2, priceOfActor[idOfUnitOrResearch].stone);
-            listOfPlayers[ownedByPlayer].substractResources( 3, priceOfActor[idOfUnitOrResearch].gold);
+            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceFood, priceOfActor[idOfUnitOrResearch].food);
+            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceWood, priceOfActor[idOfUnitOrResearch].wood);
+            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceStone, priceOfActor[idOfUnitOrResearch].stone);
+            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceGold, priceOfActor[idOfUnitOrResearch].gold);
         }
     }
     else
@@ -554,105 +654,12 @@ void  buildings::getTask(bool isResearch, int idOfUnitOrResearch)
     }
 }
 
-bool buildings::hasTask()
+bool buildings::hasTask() const
 {
-    if(this->productionQueue.empty())
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return !this->productionQueue.empty();
 }
 
-
-
-void addNeighboursOfImpassableNeighbours(int& i, std::vector<Cells> &cellsList, std::list<Cells*>& listToCheck)
-{
-    if(cellsList[i].positionX > 0)
-    {
-        cellsList[i-MAP_HEIGHT].addNeighbours(cellsList);
-        listToCheck.push_back(&cellsList[i-MAP_HEIGHT]);
-    }
-    if(cellsList[i].positionX < MAP_WIDTH-1)
-    {
-        cellsList[i+MAP_HEIGHT].addNeighbours(cellsList);
-        listToCheck.push_back(&cellsList[i+MAP_HEIGHT]);
-    }
-    if(cellsList[i].positionY > 0)
-    {
-        cellsList[i-1].addNeighbours(cellsList);
-        listToCheck.push_back(&cellsList[i-1]);
-    }
-    if(cellsList[i].positionY != MAP_HEIGHT-1)
-    {
-        cellsList[i+1].addNeighbours(cellsList);
-        listToCheck.push_back(&cellsList[i+1]);
-    }
-    if(cellsList[i].positionY != MAP_HEIGHT-1 && cellsList[i].positionX < MAP_WIDTH-1)
-    {
-        cellsList[i+1+MAP_HEIGHT].addNeighbours(cellsList);
-        listToCheck.push_back(&cellsList[i+1+MAP_HEIGHT]);
-    }
-    if(cellsList[i].positionY >0 && cellsList[i].positionX < MAP_WIDTH-1)
-    {
-        cellsList[i-1+MAP_HEIGHT].addNeighbours(cellsList);
-        listToCheck.push_back(&cellsList[i-1+MAP_HEIGHT]);
-    }
-    if(cellsList[i].positionY != MAP_HEIGHT-1 && cellsList[i].positionX > 0)
-    {
-        cellsList[i+1-MAP_HEIGHT].addNeighbours(cellsList);
-        listToCheck.push_back(&cellsList[i+1-MAP_HEIGHT]);
-    }
-    if(cellsList[i].positionY >0 && cellsList[i].positionX > 0)
-    {
-        cellsList[i-1-MAP_HEIGHT].addNeighbours(cellsList);
-        listToCheck.push_back(&cellsList[i-1-MAP_HEIGHT]);
-    }
-}
-
-cords findEmptySpot(cords startCords)
-{
-    if(currentGame.isPassable(startCords.x, startCords.y))
-    {
-        return startCords;
-    }
-    else
-    {
-        cords foundCords;
-        std::vector<Cells> cellsList;
-        cellsList.reserve(MAP_HEIGHT*MAP_WIDTH);
-        int startCell = (startCords.x*MAP_HEIGHT)+startCords.y;
-        updateCells(-1, -1, cellsList);
-        std::list<Cells*> listToCheck;
-        cellsList[startCell].addNeighbours(cellsList);
-        cellsList[startCell].visited = true;
-        listToCheck.push_back(&cellsList[startCell]);
-        bool freeCellFound = false;
-        while(!freeCellFound && !listToCheck.empty())
-        {
-            for (std::vector<int>::const_iterator iterator =  (*listToCheck.front()).neighbours.begin(), end =  (*listToCheck.front()).neighbours.end(); iterator != end; ++iterator)
-            {
-                freeCellFound = true;
-                foundCords = {cellsList[*iterator].positionX, cellsList[*iterator].positionY};
-            }
-            if(!freeCellFound)
-            {
-                addNeighboursOfImpassableNeighbours((*listToCheck.front()).cellId, cellsList, listToCheck);
-            }
-            listToCheck.pop_front();
-        }
-        if (freeCellFound) {
-            return foundCords;
-        }
-        else {
-            return { 0,0 };
-        }
-    }
-}
-
-std::list<cords>  buildings::getFootprintOfBuilding() {
+std::list<cords> buildings::getFootprintOfBuilding() const {
     std::list<cords> tempList;
     for (int x = this->startXlocation; x > this->startXlocation - footprintOfBuildings[this->buildingType].amountOfXFootprint; x--) {
         for (int y = this->startYLocation; y > this->startYLocation - footprintOfBuildings[this->buildingType].amountOfYFootprint; y--) {
@@ -672,10 +679,10 @@ void buildings::takeDamage(int amountOfDamage)
 
 void buildings::spawnProduce()
 {
-    cords spawmCords = findEmptySpot({ this->startXlocation + 1, this->startYLocation + 1 });
+    cords spawnCords = findEmptySpot({ this->startXlocation + 1, this->startYLocation + 1 });
     if (currentPlayer.getStats().currentPopulation < currentPlayer.getStats().populationRoom)
     {
-        actors newActor(this->productionQueue.front().idOfUnitOrResearch, spawmCords.x, spawmCords.y, this->ownedByPlayer, static_cast<int>(listOfActors.size()));
+        actors newActor(this->productionQueue.front().idOfUnitOrResearch, spawnCords.x, spawnCords.y, this->ownedByPlayer, static_cast<int>(listOfActors.size()));
         listOfActors.push_back(newActor);
         if (this->rallyPoint.isSet) {
             listOfActors[newActor.getActorId()].stackOrder(this->rallyPoint.goal, this->rallyPoint.orderType); //Puts rally point order in command stackList of new unit
@@ -724,19 +731,6 @@ void::buildings::doProduction()
 
 }
 
-cords findCloseTile(const std::list<cords>& buidlingFootprint , const cords& target)
-{
-    int lowestDist = 0;
-    cords closeTile = {-1, -1};
-    for (const cords& footprintTile : buidlingFootprint) {
-        if (distEuclidean(footprintTile.x, footprintTile.y, target.x, target.y) < lowestDist || lowestDist == 0) {
-            closeTile = footprintTile;
-            lowestDist = static_cast<int>(distEuclidean(footprintTile.x, footprintTile.y, target.x, target.y));
-        }
-    }
-    return closeTile;
-}
-
 void buildings::checkOnEnemyAndShoot()
 {
     if (lastShotFired + 2.f < currentGame.getTime()) {
@@ -751,8 +745,7 @@ void buildings::checkOnEnemyAndShoot()
                     if (listOfActors[currentGame.occupiedByActorList[cord.x][cord.y]].getTeam() != this->ownedByPlayer)
                     {
                         cords sourceTile = findCloseTile(buidlingFootprint, cord);
-                        projectile newProjectile(sourceTile.x, sourceTile.y, cord.x, cord.y, 0, this->amountOfRangedDamage, 0, -this->buildingId);
-                        listOfProjectiles.push_back(newProjectile);
+                        listOfProjectiles.push_back(projectile(sourceTile.x, sourceTile.y, cord.x, cord.y, 0, this->amountOfRangedDamage, 0, -this->buildingId));
                         return;
                     }
                 }
@@ -781,4 +774,3 @@ void buildings::update()
         }
     }
 }
-

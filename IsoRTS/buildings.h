@@ -1,18 +1,16 @@
 #ifndef BUILDINGS_H
 #define BUILDINGS_H
-#include <vector>
 #include <list>
 #include <string>
-#include "actors.h"
+#include <vector>
+//#include "humanReadableNames.h"
+#include "gamestate.h"
 
 struct footprintOfBuilding
 {
     int amountOfXFootprint;
     int amountOfYFootprint;
 };
-
-extern std::vector<footprintOfBuilding> footprintOfBuildings;
-extern bool noNewBuildings;
 
 struct buildingQueue
 {
@@ -63,73 +61,74 @@ public:
         this->offSetYStore = 0;
         this->amountOfAnimationSprites = 0;
     }
+
     buildings(int type, int startXlocation, int startYLocation, int buildingId, int team);
-    void                        update();
-    void                        drawBuildingFootprint(int type, int mouseWorldX, int mouseWorldY);
+    bool                        claimFreeBuiildingTile(int id, int actorId);
+    bool                        hasTask() const;
+    void                        addBuildingPoint();
+    void                        checkOnEnemyAndShoot();
+    void                        doProduction();
     void                        drawBuilding(int i, int j, int type, bool typeOverride);
-    resourceTypes               getRecievesWhichResources();
-    int                         getType();
-    int                         getLocationX();
-    int                         getLocationY();
-    int                         getBuildingId();
-    int                         getTeam();
-    bool                        getCompleted();
-    void                        setCompleted();
-    int                         getRangedDMG();
-    void                        setRallyPoint(cords goal, stackOrderTypes orderType);
-    bool                        hasTask();
-    void                        removeBuilding();
+    void                        drawBuildingFootprint(int type, int mouseWorldX, int mouseWorldY);
     void                        fillAdjacentTiles();
     void                        getTask(bool isResearch, int idOfUnitOrResearch);
-    void                        takeDamage(int amountOfDamage);
-    void                        doProduction();
-    void                        spawnProduce();
-    void                        checkOnEnemyAndShoot();
-    std::vector<buildingQueue>  productionQueue;
-    std::pair<int, int>         getBuildingPoints();
-    std::string                 getName();
-    std::pair<int, int>         getHealth();
-    void                        addBuildingPoint();
-    std::vector<adjacentTile>   getDropOffTiles();
-    std::vector<adjacentTile>   getFreeBuildingTile();
-    bool                        claimFreeBuiildingTile(int id, int actorId);
     void                        removeActorFromBuildingTile(int actorId);
-    std::list<cords>   getFootprintOfBuilding();
-    
+    void                        removeBuilding();
+    void                        spawnProduce();
+    void                        takeDamage(int amountOfDamage);
+    void                        update();
+    std::vector<buildingQueue>  productionQueue;
+
+    int                         getBuildingId() const;
+    bool                        getCompleted() const;
+    int                         getLocationX() const;
+    int                         getLocationY() const;
+    int                         getRangedDMG() const;
+    int                         getTeam() const;
+    int                         getType() const;
+    resourceTypes               getRecievesWhichResources() const;
+    std::list<cords>            getFootprintOfBuilding() const;
+    std::pair<int, int>         getBuildingPoints() const;
+    std::pair<int, int>         getHealth() const;
+    std::string                 getName() const;
+    std::vector<adjacentTile>   getDropOffTiles() const;
+    std::vector<adjacentTile>   getFreeBuildingTile() const;
+
+    void                        setCompleted();
+    void                        setRallyPoint(cords goal, stackOrderTypes orderType);
 
 private:
-    int                         buildingId;
-    int                         buildingType;
-    int                         ownedByPlayer;
-    int                         hitPointsTotal;
-    int                         hitPointsLeft;
-    int                         amountOfAnimationSprites;
-
-    int                         offSetYStore;
     bool                        buildingCompleted;
     bool                        canDoRangedDamage;
-    bool                        recievesWood;
-    bool                        recievesStone;
-    bool                        recievesGold;
-    bool                        recievesFood;
     bool                        exists;
+    bool                        hasDisplayedError;
+    bool                        recievesFood;
+    bool                        recievesGold;
+    bool                        recievesStone;
+    bool                        recievesWood;
+    float                       lastFrameUpdate;
+    float                       lastShotFired;
+    int                         amountOfAnimationSprites;
+    int                         amountOfRangedDamage;
+    int                         buildingId;
     int                         buildingPointsNeeded;
     int                         buildingPointsRecieved;
-    int                         startXlocation;
+    int                         buildingType;
     int                         endXlocation;
-    int                         startYLocation;
     int                         endYLocation;
-    int                         amountOfRangedDamage;
-    int                         supportsPopulationOf;
-    bool                        hasDisplayedError;
+    int                         hitPointsLeft;
+    int                         hitPointsTotal;
+    int                         offSetYStore;
+    int                         ownedByPlayer;
     int                         range;
-    float                       lastShotFired;
-    float                       lastFrameUpdate;
+    int                         startXlocation;
+    int                         startYLocation;
+    int                         supportsPopulationOf;
     std::vector<adjacentTile>   adjacentTiles;
     orderContainer              rallyPoint;
 };
 
-
-extern std::vector<buildings> listOfBuildings;
-
+extern std::vector<buildings>           listOfBuildings;
+extern std::vector<footprintOfBuilding> footprintOfBuildings;
+extern bool                             noNewBuildings;
 #endif // BUILDINGS_H

@@ -18,17 +18,18 @@ public:
         resourceLeft = 0;
     }
     objects(objectTypes type, int startXlocation, int startYLocation, int buildingId);
-    std::string     getName() const;
-    objectTypes     getType() const;
+
     void            drawObjectFootprint(objectTypes type, int mouseWorldX, int mouseWorldY) const;
     void            drawObject(int i, int j) const;
     void            drawObjectSprite(objectTypes spriteNumber, int i, int j) const;
-    resourceTypes   getTypeOfResource() const;
     void            substractResource();
-    cords  getLocation() const;
     int             amountOfResourcesLeft() const;
     std::string     nameOfResource() const;
 
+    cords           getLocation() const;
+    std::string     getName() const;
+    objectTypes     getType() const;
+    resourceTypes   getTypeOfResource() const;
 
 private:
     int           objectId;

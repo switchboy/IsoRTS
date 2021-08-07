@@ -61,7 +61,6 @@ void objects::substractResource()
     }
 }
 
-
 cords objects::getLocation() const {
     return { this->locationX, this->locationY };
 }
@@ -188,4 +187,3 @@ void objects::drawObjectFootprint(objectTypes type, int mouseWorldX, int mouseWo
         drawObjectSprite(type, mouseWorldX, mouseWorldY);
     }
 }
-

@@ -1,15 +1,13 @@
 #pragma once
-#include "globalfunctions.h"
 #include <SFML/Graphics.hpp>
 #include <vector>
-
 
 class orderCursor
 {
 public:
-	orderCursor(sf::Vector2f& clickCords);
+	orderCursor(const sf::Vector2f& clickCords);
 	void drawCursor();
-	bool isFinished();
+	bool isFinished() const;
 
 private:
 	sf::Vector2f locationOfClick;

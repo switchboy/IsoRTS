@@ -198,41 +198,43 @@ bool gameState::buildingIsSelected(int& id)
 
 void gameState::drawMap()
 {
-    cords lowX = toWorldMousePosition(viewOffsetX-(mainWindowWidth/2), static_cast<int>(viewOffsetY-((mainWindowWidth*0.8)/2)));
-    cords highX = toWorldMousePosition(viewOffsetX+(mainWindowWidth/2), static_cast<int>(viewOffsetY+((mainWindowWidth*0.8)/2)));
-    cords lowY = toWorldMousePosition(viewOffsetX, viewOffsetY-(mainWindowWidth/2));
-    cords highY = toWorldMousePosition(viewOffsetX, viewOffsetY+(mainWindowWidth/2));
-    for(int j = 0; j < MAP_HEIGHT; j++)
+    int lowX = toWorldMousePosition(viewOffsetX-(mainWindowWidth/2), static_cast<int>(viewOffsetY-((mainWindowWidth*0.8)/2))).x;
+
+    int highX = toWorldMousePosition(viewOffsetX + (mainWindowWidth / 2), static_cast<int>(viewOffsetY + ((mainWindowWidth * 0.8) / 2))).x;
+
+    int lowY = toWorldMousePosition(viewOffsetX, viewOffsetY-(mainWindowWidth/2)).y;
+    int highY = toWorldMousePosition(viewOffsetX, viewOffsetY+(mainWindowWidth/2)).y;
+    if (lowX < 0) { lowX = 0; }
+    if (highX > MAP_WIDTH) { highX = MAP_WIDTH; }
+    if (lowY < 0) { lowY = 0; }
+    if (highY > MAP_HEIGHT) { highX = MAP_HEIGHT; }
+
+    for(int j = lowY; j < highY; j++)
     {
-        for(int i = 0; i < MAP_WIDTH; i++ )
+        for(int i = lowX; i < highX; i++ )
         {
-            if((i >= lowX.x && i <= highX.x)&&(j >= lowY.y && j <= highY.y))
-            {
-                if (this->visability[(i * MAP_HEIGHT) + j] > 0) {
-                    drawGround(i, j);
-                }
-                else {
-                    spriteBlackTile.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
-                    window.draw(spriteBlackTile);
-                }
+            if (this->visability[(i * MAP_HEIGHT) + j] > 0) {
+                drawGround(i, j);
+            }
+            else {
+                 spriteBlackTile.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
+                 window.draw(spriteBlackTile);
             }
         }
     }
-    for(int j = 0; j < MAP_HEIGHT; j++)
+    for (int j = lowY; j < highY; j++)
     {
-        for(int i = 0; i < MAP_WIDTH; i++ )
+        for (int i = lowX; i < highX; i++)
         {
-            if((i >= lowX.x && i <= highX.x)&&(j >= lowY.y && j <= highY.y))
-            {
-                if (this->visability[(i * MAP_HEIGHT) + j] > 0) {
-                    drawThingsOnTile(i, j);
-                }
+            if (this->visability[(i * MAP_HEIGHT) + j] > 0) {
+                drawThingsOnTile(i, j);
             }
+           
         }
     }
-    for (int j = 0; j < MAP_HEIGHT; j++)
+    for (int j = lowY; j < highY; j++)
     {
-        for (int i = 0; i < MAP_WIDTH; i++)
+        for (int i = lowX; i < highX; i++)
         {
             if (this->visability[(i * MAP_HEIGHT) + j] <= 1) {
                 spriteMistTile.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
@@ -2812,42 +2814,45 @@ void gameState::loadGame()
 
 void gameState::createFogOfWar() 
 {
-    if (!noFogOfWar) {
-        for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++) {
-            if (this->visability[i] == 2) {
-                this->visability[i] = 1;
-            }
-        }
-        for (int i = 0; i < listOfActors.size(); i++) {
-            if (listOfActors[i].getTeam() == currentPlayer.getTeam()) {
-                std::list<cords> tempList = getListOfCordsInCircle(listOfActors[i].getLocation().x, listOfActors[i].getLocation().y, 6);
-                for (const cords& cord : tempList)
-                {
-                    this->visability[(cord.x * MAP_HEIGHT) + cord.y] = 2;
+    if (lastFogOfWarUpdated + 0.5f < this->elapsedTime) {
+        if (!noFogOfWar) {
+            for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++) {
+                if (this->visability[i] == 2) {
+                    this->visability[i] = 1;
                 }
             }
-        }
-        for (int i = 1; i < listOfBuildings.size(); i++) {
-            if (listOfBuildings[i].getTeam() == currentPlayer.getTeam()) {
-                int visRadius = 1;
-                if (listOfBuildings[i].getCompleted()) {
-                    visRadius = 8;
-                }
-                std::list<cords> buidlingFootprint = listOfBuildings[i].getFootprintOfBuilding();
-                for (const cords& footprintTile : buidlingFootprint) {
-                    std::list<cords> tempList = getListOfCordsInCircle(footprintTile.x, footprintTile.y, visRadius);
+            for (int i = 0; i < listOfActors.size(); i++) {
+                if (listOfActors[i].getTeam() == currentPlayer.getTeam()) {
+                    std::list<cords> tempList = getListOfCordsInCircle(listOfActors[i].getLocation().x, listOfActors[i].getLocation().y, 6);
                     for (const cords& cord : tempList)
                     {
                         this->visability[(cord.x * MAP_HEIGHT) + cord.y] = 2;
                     }
                 }
             }
+            for (int i = 1; i < listOfBuildings.size(); i++) {
+                if (listOfBuildings[i].getTeam() == currentPlayer.getTeam()) {
+                    int visRadius = 1;
+                    if (listOfBuildings[i].getCompleted()) {
+                        visRadius = 8;
+                    }
+                    std::list<cords> buidlingFootprint = listOfBuildings[i].getFootprintOfBuilding();
+                    for (const cords& footprintTile : buidlingFootprint) {
+                        std::list<cords> tempList = getListOfCordsInCircle(footprintTile.x, footprintTile.y, visRadius);
+                        for (const cords& cord : tempList)
+                        {
+                            this->visability[(cord.x * MAP_HEIGHT) + cord.y] = 2;
+                        }
+                    }
+                }
+            }
         }
-    }
-    else {
-        for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++) {
+        else {
+            for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++) {
                 this->visability[i] = 2;
+            }
         }
+        lastFogOfWarUpdated = this->elapsedTime;
     }
 }
 

@@ -162,7 +162,8 @@ private:
     bool firstRound;
     int lastIandJ[2];
     float topBarHeigth;
-    float lastMistDraw;
+    float lastMistDraw = 0.0f;
+    float lastFogOfWarUpdated = 0.0f;
     bool focus;
     int players;
     bool mousePressedLeft;

@@ -193,17 +193,17 @@ private:
     sf::Vector2i mouseFakePosition;
     sf::Vector2f mousePosition;
 
-    //precalculate toolbar values
-    const int iconBarStartX = static_cast<int>(round(iconStartX + mainWindowWidth / 6.25f));
-    const int iconStartX = static_cast<int>(round(preCalcStartDeck + static_cast<float>(mainWindowWidth / 30.f)));
+    //precalculate toolbar values Note: not orderd alphabethicly because some values are needed in other calculations
+    const int preCalcStartX = static_cast<int>(round(mainWindowWidth / 60.f));
+    const int preCalcStartY = static_cast<int>(round(mainWindowHeigth / 30.f));
     const int iconStartY = static_cast<int>(round(preCalcStartY + static_cast<float>(mainWindowHeigth / 27.f)));
     const int preCalcCardDeckSize = static_cast<int>(round(mainWindowWidth / 1.82f));
     const int preCalcIncrementalXOffset = static_cast<int>(round(64.f + (mainWindowWidth / 160.f)));
     const int preCalcincrementalYOffset = static_cast<int>(round(64.f + (mainWindowHeigth / 90.f)));
     const int preCalcStartDeck = static_cast<int>(round(mainWindowWidth / 4.2f));
     const int preCalcStartProgress = static_cast<int>(round(mainWindowWidth / 2.48f));
-    const int preCalcStartX = static_cast<int>(round(mainWindowWidth / 60.f));
-    const int preCalcStartY = static_cast<int>(round(mainWindowHeigth / 30.f));
+    const int iconStartX = static_cast<int>(round(preCalcStartDeck + static_cast<float>(mainWindowWidth / 30.f)));
+    const int iconBarStartX = static_cast<int>(round(iconStartX + mainWindowWidth / 6.25f));
     const int startBarX = static_cast<int>(round(iconStartX + static_cast<float>(mainWindowWidth / 5.0f)));
     const int startBarY = static_cast<int>(round(iconStartY + static_cast<float>(mainWindowHeigth / 46.9f)));
     const int totalBarLength = static_cast<int>(round(static_cast<float>(mainWindowWidth / 6.4f)));

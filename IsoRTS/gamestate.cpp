@@ -1977,21 +1977,23 @@ void gameState::drawActorStats(int actorId, int textStartX, int textStartY)
     }
 }
 
-void gameState::drawActorToolbar(int startX, int startY, int incrementalXOffset, int spriteYOffset, int startDeck, int tempY, int incrementalYOffset, int offSetTonextCard)
+void gameState::drawActorToolbar(int spriteYOffset, int tempY, int offSetTonextCard)
 {
     bool villagerButtonsAreThere = false;
-    int textStartX = static_cast<int>((mainWindowWidth / 4.08) + (128 + (mainWindowWidth / 160)));
-    int textStartY = static_cast<int>(mainWindowHeigth / 30);
+    int textStartX = static_cast<int>(static_cast<float>((mainWindowWidth / 4.08f) + (128.f + (mainWindowWidth / 160.f))));
+    int textStartY = static_cast<int>(static_cast<float>(mainWindowHeigth / 30.f));
+    int startX = this->preCalcStartX;
+    int startY = this->preCalcStartY;
     for (int i = 0; i < this->selectedUnits.size(); i++)
     {
         if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
         {
-            createVillagerButtons(startX, startY, incrementalXOffset, villagerButtonsAreThere);
+            createVillagerButtons(startX, startY, this->preCalcIncrementalXOffset, villagerButtonsAreThere);
         }
         if (this->selectedUnits.size() > 1)
         {
             startY = mainWindowHeigth / 30;
-            addActorSelectorButton(this->selectedUnits[i], startDeck, tempY, startY, incrementalYOffset, offSetTonextCard);
+            addActorSelectorButton(this->selectedUnits[i], this->preCalcStartDeck, tempY, startY, this->preCalcincrementalYOffset, offSetTonextCard);
         }
         else if (i == 0) {
             drawActorBigSprite(this->selectedUnits[i]);
@@ -2219,13 +2221,8 @@ int getCardForButtonByTask(int buildingId, int taskId)
     }
 }
 
-void gameState::drawBuildingTaskToolbar(int startDeck, int startY)
+void gameState::drawBuildingTaskToolbar(int startY)
 {
-    int iconStartX = startDeck + static_cast<int>(mainWindowWidth / 30);
-    int iconStartY = startY + static_cast<int>(mainWindowHeigth / 27);
-    int startBarX = iconStartX + static_cast<int>(mainWindowWidth / 25.6);
-    int startBarY = iconStartY + static_cast<int>(mainWindowHeigth / 46.9);
-    int totalBarLength = static_cast<int>(mainWindowWidth / 6.4f);
     float percentageCompleted = static_cast<float>(static_cast<float>(listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsGained) / static_cast<float>(listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsNeeded)) * 100;
     int tempXOffset = 0;
     int tempYOffset = 0;
@@ -2251,29 +2248,26 @@ void gameState::drawBuildingTaskToolbar(int startDeck, int startY)
     }
 }
 
-void gameState::drawBuildingConstructionToolbar(int startDeck, int startY)
+void gameState::drawBuildingConstructionToolbar(int startY)
 {
-    int iconStartX = startDeck + static_cast<int>(mainWindowWidth / 30);
-    int iconStartY = startY + static_cast<int>(mainWindowHeigth / 27);
-    int startBarX = iconStartX + static_cast<int>(mainWindowWidth / 25.6);
-    int startBarY = iconStartY + static_cast<int>(mainWindowHeigth / 46.9);
-    int totalBarLength = static_cast<int>(mainWindowWidth / 6.4f);
     drawProgressBar(static_cast<float>(listOfBuildings[this->buildingSelectedId].getBuildingPoints().first), static_cast<float>(listOfBuildings[this->buildingSelectedId].getBuildingPoints().second), totalBarLength, startBarX, startBarY);
     float percentageCompleted = static_cast<float>(static_cast<float>(listOfBuildings[this->buildingSelectedId].getBuildingPoints().first) / static_cast<float>(listOfBuildings[this->buildingSelectedId].getBuildingPoints().second)) * 100;
     text.setString("Building: " + listOfBuildings[this->buildingSelectedId].getName() + " " + std::to_string(static_cast<int>(percentageCompleted)) + "%...");
     text.setPosition(static_cast<float>(startBarX), static_cast<float>(iconStartY));
     window.draw(text);
     this->spriteUIButton.setTextureRect(sf::IntRect(0, (getBuildingSpriteOffset(this->buildingSelectedId) / 2), 64, 64));
-    this->spriteUIButton.setPosition(static_cast<float>(iconStartX), static_cast<float>(iconStartY));
+    this->spriteUIButton.setPosition(static_cast<float>(iconBarStartX), static_cast<float>(iconStartY));
     window.draw(this->spriteUIButton);
     button cancelBuilding = { static_cast<int>(startBarX + totalBarLength + (mainWindowWidth / 174.54)), iconStartY, spriteTypes::spriteCancel, actionTypes::actionCancelBuilding, this->buildingSelectedId, static_cast<int>(listOfButtons.size()),0 };
     listOfButtons.push_back(cancelBuilding);
 }
 
-void gameState::drawBuildingToolbar(int startX, int startY, int incrementalXOffset, int spriteYOffset, int startDeck, int tempY, int incrementalYOffset, int offSetTonextCard)
+void gameState::drawBuildingToolbar(int spriteYOffset, int tempY, int offSetTonextCard)
 {
-    int textStartX = static_cast<int>((mainWindowWidth / 4.08) + (128 + (mainWindowWidth / 160)));
-    int textStartY = static_cast<int>(mainWindowHeigth / 30);
+    int textStartX = static_cast<int>(round(static_cast<float>((mainWindowWidth / 4.08f) + (128.f + (mainWindowWidth / 160.f)))));
+    int textStartY = static_cast<int>(round(static_cast<float>(mainWindowHeigth / 30.f)));
+    int startX = this->preCalcStartX;
+    int startY = this->preCalcStartY;
     createBuildingButtons(this->buildingSelectedId, startX, startY);
     drawBuildingBigSprite(this->buildingSelectedId);
     drawBuildingToolbarTitle(textStartX, textStartY);
@@ -2282,11 +2276,11 @@ void gameState::drawBuildingToolbar(int startX, int startY, int incrementalXOffs
     //Show what the building is doing ATM
     if (!listOfBuildings[this->buildingSelectedId].getCompleted())
     {
-        drawBuildingConstructionToolbar(startDeck, startY);
+        drawBuildingConstructionToolbar(startY);
     }
     else if (listOfBuildings[this->buildingSelectedId].hasTask())
     {
-        drawBuildingTaskToolbar(startDeck, startY);
+        drawBuildingTaskToolbar(startY);
     }
 }
 
@@ -2321,7 +2315,7 @@ int getObjectBigSpriteYOffset(int objectId)
     }
 }
 
-void gameState::drawObjectToolbar(int startX, int startY, int incrementalXOffset, int spriteYOffset, int startDeck, int tempY, int incrementalYOffset, int offSetTonextCard)
+void gameState::drawObjectToolbar(int spriteYOffset, int tempY, int offSetTonextCard)
 {
     this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(256, getObjectBigSpriteYOffset(this->objectSelectedId), 128, 128));
     this->spriteBigSelectedIcon.setPosition(static_cast<float>(mainWindowWidth / 4.08), static_cast<float>(mainWindowHeigth / 30));
@@ -2331,8 +2325,8 @@ void gameState::drawObjectToolbar(int startX, int startY, int incrementalXOffset
     text.setOutlineColor(sf::Color::Black);
     text.setOutlineThickness(2.f);
     text.setFillColor(sf::Color::White);
-    int textStartX = static_cast<int>((mainWindowWidth / 4.08) + (128 + (mainWindowWidth / 160)));
-    int textStartY = static_cast<int>(mainWindowHeigth / 30);
+    int textStartX = static_cast<int>(round((mainWindowWidth / 4.08f) + (128.f + (mainWindowWidth / 160.f))));
+    int textStartY = static_cast<int>(round(mainWindowHeigth / 30.f));
     text.setPosition(static_cast<float>(textStartX), static_cast<float>(textStartY));
     window.draw(text);
     text.setCharacterSize(18);
@@ -2356,11 +2350,9 @@ void gameState::drawToolbar()
 {
     listOfButtons.clear();
     window.setView(toolBar);
-    int startX = mainWindowWidth/60;
-    int startY = mainWindowHeigth/30;
-    int tempY = startY;
-    int incrementalXOffset = 64+(mainWindowWidth/160);
-    int incrementalYOffset = 64+(mainWindowHeigth/90);
+    int startX = this->preCalcStartX;
+    int startY = this->preCalcStartY;
+    int tempY = startY;  
     int spriteYOffset = 0;
     int cardDeckSize = static_cast<int>(mainWindowWidth / 1.82);
     int amountOfCardsPerRow = static_cast<int>((this->selectedUnits.size()+1)/2);
@@ -2369,20 +2361,19 @@ void gameState::drawToolbar()
     if(devider == 0) devider = 1;
     int spaceBetweenCards = (cardDeckSize - requiredSize)/devider;
     int offSetTonextCard = 64 + spaceBetweenCards;
-    int startDeck = static_cast<int>(mainWindowWidth / 4.2);
-    int startProgress = static_cast<int>(mainWindowWidth / 2.48);
+;
 
     if(!this->selectedUnits.empty())
     {
-        drawActorToolbar(startX, startY, incrementalXOffset, spriteYOffset, startDeck, tempY, incrementalYOffset, offSetTonextCard);
+        drawActorToolbar(spriteYOffset, tempY, offSetTonextCard);
     }
     else if(this->buildingSelectedId != -1)
     {
-        drawBuildingToolbar(startX, startY, incrementalXOffset, spriteYOffset, startProgress, tempY, incrementalYOffset, offSetTonextCard);
+        drawBuildingToolbar(spriteYOffset, tempY, offSetTonextCard);
     }
     else if(this->objectSelectedId != -1)
     {
-        drawObjectToolbar(startX, startY, incrementalXOffset, spriteYOffset, startProgress, tempY, incrementalYOffset, offSetTonextCard);
+        drawObjectToolbar(spriteYOffset, tempY, offSetTonextCard);
     }
     drawButtons();
     window.setView(worldView);
@@ -2426,7 +2417,7 @@ void gameState::drawTopBar()
         ")  |                |  Population: " << tempStats.currentPopulation << "/" << tempStats.populationRoom <<
         "  |  Idle: " << currentPlayer.getIdleVillagers() <<
         "  |  Building: " << currentPlayer.getTotalBuilding() <<
-        "  |                |  Team: " << tempStats.team << " |" <<
+        "  |                |  Team: " << tempStats.team <<
         "  |                |  Time: " << time.str() << " |";
 
     text.setString(resourcesText.str());

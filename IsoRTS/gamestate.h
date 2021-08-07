@@ -77,11 +77,11 @@ public:
     void drawActorBigSprite(int actorId);
     void drawActorStats(int actorId, int textStartX, int textStartY);
     void drawActorTitle(int actorId, int textStartX, int textStartY);
-    void drawActorToolbar(int startX, int startY, int incrementalXOffset, int spriteYOffset, int startDeck, int tempY, int incrementalYOffset, int offSetTonextCard);
+    void drawActorToolbar(int spriteYOffset, int tempY, int offSetTonextCard);
     void drawBuildingBigSprite(int buildingId);
-    void drawBuildingConstructionToolbar(int startDeck, int startY);
-    void drawBuildingTaskToolbar(int startDeck, int startY);
-    void drawBuildingToolbar(int startX, int startY, int incrementalXOffset, int spriteYOffset, int startDeck, int tempY, int incrementalYOffset, int offSetTonextCard);
+    void drawBuildingConstructionToolbar(int startY);
+    void drawBuildingTaskToolbar(int startY);
+    void drawBuildingToolbar(int spriteYOffset, int tempY, int offSetTonextCard);
     void drawBuildingToolbarStats(int textStartX, int textStartY);
     void drawBuildingToolbarTitle(int textStartX, int textStartY);
     void drawGame();
@@ -93,7 +93,7 @@ public:
     void drawMouseBox();
     void drawMouseInteraction();
     void drawMousePosition(int x, int y, bool noProblem);
-    void drawObjectToolbar(int startX, int startY, int incrementalXOffset, int spriteYOffset, int startDeck, int tempY, int incrementalYOffset, int offSetTonextCard);
+    void drawObjectToolbar(int spriteYOffset, int tempY, int offSetTonextCard);
     void drawPaths();
     void drawProgressBar(float pointsGained, float pointsRequired, int totalBarLength, int startBarX, int startBarY);
     void drawThingsOnTile(int i, int j);
@@ -167,9 +167,9 @@ private:
     bool mousePressOutofWorld;
     bool noFogOfWar;
     bool roundDone;
-    float lastFogOfWarUpdated = 0.0f;
-    float lastMistDraw = 0.0f;
-    float lastMiniMapRefresh = 0.0f;
+    float lastFogOfWarUpdated = -1.0f;
+    float lastMistDraw = -1.0f;
+    float lastMiniMapRefresh = -1.0f;
     float miniMapHeigth;
     float miniMapWidth;
     float topBarHeigth;
@@ -192,6 +192,22 @@ private:
     std::vector<cords> rectangleCords;
     sf::Vector2i mouseFakePosition;
     sf::Vector2f mousePosition;
+
+    //precalculate toolbar values
+    const int iconBarStartX = static_cast<int>(round(iconStartX + mainWindowWidth / 6.25f));
+    const int iconStartX = static_cast<int>(round(preCalcStartDeck + static_cast<float>(mainWindowWidth / 30.f)));
+    const int iconStartY = static_cast<int>(round(preCalcStartY + static_cast<float>(mainWindowHeigth / 27.f)));
+    const int preCalcCardDeckSize = static_cast<int>(round(mainWindowWidth / 1.82f));
+    const int preCalcIncrementalXOffset = static_cast<int>(round(64.f + (mainWindowWidth / 160.f)));
+    const int preCalcincrementalYOffset = static_cast<int>(round(64.f + (mainWindowHeigth / 90.f)));
+    const int preCalcStartDeck = static_cast<int>(round(mainWindowWidth / 4.2f));
+    const int preCalcStartProgress = static_cast<int>(round(mainWindowWidth / 2.48f));
+    const int preCalcStartX = static_cast<int>(round(mainWindowWidth / 60.f));
+    const int preCalcStartY = static_cast<int>(round(mainWindowHeigth / 30.f));
+    const int startBarX = static_cast<int>(round(iconStartX + static_cast<float>(mainWindowWidth / 5.0f)));
+    const int startBarY = static_cast<int>(round(iconStartY + static_cast<float>(mainWindowHeigth / 46.9f)));
+    const int totalBarLength = static_cast<int>(round(static_cast<float>(mainWindowWidth / 6.4f)));
+
 };
 
 extern gameState currentGame;

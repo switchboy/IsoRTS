@@ -228,10 +228,10 @@ namespace
 				if (suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
 					if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y + 1))
 					{
-						listOfActors.push_back(actors(0, suggestedCords.x, suggestedCords.y, teamId, static_cast<int>(listOfActors.size())));
-						listOfActors.push_back(actors(0, suggestedCords.x, suggestedCords.y + 1, teamId, static_cast<int>(listOfActors.size())));
-						listOfActors.push_back(actors(0, suggestedCords.x + 1, suggestedCords.y, teamId, static_cast<int>(listOfActors.size())));
-						listOfActors.push_back(actors(0, suggestedCords.x + 1, suggestedCords.y + 1, teamId, static_cast<int>(listOfActors.size())));
+						listOfActors.push_back(actors(0, suggestedCords, teamId, static_cast<int>(listOfActors.size())));
+						listOfActors.push_back(actors(0, { suggestedCords.x, suggestedCords.y + 1 }, teamId, static_cast<int>(listOfActors.size())));
+						listOfActors.push_back(actors(0, { suggestedCords.x + 1, suggestedCords.y }, teamId, static_cast<int>(listOfActors.size())));
+						listOfActors.push_back(actors(0, { suggestedCords.x + 1, suggestedCords.y + 1 }, teamId, static_cast<int>(listOfActors.size())));
 						villagerIsPlaced = true;
 					}
 				}

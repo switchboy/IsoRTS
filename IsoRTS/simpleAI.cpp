@@ -59,15 +59,15 @@ void simpleAI::buildCommandUnit(int unitId, cords targetCords)
 {
 	nearestBuildingTile tempTile = findNearestBuildingTile(currentGame.occupiedByBuildingList[targetCords.x][targetCords.y], unitId);
 	if (tempTile.isSet) {
-		listOfActors[unitId].updateGoal(tempTile.locationX, tempTile.locationY, 0);
+		listOfActors[unitId].updateGoal(tempTile.location, 0);
 		listOfBuildings[currentGame.occupiedByBuildingList[targetCords.x][targetCords.y]].claimFreeBuiildingTile(tempTile.buildingId, unitId);
-		listOfActors[unitId].setIsBuildingTrue(listOfBuildings[currentGame.occupiedByBuildingList[targetCords.x][targetCords.y]].getBuildingId(), tempTile.actionLocationX, tempTile.actionLocationY);
+		listOfActors[unitId].setIsBuildingTrue(listOfBuildings[currentGame.occupiedByBuildingList[targetCords.x][targetCords.y]].getBuildingId(), tempTile.actionLocation);
 	}
 }
 
 void simpleAI::gatherCommandUnit(int unitId, cords targetCords)
 {
-	listOfActors[unitId].updateGoal(targetCords.x, targetCords.y, 0);
+	listOfActors[unitId].updateGoal(targetCords, 0);
 	listOfActors[unitId].setGatheringRecource(true);
 }
 
@@ -129,7 +129,7 @@ cords findResource(resourceTypes kind, int unitId ) {
 			bool rejectionsDuringLoop = false;
 			for (const auto& reject : listOfActors[unitId].getRejectedTargetsList())
 			{
-				if (reject.x == listOfResourceLocations.front().locationX && reject.y == listOfResourceLocations.front().locationY) {
+				if (reject.x == listOfResourceLocations.front().location.x && reject.y == listOfResourceLocations.front().location.y) {
 					//target rejected!
 					listOfResourceLocations.pop_front();
 					rejectionsDuringLoop = true;
@@ -141,8 +141,7 @@ cords findResource(resourceTypes kind, int unitId ) {
 		}
 
 		if (!listOfResourceLocations.empty()) {
-			targetCords.x = listOfResourceLocations.front().locationX;
-			targetCords.y = listOfResourceLocations.front().locationY;
+			targetCords = listOfResourceLocations.front().location;
 		}
 
 	}

@@ -26,42 +26,42 @@ namespace
 
     void addNeighboursOfImpassableNeighbours(int& i, std::vector<Cells>& cellsList, std::list<Cells*>& listToCheck)
     {
-        if (cellsList[i].positionX > 0)
+        if (cellsList[i].position.x > 0)
         {
             cellsList[i - MAP_HEIGHT].addNeighbours(cellsList);
             listToCheck.push_back(&cellsList[i - MAP_HEIGHT]);
         }
-        if (cellsList[i].positionX < MAP_WIDTH - 1)
+        if (cellsList[i].position.x < MAP_WIDTH - 1)
         {
             cellsList[i + MAP_HEIGHT].addNeighbours(cellsList);
             listToCheck.push_back(&cellsList[i + MAP_HEIGHT]);
         }
-        if (cellsList[i].positionY > 0)
+        if (cellsList[i].position.y > 0)
         {
             cellsList[i - 1].addNeighbours(cellsList);
             listToCheck.push_back(&cellsList[i - 1]);
         }
-        if (cellsList[i].positionY != MAP_HEIGHT - 1)
+        if (cellsList[i].position.y != MAP_HEIGHT - 1)
         {
             cellsList[i + 1].addNeighbours(cellsList);
             listToCheck.push_back(&cellsList[i + 1]);
         }
-        if (cellsList[i].positionY != MAP_HEIGHT - 1 && cellsList[i].positionX < MAP_WIDTH - 1)
+        if (cellsList[i].position.y != MAP_HEIGHT - 1 && cellsList[i].position.x < MAP_WIDTH - 1)
         {
             cellsList[i + 1 + MAP_HEIGHT].addNeighbours(cellsList);
             listToCheck.push_back(&cellsList[i + 1 + MAP_HEIGHT]);
         }
-        if (cellsList[i].positionY > 0 && cellsList[i].positionX < MAP_WIDTH - 1)
+        if (cellsList[i].position.y > 0 && cellsList[i].position.x < MAP_WIDTH - 1)
         {
             cellsList[i - 1 + MAP_HEIGHT].addNeighbours(cellsList);
             listToCheck.push_back(&cellsList[i - 1 + MAP_HEIGHT]);
         }
-        if (cellsList[i].positionY != MAP_HEIGHT - 1 && cellsList[i].positionX > 0)
+        if (cellsList[i].position.y != MAP_HEIGHT - 1 && cellsList[i].position.x > 0)
         {
             cellsList[i + 1 - MAP_HEIGHT].addNeighbours(cellsList);
             listToCheck.push_back(&cellsList[i + 1 - MAP_HEIGHT]);
         }
-        if (cellsList[i].positionY > 0 && cellsList[i].positionX > 0)
+        if (cellsList[i].position.y > 0 && cellsList[i].position.x > 0)
         {
             cellsList[i - 1 - MAP_HEIGHT].addNeighbours(cellsList);
             listToCheck.push_back(&cellsList[i - 1 - MAP_HEIGHT]);
@@ -91,7 +91,7 @@ namespace
                 for (std::vector<int>::const_iterator iterator = (*listToCheck.front()).neighbours.begin(), end = (*listToCheck.front()).neighbours.end(); iterator != end; ++iterator)
                 {
                     freeCellFound = true;
-                    foundCords = { cellsList[*iterator].positionX, cellsList[*iterator].positionY };
+                    foundCords = cellsList[*iterator].position;
                 }
                 if (!freeCellFound)
                 {
@@ -676,7 +676,7 @@ void buildings::spawnProduce()
     cords spawnCords = findEmptySpot({ this->startLocation.x + 1, this->startLocation.y + 1 });
     if (currentPlayer.getStats().currentPopulation < currentPlayer.getStats().populationRoom)
     {
-        actors newActor(this->productionQueue.front().idOfUnitOrResearch, spawnCords.x, spawnCords.y, this->ownedByPlayer, static_cast<int>(listOfActors.size()));
+        actors newActor(this->productionQueue.front().idOfUnitOrResearch, spawnCords, this->ownedByPlayer, static_cast<int>(listOfActors.size()));
         listOfActors.push_back(newActor);
         if (this->rallyPoint.isSet) {
             listOfActors[newActor.getActorId()].stackOrder(this->rallyPoint.goal, this->rallyPoint.orderType); //Puts rally point order in command stackList of new unit

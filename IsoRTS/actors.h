@@ -10,8 +10,7 @@ class Cells
 {
 public:
     Cells() {
-        positionX = 0;
-        positionY = 0; 
+        position = { 0,0 };
         parentCellId = 0; 
         cummulativeCost = 0; 
         cellId = 0; 
@@ -19,7 +18,8 @@ public:
         costToGoal = 0;
         totalCostGuess = 0;
     }
-    int positionX, positionY, parentCellId, cummulativeCost, cellId, backParent;
+    cords position;
+    int parentCellId, cummulativeCost, cellId, backParent;
     double costToGoal, totalCostGuess;
     bool visited = false;
     bool visitedBack = false;
@@ -31,10 +31,8 @@ public:
 struct nearestBuildingTile
 {
     float deltaDistance;
-    int locationX;
-    int locationY;
-    int actionLocationX;
-    int actionLocationY;
+    cords location;
+    cords actionLocation;
     int buildingId;
     bool isSet;
     int tileId;
@@ -42,8 +40,7 @@ struct nearestBuildingTile
 
 struct islandCell
 {
-    int positionX;
-    int positionY;
+    cords position;
     int cellId;
     int cellScore;
     int parentId;
@@ -51,8 +48,7 @@ struct islandCell
 
 struct routeCell
 {
-    int positionX;
-    int positionY;
+    cords position;
     bool visited;
     int parentCellId;
     int backParent;
@@ -67,7 +63,7 @@ struct orderStack
 class actors
 {
 public:
-    actors(int type, int actorX, int actorY, int actorTeam, int actorId);
+    actors(int type, cords location, int actorTeam, int actorId);
     virtual ~actors();
     void animateWalkingToResource();
     void buildBuilding();
@@ -104,7 +100,7 @@ public:
     void takeDamage(int amountOfDamage, int idOfAttacker);
     void unloadAndReturnToGathering();
     void update();
-    void updateGoal(int i, int j, int waitTime);
+    void updateGoal(cords goal, int waitTime);
     void updateGoalPath();
     void walkBackToOwnSquare();
     void walkToNextSquare();
@@ -128,7 +124,7 @@ public:
     std::string nameOfActor() const;
     std::string getResources() const;
 
-    void setIsBuildingTrue(int buildingId, int goalX, int goalY);
+    void setIsBuildingTrue(int buildingId, cords goal);
     void setIsDoingAttack();
 
 private:

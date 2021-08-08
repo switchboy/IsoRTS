@@ -57,7 +57,7 @@ public:
     bool clickToAttack() const;
     bool clickToBuildOrRepairBuilding() const;
     bool clickToGatherResource() const;
-    bool clickToMove(int posX, int posY, bool minimap) const;
+    bool clickToMove(cords pos, bool minimap) const;
     bool isInSelectedActors(int id) const;
     bool isPassable(int x, int y) const;
     void calculateRectangle();
@@ -113,7 +113,7 @@ public:
     void orderRallyPoint() const;
     void selectUnit(int id);
 
-    cords getNextCord(int x, int y);
+    cords getNextCord(cords pos);
     float getTime() const;
     int   getPlayerCount() const;
 

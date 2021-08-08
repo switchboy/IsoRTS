@@ -912,7 +912,7 @@ void gameState::clickToPlaceObject() const
         if (this->objectLocationList[mouseWorldPosition.x][mouseWorldPosition.y] == -1 && this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] == -1)
         {
             //Zet het object neer
-            listOfObjects.push_back(objects(static_cast<objectTypes>(this->objectTypeSelected), this->mouseWorldPosition.x, this->mouseWorldPosition.y, static_cast<int>(listOfObjects.size())));
+            listOfObjects.push_back(objects(static_cast<objectTypes>(this->objectTypeSelected), this->mouseWorldPosition, static_cast<int>(listOfObjects.size())));
         }
     }
 }
@@ -1607,7 +1607,7 @@ void gameState::drawMouseInteraction()
     }
     if(isPressedO)
     {
-        listOfObjects[0].drawObjectFootprint(static_cast<objectTypes>(this->objectTypeSelected), mouseWorldPosition.x, mouseWorldPosition.y);
+        listOfObjects[0].drawObjectFootprint(static_cast<objectTypes>(this->objectTypeSelected), mouseWorldPosition);
     }
 }
 

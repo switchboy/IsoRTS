@@ -12,14 +12,13 @@ public:
     objects(){
         objectId =0;
         objectType = objectTypes::objectBerry;
-        locationX = 0;
-        locationY = 0;
+        location = { 0, 0 };
         typeOfResource = resourceTypes::resourceFood;
         resourceLeft = 0;
     }
-    objects(objectTypes type, int startXlocation, int startYLocation, int buildingId);
+    objects(objectTypes type, cords location, int objectId);
 
-    void            drawObjectFootprint(objectTypes type, int mouseWorldX, int mouseWorldY) const;
+    void            drawObjectFootprint(objectTypes type, cords mouseWorld) const;
     void            drawObject(int i, int j) const;
     void            drawObjectSprite(objectTypes spriteNumber, int i, int j) const;
     void            substractResource();
@@ -34,8 +33,7 @@ public:
 private:
     int           objectId;
     objectTypes   objectType;
-    int           locationX;
-    int           locationY;
+    cords         location;
     resourceTypes typeOfResource;
     int           resourceLeft;
 

@@ -61,11 +61,11 @@ namespace
 
 	void placeTree(int x, int y) {
 		if (currentGame.currentMap[x][y] == 1) {
-			listOfObjects.push_back(objects(static_cast<objectTypes>(roll(1, 3)), x, y, static_cast<int>(listOfObjects.size())));
+			listOfObjects.push_back(objects(static_cast<objectTypes>(roll(1, 3)), { x, y }, static_cast<int>(listOfObjects.size())));
 		}
 		else if (currentGame.currentMap[x][y] == 2)//Cactus
 		{
-			listOfObjects.push_back(objects(objectTypes::objectCactus, x, y, static_cast<int>(listOfObjects.size())));
+			listOfObjects.push_back(objects(objectTypes::objectCactus, { x, y }, static_cast<int>(listOfObjects.size())));
 		}
 	}
 
@@ -126,10 +126,10 @@ namespace
 					if (suggestedCords.y - 1 >= 0 && suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
 						if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y - 1))
 						{
-							listOfObjects.push_back(objects(static_cast<objectTypes>(resource), suggestedCords.x, suggestedCords.y, static_cast<int>(listOfObjects.size())));
-							listOfObjects.push_back(objects(static_cast<objectTypes>(resource), suggestedCords.x, suggestedCords.y + 1, static_cast<int>(listOfObjects.size())));
-							listOfObjects.push_back(objects(static_cast<objectTypes>(resource), suggestedCords.x + 1, suggestedCords.y, static_cast<int>(listOfObjects.size())));
-							listOfObjects.push_back(objects(static_cast<objectTypes>(resource), suggestedCords.x + 1, suggestedCords.y - 1, static_cast<int>(listOfObjects.size())));
+							listOfObjects.push_back(objects(static_cast<objectTypes>(resource), suggestedCords, static_cast<int>(listOfObjects.size())));
+							listOfObjects.push_back(objects(static_cast<objectTypes>(resource), { suggestedCords.x, suggestedCords.y + 1 }, static_cast<int>(listOfObjects.size())));
+							listOfObjects.push_back(objects(static_cast<objectTypes>(resource), { suggestedCords.x + 1, suggestedCords.y }, static_cast<int>(listOfObjects.size())));
+							listOfObjects.push_back(objects(static_cast<objectTypes>(resource), { suggestedCords.x + 1, suggestedCords.y - 1 }, static_cast<int>(listOfObjects.size())));
 							resourcePlaced = true;
 							succesFullPlacements++;
 						}

@@ -3,11 +3,10 @@
 
 std::vector<objects> listOfObjects;
 
-objects::objects(objectTypes type, int startXlocation, int startYLocation, int objectId)
+objects::objects(objectTypes type, cords location, int objectId)
 {
     this->objectType = type;
-    this->locationX = startXlocation;
-    this->locationY = startYLocation;
+    this->location = location;
     this->objectId = objectId;
     switch(type)
     {
@@ -49,7 +48,7 @@ objects::objects(objectTypes type, int startXlocation, int startYLocation, int o
         this->resourceLeft = 1500;
         break;
     }
-    currentGame.objectLocationList[startXlocation][startYLocation] = objectId;
+    currentGame.objectLocationList[location.x][location.y] = objectId;
 }
 
 void objects::substractResource()
@@ -57,12 +56,12 @@ void objects::substractResource()
     this->resourceLeft -= 1;
     if(resourceLeft <= 0)
     {
-        currentGame.objectLocationList[this->locationX][this->locationY] = -1;
+        currentGame.objectLocationList[this->location.x][this->location.y] = -1;
     }
 }
 
 cords objects::getLocation() const {
-    return { this->locationX, this->locationY };
+    return this->location;
 }
 
 void objects::drawObject(int i, int j) const
@@ -172,18 +171,18 @@ std::string objects::nameOfResource() const
     }
 }
 
-void objects::drawObjectFootprint(objectTypes type, int mouseWorldX, int mouseWorldY) const
+void objects::drawObjectFootprint(objectTypes type, cords mouseWorld) const
 {
-    if(!(mouseWorldX < 0) && !(mouseWorldY < 0) && !(mouseWorldX >= MAP_WIDTH) && !(mouseWorldY >= MAP_HEIGHT))
+    if(!(mouseWorld.x < 0) && !(mouseWorld.y < 0) && !(mouseWorld.x >= MAP_WIDTH) && !(mouseWorld.y >= MAP_HEIGHT))
     {
-        if(currentGame.occupiedByBuildingList[mouseWorldX][mouseWorldY] == -1 && currentGame.objectLocationList[mouseWorldX][mouseWorldY] == -1)
+        if(currentGame.occupiedByBuildingList[mouseWorld.x][mouseWorld.y] == -1 && currentGame.objectLocationList[mouseWorld.x][mouseWorld.y] == -1)
         {
-            currentGame.drawMousePosition(mouseWorldX, mouseWorldY, true);
+            currentGame.drawMousePosition(mouseWorld.x, mouseWorld.y, true);
         }
         else
         {
-            currentGame.drawMousePosition(mouseWorldX, mouseWorldY, false);
+            currentGame.drawMousePosition(mouseWorld.x, mouseWorld.y, false);
         }
-        drawObjectSprite(type, mouseWorldX, mouseWorldY);
+        drawObjectSprite(type, mouseWorld.x, mouseWorld.y);
     }
 }

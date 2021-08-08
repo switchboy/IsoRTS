@@ -2231,13 +2231,13 @@ void gameState::drawBuildingTaskToolbar(int startY)
     text.setPosition(static_cast<float>(startBarX), static_cast<float>(iconStartY));
     window.draw(text);
     this->spriteUIButton.setTextureRect(sf::IntRect(getSpriteOffSetTask(this->buildingSelectedId).x, getSpriteOffSetTask(this->buildingSelectedId).y, 64, 64));
-    this->spriteUIButton.setPosition(static_cast<float>(iconStartX), static_cast<float>(iconStartY));
+    this->spriteUIButton.setPosition(static_cast<float>(iconBarStartX), static_cast<float>(iconStartY));
     window.draw(this->spriteUIButton);
     button cancelTask = { static_cast<int>(startBarX + totalBarLength + static_cast<int>(mainWindowWidth / 174.54)), iconStartY, spriteTypes::spriteCancel, actionTypes::actionCancelProduction, this->buildingSelectedId, static_cast<int>(listOfButtons.size()), 0 };
     listOfButtons.push_back(cancelTask);
     if (listOfBuildings[this->buildingSelectedId].productionQueue.size() > 1)
     {
-        tempXOffset = iconStartX + static_cast<int>(mainWindowWidth / 24.93);
+        tempXOffset = iconBarStartX + static_cast<int>(mainWindowWidth / 24.93);
         tempYOffset = iconStartY + static_cast<int>(mainWindowHeigth / 22.97);
         for (int i = 1; i < listOfBuildings[this->buildingSelectedId].productionQueue.size(); i++)
         {

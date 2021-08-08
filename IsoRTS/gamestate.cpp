@@ -2501,16 +2501,16 @@ float gameState::getTime() const
 
 void gameState::loadMap()
 {
-    for(int i = 0; i < MAP_HEIGHT; i++)
+    for(int i = 0; i < MAP_WIDTH; i++)
     {
-        for(int j = 0; j < MAP_WIDTH; j++)
+        for(int j = 0; j < MAP_HEIGHT; j++)
         {
-            this->currentMap[j][i] = 1;
-            this->buildingLocationList[j][i] = -1;
-            this->occupiedByBuildingList[j][i] = -1;
-            this->objectLocationList[j][i] = -1;
-            this->occupiedByActorList[j][i] = -1;
-            this->visability[j][i] = 0;
+            this->currentMap[i][j] = 0;
+            this->buildingLocationList[i][j] = -1;
+            this->occupiedByBuildingList[i][j] = -1;
+            this->objectLocationList[i][j] = -1;
+            this->occupiedByActorList[i][j] = -1;
+            this->visability[i][j] = 0;
         }
     }
     generateRandomMap(this->players,16,16,16,5,0);

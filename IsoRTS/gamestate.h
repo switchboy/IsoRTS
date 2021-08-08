@@ -2,6 +2,7 @@
 #define GAMESTATE_H
 #include <list>
 #include <set>
+#include <array>
 #include <sstream>
 #include <SFML/Graphics.hpp>
 #include "button.h"
@@ -140,11 +141,13 @@ public:
     sf::RectangleShape healthBarBackground;
     sf::RectangleShape healthBarGreenBar;
 
-    int currentMap[MAP_WIDTH][MAP_HEIGHT];
-    int buildingLocationList[MAP_WIDTH][MAP_HEIGHT];
-    int objectLocationList[MAP_WIDTH][MAP_HEIGHT];
-    int occupiedByBuildingList[MAP_WIDTH][MAP_HEIGHT];
-    int occupiedByActorList[MAP_WIDTH][MAP_HEIGHT];
+    std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> currentMap;
+    std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> buildingLocationList;
+    std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> objectLocationList;
+    std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> occupiedByBuildingList;
+    std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> occupiedByActorList;
+
+
     bool showPaths;
 
 private:
@@ -182,7 +185,7 @@ private:
     int startLocation[2];
     int startMouseCords[2];
     int toolBarWidth;
-    int visability[MAP_WIDTH][MAP_HEIGHT];
+    std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH>  visability;
 
     cords mouseWorldPosition;
     sf::Event event;

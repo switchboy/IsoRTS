@@ -358,11 +358,12 @@ bool checkIfEmpty(cords tile) {
 	}
 }
 
+
 cords simpleAI::getOptimalFreeBuildingSlot(int buildingId, cords closeToVillager, bool closeToWood, bool closeToFood, bool closeToStone, bool closeToGold) {
 	//Set the size of the square to search in
 	std::vector <possibleBuildTile> listOfPossibilities;
 	listOfPossibilities.clear();
-	cords maxSearchArea = { 15, 15 }; //this will evaluate all start locations in a 30x30 square (900 induvidual evaluations)
+	cords maxSearchArea = { 15, 15 }; //this will evaluate all start locations in a 15x15 square (900 induvidual evaluations)
 	cords startCords = { closeToVillager.x - (maxSearchArea.x / 2), closeToVillager.y - (maxSearchArea.y / 2) };
 	cords endCords = { closeToVillager.x + (maxSearchArea.x / 2), closeToVillager.y + (maxSearchArea.y / 2) };
 	//Now trim to get only cords within the map limitations
@@ -371,16 +372,6 @@ cords simpleAI::getOptimalFreeBuildingSlot(int buildingId, cords closeToVillager
 	if (endCords.x >= MAP_WIDTH) { endCords.x = MAP_WIDTH; }
 	if (endCords.y >= MAP_HEIGHT) { endCords.x = MAP_HEIGHT; }
 
-	//Fill a temp array with zero's and make them 1 if obstructed on the real map
-	int quickLookUpMap[MAP_WIDTH][MAP_HEIGHT] = { 0 };
-	for (int x = startCords.x; x < endCords.x; x++) {
-		for (int y = startCords.y; y < endCords.y; y++) {
-			if (currentGame.occupiedByBuildingList[x][y] != -1 || currentGame.objectLocationList[x][y] != -1 || currentGame.occupiedByActorList[x][y] != -1 || currentGame.currentMap[x][y] >= 7 || currentGame.currentMap[x][y] == 0) {
-				quickLookUpMap[x][y] = 1;
-			}
-		}
-	}
-	
 	//Time to evaluate all the posibilities
 	for (int x = startCords.x; x < endCords.x; x++) {
 		for (int y = startCords.y; y < endCords.y; y++) {
@@ -390,7 +381,7 @@ cords simpleAI::getOptimalFreeBuildingSlot(int buildingId, cords closeToVillager
 				for (int j = 0; j < footprintOfBuildings[buildingId].amountOfYFootprint; j++)
 				{
 					if (x - i >= 0 && y - j >= 0) {
-						if (quickLookUpMap[x - i][y - j] != 0){
+						if (!currentGame.isPassable({ x - i, y - j })) {
 							//Building slot blocked by terain, objects or actors
 							buildingPossible = false;
 						}

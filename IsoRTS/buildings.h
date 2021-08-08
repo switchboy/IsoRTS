@@ -34,12 +34,10 @@ public:
     buildings() { 
         this->exists = false; 
         this->buildingType = 0;
-        this->startXlocation = 0;
-        this->startYLocation = 0;
-        this->endXlocation = 0;
-        this->endYLocation = 0;
+        this->startLocation = { 0, 0};
+        this->endLocation = { 0, 0 };
         this->buildingId = 0;
-        this->ownedByPlayer = 0;
+        this->ownedByPlayer = -1;
         this->buildingCompleted = false;
         this->exists = true;
         this->lastShotFired = 0.0f;
@@ -62,14 +60,14 @@ public:
         this->amountOfAnimationSprites = 0;
     }
 
-    buildings(int type, int startXlocation, int startYLocation, int buildingId, int team);
+    buildings(int type, cords startLocation, int buildingId, int team);
     bool                        claimFreeBuiildingTile(int id, int actorId);
     bool                        hasTask() const;
     void                        addBuildingPoint();
     void                        checkOnEnemyAndShoot();
     void                        doProduction();
     void                        drawBuilding(int i, int j, int type, bool typeOverride);
-    void                        drawBuildingFootprint(int type, int mouseWorldX, int mouseWorldY);
+    void                        drawBuildingFootprint(int type, cords mouseWorld);
     void                        fillAdjacentTiles();
     void                        getTask(bool isResearch, int idOfUnitOrResearch);
     void                        removeActorFromBuildingTile(int actorId);
@@ -81,8 +79,7 @@ public:
 
     int                         getBuildingId() const;
     bool                        getCompleted() const;
-    int                         getLocationX() const;
-    int                         getLocationY() const;
+    cords                       getLocation() const;
     int                         getRangedDMG() const;
     int                         getTeam() const;
     int                         getType() const;
@@ -114,15 +111,13 @@ private:
     int                         buildingPointsNeeded;
     int                         buildingPointsRecieved;
     int                         buildingType;
-    int                         endXlocation;
-    int                         endYLocation;
+    cords                       endLocation;
     int                         hitPointsLeft;
     int                         hitPointsTotal;
     int                         offSetYStore;
     int                         ownedByPlayer;
     int                         range;
-    int                         startXlocation;
-    int                         startYLocation;
+    cords                       startLocation;
     int                         supportsPopulationOf;
     std::vector<adjacentTile>   adjacentTiles;
     orderContainer              rallyPoint;

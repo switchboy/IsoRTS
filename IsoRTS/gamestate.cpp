@@ -861,7 +861,7 @@ void gameState::clickToPlaceBuilding() {
         if (buildingPlacable)
         {
             //Zet het gebouw neer
-            buildings newBuilding(this->buildingTypeSelected, this->mouseWorldPosition.x, this->mouseWorldPosition.y, static_cast<int>(listOfBuildings.size()), currentPlayer.getTeam());
+            buildings newBuilding(this->buildingTypeSelected, this->mouseWorldPosition, static_cast<int>(listOfBuildings.size()), currentPlayer.getTeam());
             listOfBuildings.push_back(newBuilding);
             if (this->isPlacingBuilding)
             {
@@ -1603,7 +1603,7 @@ void gameState::drawMouseInteraction()
     }
     if(isPressedB || this->isPlacingBuilding)
     {
-        listOfBuildings[0].drawBuildingFootprint(this->buildingTypeSelected, mouseWorldPosition.x, mouseWorldPosition.y);
+        listOfBuildings[0].drawBuildingFootprint(this->buildingTypeSelected, mouseWorldPosition);
     }
     if(isPressedO)
     {

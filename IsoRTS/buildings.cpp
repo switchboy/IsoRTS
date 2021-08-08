@@ -114,16 +114,16 @@ namespace
 void buildings::fillAdjacentTiles()
 {
     //The row above and below the building
-    for(int i = this->endXlocation-1; i <= this->startXlocation+1; i++)
+    for(int i = this->endLocation.x-1; i <= this->startLocation.x+1; i++)
     {
         if(i >= 0 && i <= MAP_WIDTH)
         {
             int goalX;
-            if(i == this->endXlocation-1)
+            if(i == this->endLocation.x-1)
             {
                 goalX = i +1;
             }
-            else if(i == this->startXlocation+1)
+            else if(i == this->startLocation.x+1)
             {
                 goalX = i -1;
             }
@@ -133,22 +133,22 @@ void buildings::fillAdjacentTiles()
             }
 
             //adjacent tile above
-            this->adjacentTiles.push_back({ static_cast<int>(this->adjacentTiles.size()), i, this->endYLocation - 1, goalX, this->endYLocation, false, -1 });
+            this->adjacentTiles.push_back({ static_cast<int>(this->adjacentTiles.size()), i, this->endLocation.y - 1, goalX, this->endLocation.y, false, -1 });
             
             //adjacent tile below
-            this->adjacentTiles.push_back({ static_cast<int>(this->adjacentTiles.size()), i, this->startYLocation + 1, goalX, this->startYLocation, false, -1 });
+            this->adjacentTiles.push_back({ static_cast<int>(this->adjacentTiles.size()), i, this->startLocation.y + 1, goalX, this->startLocation.y, false, -1 });
         }
     }
     //The row left and right of the building
-    for(int i =  this->startYLocation-footprintOfBuildings[this->buildingType].amountOfYFootprint+1; i <=  this->startYLocation; i++)
+    for(int i =  this->startLocation.y-footprintOfBuildings[this->buildingType].amountOfYFootprint+1; i <=  this->startLocation.y; i++)
     {
         if(i >= 0 && i <= MAP_HEIGHT)
         {
             //new left tile
-            this->adjacentTiles.push_back({ static_cast<int>(this->adjacentTiles.size()), this->endXlocation - 1, i, this->endXlocation, i, false, -1 });
+            this->adjacentTiles.push_back({ static_cast<int>(this->adjacentTiles.size()), this->endLocation.x - 1, i, this->endLocation.x, i, false, -1 });
 
             //new right tile
-            this->adjacentTiles.push_back({ static_cast<int>(this->adjacentTiles.size()), this->startXlocation + 1, i, this->startXlocation, i, false, -1 });
+            this->adjacentTiles.push_back({ static_cast<int>(this->adjacentTiles.size()), this->startLocation.x + 1, i, this->startLocation.x, i, false, -1 });
         }
     }
 }
@@ -227,12 +227,12 @@ void buildings::setCompleted()
 void buildings::removeBuilding()
 {
     this->exists = false;
-    currentGame.buildingLocationList[this->startXlocation][this->startYLocation] = -1;
+    currentGame.buildingLocationList[this->startLocation.x][this->startLocation.y] = -1;
     for(int i = 0; i < footprintOfBuildings[this->buildingType].amountOfXFootprint; i++)
     {
         for(int j = 0; j < footprintOfBuildings[this->buildingType].amountOfYFootprint; j++)
         {
-            currentGame.occupiedByBuildingList[startXlocation-i][startYLocation-j] = -1;
+            currentGame.occupiedByBuildingList[startLocation.x-i][startLocation.y-j] = -1;
         }
     }
     if(currentGame.buildingSelectedId == this->buildingId)
@@ -242,13 +242,11 @@ void buildings::removeBuilding()
     noNewBuildings = false;
 }
 
-buildings::buildings(int type, int startXlocation, int startYLocation, int buildingId, int team)
+buildings::buildings(int type, cords startLocation, int buildingId, int team)
 {
     this->buildingType = type;
-    this->startXlocation = startXlocation;
-    this->startYLocation = startYLocation;
-    this->endXlocation = this->startXlocation-footprintOfBuildings[this->buildingType].amountOfXFootprint+1;
-    this->endYLocation = this->startYLocation-footprintOfBuildings[this->buildingType].amountOfYFootprint+1;
+    this->startLocation = startLocation;
+    this->endLocation = { this->startLocation.x - footprintOfBuildings[this->buildingType].amountOfXFootprint + 1, this->startLocation.y - footprintOfBuildings[this->buildingType].amountOfYFootprint + 1 };
     this->buildingId = buildingId;
     this->ownedByPlayer = team;
     this->buildingCompleted = false;
@@ -257,12 +255,12 @@ buildings::buildings(int type, int startXlocation, int startYLocation, int build
     this->rallyPoint = { {0,0}, stackOrderTypes::stackActionMove, false }; //set dummy values for the rally point
     this->lastFrameUpdate = currentGame.getTime();
     this->hasDisplayedError = false;
-    currentGame.buildingLocationList[startXlocation][startYLocation] = buildingId;
+    currentGame.buildingLocationList[startLocation.x][startLocation.y] = buildingId;
     for(int i = 0; i < footprintOfBuildings[type].amountOfXFootprint; i++)
     {
         for(int j = 0; j < footprintOfBuildings[type].amountOfYFootprint; j++)
         {
-            currentGame.occupiedByBuildingList[startXlocation-i][startYLocation-j] = buildingId;
+            currentGame.occupiedByBuildingList[startLocation.x-i][startLocation.y-j] = buildingId;
         }
     }
     noNewBuildings = false;
@@ -401,14 +399,9 @@ int buildings::getType() const
     return this->buildingType;
 }
 
-int buildings::getLocationX() const
+cords buildings::getLocation() const
 {
-    return this->startXlocation;
-}
-
-int buildings::getLocationY() const
-{
-    return this->startYLocation;
+    return this->startLocation;
 }
 
 int buildings::getBuildingId() const
@@ -528,6 +521,7 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
         window.draw(currentGame.spriteBuildingMiningCamp);
     }
 
+    /*
     //Redraw possible overdrawn sprites
     if(!typeOverride)
     {
@@ -538,7 +532,7 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
                 currentGame.drawThingsOnTile(i+k, j-y);
             }
         }
-    }
+    }*/
 
     //Draw rally point if set
     if (currentGame.buildingIsSelected(this->buildingId)) {
@@ -607,27 +601,27 @@ void buildings::setRallyPoint(cords goal, stackOrderTypes orderType)
     this->rallyPoint = { goal, orderType, true };
 }
 
-void buildings::drawBuildingFootprint(int type, int mouseWorldX, int mouseWorldY)
+void buildings::drawBuildingFootprint(int type, cords mouseWorld)
 {
-    if(!(mouseWorldX-footprintOfBuildings[0].amountOfXFootprint < -1) && !(mouseWorldY-footprintOfBuildings[0].amountOfYFootprint < -1) && !(mouseWorldX >= MAP_WIDTH) && !(mouseWorldY >= MAP_HEIGHT))
+    if(!(mouseWorld.x-footprintOfBuildings[0].amountOfXFootprint < -1) && !(mouseWorld.y-footprintOfBuildings[0].amountOfYFootprint < -1) && !(mouseWorld.x >= MAP_WIDTH) && !(mouseWorld.y >= MAP_HEIGHT))
     {
-        drawBuilding(mouseWorldX, mouseWorldY, type, true);
+        drawBuilding(mouseWorld.x, mouseWorld.y, type, true);
         for(int i = 0; i < footprintOfBuildings[type].amountOfXFootprint; i++)
         {
             for(int j = 0; j < footprintOfBuildings[type].amountOfYFootprint; j++)
             {
                 if(
-                    currentGame.occupiedByBuildingList[mouseWorldX-i][mouseWorldY-j] != -1 ||
-                    currentGame.objectLocationList[mouseWorldX - i][mouseWorldY - j] != -1 ||
-                    currentGame.occupiedByActorList[mouseWorldX - i][mouseWorldY - j] != -1 ||
-                    currentGame.currentMap[mouseWorldX - i][mouseWorldY - j] == 7
+                    currentGame.occupiedByBuildingList[mouseWorld.x-i][mouseWorld.y-j] != -1 ||
+                    currentGame.objectLocationList[mouseWorld.x - i][mouseWorld.y - j] != -1 ||
+                    currentGame.occupiedByActorList[mouseWorld.x - i][mouseWorld.y - j] != -1 ||
+                    currentGame.currentMap[mouseWorld.x - i][mouseWorld.y - j] == 7
                     )
                 {
-                    currentGame.drawMousePosition(mouseWorldX-i, mouseWorldY-j, false);
+                    currentGame.drawMousePosition(mouseWorld.x-i, mouseWorld.y-j, false);
                 }
                 else
                 {
-                    currentGame.drawMousePosition(mouseWorldX-i, mouseWorldY-j, true);
+                    currentGame.drawMousePosition(mouseWorld.x-i, mouseWorld.y-j, true);
                 }
             }
         }
@@ -661,8 +655,8 @@ bool buildings::hasTask() const
 
 std::list<cords> buildings::getFootprintOfBuilding() const {
     std::list<cords> tempList;
-    for (int x = this->startXlocation; x > this->startXlocation - footprintOfBuildings[this->buildingType].amountOfXFootprint; x--) {
-        for (int y = this->startYLocation; y > this->startYLocation - footprintOfBuildings[this->buildingType].amountOfYFootprint; y--) {
+    for (int x = this->startLocation.x; x > this->startLocation.x - footprintOfBuildings[this->buildingType].amountOfXFootprint; x--) {
+        for (int y = this->startLocation.y; y > this->startLocation.y - footprintOfBuildings[this->buildingType].amountOfYFootprint; y--) {
             tempList.push_back({ x, y });
         }
     }
@@ -679,7 +673,7 @@ void buildings::takeDamage(int amountOfDamage)
 
 void buildings::spawnProduce()
 {
-    cords spawnCords = findEmptySpot({ this->startXlocation + 1, this->startYLocation + 1 });
+    cords spawnCords = findEmptySpot({ this->startLocation.x + 1, this->startLocation.y + 1 });
     if (currentPlayer.getStats().currentPopulation < currentPlayer.getStats().populationRoom)
     {
         actors newActor(this->productionQueue.front().idOfUnitOrResearch, spawnCords.x, spawnCords.y, this->ownedByPlayer, static_cast<int>(listOfActors.size()));

@@ -43,7 +43,7 @@ void simpleAI::update()
 
 void simpleAI::buildBuilding(int buildingId, cords buildingCords)
 {
-	buildings newBuilding(buildingId, buildingCords.x, buildingCords.y, static_cast<int>(listOfBuildings.size()), this->playerId);
+	buildings newBuilding(buildingId, buildingCords, static_cast<int>(listOfBuildings.size()), this->playerId);
 	listOfBuildings.push_back(newBuilding);
 	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceWood, priceOfBuilding[buildingId].wood);
 	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceFood, priceOfBuilding[buildingId].food);
@@ -183,7 +183,7 @@ void simpleAI::buildBuildingNearUnlessBuilding(int buildingId, int idleVillagerI
 			}
 		}
 		if (!hasBuilder) {
-			cords buildingCords = { listOfBuildings[idOfUnfinishedHousing].getLocationX() ,listOfBuildings[idOfUnfinishedHousing].getLocationY() };
+			cords buildingCords = listOfBuildings[idOfUnfinishedHousing].getLocation() ;
 			buildCommandUnit(idleVillagerId, buildingCords);
 		}
 	}

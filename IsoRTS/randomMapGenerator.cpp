@@ -124,7 +124,7 @@ namespace
 				while (!resourcePlaced && maxTries < 999999999999 && succesFullPlacements <= amountOfGroups) {
 					cords suggestedCords = { roll(0,MAP_WIDTH), roll(0,MAP_HEIGHT) };
 					if (suggestedCords.y - 1 >= 0 && suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
-						if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y - 1))
+						if (currentGame.isPassable(suggestedCords) && currentGame.isPassable({ suggestedCords.x, suggestedCords.y + 1 }) && currentGame.isPassable({ suggestedCords.x + 1, suggestedCords.y }) && currentGame.isPassable({ suggestedCords.x + 1, suggestedCords.y - 1 }))
 						{
 							listOfObjects.push_back(objects(static_cast<objectTypes>(resource), suggestedCords, static_cast<int>(listOfObjects.size())));
 							listOfObjects.push_back(objects(static_cast<objectTypes>(resource), { suggestedCords.x, suggestedCords.y + 1 }, static_cast<int>(listOfObjects.size())));
@@ -226,7 +226,7 @@ namespace
 			while (!villagerIsPlaced && tries < 9000) {
 				cords suggestedCords = { roll(randomFoodSource.x - distanceFromFood,randomFoodSource.x + distanceFromFood), roll(randomFoodSource.y - distanceFromFood, randomFoodSource.y + distanceFromFood) };
 				if (suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
-					if (currentGame.isPassable(suggestedCords.x, suggestedCords.y) && currentGame.isPassable(suggestedCords.x, suggestedCords.y + 1) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y) && currentGame.isPassable(suggestedCords.x + 1, suggestedCords.y + 1))
+					if (currentGame.isPassable(suggestedCords) && currentGame.isPassable({ suggestedCords.x, suggestedCords.y + 1 }) && currentGame.isPassable({ suggestedCords.x + 1, suggestedCords.y }) && currentGame.isPassable({ suggestedCords.x + 1, suggestedCords.y + 1 }))
 					{
 						listOfActors.push_back(actors(0, suggestedCords, teamId, static_cast<int>(listOfActors.size())));
 						listOfActors.push_back(actors(0, { suggestedCords.x, suggestedCords.y + 1 }, teamId, static_cast<int>(listOfActors.size())));

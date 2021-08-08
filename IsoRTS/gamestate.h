@@ -11,8 +11,7 @@
 struct adjacentTile
 {
     int tileId;
-    int tileX;
-    int tileY;
+    cords tileCords;
     int goalX;
     int goalY;
     bool occupied;
@@ -59,7 +58,7 @@ public:
     bool clickToGatherResource() const;
     bool clickToMove(cords pos, bool minimap) const;
     bool isInSelectedActors(int id) const;
-    bool isPassable(int x, int y) const;
+    bool isPassable(cords location) const;
     void calculateRectangle();
     void changeBuildingType();
     void changeObjectType();

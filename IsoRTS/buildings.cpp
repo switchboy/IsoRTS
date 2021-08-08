@@ -70,7 +70,7 @@ namespace
 
     cords findEmptySpot(cords startCords)
     {
-        if (currentGame.isPassable(startCords.x, startCords.y))
+        if (currentGame.isPassable(startCords))
         {
             return startCords;
         }
@@ -173,7 +173,7 @@ std::vector<adjacentTile> buildings::getFreeBuildingTile() const
     {
         if(!this->adjacentTiles[i].occupied && this->adjacentTiles[i].actorId == -1)
         {
-            if(currentGame.isPassable(this->adjacentTiles[i].tileX, this->adjacentTiles[i].tileY))
+            if(currentGame.isPassable(this->adjacentTiles[i].tileCords))
             {
                 tileList.push_back(this->adjacentTiles[i]);
             }
@@ -187,7 +187,7 @@ std::vector<adjacentTile> buildings::getDropOffTiles() const
     std::vector<adjacentTile> tileList;
     for(int i = 0; i < this->adjacentTiles.size(); i++)
     {
-        if(currentGame.isPassable(this->adjacentTiles[i].tileX, this->adjacentTiles[i].tileY))
+        if(currentGame.isPassable(this->adjacentTiles[i].tileCords))
         {
             if (this->adjacentTiles[i].occupied == false) {
                 tileList.push_back(this->adjacentTiles[i]);
@@ -546,11 +546,11 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
         //draw adjecent tiles
         for (adjacentTile const &tile : adjacentTiles) {
             if (tile.occupied) {
-                currentGame.spriteTileObstructed.setPosition(static_cast<float>(worldSpace(tile.tileX, tile.tileY, true)), static_cast<float>(worldSpace(tile.tileX, tile.tileY, false)));
+                currentGame.spriteTileObstructed.setPosition(static_cast<float>(worldSpace(tile.tileCords.x, tile.tileCords.y, true)), static_cast<float>(worldSpace(tile.tileCords.x, tile.tileCords.y, false)));
                 window.draw(currentGame.spriteTileObstructed);
             }
             else {
-                currentGame.spriteSelectedTileForPath.setPosition(static_cast<float>(worldSpace(tile.tileX, tile.tileY, true)), static_cast<float>(worldSpace(tile.tileX, tile.tileY, false)));
+                currentGame.spriteSelectedTileForPath.setPosition(static_cast<float>(worldSpace(tile.tileCords.x, tile.tileCords.y, true)), static_cast<float>(worldSpace(tile.tileCords.x, tile.tileCords.y, false)));
                 window.draw(currentGame.spriteSelectedTileForPath);
             }
             currentGame.spriteUnitSelectedTile.setPosition(static_cast<float>(worldSpace(tile.goalX, tile.goalY, true)), static_cast<float>(worldSpace(tile.goalX, tile.goalY, false)));

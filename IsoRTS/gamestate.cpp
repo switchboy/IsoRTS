@@ -44,8 +44,8 @@ nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId)
     if (!tileList.empty()) {
         for (int j = 0; j < tileList.size(); j++)
         {
-            float tempDeltaDistance = static_cast<float>(dist(listOfActors[actorId].getActorCords().x, listOfActors[actorId].getActorCords().y, tileList[j].tileX, tileList[j].tileY));
-            listOfBuildLocations.push_back({ tempDeltaDistance, tileList[j].tileX, tileList[j].tileY, tileList[j].goalX , tileList[j].goalY, tileList[j].tileId, true });
+            float tempDeltaDistance = static_cast<float>(dist(listOfActors[actorId].getActorCords().x, listOfActors[actorId].getActorCords().y, tileList[j].tileCords.x, tileList[j].tileCords.y));
+            listOfBuildLocations.push_back({ tempDeltaDistance, tileList[j].tileCords.x, tileList[j].tileCords.y, tileList[j].goalX , tileList[j].goalY, tileList[j].tileId, true });
         }
         if (!listOfBuildLocations.empty())
         {
@@ -96,11 +96,16 @@ void gameState::drawMousePosition(int x,int y, bool noProblem)
     }
 }
 
-bool gameState::isPassable(int x, int y) const
+bool gameState::isPassable(cords location) const
 {
     //check if the terrain is passable 1-6 and within map bounds
-    if (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT) {
-        if ((this->currentMap[x][y] > 0 && this->currentMap[x][y] < 7) && this->objectLocationList[x][y] == -1 && this->occupiedByBuildingList[x][y] == -1 && this->occupiedByActorList[x][y] == -1)
+    if (location.x >= 0 && location.x < MAP_WIDTH && location.y >= 0 && location.y < MAP_HEIGHT) {
+        if (
+            (this->currentMap[location.x][location.y] > 0 && this->currentMap[location.x][location.y] < 7) &&
+            this->objectLocationList[location.x][location.y] == -1 &&
+            this->occupiedByBuildingList[location.x][location.y] == -1 &&
+            this->occupiedByActorList[location.x][location.y] == -1
+            )
         {
             return true;
         }
@@ -168,7 +173,7 @@ void gameState::drawGround(int i, int j)
         break;
     }
     if (this->showPaths) {
-        if (!isPassable(i, j)) {
+        if (!isPassable({ i, j })) {
             spriteTileObstructed.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
             window.draw(spriteTileObstructed);
         }
@@ -1289,7 +1294,7 @@ void gameState::clickToGiveCommand()
     this->lastIandJ[0] = 0;
     this->lastIandJ[1] = 0;
     bool actionPreformed = false;
-    if (this->isPassable(this->mouseWorldPosition.x, this->mouseWorldPosition.y))
+    if (this->isPassable(this->mouseWorldPosition))
     {
         actionPreformed = clickToMove({ 0,0 }, false);
     }
@@ -1341,7 +1346,7 @@ void gameState::clickToGiveMinimapCommand()
  }
 
 void gameState::orderRallyPoint() const {
-    if (this->isPassable(this->mouseWorldPosition.x, this->mouseWorldPosition.y))
+    if (this->isPassable(this->mouseWorldPosition))
     {
         listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionMove);
     }
@@ -1666,7 +1671,7 @@ cords gameState::getNextCord(cords pos)
 
     }
 
-    if(currentGame.isPassable(pos.x, pos.y))
+    if(currentGame.isPassable(pos))
     {
         return {pos.x, pos.y};
     }

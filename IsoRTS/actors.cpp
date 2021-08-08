@@ -160,7 +160,7 @@ void updateCells(int goalId, int startId, std::vector<Cells>& cellsList)
             {
                 cellsList[n].obstacle = false;
             }
-            else if (!currentGame.isPassable(i, j))
+            else if (!currentGame.isPassable({ i, j }))
             {
                 cellsList[n].obstacle = true;
             }
@@ -1292,7 +1292,7 @@ void actors::findNearestDropOffPoint()
                         for (int j = 1; j < tileList.size(); j++)
                         {
                             float tempDeltaDistance = static_cast<float>(dist(this->actorCords.x, this->actorCords.y, tileList[j].goalX, tileList[j].goalY));
-                            listOfDropOffLocations.push_back({ tempDeltaDistance, tileList[j].tileX, tileList[j].tileY, tileList[j].goalX, tileList[j].goalY, i, true, tileList[j].tileId });
+                            listOfDropOffLocations.push_back({ tempDeltaDistance, tileList[j].tileCords, tileList[j].goalX, tileList[j].goalY, i, true, tileList[j].tileId });
                         }
                     }
                 }
@@ -1531,28 +1531,28 @@ void actors::fightOrFlight(int idOfAttacker)
                 moveY = 1;
             }
 
-            if (currentGame.isPassable(this->actorCords.x + moveX, this->actorCords.y + moveY)) {
+            if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y + moveY })) {
                 //Then do it!
                 this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y + moveY }, 0);
             }
             else {
                 //try only x
-                if (currentGame.isPassable(this->actorCords.x + moveX, this->actorCords.y)) {
+                if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y })) {
                     //Then do it!
                     this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y }, 0);
                 }
                 else {
                     //try only Y
-                    if (currentGame.isPassable(this->actorCords.x, this->actorCords.y + moveY)) {
+                    if (currentGame.isPassable({ this->actorCords.x, this->actorCords.y + moveY })) {
                         //Then do it!
                         this->updateGoal({ this->actorCords.x, this->actorCords.y + moveY }, 0);
                     }
                     else {
                         //Well, not good, just two options left!
-                        if (currentGame.isPassable(this->actorCords.x - moveX, this->actorCords.y + moveY)) {
+                        if (currentGame.isPassable({ this->actorCords.x - moveX, this->actorCords.y + moveY })) {
                             this->updateGoal({ this->actorCords.x - moveX, this->actorCords.y + moveY }, 0);
                         }
-                        else if (currentGame.isPassable(this->actorCords.x + moveX, this->actorCords.y - moveY)) {
+                        else if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y - moveY })) {
                             this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y - moveY }, 0);
                         }
                         else {

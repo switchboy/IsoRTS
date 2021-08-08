@@ -79,32 +79,32 @@ void objects::drawObjectSprite(objectTypes spriteNumber, int i, int j) const
     switch(spriteNumber)
     {
     case objectTypes::objectCactus:
-        currentGame.spriteCactusTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        currentGame.spriteCactusTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(currentGame.spriteCactusTile);
         break;
     case objectTypes::objectCypress:
-        currentGame.spriteCypressTrileTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        currentGame.spriteCypressTrileTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(currentGame.spriteCypressTrileTile);
         break;
     case objectTypes::objectMaple:
-        currentGame.spriteNormalTreeTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        currentGame.spriteNormalTreeTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(currentGame.spriteNormalTreeTile);
         break;
     case objectTypes::objectPine:
-        currentGame.spritePineTreeTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        currentGame.spritePineTreeTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(currentGame.spritePineTreeTile);
         break;
 
     case objectTypes::objectStone:
-        currentGame.spriteStone.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        currentGame.spriteStone.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(currentGame.spriteStone);
         break;
     case objectTypes::objectGold:
-        currentGame.spriteGold.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        currentGame.spriteGold.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(currentGame.spriteGold);
         break;
     case objectTypes::objectBerry:
-        currentGame.spriteBerryBush.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        currentGame.spriteBerryBush.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(currentGame.spriteBerryBush);
         break;
     }

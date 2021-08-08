@@ -12,8 +12,7 @@ struct adjacentTile
 {
     int tileId;
     cords tileCords;
-    int goalX;
-    int goalY;
+    cords goal;
     bool occupied;
     int actorId;
 };

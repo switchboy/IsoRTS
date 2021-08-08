@@ -21,8 +21,8 @@ int roll(int min, int max);
 bool rectCord (const cords& lhs, const cords& rhs);
 bool compareCord(const cords& lhs, const cords& rhs);
 bool sortCordByX(const cords& lhs, const cords& rhs);
-int worldSpace(int x, int y, bool getX);
-int miniMapSpace(int x, int y, bool getX);
+cords worldSpace(cords location);
+cords miniMapSpace(cords location);
 std::list<cords> getListOfCordsInCircle(int startX, int startY, int r);
 
 double dist(double x1, double y1, double x2, double y2);

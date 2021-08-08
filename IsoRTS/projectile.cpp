@@ -33,8 +33,8 @@ namespace
 
 projectile::projectile(int projectileStartX, int projectileStartY, int projectileTargetX, int projectileTargetY, int projectileType, int damageOnImpact, int splashDamageOnImpact, int firedBy)
 {
-	this->X = static_cast<float>(worldSpace(projectileStartX, projectileStartY, true));
-	this->Y = static_cast<float>(worldSpace(projectileStartX, projectileStartY, false));
+	this->X = static_cast<float>(worldSpace({ projectileStartX, projectileStartY }).x);
+	this->Y = static_cast<float>(worldSpace({ projectileStartX, projectileStartY }).y);
 	this->Z = 0;
 	this->projectileType = projectileType;
 	this->damageOnImpact = damageOnImpact;
@@ -42,8 +42,8 @@ projectile::projectile(int projectileStartX, int projectileStartY, int projectil
 	this->projectilePosition = {projectileStartX, projectileStartY};
 	this->splashDamageOnImpact = splashDamageOnImpact;
 	float travelTimeInSeconds = static_cast<float>(distEuclidean(projectileStartX * 32.f, projectileStartY * 32.f, projectileTargetX * 32.f, projectileTargetY * 32.f)) / 128.f; //32 pixel/s
-	this->deltaX = (this->X - static_cast<float>(worldSpace(this->projectileTarget.x, this->projectileTarget.y, true))) / travelTimeInSeconds;
-	this->deltaY = (this->Y - static_cast<float>(worldSpace(this->projectileTarget.x, this->projectileTarget.y, false))) / travelTimeInSeconds;
+	this->deltaX = (this->X - static_cast<float>(worldSpace({ this->projectileTarget.x, this->projectileTarget.y }).x)) / travelTimeInSeconds;
+	this->deltaY = (this->Y - static_cast<float>(worldSpace({ this->projectileTarget.x, this->projectileTarget.y }).y)) / travelTimeInSeconds;
 	this->deltaZ = travelTimeInSeconds*3;
 	this->timeFired = currentGame.getTime();
 	this->reachedTarget = false;

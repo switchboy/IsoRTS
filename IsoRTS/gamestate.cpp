@@ -45,7 +45,7 @@ nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId)
         for (int j = 0; j < tileList.size(); j++)
         {
             float tempDeltaDistance = static_cast<float>(dist(listOfActors[actorId].getActorCords().x, listOfActors[actorId].getActorCords().y, tileList[j].tileCords.x, tileList[j].tileCords.y));
-            listOfBuildLocations.push_back({ tempDeltaDistance, tileList[j].tileCords.x, tileList[j].tileCords.y, tileList[j].goalX , tileList[j].goalY, tileList[j].tileId, true });
+            listOfBuildLocations.push_back({ tempDeltaDistance, tileList[j].tileCords.x, tileList[j].tileCords.y, tileList[j].goal.x , tileList[j].goal.y, tileList[j].tileId, true });
         }
         if (!listOfBuildLocations.empty())
         {
@@ -86,12 +86,12 @@ void gameState::drawMousePosition(int x,int y, bool noProblem)
 {
     if(noProblem)
     {
-        spriteSelectedTile.setPosition(static_cast<float>(worldSpace(x, y,true)), static_cast<float>(worldSpace(x, y,false)));
+        spriteSelectedTile.setPosition(static_cast<float>(worldSpace({ x, y }).x), static_cast<float>(worldSpace({ x, y }).y));
         window.draw(spriteSelectedTile);
     }
     else
     {
-        spriteTileObstructed.setPosition(static_cast<float>(worldSpace(x, y,true)), static_cast<float>(worldSpace(x, y,false)));
+        spriteTileObstructed.setPosition(static_cast<float>(worldSpace({ x, y }).x), static_cast<float>(worldSpace({ x, y }).y));
         window.draw(spriteTileObstructed);
     }
 }
@@ -124,57 +124,57 @@ void gameState::drawGround(int i, int j)
     switch(currentGame.currentMap[i][j])
     {
     case 0:
-        spriteEmptyTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteEmptyTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteEmptyTile);
         break;
     case 1:
-        spriteGrassTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteGrassTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteGrassTile);
         break;
     case 2:
-        spriteSandTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteSandTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteSandTile);
         break;
     case 3:
-        spriteSandTileNE.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteSandTileNE.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteSandTileNE);
         break;
     case 4:
-        spriteSandTileNW.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteSandTileNW.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteSandTileNW);
         break;
     case 5:
-        spriteSandTileSE.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteSandTileSE.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteSandTileSE);
         break;
     case 6:
-        spriteSandTileSW.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteSandTileSW.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteSandTileSW);
         break;
     case 7:
-        spriteWaterTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteWaterTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteWaterTile);
         break;
     case 8:
-        spriteBeachTileNE.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteBeachTileNE.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteBeachTileNE);
         break;
     case 9:
-        spriteBeachTileNW.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteBeachTileNW.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteBeachTileNW);
         break;
     case 10:
-        spriteBeachTileSE.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteBeachTileSE.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteBeachTileSE);
         break;
     case 11:
-        spriteBeachTileSW.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteBeachTileSW.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteBeachTileSW);
         break;
     }
     if (this->showPaths) {
         if (!isPassable({ i, j })) {
-            spriteTileObstructed.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
+            spriteTileObstructed.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
             window.draw(spriteTileObstructed);
         }
     }
@@ -244,7 +244,7 @@ void gameState::drawMap()
                 drawGround(i, j);
             }
             else {
-                spriteBlackTile.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
+                spriteBlackTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
                 window.draw(spriteBlackTile);
             }
         }
@@ -263,7 +263,7 @@ void gameState::drawMap()
         for (int i = lowX; i < highX; i++)
         {
             if (this->visability[i][j] <= 1) {
-                spriteMistTile.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
+                spriteMistTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
                 window.draw(spriteMistTile);
             }
         }
@@ -1712,7 +1712,7 @@ void drawMiniMapBackground(sf::RectangleShape& miniMapPixel)
             for(int i = 0; i < MAP_WIDTH; i++ )
             {
                 miniMapPixel.setFillColor(colors[currentGame.currentMap[i][j]]);
-                miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
+                miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
                 minimapTexture.draw(miniMapPixel);
             }
 
@@ -1734,7 +1734,7 @@ void drawMiniMapBuildings(sf::RectangleShape& miniMapPixel)
                 if(currentGame.occupiedByBuildingList[i][j] != -1)
                 {
                     miniMapPixel.setFillColor(teamColors[listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam()]);
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
                     minimapBuildingsTexture.draw(miniMapPixel);
                 }
             }
@@ -1755,7 +1755,7 @@ void gameState::drawMiniMapActors(sf::RectangleShape& miniMapPixel)
                 if (currentGame.occupiedByActorList[i][j] != -1)
                 {
                     miniMapPixel.setFillColor(teamColors[listOfActors[currentGame.occupiedByActorList[i][j]].getTeam()]);
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
                     minimapActorsTexture.draw(miniMapPixel);
                 }
             }
@@ -1777,11 +1777,11 @@ void gameState::drawMiniMapMist(sf::RectangleShape& miniMapPixel)
             for (int i = 0; i < MAP_WIDTH; i++)
             {
                 if (this->visability[i][j] == 0) {
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
                     minimapMistTexture.draw(miniMapPixel);
                 }
                 else if (this->visability[i][j] == 1) {
-                    miniMapPixelTL.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
+                    miniMapPixelTL.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
                     minimapMistTexture.draw(miniMapPixelTL);
                 }
             }
@@ -1808,7 +1808,7 @@ void drawMiniMapObjects(sf::RectangleShape& miniMapPixel)
             if(currentGame.objectLocationList[i][j] != -1)
             {
                 miniMapPixel.setFillColor(resourceColors[static_cast<int>(listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource())]);
-                miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
+                miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
                 minimapObjectsTexture.draw(miniMapPixel);
             }
         }

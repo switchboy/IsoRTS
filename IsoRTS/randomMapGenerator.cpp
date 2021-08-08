@@ -253,8 +253,8 @@ namespace
 	void centerViewOnVillager() {
 		for (int i = 0; i < listOfActors.size(); i++) {
 			if (listOfActors[i].getTeam() == currentPlayer.getTeam()) {
-				viewOffsetX = worldSpace(listOfActors[i].getActorCords().x, listOfActors[i].getActorCords().y, true);
-				viewOffsetY = worldSpace(listOfActors[i].getActorCords().x, listOfActors[i].getActorCords().y, false);
+				viewOffsetX = worldSpace(listOfActors[i].getActorCords()).x;
+				viewOffsetY = worldSpace(listOfActors[i].getActorCords()).y;
 			}
 		}
 	}

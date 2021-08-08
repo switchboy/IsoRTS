@@ -31,32 +31,18 @@ bool rectCord(const cords& lhs, const cords& rhs)
     return (lhs.y<rhs.y);
 }
 
-int worldSpace(int x, int y, bool getX)
+cords worldSpace(cords location)
 {
-    int wX = mapOffsetX*64 + ((x - y) * (64/2));
-    int wY = mapOffsetY*32 + ((x + y) * (32/2));
-    if(getX)
-    {
-        return wX;
-    }
-    else
-    {
-        return wY;
-    }
+    int wX = mapOffsetX*64 + ((location.x - location.y) * (64/2));
+    int wY = mapOffsetY*32 + ((location.x + location.y) * (32/2));
+    return { wX, wY };
 }
 
-int miniMapSpace(int x, int y, bool getX)
+cords miniMapSpace(cords location)
 {
-    int wX = mapOffsetX*20 + (x - y) * (20/2);
-    int wY = mapOffsetY*10 + (x + y) * (10/2);
-    if(getX)
-    {
-        return wX;
-    }
-    else
-    {
-        return wY;
-    }
+    int wX = mapOffsetX*20 + (location.x - location.y) * (20/2);
+    int wY = mapOffsetY*10 + (location.x + location.y) * (10/2);
+    return { wX, wY };
 }
 
 std::list<cords> getListOfCordsInCircle(int startX, int startY, int r)

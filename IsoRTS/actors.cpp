@@ -1291,8 +1291,8 @@ void actors::findNearestDropOffPoint()
                         std::vector<adjacentTile> tileList = listOfBuildings[i].getDropOffTiles();
                         for (int j = 1; j < tileList.size(); j++)
                         {
-                            float tempDeltaDistance = static_cast<float>(dist(this->actorCords.x, this->actorCords.y, tileList[j].goalX, tileList[j].goalY));
-                            listOfDropOffLocations.push_back({ tempDeltaDistance, tileList[j].tileCords, tileList[j].goalX, tileList[j].goalY, i, true, tileList[j].tileId });
+                            float tempDeltaDistance = static_cast<float>(dist(this->actorCords.x, this->actorCords.y, tileList[j].goal.x, tileList[j].goal.y));
+                            listOfDropOffLocations.push_back({ tempDeltaDistance, tileList[j].tileCords, tileList[j].goal.x, tileList[j].goal.y, i, true, tileList[j].tileId });
                         }
                     }
                 }
@@ -1685,8 +1685,7 @@ void actors::drawActor()
     int j = this->actorCords.y;
     int x = this->actorGoal.x;
     int y = this->actorGoal.y;
-    int xPosition = worldSpace(i,j,true);
-    int yPosition = worldSpace(i,j,false);
+    cords position = worldSpace({ i,j });
     int spriteXoffset = 0;
     int spriteYoffset = 0;
 
@@ -1703,15 +1702,13 @@ void actors::drawActor()
         }
         if (this->busyWalking)
         {
-            int nXPosition = worldSpace(x, y, true);
-            int nYPosition = worldSpace(x, y, false);
-            int deltaX = xPosition - nXPosition;
-            int deltaY = yPosition - nYPosition;
+            cords nPosition = worldSpace({ x, y });
+            int deltaX = position.x - nPosition.x;
+            int deltaY = position.y - nPosition.y;
             float deltaTime = currentGame.elapsedTime - this->timeLastUpdate;
             float deltaXCompleted = deltaX * deltaTime;
             float deltaYCompleted = deltaY * deltaTime;
-            xPosition = xPosition - static_cast<int>(deltaXCompleted);
-            yPosition = yPosition - static_cast<int>(deltaYCompleted);
+            position = { position.x - static_cast<int>(deltaXCompleted),  position.y - static_cast<int>(deltaYCompleted) };
         }
     }
     else if(this->isAtRecource)
@@ -1794,19 +1791,18 @@ void actors::drawActor()
         spriteXoffset = 0 + spriteOffset;
         break;
     }
-    xPosition = xPosition + static_cast<int>(this->offSetX);
-    yPosition = yPosition + static_cast<int>(this->offSetY);
+    position = { position.x + static_cast<int>(this->offSetX), position.y + static_cast<int>(this->offSetY) };
 
     bool drawHealth = false;
 
     if(currentGame.isInSelectedActors(this->actorId))
     {
-        currentGame.spriteUnitSelectedTile.setPosition(static_cast<float>(xPosition), static_cast<float>(yPosition));
+        currentGame.spriteUnitSelectedTile.setPosition(static_cast<float>(position.x), static_cast<float>(position.y));
         window.draw(currentGame.spriteUnitSelectedTile);
         drawHealth = true;
         if (!this->listOfOrders.empty() && this->actorTeam == currentPlayer.getTeam()) {
             for (const orderStack order : this->listOfOrders) {
-                currentGame.spriteFlag.setPosition(static_cast<float>(worldSpace(order.goal.x, order.goal.y, true)), static_cast<float>(worldSpace(order.goal.x, order.goal.y, false)));
+                currentGame.spriteFlag.setPosition(static_cast<float>(worldSpace(order.goal).x), static_cast<float>(worldSpace(order.goal).y));
                 window.draw(currentGame.spriteFlag);
             }
         }
@@ -1820,12 +1816,12 @@ void actors::drawActor()
     switch (this->actorType) 
     {
     case 0:
-        currentGame.spriteVillager.setPosition(static_cast<float>(xPosition), static_cast<float>(yPosition));
+        currentGame.spriteVillager.setPosition(static_cast<float>(position.x), static_cast<float>(position.y));
         currentGame.spriteVillager.setTextureRect(sf::IntRect(spriteXoffset, spriteYoffset, 16, 32));
         window.draw(currentGame.spriteVillager);
         break;
     case 1:
-        currentGame.spriteSwordsman.setPosition(static_cast<float>(xPosition), static_cast<float>(yPosition));
+        currentGame.spriteSwordsman.setPosition(static_cast<float>(position.x), static_cast<float>(position.y));
         currentGame.spriteSwordsman.setTextureRect(sf::IntRect(spriteXoffset, spriteYoffset, 16, 32));
         window.draw(currentGame.spriteSwordsman);
     }
@@ -1835,8 +1831,8 @@ void actors::drawActor()
         currentGame.healthBarBackground.setSize(sf::Vector2f(32, 3));
         currentGame.healthBarGreenBar.setFillColor(sf::Color(0, 255, 0));
         currentGame.healthBarGreenBar.setSize(sf::Vector2f((static_cast<float>(this->actorHealth) / static_cast<float>(this->hitPoints)) * 32, 3));
-        currentGame.healthBarBackground.setPosition(static_cast<float>(xPosition+16), static_cast<float>(yPosition-28));
-        currentGame.healthBarGreenBar.setPosition(static_cast<float>(xPosition+16), static_cast<float>(yPosition-28));
+        currentGame.healthBarBackground.setPosition(static_cast<float>(position.x+16), static_cast<float>(position.y-28));
+        currentGame.healthBarGreenBar.setPosition(static_cast<float>(position.x+16), static_cast<float>(position.y-28));
         window.draw(currentGame.healthBarBackground);
         window.draw(currentGame.healthBarGreenBar);
 
@@ -1915,7 +1911,7 @@ void actors::renderPath()
     std::list<routeCell>::iterator it;
     for(it = route.begin(); it!=route.end(); it++)
     {
-        currentGame.spriteSelectedTileForPath.setPosition(static_cast<float>(worldSpace(it->position.x, it->position.y, true)), static_cast<float>(worldSpace(it->position.x, it->position.y, false)));
+        currentGame.spriteSelectedTileForPath.setPosition(static_cast<float>(worldSpace(it->position).x), static_cast<float>(worldSpace(it->position).y));
         window.draw(currentGame.spriteSelectedTileForPath);
     }
 }

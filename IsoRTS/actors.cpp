@@ -468,9 +468,6 @@ void actors::searchAltetnative() {
                 this->isWalkingToUnloadingPoint = true;
                 this->dropOffTile = listOfDropOffLocations.front();
             }
-            else if (this->isGatheringRecources) {
-                this->actionPreformedOnTile = this->listOfResourceLocations.front().location;
-            }
             this->listOfDropOffLocations.clear();
             this->listOfResourceLocations.clear();
         }

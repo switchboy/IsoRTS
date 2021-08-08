@@ -521,7 +521,6 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
         window.draw(currentGame.spriteBuildingMiningCamp);
     }
 
-    /*
     //Redraw possible overdrawn sprites
     if(!typeOverride)
     {
@@ -529,10 +528,12 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
         {
             for(int y = 1; y < footprintOfBuildings[this->buildingType].amountOfYFootprint; y++)
             {
-                currentGame.drawThingsOnTile(i+k, j-y);
+                if (currentGame.visability[i + k][j - y] > 0) {
+                    currentGame.drawThingsOnTile(i + k, j - y);
+                }
             }
         }
-    }*/
+    }
 
     //Draw rally point if set
     if (currentGame.buildingIsSelected(this->buildingId)) {

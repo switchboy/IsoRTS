@@ -141,11 +141,12 @@ public:
     sf::RectangleShape healthBarBackground;
     sf::RectangleShape healthBarGreenBar;
 
-    std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> currentMap;
     std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> buildingLocationList;
+    std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> currentMap;
     std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> objectLocationList;
     std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> occupiedByBuildingList;
     std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> occupiedByActorList;
+    std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> visability;
 
 
     bool showPaths;
@@ -185,7 +186,6 @@ private:
     int startLocation[2];
     int startMouseCords[2];
     int toolBarWidth;
-    std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH>  visability;
 
     cords mouseWorldPosition;
     sf::Event event;

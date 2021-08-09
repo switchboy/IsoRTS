@@ -18,6 +18,7 @@
 sf::RenderTexture minimapBuildingsTexture;
 sf::RenderTexture minimapActorsTexture;
 sf::RenderTexture minimapMistTexture;
+std::array<sf::RenderTexture, 16> minimapMistSectors;
 sf::RenderTexture minimapObjectsTexture;
 
 bool noNewBuildings;
@@ -1591,6 +1592,11 @@ void gameState::selectUnit(int id)
     this->selectedUnits.push_back(id);
 }
 
+void gameState::setObjectsHaveChanged()
+{
+    this->objectsChanged = true;
+}
+
 void gameState::drawMouseInteraction()
 {
     if(this->mousePressedLeft && !this->mousePressOutofWorld)
@@ -1686,39 +1692,42 @@ int gameState::getPlayerCount() const
     return players;
 }
 
-void drawMiniMapBackground(sf::RectangleShape& miniMapPixel)
+void gameState::drawMiniMapBackground(sf::RectangleShape& miniMapPixel)
 {
-    static const sf::Color colors[] =
-    {
-        {0, 0, 0},
-        {152, 205, 115},
-        {200, 160, 80},
-        {200, 160, 80},
-        {200, 160, 80},
-        {200, 160, 80},
-        {200, 160, 80},
-        {69, 164, 208},
-        {69, 164, 208},
-        {69, 164, 208},
-        {69, 164, 208},
-        {69, 164, 208}
-    };
-
-    if(!minimapTextureExist)
-    {
-        minimapTexture.clear(sf::Color(0,0,0,0));
-        for(int j = 0; j < MAP_HEIGHT; j++)
+    if (!this->miniMapBackGroundDrawn) {
+        static const sf::Color colors[] =
         {
-            for(int i = 0; i < MAP_WIDTH; i++ )
-            {
-                miniMapPixel.setFillColor(colors[currentGame.currentMap[i][j]]);
-                miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
-                minimapTexture.draw(miniMapPixel);
-            }
+            {0, 0, 0},
+            {152, 205, 115},
+            {200, 160, 80},
+            {200, 160, 80},
+            {200, 160, 80},
+            {200, 160, 80},
+            {200, 160, 80},
+            {69, 164, 208},
+            {69, 164, 208},
+            {69, 164, 208},
+            {69, 164, 208},
+            {69, 164, 208}
+        };
 
+        if (!minimapTextureExist)
+        {
+            minimapTexture.clear(sf::Color(0, 0, 0, 0));
+            for (int j = 0; j < MAP_HEIGHT; j++)
+            {
+                for (int i = 0; i < MAP_WIDTH; i++)
+                {
+                    miniMapPixel.setFillColor(colors[currentGame.currentMap[i][j]]);
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
+                    minimapTexture.draw(miniMapPixel);
+                }
+
+            }
+            minimapTexture.display();
+            minimapTextureExist = true;
         }
-        minimapTexture.display();
-        minimapTextureExist = true;
+        this->miniMapBackGroundDrawn = true;
     }
 }
 
@@ -1751,7 +1760,7 @@ void gameState::drawMiniMapActors(sf::RectangleShape& miniMapPixel)
     {
         for(int i = 0; i < MAP_WIDTH; i++ )
         {
-            if (this->visability[i][j] > 1) {
+            if (this->visability[i][j] == 2) {
                 if (currentGame.occupiedByActorList[i][j] != -1)
                 {
                     miniMapPixel.setFillColor(teamColors[listOfActors[currentGame.occupiedByActorList[i][j]].getTeam()]);
@@ -1766,54 +1775,102 @@ void gameState::drawMiniMapActors(sf::RectangleShape& miniMapPixel)
 
 void gameState::drawMiniMapMist(sf::RectangleShape& miniMapPixel)
 {
-    if (this->lastMistDraw + 1 < this->elapsedTime) {
+    if (this->lastMistDraw + 0.05f < this->elapsedTime || !this->fogOfWarDrawnOnce) {           //make the fog of war update every two seconds to reduce system load
+        //Reset textures and set fill colors
+        sf::Sprite fogMap;
         sf::RectangleShape miniMapPixelTL(sf::Vector2f(20.f, 10.f));
         miniMapPixel.setFillColor(sf::Color(0, 0, 0));
         miniMapPixelTL.setFillColor(sf::Color(0, 0, 0, 75));
         minimapMistTexture.clear(sf::Color(0, 0, 0, 0));
+        minimapMistSectors.at(this->lastFogOfWarSectorUpdated).clear(sf::Color(0, 0, 0, 0));
         this->lastMistDraw = this->elapsedTime;
-        for (int j = 0; j < MAP_HEIGHT; j++)
+
+        //Determine the bounderies of the sector to be drawn
+        int drawStartX = 0;
+        int drawStartY = 0;
+        if (this->lastFogOfWarSectorUpdated <= 3) {
+            drawStartX = this->lastFogOfWarSectorUpdated * spaceBetweenFogOfWarSectorsOnXAxis;
+            drawStartY = 0;
+        }
+        else if (this->lastFogOfWarSectorUpdated > 3 && this->lastFogOfWarSectorUpdated <= 7) {
+            drawStartX = (this->lastFogOfWarSectorUpdated - 4) * spaceBetweenFogOfWarSectorsOnXAxis;
+            drawStartY = spaceBetweenFogOfWarSectorsOnYAxis;
+        }
+        else if (this->lastFogOfWarSectorUpdated > 7 && this->lastFogOfWarSectorUpdated <= 11) {
+            drawStartX = (this->lastFogOfWarSectorUpdated - 8) * spaceBetweenFogOfWarSectorsOnXAxis;
+            drawStartY = spaceBetweenFogOfWarSectorsOnYAxis*2;
+        }
+        else if (this->lastFogOfWarSectorUpdated > 11 && this->lastFogOfWarSectorUpdated <= 15) {
+            drawStartX = (this->lastFogOfWarSectorUpdated - 12) * spaceBetweenFogOfWarSectorsOnXAxis;
+            drawStartY = spaceBetweenFogOfWarSectorsOnYAxis*3;
+        }
+        int drawEndX = drawStartX + spaceBetweenFogOfWarSectorsOnXAxis;
+        int drawEndY = drawStartY + spaceBetweenFogOfWarSectorsOnYAxis;
+
+        //Draw the sector
+        for (int j = drawStartY; j < drawEndY; j++)
         {
-            for (int i = 0; i < MAP_WIDTH; i++)
+            for (int i = drawStartX; i < drawEndX; i++)
             {
-                if (this->visability[i][j] == 0) {
+                if (this->visability[i][j] == 0) {              //not visible so overlay black tile
                     miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
-                    minimapMistTexture.draw(miniMapPixel);
+                    minimapMistSectors.at(this->lastFogOfWarSectorUpdated).draw(miniMapPixel);
+                    //minimapMistTexture.draw(miniMapPixel);
                 }
-                else if (this->visability[i][j] == 1) {
+                else if (this->visability[i][j] == 1) {         //in shadow so overlay transparent tile
                     miniMapPixelTL.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
-                    minimapMistTexture.draw(miniMapPixelTL);
-                }
+                    minimapMistSectors.at(this->lastFogOfWarSectorUpdated).draw(miniMapPixelTL);
+                    //minimapMistTexture.draw(miniMapPixel);
+                }                                               //if visability is 2 then that spot is visable so don't do anything
+
             }
+        }
+
+        //Combine new sector of the map with the other sectors. Somehow i need to invert the Y-axis of the sprite and I am not sure why. It works normaly if I draw to miniMapMistTexture directly instead of miniMapSectors?
+        for (int i = 0; i < minimapMistSectors.size(); i++) {
+            fogMap.setTexture(minimapMistSectors.at(i).getTexture());
+            fogMap.setOrigin((20 * MAP_WIDTH)/2, (10 * MAP_HEIGHT)/2);
+            fogMap.setPosition((20 * MAP_WIDTH) / 2, (10 * MAP_HEIGHT) / 2);
+            fogMap.setScale(1.f, -1.f);
+            minimapMistTexture.draw(fogMap);
+        }
+
+        //Move the sector iterator
+        this->lastFogOfWarSectorUpdated++;
+        if (this->lastFogOfWarSectorUpdated > 15) {
+            this->lastFogOfWarSectorUpdated = 0;
         }
     }
     minimapMistTexture.display();
 }
 
-void drawMiniMapObjects(sf::RectangleShape& miniMapPixel)
+void gameState::drawMiniMapObjects(sf::RectangleShape& miniMapPixel)
 {
-    static const sf::Color resourceColors[] =
-    {
-        {33, 77, 33}, //Wood
-        {150, 88, 88}, //Food
-        {65, 65, 65}, //Stone
-        {110, 90, 0} //Gold
-    };
-
-    minimapObjectsTexture.clear(sf::Color(0,0,0,0));
-    for(int j = 0; j < MAP_HEIGHT; j++)
-    {
-        for(int i = 0; i < MAP_WIDTH; i++ )
+    if (this->objectsChanged) {
+        static const sf::Color resourceColors[] =
         {
-            if(currentGame.objectLocationList[i][j] != -1)
+            {33, 77, 33}, //Wood
+            {150, 88, 88}, //Food
+            {65, 65, 65}, //Stone
+            {110, 90, 0} //Gold
+        };
+
+        minimapObjectsTexture.clear(sf::Color(0, 0, 0, 0));
+        for (int j = 0; j < MAP_HEIGHT; j++)
+        {
+            for (int i = 0; i < MAP_WIDTH; i++)
             {
-                miniMapPixel.setFillColor(resourceColors[static_cast<int>(listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource())]);
-                miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
-                minimapObjectsTexture.draw(miniMapPixel);
+                if (currentGame.objectLocationList[i][j] != -1)
+                {
+                    miniMapPixel.setFillColor(resourceColors[static_cast<int>(listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource())]);
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
+                    minimapObjectsTexture.draw(miniMapPixel);
+                }
             }
         }
+        minimapObjectsTexture.display();
+        this->objectsChanged = false;
     }
-    minimapObjectsTexture.display();
 }
 
 void gameState::drawMiniMap()
@@ -1826,10 +1883,10 @@ void gameState::drawMiniMap()
         drawMiniMapBackground(miniMapPixel);
         drawMiniMapObjects(miniMapPixel);
         drawMiniMapBuildings(miniMapPixel);
-        drawMiniMapMist(miniMapPixel);
         drawMiniMapActors(miniMapPixel);
         this->lastMiniMapRefresh = this->elapsedTime;
     }
+    drawMiniMapMist(miniMapPixel);
 
     miniMapBackground.setTexture(minimapTexture.getTexture());
     miniMapBackground.setScale(this->miniMapWidth/(20*MAP_WIDTH), this->miniMapHeigth/(10*MAP_HEIGHT));
@@ -1843,7 +1900,6 @@ void gameState::drawMiniMap()
     miniMapBackground.setScale(this->miniMapWidth/(20*MAP_WIDTH), this->miniMapHeigth/(10*MAP_HEIGHT));
     window.draw(miniMapBackground);
 
-    
     miniMapBackground.setTexture(minimapActorsTexture.getTexture());
     miniMapBackground.setScale(this->miniMapWidth / (20 * MAP_WIDTH), this->miniMapHeigth / (10 * MAP_HEIGHT));
     window.draw(miniMapBackground);
@@ -2514,6 +2570,10 @@ void gameState::loadMap()
         }
     }
     generateRandomMap(this->players,16,16,16,5,0);
+    sf::RectangleShape miniMapPixel(sf::Vector2f(20.f, 10.f));
+    for (int i = 0; i < minimapMistSectors.size(); i++) {
+        drawMiniMapMist(miniMapPixel);
+    }
 }
 
 void gameState::loadBuildings()
@@ -2573,6 +2633,9 @@ void createMiniMapTexture()
     minimapTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
     minimapActorsTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
     minimapMistTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
+    for (int i = 0; i < minimapMistSectors.size(); i++) {
+        minimapMistSectors.at(i).create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
+    }
     minimapObjectsTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
     minimapBuildingsTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
 }

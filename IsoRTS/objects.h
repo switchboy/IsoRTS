@@ -18,6 +18,7 @@ public:
     }
     objects(objectTypes type, cords location, int objectId);
 
+    void            destroyObject();
     void            drawObjectFootprint(objectTypes type, cords mouseWorld) const;
     void            drawObject(int i, int j) const;
     void            drawObjectSprite(objectTypes spriteNumber, int i, int j) const;

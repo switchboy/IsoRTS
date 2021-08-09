@@ -350,8 +350,13 @@ struct possibleBuildTile {
 };
 
 bool checkIfEmpty(cords tile) {
-	if (currentGame.occupiedByBuildingList[tile.x][tile.y] == -1 && currentGame.objectLocationList[tile.x][tile.y] == -1) {
-		return true;
+	if (tile.x >= 0 && tile.x < MAP_WIDTH && tile.y >= 0 && tile.y < MAP_HEIGHT) {
+		if (currentGame.occupiedByBuildingList[tile.x][tile.y] == -1 && currentGame.objectLocationList[tile.x][tile.y] == -1) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	else {
 		return false;

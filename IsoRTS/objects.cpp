@@ -39,7 +39,7 @@ objects::objects(objectTypes type, cords location, int objectId)
         this->resourceLeft = 200;
         break;
     case resourceTypes::resourceFood:
-        this->resourceLeft = 500;
+        this->resourceLeft = 5000;
         break;
     case resourceTypes::resourceStone:
         this->resourceLeft = 2000;
@@ -49,6 +49,7 @@ objects::objects(objectTypes type, cords location, int objectId)
         break;
     }
     currentGame.objectLocationList[location.x][location.y] = objectId;
+    currentGame.setObjectsHaveChanged();
 }
 
 void objects::substractResource()
@@ -56,7 +57,7 @@ void objects::substractResource()
     this->resourceLeft -= 1;
     if(resourceLeft <= 0)
     {
-        currentGame.objectLocationList[this->location.x][this->location.y] = -1;
+        this->destroyObject();
     }
 }
 
@@ -169,6 +170,12 @@ std::string objects::nameOfResource() const
     default:
         return "undefined";
     }
+}
+
+void objects::destroyObject()
+{
+    currentGame.objectLocationList[this->location.x][this->location.y] = -1;
+    currentGame.setObjectsHaveChanged();
 }
 
 void objects::drawObjectFootprint(objectTypes type, cords mouseWorld) const

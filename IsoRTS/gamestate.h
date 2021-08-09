@@ -88,7 +88,9 @@ public:
     void drawMap();
     void drawMiniMap();
     void drawMiniMapActors(sf::RectangleShape& miniMapPixel);
+    void drawMiniMapBackground(sf::RectangleShape& miniMapPixel);
     void drawMiniMapMist(sf::RectangleShape& miniMapPixel);
+    void drawMiniMapObjects(sf::RectangleShape& miniMapPixel);
     void drawMouseBox();
     void drawMouseInteraction();
     void drawMousePosition(int x, int y, bool noProblem);
@@ -111,6 +113,7 @@ public:
     void mouseRightClick();
     void orderRallyPoint() const;
     void selectUnit(int id);
+    void setObjectsHaveChanged();
 
     cords getNextCord(cords pos);
     float getTime() const;
@@ -157,6 +160,7 @@ private:
     bool equalIsPressed;
     bool firstRound;
     bool focus;
+    bool fogOfWarDrawnOnce = false;
     bool isPlacingBuilding;
     bool isPressedA;
     bool isPressedB;
@@ -164,13 +168,15 @@ private:
     bool isPressedS;
     bool isPressedShift;
     bool isPressedTab;
+    bool miniMapBackGroundDrawn = false;
     bool mousePressedLeft;
     bool mousePressedRight;
     bool mousePressOutofWorld;
     bool noFogOfWar;
+    bool objectsChanged = true;
     bool roundDone;
-    float lastFogOfWarUpdated = -1.0f;
-    float lastMistDraw = -1.0f;
+    float lastFogOfWarUpdated = -0.75f;
+    float lastMistDraw = -0.5f;
     float lastMiniMapRefresh = -1.0f;
     float miniMapHeigth;
     float miniMapWidth;
@@ -179,6 +185,7 @@ private:
     float viewBoxY;
     int buildingTypeSelected;
     int lastIandJ[2];
+    int lastFogOfWarSectorUpdated = 0;
     int mapPixelHeigth;
     int mapPixelWidth;
     int objectTypeSelected;
@@ -208,6 +215,8 @@ private:
     const int startBarX = static_cast<int>(round(iconStartX + static_cast<float>(mainWindowWidth / 5.0f)));
     const int startBarY = static_cast<int>(round(iconStartY + static_cast<float>(mainWindowHeigth / 46.9f)));
     const int totalBarLength = static_cast<int>(round(static_cast<float>(mainWindowWidth / 6.4f)));
+    const int spaceBetweenFogOfWarSectorsOnXAxis = MAP_WIDTH / 4;
+    const int spaceBetweenFogOfWarSectorsOnYAxis = MAP_HEIGHT / 4;
 
 };
 

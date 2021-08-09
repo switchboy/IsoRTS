@@ -1875,11 +1875,11 @@ void createVillagerButtons(int startX, int startY, int incrementalXOffset,  bool
 
         listOfButtons.push_back({ startX, startY, spriteTypes::spriteBarracks, actionTypes::actionBuildBarracks, 0, static_cast<int>(listOfButtons.size()), 0 });
 
-        villagerButtonsAreThere = true;
+        villagerButtonsAreThere = true;//TODO: this variable assignment is useless?
         startX = startXOr;
         startY += incrementalXOffset;
         listOfButtons.push_back({ startX, startY, spriteTypes::spriteMiningCamp, actionTypes::actionBuildMiningCamp, 0, static_cast<int>(listOfButtons.size()), 0 });
-        villagerButtonsAreThere = true;
+        villagerButtonsAreThere = true;//TODO: this variable assignment is useless?
     }
 }
 
@@ -1900,12 +1900,12 @@ void addActorSelectorButton(int actorId, int startDeck, int tempY, int startY, i
     listOfButtons.push_back({ startDeck, tempY, static_cast<spriteTypes>(buttonType), actionTypes::actionUnitSelect, actorId, static_cast<int>(listOfButtons.size()), 0 });
     if (tempY == startY)
     {
-        tempY += incrementalYOffset;
+        tempY += incrementalYOffset;//TODO: this variable assignment is useless?
     }
     else
     {
-        startDeck += offSetToNextCard;
-        tempY = startY;
+        startDeck += offSetToNextCard;//TODO: this variable assignment is useless?
+        tempY = startY;//TODO: this variable assignment is useless?
     }
 }
 
@@ -2347,8 +2347,8 @@ void gameState::drawToolbar()
 {
     listOfButtons.clear();
     window.setView(toolBar);
-    int startX = this->preCalcStartX;
-    int startY = this->preCalcStartY;
+    int startX = this->preCalcStartX;//TODO: this variable assignment is useless?
+    int startY = this->preCalcStartY;//TODO: this variable assignment is useless?
     int tempY = startY;  
     int spriteYOffset = 0;
     int cardDeckSize = static_cast<int>(mainWindowWidth / 1.82);

@@ -54,8 +54,8 @@ public:
     int                     getAmountOfAnimationSprites() const;
     actorOrBuildingPrice    getPriceOfBuilding() const;
     footprintOfBuilding     getBuildingFootprint() const;
-    sf::Sprite              getBuildingSprite();
-    sf::Texture             getBuildingTexture();
+    sf::Sprite              getBuildingSprite();//TODO: should this return an sf::Sprite& instead?
+    sf::Texture             getBuildingTexture();//TODO: should this return an sf::Texture& instead?
     std::string             getBuildingName() const; 
 
     //setters

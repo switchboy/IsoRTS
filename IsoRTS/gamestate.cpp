@@ -1775,7 +1775,7 @@ void gameState::drawMiniMapActors(sf::RectangleShape& miniMapPixel)
 
 void gameState::drawMiniMapMist(sf::RectangleShape& miniMapPixel)
 {
-    if (this->lastMistDraw + 0.05f < this->elapsedTime || !this->fogOfWarDrawnOnce) {           //make the fog of war update every two seconds to reduce system load
+    if (this->lastMistDraw + 0.2f < this->elapsedTime || !this->fogOfWarDrawnOnce) {           //make the fog of war update every 3 seconds to reduce system load
         //Reset textures and set fill colors
         sf::Sprite fogMap;
         sf::RectangleShape miniMapPixelTL(sf::Vector2f(20.f, 10.f));

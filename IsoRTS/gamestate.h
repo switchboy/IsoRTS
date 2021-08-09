@@ -185,7 +185,7 @@ private:
     float viewBoxY;
     int buildingTypeSelected;
     int lastIandJ[2];
-    int lastFogOfWarSectorUpdated = 0;
+    int lastFogOfWarMinimapSectorUpdated = 0;
     int mapPixelHeigth;
     int mapPixelWidth;
     int objectTypeSelected;

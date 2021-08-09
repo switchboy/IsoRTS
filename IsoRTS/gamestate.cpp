@@ -1782,26 +1782,26 @@ void gameState::drawMiniMapMist(sf::RectangleShape& miniMapPixel)
         miniMapPixel.setFillColor(sf::Color(0, 0, 0));
         miniMapPixelTL.setFillColor(sf::Color(0, 0, 0, 75));
         minimapMistTexture.clear(sf::Color(0, 0, 0, 0));
-        minimapMistSectors.at(this->lastFogOfWarSectorUpdated).clear(sf::Color(0, 0, 0, 0));
+        minimapMistSectors.at(this->lastFogOfWarMinimapSectorUpdated).clear(sf::Color(0, 0, 0, 0));
         this->lastMistDraw = this->elapsedTime;
 
         //Determine the bounderies of the sector to be drawn
         int drawStartX = 0;
         int drawStartY = 0;
-        if (this->lastFogOfWarSectorUpdated <= 3) {
-            drawStartX = this->lastFogOfWarSectorUpdated * spaceBetweenFogOfWarSectorsOnXAxis;
+        if (this->lastFogOfWarMinimapSectorUpdated <= 3) {
+            drawStartX = this->lastFogOfWarMinimapSectorUpdated * spaceBetweenFogOfWarSectorsOnXAxis;
             drawStartY = 0;
         }
-        else if (this->lastFogOfWarSectorUpdated > 3 && this->lastFogOfWarSectorUpdated <= 7) {
-            drawStartX = (this->lastFogOfWarSectorUpdated - 4) * spaceBetweenFogOfWarSectorsOnXAxis;
+        else if (this->lastFogOfWarMinimapSectorUpdated > 3 && this->lastFogOfWarMinimapSectorUpdated <= 7) {
+            drawStartX = (this->lastFogOfWarMinimapSectorUpdated - 4) * spaceBetweenFogOfWarSectorsOnXAxis;
             drawStartY = spaceBetweenFogOfWarSectorsOnYAxis;
         }
-        else if (this->lastFogOfWarSectorUpdated > 7 && this->lastFogOfWarSectorUpdated <= 11) {
-            drawStartX = (this->lastFogOfWarSectorUpdated - 8) * spaceBetweenFogOfWarSectorsOnXAxis;
+        else if (this->lastFogOfWarMinimapSectorUpdated > 7 && this->lastFogOfWarMinimapSectorUpdated <= 11) {
+            drawStartX = (this->lastFogOfWarMinimapSectorUpdated - 8) * spaceBetweenFogOfWarSectorsOnXAxis;
             drawStartY = spaceBetweenFogOfWarSectorsOnYAxis*2;
         }
-        else if (this->lastFogOfWarSectorUpdated > 11 && this->lastFogOfWarSectorUpdated <= 15) {
-            drawStartX = (this->lastFogOfWarSectorUpdated - 12) * spaceBetweenFogOfWarSectorsOnXAxis;
+        else if (this->lastFogOfWarMinimapSectorUpdated > 11 && this->lastFogOfWarMinimapSectorUpdated <= 15) {
+            drawStartX = (this->lastFogOfWarMinimapSectorUpdated - 12) * spaceBetweenFogOfWarSectorsOnXAxis;
             drawStartY = spaceBetweenFogOfWarSectorsOnYAxis*3;
         }
         int drawEndX = drawStartX + spaceBetweenFogOfWarSectorsOnXAxis;
@@ -1814,12 +1814,12 @@ void gameState::drawMiniMapMist(sf::RectangleShape& miniMapPixel)
             {
                 if (this->visability[i][j] == 0) {              //not visible so overlay black tile
                     miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
-                    minimapMistSectors.at(this->lastFogOfWarSectorUpdated).draw(miniMapPixel);
+                    minimapMistSectors.at(this->lastFogOfWarMinimapSectorUpdated).draw(miniMapPixel);
                     //minimapMistTexture.draw(miniMapPixel);
                 }
                 else if (this->visability[i][j] == 1) {         //in shadow so overlay transparent tile
                     miniMapPixelTL.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
-                    minimapMistSectors.at(this->lastFogOfWarSectorUpdated).draw(miniMapPixelTL);
+                    minimapMistSectors.at(this->lastFogOfWarMinimapSectorUpdated).draw(miniMapPixelTL);
                     //minimapMistTexture.draw(miniMapPixel);
                 }                                               //if visability is 2 then that spot is visable so don't do anything
 
@@ -1836,9 +1836,9 @@ void gameState::drawMiniMapMist(sf::RectangleShape& miniMapPixel)
         }
 
         //Move the sector iterator
-        this->lastFogOfWarSectorUpdated++;
-        if (this->lastFogOfWarSectorUpdated > 15) {
-            this->lastFogOfWarSectorUpdated = 0;
+        this->lastFogOfWarMinimapSectorUpdated++;
+        if (this->lastFogOfWarMinimapSectorUpdated > 15) {
+            this->lastFogOfWarMinimapSectorUpdated = 0;
         }
     }
     minimapMistTexture.display();

@@ -618,7 +618,15 @@ void actors::takeDamage(int amountOfDamage, int idOfAttacker)
 
 void actors::killActor() {
     this->actorAlive = false;
-    currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y] = -1;
+    for (auto& rows : currentGame.occupiedByActorList)
+    {
+        for (auto& elem : rows)
+        {
+            if (elem == this->actorId) {
+                elem = -1;
+            }
+        }
+    }
 }
 
 int actors::getType() const

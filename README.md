@@ -1,6 +1,8 @@
 # isoRTS
 isomorphic RTS
 
+<img src=https://user-images.githubusercontent.com/16579757/128768337-17b38c06-759e-46d1-a263-4dfee538ca70.png>
+
 The project goals that have been reached:
 - Create a custom game engine based upon an isomorphic projection.
 - Have actors move around in this world by issuing mouse commands.
@@ -23,6 +25,8 @@ The project goals that have been reached:
 - A basic Rock/Paper/Scissors for damage calculations during battle
 - Basic AI to play against
 
+<img src=https://user-images.githubusercontent.com/16579757/128767803-cf248db7-f597-475d-b153-8283cd44e3f4.png>
+
 Attainable project goals for the near future:
 - Fighting animations
 - Different units
@@ -30,6 +34,8 @@ Attainable project goals for the near future:
 - Researchable upgrades for units and buildings
 - Flesh out the research with a tech tree
 - Add sounds
+
+<img src=https://user-images.githubusercontent.com/16579757/128768503-89e79c33-156f-4b35-9873-d3eb9ecb2153.png>
 
 Aim for the moon project goal:
 - Working netcode to play against friends!

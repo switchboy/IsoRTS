@@ -229,6 +229,7 @@ bool gameState::buildingIsSelected(int id) const
 
 void gameState::drawMap()
 {
+
     int lowX = toWorldMousePosition(viewOffsetX - (mainWindowWidth / 2), static_cast<int>(viewOffsetY - ((mainWindowWidth * 0.8) / 2))).x;
     int highX = toWorldMousePosition(viewOffsetX + (mainWindowWidth / 2), static_cast<int>(viewOffsetY + ((mainWindowWidth * 0.8) / 2))).x;
     int lowY = toWorldMousePosition(viewOffsetX, viewOffsetY - (mainWindowWidth / 2)).y;
@@ -247,6 +248,7 @@ void gameState::drawMap()
             else {
                 spriteBlackTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
                 window.draw(spriteBlackTile);
+
             }
         }
     }
@@ -257,6 +259,7 @@ void gameState::drawMap()
             if (this->visability[i][j] > 0) {
                 drawThingsOnTile(i, j);
             }
+           
         }
     }
     for (int j = lowY; j < highY; j++)
@@ -2643,6 +2646,22 @@ void gameState::createFogOfWar()
                         for (const cords& cord : tempList)
                         {
                             this->visability[cord.x][cord.y] = 2;
+                        }
+                    }
+                }
+            }
+            for (int i = 1; i < listOfBuildings.size(); i++) {
+                if (listOfBuildings[i].getTeam() == currentPlayer.getTeam()) {
+                    int visRadius = 1;
+                    if (listOfBuildings[i].getCompleted()) {
+                        visRadius = 8;
+                    }
+                    std::list<cords> buidlingFootprint = listOfBuildings[i].getFootprintOfBuilding();
+                    for (const cords& footprintTile : buidlingFootprint) {
+                        std::list<cords> tempList = getListOfCordsInCircle(footprintTile.x, footprintTile.y, visRadius);
+                        for (const cords& cord : tempList)
+                        {
+                            this->visability[(cord.x * MAP_HEIGHT) + cord.y] = 2;
                         }
                     }
                 }

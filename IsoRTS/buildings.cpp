@@ -5,9 +5,7 @@
 #include "player.h"
 #include "projectile.h"
 
-std::vector<actorOrBuildingPrice> priceOfBuilding;
 std::vector<buildings>            listOfBuildings;
-std::vector<footprintOfBuilding>  footprintOfBuildings;
 
 namespace
 {
@@ -140,7 +138,7 @@ void buildings::fillAdjacentTiles()
         }
     }
     //The row left and right of the building
-    for(int i =  this->startLocation.y-footprintOfBuildings[this->buildingType].amountOfYFootprint+1; i <=  this->startLocation.y; i++)
+    for(int i =  this->startLocation.y- listOfBuildingTemplates[this->buildingType].getBuildingFootprint().amountOfYFootprint+1; i <=  this->startLocation.y; i++)
     {
         if(i >= 0 && i <= MAP_HEIGHT)
         {
@@ -228,9 +226,9 @@ void buildings::removeBuilding()
 {
     this->exists = false;
     currentGame.buildingLocationList[this->startLocation.x][this->startLocation.y] = -1;
-    for(int i = 0; i < footprintOfBuildings[this->buildingType].amountOfXFootprint; i++)
+    for(int i = 0; i < listOfBuildingTemplates[this->buildingType].getBuildingFootprint().amountOfXFootprint; i++)
     {
-        for(int j = 0; j < footprintOfBuildings[this->buildingType].amountOfYFootprint; j++)
+        for(int j = 0; j < listOfBuildingTemplates[this->buildingType].getBuildingFootprint().amountOfYFootprint; j++)
         {
             currentGame.occupiedByBuildingList[startLocation.x-i][startLocation.y-j] = -1;
         }
@@ -246,7 +244,7 @@ buildings::buildings(int type, cords startLocation, int buildingId, int team)
 {
     this->buildingType = type;
     this->startLocation = startLocation;
-    this->endLocation = { this->startLocation.x - footprintOfBuildings[this->buildingType].amountOfXFootprint + 1, this->startLocation.y - footprintOfBuildings[this->buildingType].amountOfYFootprint + 1 };
+    this->endLocation = { this->startLocation.x - listOfBuildingTemplates[this->buildingType].getBuildingFootprint().amountOfXFootprint + 1, this->startLocation.y - listOfBuildingTemplates[this->buildingType].getBuildingFootprint().amountOfYFootprint + 1 };
     this->buildingId = buildingId;
     this->ownedByPlayer = team;
     this->buildingCompleted = false;
@@ -256,137 +254,30 @@ buildings::buildings(int type, cords startLocation, int buildingId, int team)
     this->lastFrameUpdate = currentGame.getTime();
     this->hasDisplayedError = false;
     currentGame.buildingLocationList[startLocation.x][startLocation.y] = buildingId;
-    for(int i = 0; i < footprintOfBuildings[type].amountOfXFootprint; i++)
+    for(int i = 0; i < listOfBuildingTemplates[type].getBuildingFootprint().amountOfXFootprint; i++)
     {
-        for(int j = 0; j < footprintOfBuildings[type].amountOfYFootprint; j++)
+        for(int j = 0; j < listOfBuildingTemplates[type].getBuildingFootprint().amountOfYFootprint; j++)
         {
             currentGame.occupiedByBuildingList[startLocation.x-i][startLocation.y-j] = buildingId;
         }
     }
-    noNewBuildings = false;
-    switch(type)
-    {
-    case 0:
-        //house
-        hitPointsTotal = 450;
-        hitPointsLeft = 450;
-        canDoRangedDamage = false;
-        amountOfRangedDamage = 0;
-        range = 0;
-        recievesWood = false;
-        recievesStone= false;
-        recievesGold = false;
-        recievesFood = false;
-        buildingPointsNeeded = 25;
-        buildingPointsRecieved = 0;
-        supportsPopulationOf = 5;
-        this->offSetYStore = 1;
-        this->amountOfAnimationSprites = 0;
-        break;
-    case 1:
-        //towncenter
-        hitPointsTotal = 5000;
-        hitPointsLeft = 5000;
-        canDoRangedDamage = true;
-        amountOfRangedDamage = 10;
-        range = 4;
-        recievesWood = true;
-        recievesStone= true;
-        recievesGold = true;
-        recievesFood = true;
-        buildingPointsNeeded = 150;
-        buildingPointsRecieved = 0;
-        supportsPopulationOf = 5;
-        this->offSetYStore = 1;
-        this->amountOfAnimationSprites = 0;
-        break;
-    case 2:
-        //Mill
-        hitPointsTotal = 350;
-        hitPointsLeft = 350;
-        canDoRangedDamage = false;
-        amountOfRangedDamage = 0;
-        range = 0;
-        recievesWood = false;
-        recievesStone = false;
-        recievesGold = false;
-        recievesFood = true;
-        buildingPointsNeeded = 25;
-        buildingPointsRecieved = 0;
-        supportsPopulationOf = 0;
-        this->offSetYStore = 1;
-        this->amountOfAnimationSprites = 8;
-        break;
-    case 3:
-        //Lumbercamp
-        hitPointsTotal = 250;
-        hitPointsLeft = 250;
-        canDoRangedDamage = false;
-        amountOfRangedDamage = 0;
-        range = 0;
-        recievesWood = true;
-        recievesStone = false;
-        recievesGold = false;
-        recievesFood = false;
-        buildingPointsNeeded = 25;
-        buildingPointsRecieved = 0;
-        supportsPopulationOf = 0;
-        this->offSetYStore = 1;
-        this->amountOfAnimationSprites = 8;
-        break;
-    case 4:
-        //Barracks
-        hitPointsTotal = 500;
-        hitPointsLeft = 500;
-        canDoRangedDamage = false;
-        amountOfRangedDamage = 0;
-        range = 0;
-        recievesWood = false;
-        recievesStone = false;
-        recievesGold = false;
-        recievesFood = false;
-        buildingPointsNeeded = 50;
-        buildingPointsRecieved = 0;
-        supportsPopulationOf = 0;
-        this->offSetYStore = 1;
-        this->amountOfAnimationSprites = 0;
-        break;
-    case 5:
-        //MiningCampStone
-        hitPointsTotal = 250;
-        hitPointsLeft = 250;
-        canDoRangedDamage = false;
-        amountOfRangedDamage = 0;
-        range = 0;
-        recievesWood = false;
-        recievesStone = true;
-        recievesGold = true;
-        recievesFood = false;
-        buildingPointsNeeded = 25;
-        buildingPointsRecieved = 0;
-        supportsPopulationOf = 0;
-        this->offSetYStore = 1;
-        this->amountOfAnimationSprites = 8;
-        break;
-    case 6:
-        //MiningCampGold
-        hitPointsTotal = 250;
-        hitPointsLeft = 250;
-        canDoRangedDamage = false;
-        amountOfRangedDamage = 0;
-        range = 0;
-        recievesWood = false;
-        recievesStone = true;
-        recievesGold = true;
-        recievesFood = false;
-        buildingPointsNeeded = 25;
-        buildingPointsRecieved = 0;
-        supportsPopulationOf = 0;
-        this->offSetYStore = 1;
-        this->amountOfAnimationSprites = 8;
-        break;
-    }
+    this->buildingPointsRecieved = 0;
+    this->hitPointsTotal = listOfBuildingTemplates[type].getHitPointsTotal();
+    this->hitPointsLeft = listOfBuildingTemplates[type].getHitPointsTotal();
+    this->canDoRangedDamage = listOfBuildingTemplates[type].getCanDoRangedDamage();
+    this->amountOfRangedDamage = listOfBuildingTemplates[type].getAmountOfRangedDamage();
+    this->range = listOfBuildingTemplates[type].getRange();
+    this->recievesWood = listOfBuildingTemplates[type].getRecievesWood();
+    this->recievesStone = listOfBuildingTemplates[type].getRecievesStone();
+    this->recievesGold = listOfBuildingTemplates[type].getRecievesGold();
+    this->recievesFood = listOfBuildingTemplates[type].getRecievesFood();
+    this->buildingPointsNeeded = listOfBuildingTemplates[type].getBuildingPointsNeeded();
+    this->supportsPopulationOf = listOfBuildingTemplates[type].getSupportsPopulationOf();
+    this->offSetYStore = listOfBuildingTemplates[type].getOffSetYStore();
+    this->amountOfAnimationSprites = listOfBuildingTemplates[type].getAmountOfAnimationSprites();
+    this->buildingName = listOfBuildingTemplates[type].getBuildingName();
     fillAdjacentTiles();
+    noNewBuildings = false;
 }
 
 int buildings::getTeam() const
@@ -477,56 +368,18 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
         offsetY = 1;
         transparant = 128;
     }
-    switch(type)
-    {
-    case 0:
-        currentGame.spriteBuildingHouse.setTextureRect(sf::IntRect(0, currentGame.spriteBuildingHouse.getTextureRect().height*offsetY, currentGame.spriteBuildingHouse.getTextureRect().width, currentGame.spriteBuildingHouse.getTextureRect().height));
-        currentGame.spriteBuildingHouse.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        currentGame.spriteBuildingHouse.setColor(sf::Color(255, 255, 255, transparant));
-        window.draw(currentGame.spriteBuildingHouse);
-        break;
-    case 1:
-        currentGame.spriteTownCenter.setTextureRect(sf::IntRect(0, currentGame.spriteTownCenter.getTextureRect().height*offsetY, currentGame.spriteTownCenter.getTextureRect().width, currentGame.spriteTownCenter.getTextureRect().height));
-        currentGame.spriteTownCenter.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        currentGame.spriteTownCenter.setColor(sf::Color(255, 255, 255, transparant));
-        window.draw(currentGame.spriteTownCenter);
-        break;
-    case 2:
-        currentGame.spriteBuildingMill.setTextureRect(sf::IntRect(0, currentGame.spriteBuildingMill.getTextureRect().height * offsetY, currentGame.spriteBuildingMill.getTextureRect().width, currentGame.spriteBuildingMill.getTextureRect().height));
-        currentGame.spriteBuildingMill.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        currentGame.spriteBuildingMill.setColor(sf::Color(255, 255, 255, transparant));
-        window.draw(currentGame.spriteBuildingMill);
-        break;
-    case 3:
-        currentGame.spriteBuildingLumberCamp.setTextureRect(sf::IntRect(0, currentGame.spriteBuildingLumberCamp.getTextureRect().height * offsetY, currentGame.spriteBuildingLumberCamp.getTextureRect().width, currentGame.spriteBuildingLumberCamp.getTextureRect().height));
-        currentGame.spriteBuildingLumberCamp.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        currentGame.spriteBuildingLumberCamp.setColor(sf::Color(255, 255, 255, transparant));
-        window.draw(currentGame.spriteBuildingLumberCamp);
-        break;
-    case 4:
-        currentGame.spriteBuildingBarracks.setTextureRect(sf::IntRect(0, currentGame.spriteBuildingBarracks.getTextureRect().height * offsetY, currentGame.spriteBuildingBarracks.getTextureRect().width, currentGame.spriteBuildingBarracks.getTextureRect().height));
-        currentGame.spriteBuildingBarracks.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        currentGame.spriteBuildingBarracks.setColor(sf::Color(255, 255, 255, transparant));
-        window.draw(currentGame.spriteBuildingBarracks);
-        break;
-    case 5:
-        currentGame.spriteBuildingMiningCamp.setTextureRect(sf::IntRect(0, currentGame.spriteBuildingMiningCamp.getTextureRect().height * offsetY, currentGame.spriteBuildingMiningCamp.getTextureRect().width, currentGame.spriteBuildingMiningCamp.getTextureRect().height));
-        currentGame.spriteBuildingMiningCamp.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        currentGame.spriteBuildingMiningCamp.setColor(sf::Color(255, 255, 255, transparant));
-        window.draw(currentGame.spriteBuildingMiningCamp);
-    case 6:
-        currentGame.spriteBuildingMiningCamp.setTextureRect(sf::IntRect(0, currentGame.spriteBuildingMiningCamp.getTextureRect().height * offsetY, currentGame.spriteBuildingMiningCamp.getTextureRect().width, currentGame.spriteBuildingMiningCamp.getTextureRect().height));
-        currentGame.spriteBuildingMiningCamp.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        currentGame.spriteBuildingMiningCamp.setColor(sf::Color(255, 255, 255, transparant));
-        window.draw(currentGame.spriteBuildingMiningCamp);
-    }
+
+    listOfBuildingTemplates[type].setSpriteTextureRect(sf::IntRect(0, listOfBuildingTemplates[type].getBuildingSprite().getTextureRect().height * offsetY, listOfBuildingTemplates[type].getBuildingSprite().getTextureRect().width, listOfBuildingTemplates[type].getBuildingSprite().getTextureRect().height));
+    listOfBuildingTemplates[type].setSpritePosition(worldSpace({ i,j }));
+    listOfBuildingTemplates[type].setSpriteColor(sf::Color(255, 255, 255, transparant));
+    window.draw(listOfBuildingTemplates[type].getBuildingSprite());
 
     //Redraw possible overdrawn sprites
     if(!typeOverride)
     {
         for(int k = 1; k < 4; k++)
         {
-            for(int y = 1; y < footprintOfBuildings[this->buildingType].amountOfYFootprint; y++)
+            for(int y = 1; y < listOfBuildingTemplates[this->buildingType].getBuildingFootprint().amountOfYFootprint; y++)
             {
                 if (currentGame.visability[i + k][j - y] > 0) {
                     currentGame.drawThingsOnTile(i + k, j - y);
@@ -562,24 +415,7 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
 
 std::string buildings::getName() const
 {
-    switch(this->buildingType)
-    {
-    case 0:
-        return "House";
-    case 1:
-        return "Town Center";
-    case 2:
-        return "Mill";
-    case 3:
-        return "Lumber Camp";
-    case 4:
-        return "Barracks";
-    case 5:
-        return "Mining Camp";
-    default: 
-        return "Building Name Label";
-    }
-
+    return this->buildingName;
 }
 
 std::pair<int, int> buildings::getHealth() const
@@ -604,12 +440,12 @@ void buildings::setRallyPoint(cords goal, stackOrderTypes orderType)
 
 void buildings::drawBuildingFootprint(int type, cords mouseWorld)
 {
-    if(!(mouseWorld.x-footprintOfBuildings[0].amountOfXFootprint < -1) && !(mouseWorld.y-footprintOfBuildings[0].amountOfYFootprint < -1) && !(mouseWorld.x >= MAP_WIDTH) && !(mouseWorld.y >= MAP_HEIGHT))
+    if(!(mouseWorld.x- listOfBuildingTemplates[type].getBuildingFootprint().amountOfXFootprint < -1) && !(mouseWorld.y- listOfBuildingTemplates[type].getBuildingFootprint().amountOfYFootprint < -1) && !(mouseWorld.x >= MAP_WIDTH) && !(mouseWorld.y >= MAP_HEIGHT))
     {
         drawBuilding(mouseWorld.x, mouseWorld.y, type, true);
-        for(int i = 0; i < footprintOfBuildings[type].amountOfXFootprint; i++)
+        for(int i = 0; i < listOfBuildingTemplates[type].getBuildingFootprint().amountOfXFootprint; i++)
         {
-            for(int j = 0; j < footprintOfBuildings[type].amountOfYFootprint; j++)
+            for(int j = 0; j < listOfBuildingTemplates[type].getBuildingFootprint().amountOfYFootprint; j++)
             {
                 if(
                     currentGame.occupiedByBuildingList[mouseWorld.x-i][mouseWorld.y-j] != -1 ||
@@ -656,8 +492,8 @@ bool buildings::hasTask() const
 
 std::list<cords> buildings::getFootprintOfBuilding() const {
     std::list<cords> tempList;
-    for (int x = this->startLocation.x; x > this->startLocation.x - footprintOfBuildings[this->buildingType].amountOfXFootprint; x--) {
-        for (int y = this->startLocation.y; y > this->startLocation.y - footprintOfBuildings[this->buildingType].amountOfYFootprint; y--) {
+    for (int x = this->startLocation.x; x > this->startLocation.x - listOfBuildingTemplates[this->buildingType].getBuildingFootprint().amountOfXFootprint; x--) {
+        for (int y = this->startLocation.y; y > this->startLocation.y - listOfBuildingTemplates[this->buildingType].getBuildingFootprint().amountOfYFootprint; y--) {
             tempList.push_back({ x, y });
         }
     }

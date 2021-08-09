@@ -6,11 +6,7 @@
 //#include "humanReadableNames.h"
 #include "gamestate.h"
 
-struct footprintOfBuilding
-{
-    int amountOfXFootprint;
-    int amountOfYFootprint;
-};
+
 
 struct buildingQueue
 {
@@ -121,9 +117,9 @@ private:
     int                         supportsPopulationOf;
     std::vector<adjacentTile>   adjacentTiles;
     orderContainer              rallyPoint;
+    std::string                 buildingName;
 };
 
 extern std::vector<buildings>           listOfBuildings;
-extern std::vector<footprintOfBuilding> footprintOfBuildings;
 extern bool                             noNewBuildings;
 #endif // BUILDINGS_H

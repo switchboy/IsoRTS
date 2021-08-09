@@ -356,65 +356,7 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: tileObstructed.png \n" << std::endl;
     }
-    if(textureBuildingHouse.loadFromFile("textures/house.png"))
-    {
-        spriteBuildingHouse.setTexture(textureBuildingHouse);
-        spriteBuildingHouse.setTextureRect(sf::IntRect(0,0,128,128));
-        spriteBuildingHouse.setOrigin(32,96);
-    }
-    else
-    {
-        std::cout << "Error loading texture: house.png \n" << std::endl;
-    }
-
-
-    if (textureBuildingMill.loadFromFile("textures/mill.png"))
-    {
-        spriteBuildingMill.setTexture(textureBuildingMill);
-        spriteBuildingMill.setTextureRect(sf::IntRect(0, 0, 192, 192));
-        spriteBuildingMill.setOrigin(64, 160);
-    }
-    else
-    {
-        std::cout << "Error loading texture: mill.png \n" << std::endl;
-    }
-
-
-    if (textureBuildingLumberCamp.loadFromFile("textures/lumbercamp.png"))
-    {
-        spriteBuildingLumberCamp.setTexture(textureBuildingLumberCamp);
-        spriteBuildingLumberCamp.setTextureRect(sf::IntRect(0, 0, 192, 192));
-        spriteBuildingLumberCamp.setOrigin(64, 160);
-    }
-    else
-    {
-        std::cout << "Error loading texture: lumbercamp.png \n" << std::endl;
-    }
-
-    if (textureBuildingMiningCamp.loadFromFile("textures/miningCamp.png"))
-    {
-        spriteBuildingMiningCamp.setTexture(textureBuildingMiningCamp);
-        spriteBuildingMiningCamp.setTextureRect(sf::IntRect(0, 0, 192, 192));
-        spriteBuildingMiningCamp.setOrigin(64, 160);
-    }
-    else
-    {
-        std::cout << "Error loading texture: lumbercamp.png \n" << std::endl;
-    }
-
-
-
-    if (textureBuildingBarracks.loadFromFile("textures/barracks.png"))
-    {
-        spriteBuildingBarracks.setTexture(textureBuildingBarracks);
-        spriteBuildingBarracks.setTextureRect(sf::IntRect(0, 0, 192, 192));
-        spriteBuildingBarracks.setOrigin(64, 160);
-    }
-    else
-    {
-        std::cout << "Error loading texture: lumbercamp.png \n" << std::endl;
-    }
-
+    
 
     if(texturePineTreeTile.loadFromFile("textures/pineTree.png"))
     {
@@ -447,16 +389,7 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: cypressTree.png \n" << std::endl;
     }
-    if(textureTownCenter.loadFromFile("textures/townCenter.png"))
-    {
-        spriteTownCenter.setTexture(textureTownCenter);
-        spriteTownCenter.setTextureRect(sf::IntRect(0,0,256,256));
-        spriteTownCenter.setOrigin(96,224);
-    }
-    else
-    {
-        std::cout << "Error loading texture: townCenter.png \n" << std::endl;
-    }
+    
     if(textureCactusTile.loadFromFile("textures/cactus.png"))
     {
         spriteCactusTile.setTexture(textureCactusTile);
@@ -844,14 +777,14 @@ void gameState::clickUIButton() const {
 }
 
 void gameState::clickToPlaceBuilding() {
-    if (!(this->mouseWorldPosition.x - footprintOfBuildings[this->buildingTypeSelected].amountOfXFootprint < -1) && !(this->mouseWorldPosition.y - footprintOfBuildings[this->buildingTypeSelected].amountOfYFootprint < -1) && !(this->mouseWorldPosition.x >= MAP_WIDTH) && !(this->mouseWorldPosition.y >= MAP_HEIGHT))
+    if (!(this->mouseWorldPosition.x - listOfBuildingTemplates[this->buildingTypeSelected].getBuildingFootprint().amountOfXFootprint < -1) && !(this->mouseWorldPosition.y - listOfBuildingTemplates[this->buildingTypeSelected].getBuildingFootprint().amountOfYFootprint < -1) && !(this->mouseWorldPosition.x >= MAP_WIDTH) && !(this->mouseWorldPosition.y >= MAP_HEIGHT))
     {
         //check of het gebouw hier kan staan:
         bool buildingPlacable = true;
 
-        for (int i = 0; i < footprintOfBuildings[this->buildingTypeSelected].amountOfXFootprint; i++)
+        for (int i = 0; i < listOfBuildingTemplates[this->buildingTypeSelected].getBuildingFootprint().amountOfXFootprint; i++)
         {
-            for (int j = 0; j < footprintOfBuildings[this->buildingTypeSelected].amountOfYFootprint; j++)
+            for (int j = 0; j < listOfBuildingTemplates[this->buildingTypeSelected].getBuildingFootprint().amountOfYFootprint; j++)
             {
                 if (
                     this->occupiedByBuildingList[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j] != -1 || 
@@ -871,10 +804,10 @@ void gameState::clickToPlaceBuilding() {
             listOfBuildings.push_back(newBuilding);
             if (this->isPlacingBuilding)
             {
-                currentPlayer.substractResources(resourceTypes::resourceWood, priceOfBuilding[this->buildingTypeSelected].wood);
-                currentPlayer.substractResources(resourceTypes::resourceFood, priceOfBuilding[this->buildingTypeSelected].food);
-                currentPlayer.substractResources(resourceTypes::resourceStone, priceOfBuilding[this->buildingTypeSelected].stone);
-                currentPlayer.substractResources(resourceTypes::resourceGold, priceOfBuilding[this->buildingTypeSelected].gold);
+                currentPlayer.substractResources(resourceTypes::resourceWood, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().wood);
+                currentPlayer.substractResources(resourceTypes::resourceFood, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().food);
+                currentPlayer.substractResources(resourceTypes::resourceStone, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().stone);
+                currentPlayer.substractResources(resourceTypes::resourceGold, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().gold);
                 for (int i = 0; i < this->selectedUnits.size(); i++)
                 {
                     nearestBuildingTile tempTile = findNearestBuildingTile(this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y], this->selectedUnits[i]);
@@ -2574,32 +2507,6 @@ void gameState::loadMap()
     for (int i = 0; i < minimapMistSectors.size(); i++) {
         drawMiniMapMist(miniMapPixel);
     }
-}
-
-void gameState::loadBuildings()
-{
-    //food, wood, stone, gold
-    //house 0
-    footprintOfBuildings.push_back({2,2});
-    priceOfBuilding.push_back({0,25,0,0});
-    //towncenter 1
-    footprintOfBuildings.push_back({4,4});
-    priceOfBuilding.push_back({0,300,100,0});
-    //mill 2
-    footprintOfBuildings.push_back({ 3,3 });
-    priceOfBuilding.push_back({ 0,100,0,0 });
-    //Lumbercamp 3
-    footprintOfBuildings.push_back({ 3,3 });
-    priceOfBuilding.push_back({ 0,100,0,0 });
-    //barracks 4
-    footprintOfBuildings.push_back({ 3,3 });
-    priceOfBuilding.push_back({ 0,175,0,0 });
-    //Mining camp 5
-    footprintOfBuildings.push_back({ 3,3 });
-    priceOfBuilding.push_back({ 0,100,0,0 });
-    //Mining camp 6
-    footprintOfBuildings.push_back({ 3,3 });
-    priceOfBuilding.push_back({ 0,100,0,0 });
 }
 
 void loadActors()

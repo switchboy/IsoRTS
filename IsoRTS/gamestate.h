@@ -8,6 +8,7 @@
 #include "button.h"
 #include "globalfunctions.h"
 #include "humanReadableNames.h"
+#include "templateBuildings.h"
 
 struct adjacentTile
 {
@@ -18,16 +19,6 @@ struct adjacentTile
     int actorId;
 };
 
-struct actorOrBuildingPrice
-{
-    int food;
-    int wood;
-    int stone;
-    int gold;
-    int productionPoints;
-};
-
-extern std::vector<actorOrBuildingPrice> priceOfBuilding;
 extern std::vector<actorOrBuildingPrice> priceOfActor;
 
 extern int mainWindowWidth;
@@ -104,7 +95,6 @@ public:
     void edgeScrolling() const;
     void getDefinitiveSelection();
     void interact();
-    void loadBuildings();
     void loadFonts();
     void loadGame();
     void loadMap();
@@ -129,17 +119,16 @@ public:
 
     sf::Font font;
     sf::Text text;
-    sf::Sprite  spriteSelectedTile,spriteSelectedTileForPath, spriteEmptyTile, spriteGrassTile, spriteSandTile, spriteSandTileNE, spriteBuildingMill, spriteBuildingLumberCamp, spriteBuildingBarracks,
-    spriteSandTileNW,spriteSandTileSE,spriteSandTileSW, spriteCactusTile, spriteCypressTrileTile, spriteBigSelectedIcon, spriteSwordsman, spriteCommandCursor, spriteBuildingMiningCamp,
-    spriteNormalTreeTile, spritePineTreeTile, spriteTileObstructed, spriteTownCenter, spriteBlackTile, spriteArrow, spriteFlag,
-    spriteStone, spriteGold, spriteBerryBush, spriteUIButton, spriteUnitSelectedTile, spriteMistTile,
-    spriteWaterTile, spriteBeachTileNE, spriteBeachTileNW,spriteBeachTileSE,spriteBeachTileSW, spriteBuildingHouse, spriteVillager, spriteTotalBackground;
+    sf::Sprite  spriteSelectedTile,spriteSelectedTileForPath, spriteEmptyTile, spriteGrassTile, spriteSandTile, spriteSandTileNE, 
+    spriteSandTileNW,spriteSandTileSE,spriteSandTileSW, spriteCactusTile, spriteCypressTrileTile, spriteBigSelectedIcon, spriteSwordsman, spriteCommandCursor, 
+    spriteNormalTreeTile, spritePineTreeTile, spriteTileObstructed, spriteBlackTile, spriteArrow, spriteFlag,
+    spriteStone, spriteGold, spriteBerryBush, spriteUIButton, spriteUnitSelectedTile, spriteMistTile, spriteWaterTile, spriteBeachTileNE, spriteBeachTileNW,spriteBeachTileSE,spriteBeachTileSW, spriteVillager, spriteTotalBackground;
 
-    sf::Texture textureSelectedTile, textureSelectedTileForPath, textureEmptyTile, textureGrassTile, textureSandTile, textureSandTileNE, textureBuildingMill, textureBuildingLumberCamp, textureBuildingBarracks, textureSwordsman,
-    textureSandTileNW,textureSandTileSE,textureSandTileSW, textureCactusTile, textureCypressTrileTile, textureBigSelectedIcon, textureBlackTile, textureCommandCursor, textureBuildingMiningCamp,
+    sf::Texture textureSelectedTile, textureSelectedTileForPath, textureEmptyTile, textureGrassTile, textureSandTile, textureSandTileNE, textureSwordsman,
+    textureSandTileNW,textureSandTileSE,textureSandTileSW, textureCactusTile, textureCypressTrileTile, textureBigSelectedIcon, textureBlackTile, textureCommandCursor,
     textureNormalTreeTile, texturePineTreeTile, textureCheatTile, textureTileObstructed, textureTownCenter, textureMistTile, textureArrow, textureFlag,
     textureStone, textureGold, textureBerryBush, textureUIButton, textureUnitSelectedTile,
-    textureWaterTile, textureBeachTileNE, textureBeachTileNW,textureBeachTileSE, textureBeachTileSW, textureBuildingHouse, textureVillager, textureTotalBackground;
+    textureWaterTile, textureBeachTileNE, textureBeachTileNW,textureBeachTileSE, textureBeachTileSW, textureVillager, textureTotalBackground;
     sf::RectangleShape selectionRectangle;
     sf::RectangleShape healthBarBackground;
     sf::RectangleShape healthBarGreenBar;

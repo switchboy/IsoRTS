@@ -45,10 +45,10 @@ void simpleAI::buildBuilding(int buildingId, cords buildingCords)
 {
 	buildings newBuilding(buildingId, buildingCords, static_cast<int>(listOfBuildings.size()), this->playerId);
 	listOfBuildings.push_back(newBuilding);
-	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceWood, priceOfBuilding[buildingId].wood);
-	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceFood, priceOfBuilding[buildingId].food);
-	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceStone, priceOfBuilding[buildingId].stone);
-	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceGold, priceOfBuilding[buildingId].gold);
+	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceWood, listOfBuildingTemplates[buildingId].getPriceOfBuilding().wood);
+	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceFood, listOfBuildingTemplates[buildingId].getPriceOfBuilding().food);
+	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceStone, listOfBuildingTemplates[buildingId].getPriceOfBuilding().stone);
+	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceGold, listOfBuildingTemplates[buildingId].getPriceOfBuilding().gold);
 }
 
 void simpleAI::moveCommandUnit(int unitId, cords targetCords)
@@ -151,7 +151,7 @@ cords findResource(resourceTypes kind, int unitId ) {
 void simpleAI::buildBuildingNearUnlessBuilding(int buildingId, int idleVillagerId, int nearResource) {
 	int idOfUnfinishedHousing = isBuildingThereButIncomplete(buildingId);
 	if (idOfUnfinishedHousing == -1) {
-		if (priceOfBuilding[buildingId].food <= listOfPlayers[this->playerId].getStats().amountOfFood && priceOfBuilding[buildingId].wood <= listOfPlayers[this->playerId].getStats().amountOfWood && priceOfBuilding[buildingId].stone <= listOfPlayers[this->playerId].getStats().amountOfStone && priceOfBuilding[buildingId].gold <= listOfPlayers[this->playerId].getStats().amountOfGold) {
+		if (listOfBuildingTemplates[buildingId].getPriceOfBuilding().food <= listOfPlayers[this->playerId].getStats().amountOfFood && listOfBuildingTemplates[buildingId].getPriceOfBuilding().wood <= listOfPlayers[this->playerId].getStats().amountOfWood && listOfBuildingTemplates[buildingId].getPriceOfBuilding().stone <= listOfPlayers[this->playerId].getStats().amountOfStone && listOfBuildingTemplates[buildingId].getPriceOfBuilding().gold <= listOfPlayers[this->playerId].getStats().amountOfGold) {
 			cords buildingSlot = {0,0};
 			switch (nearResource) {
 			case -1:
@@ -301,7 +301,7 @@ void simpleAI::sandboxScript()
 	}
 	else {
 		//De eerste taak is een TC bouwen mits voldoende resources
-		if (priceOfBuilding[1].food <= listOfPlayers[this->playerId].getStats().amountOfFood && priceOfBuilding[1].wood <= listOfPlayers[this->playerId].getStats().amountOfWood && priceOfBuilding[1].stone <= listOfPlayers[this->playerId].getStats().amountOfStone && priceOfBuilding[1].gold <= listOfPlayers[this->playerId].getStats().amountOfGold) {
+		if (listOfBuildingTemplates[1].getPriceOfBuilding().food <= listOfPlayers[this->playerId].getStats().amountOfFood && listOfBuildingTemplates[1].getPriceOfBuilding().wood <= listOfPlayers[this->playerId].getStats().amountOfWood && listOfBuildingTemplates[1].getPriceOfBuilding().stone <= listOfPlayers[this->playerId].getStats().amountOfStone && listOfBuildingTemplates[1].getPriceOfBuilding().gold <= listOfPlayers[this->playerId].getStats().amountOfGold) {
 			//zoek een vrije plek bij de villagers om een TC te bouwen
 			int idleVillagerId = listOfPlayers[this->playerId].getIdleVillagerId(0);
 			cords idleVillagerCords = listOfActors[idleVillagerId].getActorCords();
@@ -316,11 +316,11 @@ void simpleAI::sandboxScript()
 		else {
 			//Er zijn onvoldoende resources!
 			// Heb ik voldoende hout?
-			if (priceOfBuilding[1].wood <= listOfPlayers[this->playerId].getStats().amountOfWood) {
+			if (listOfBuildingTemplates[1].getPriceOfBuilding().wood <= listOfPlayers[this->playerId].getStats().amountOfWood) {
 				//Probeer eerst hout te verzamelen: heb ik een lumbercamp? 
 				if (!hasBuildingType(3)) {
 					//Probeer lumber camp te bouwen
-					if (priceOfBuilding[3].food <= listOfPlayers[this->playerId].getStats().amountOfFood && priceOfBuilding[3].wood <= listOfPlayers[this->playerId].getStats().amountOfWood && priceOfBuilding[3].stone <= listOfPlayers[this->playerId].getStats().amountOfStone && priceOfBuilding[3].gold <= listOfPlayers[this->playerId].getStats().amountOfGold) {
+					if (listOfBuildingTemplates[3].getPriceOfBuilding().food <= listOfPlayers[this->playerId].getStats().amountOfFood && listOfBuildingTemplates[3].getPriceOfBuilding().wood <= listOfPlayers[this->playerId].getStats().amountOfWood && listOfBuildingTemplates[3].getPriceOfBuilding().stone <= listOfPlayers[this->playerId].getStats().amountOfStone && listOfBuildingTemplates[3].getPriceOfBuilding().gold <= listOfPlayers[this->playerId].getStats().amountOfGold) {
 						int idleVillagerId = listOfPlayers[this->playerId].getIdleVillagerId(0);
 						cords idleVillagerCords = listOfActors[idleVillagerId].getActorCords();
 						cords buildingSlot = getFreeBuildingSlot(3, idleVillagerCords);
@@ -372,8 +372,8 @@ cords simpleAI::getOptimalFreeBuildingSlot(int buildingId, cords closeToVillager
 	cords startCords = { closeToVillager.x - (maxSearchArea.x / 2), closeToVillager.y - (maxSearchArea.y / 2) };
 	cords endCords = { closeToVillager.x + (maxSearchArea.x / 2), closeToVillager.y + (maxSearchArea.y / 2) };
 	//Now trim to get only cords within the map limitations
-	if (startCords.x - footprintOfBuildings[buildingId].amountOfXFootprint < 0) { startCords.x = footprintOfBuildings[buildingId].amountOfXFootprint; };
-	if (startCords.y - footprintOfBuildings[buildingId].amountOfYFootprint < 0) { startCords.y = footprintOfBuildings[buildingId].amountOfYFootprint; };
+	if (startCords.x - listOfBuildingTemplates[buildingId].getBuildingFootprint().amountOfXFootprint < 0) { startCords.x = listOfBuildingTemplates[buildingId].getBuildingFootprint().amountOfXFootprint; };
+	if (startCords.y - listOfBuildingTemplates[buildingId].getBuildingFootprint().amountOfYFootprint < 0) { startCords.y = listOfBuildingTemplates[buildingId].getBuildingFootprint().amountOfYFootprint; };
 	if (endCords.x >= MAP_WIDTH) { endCords.x = MAP_WIDTH; }
 	if (endCords.y >= MAP_HEIGHT) { endCords.x = MAP_HEIGHT; }
 
@@ -381,9 +381,9 @@ cords simpleAI::getOptimalFreeBuildingSlot(int buildingId, cords closeToVillager
 	for (int x = startCords.x; x < endCords.x; x++) {
 		for (int y = startCords.y; y < endCords.y; y++) {
 			bool buildingPossible = true;
-			for (int i = 0; i < footprintOfBuildings[buildingId].amountOfXFootprint; i++)
+			for (int i = 0; i < listOfBuildingTemplates[buildingId].getBuildingFootprint().amountOfXFootprint; i++)
 			{
-				for (int j = 0; j < footprintOfBuildings[buildingId].amountOfYFootprint; j++)
+				for (int j = 0; j < listOfBuildingTemplates[buildingId].getBuildingFootprint().amountOfYFootprint; j++)
 				{
 					if (x - i >= 0 && y - j >= 0) {
 						if (!currentGame.isPassable({ x - i, y - j })) {
@@ -398,7 +398,7 @@ cords simpleAI::getOptimalFreeBuildingSlot(int buildingId, cords closeToVillager
 				}
 			}
 			if (buildingPossible) {
-				listOfPossibilities.push_back({ {x,y}, {x - footprintOfBuildings[buildingId].amountOfXFootprint, y - footprintOfBuildings[buildingId].amountOfYFootprint}, 0 });
+				listOfPossibilities.push_back({ {x,y}, {x - listOfBuildingTemplates[buildingId].getBuildingFootprint().amountOfXFootprint, y - listOfBuildingTemplates[buildingId].getBuildingFootprint().amountOfYFootprint}, 0 });
 				int thisOne = static_cast<int>(listOfPossibilities.size()) - 1;
 
 				//Lets calculate the score
@@ -505,9 +505,9 @@ cords simpleAI::getFreeBuildingSlot(int buildingId, cords closeToThis)
 		suggestedCords = { roll(closeToThis.x - maximumDistance, closeToThis.x + maximumDistance), roll(closeToThis.y - maximumDistance, closeToThis.y + maximumDistance) };
 		bool buildingPlacable = true;
 		if (suggestedCords.x < MAP_WIDTH && suggestedCords.y < MAP_HEIGHT) {
-			for (int i = 0; i < footprintOfBuildings[buildingId].amountOfXFootprint; i++)
+			for (int i = 0; i < listOfBuildingTemplates[buildingId].getBuildingFootprint().amountOfXFootprint; i++)
 			{
-				for (int j = 0; j < footprintOfBuildings[buildingId].amountOfYFootprint; j++)
+				for (int j = 0; j < listOfBuildingTemplates[buildingId].getBuildingFootprint().amountOfYFootprint; j++)
 				{
 					if (suggestedCords.x - i >= 0 && suggestedCords.y - j >= 0) {
 						if (currentGame.occupiedByBuildingList[suggestedCords.x - i][suggestedCords.y - j] != -1 || currentGame.objectLocationList[suggestedCords.x - i][suggestedCords.y - j] != -1 || currentGame.occupiedByActorList[suggestedCords.x - i][suggestedCords.y - j] != -1 || currentGame.currentMap[suggestedCords.x - i][suggestedCords.y - j] >= 7|| currentGame.currentMap[suggestedCords.x - i][suggestedCords.y - j] == 0) {

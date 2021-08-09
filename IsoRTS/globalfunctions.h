@@ -3,6 +3,8 @@
 
 #include <mutex>
 #include <list>
+#include <iostream>
+
 const int MAP_WIDTH = 256;
 const int MAP_HEIGHT = 256;
 
@@ -14,6 +16,20 @@ struct cords {
     int y;
 };
 
+struct footprintOfBuilding
+{
+    int amountOfXFootprint;
+    int amountOfYFootprint;
+};
+
+struct actorOrBuildingPrice
+{
+    int food;
+    int wood;
+    int stone;
+    int gold;
+    int productionPoints;
+};
 
 cords toWorldMousePosition(int mouseX, int mouseY);
 int roll(int min, int max);

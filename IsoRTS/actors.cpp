@@ -1230,7 +1230,7 @@ void actors::setGatheringRecource(bool flag)
 {
     this->isGatheringRecources = flag;
     this->isBuilding = false;
-    if(flag)
+    if (flag && currentGame.objectLocationList[this->actorGoal.x][this->actorGoal.y] != -1) 
     {
         this->ResourceBeingGatherd = listOfObjects[currentGame.objectLocationList[this->actorGoal.x][this->actorGoal.y]].getTypeOfResource();
         this->actionPreformedOnTile = this->actorGoal;

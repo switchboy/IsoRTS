@@ -2650,22 +2650,6 @@ void gameState::createFogOfWar()
                     }
                 }
             }
-            for (int i = 1; i < listOfBuildings.size(); i++) {
-                if (listOfBuildings[i].getTeam() == currentPlayer.getTeam()) {
-                    int visRadius = 1;
-                    if (listOfBuildings[i].getCompleted()) {
-                        visRadius = 8;
-                    }
-                    std::list<cords> buidlingFootprint = listOfBuildings[i].getFootprintOfBuilding();
-                    for (const cords& footprintTile : buidlingFootprint) {
-                        std::list<cords> tempList = getListOfCordsInCircle(footprintTile.x, footprintTile.y, visRadius);
-                        for (const cords& cord : tempList)
-                        {
-                            this->visability[(cord.x * MAP_HEIGHT) + cord.y] = 2;
-                        }
-                    }
-                }
-            }
         }
         else {
             for (int i = 0; i < MAP_WIDTH; i++) {

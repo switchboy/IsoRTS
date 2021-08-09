@@ -1,17 +1,18 @@
-#include <SFML/Graphics.hpp>
-#include <iostream>
-#include <vector>
 #include <algorithm>
-#include "main.h"
+#include <future>
+#include <iostream>
+#include <mutex>
+#include <SFML/Graphics.hpp>
+#include <vector>
+
 #include "actors.h"
 #include "buildings.h"
-#include "objects.h"
-#include <future>
-#include <mutex>
 #include "gametext.h"
-#include "projectile.h"
+#include "main.h"
+#include "objects.h"
 #include "orderCursor.h"
 #include "player.h"
+#include "projectile.h"
 #include "simpleAI.h"
 
 gameState currentGame;

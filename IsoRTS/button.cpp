@@ -1,11 +1,11 @@
-#include "button.h"
-#include "gamestate.h"
 #include <iostream>
 #include <sstream>
-#include "player.h"
-#include "gametext.h"
+#include <SFML/Graphics.hpp>
 #include "actors.h"
 #include "buildings.h"
+#include "button.h"
+#include "gametext.h"
+#include "player.h"
 
 std::list<button> listOfButtons;
 
@@ -24,9 +24,7 @@ button::button(int positionX, int positionY, spriteTypes spriteId, actionTypes a
 
 bool button::isClicked(sf::Vector2i mousePosition)
 {
-
-    sf::IntRect rect(this->realPositionX, this->realPositionY, 64, 64);
-    if (rect.contains(mousePosition))
+    if (sf::IntRect(this->realPositionX, this->realPositionY, 64, 64).contains(mousePosition))
     {
         performAction();
         return true;
@@ -35,10 +33,9 @@ bool button::isClicked(sf::Vector2i mousePosition)
 
 }
 
-bool button::isHoverd(sf::Vector2i mousePosition)
+bool button::isHovered(sf::Vector2i mousePosition) const
 {
-    sf::IntRect rect(this->realPositionX, this->realPositionY, 64, 64);
-    if (rect.contains(mousePosition))
+    if (sf::IntRect(this->realPositionX, this->realPositionY, 64, 64).contains(mousePosition))
     {
         showToolTip();
         return true;
@@ -46,7 +43,7 @@ bool button::isHoverd(sf::Vector2i mousePosition)
     return false;
 }
 
-void button::showToolTip()
+void button::showToolTip() const
 {
     std::stringstream toolTipTitle;
     std::stringstream toolTipText;
@@ -55,12 +52,12 @@ void button::showToolTip()
     {
     case actionTypes::actionBuildTownCenter:
         toolTipTitle << "Town center";
-        toolTipText << "Cost: Food: "<< priceOfBuilding[1].food <<" Wood: "<< priceOfBuilding[1].wood <<" Stone: "<< priceOfBuilding[1].stone <<" Gold: "<< priceOfBuilding[1].gold;
+        toolTipText << "Cost: Food: "<< listOfBuildingTemplates[1].getPriceOfBuilding().food <<" Wood: "<< listOfBuildingTemplates[1].getPriceOfBuilding().wood <<" Stone: "<< listOfBuildingTemplates[1].getPriceOfBuilding().stone <<" Gold: "<< listOfBuildingTemplates[1].getPriceOfBuilding().gold;
         toolTipDiscription << "Collection point of resources, production of new villagers and research facility. Grants 10 population.";
         break;
     case actionTypes::actionBuildHouse:
         toolTipTitle << "House";
-        toolTipText << "Cost: Food: "<< priceOfBuilding[0].food <<" Wood: "<< priceOfBuilding[0].wood <<" Stone: "<< priceOfBuilding[0].stone <<" Gold: "<< priceOfBuilding[0].gold;
+        toolTipText << "Cost: Food: " << listOfBuildingTemplates[0].getPriceOfBuilding().food << " Wood: " << listOfBuildingTemplates[0].getPriceOfBuilding().wood << " Stone: " << listOfBuildingTemplates[0].getPriceOfBuilding().stone << " Gold: " << listOfBuildingTemplates[0].getPriceOfBuilding().gold;
         toolTipDiscription << "Grants 5 population.";
         break;
     case actionTypes::actionUnitSelect:
@@ -85,17 +82,17 @@ void button::showToolTip()
         break;
     case actionTypes::actionBuildMill:
         toolTipTitle << "Build Mill";
-        toolTipText << "Cost: Food: " << priceOfBuilding[2].food << " Wood: " << priceOfBuilding[2].wood << " Stone: " << priceOfBuilding[2].stone << " Gold: " << priceOfBuilding[2].gold;
+        toolTipText << "Cost: Food: " << listOfBuildingTemplates[2].getPriceOfBuilding().food << " Wood: " << listOfBuildingTemplates[2].getPriceOfBuilding().wood << " Stone: " << listOfBuildingTemplates[2].getPriceOfBuilding().stone << " Gold: " << listOfBuildingTemplates[2].getPriceOfBuilding().gold;
         toolTipDiscription << "Collection point for food, build farms and research facility for food";
         break;
     case actionTypes::actionBuildLumberCamp:
         toolTipTitle << "Build Lumber Camp";
-        toolTipText << "Cost: Food: " << priceOfBuilding[3].food << " Wood: " << priceOfBuilding[3].wood << " Stone: " << priceOfBuilding[3].stone << " Gold: " << priceOfBuilding[3].gold;
+        toolTipText << "Cost: Food: " << listOfBuildingTemplates[3].getPriceOfBuilding().food << " Wood: " << listOfBuildingTemplates[3].getPriceOfBuilding().wood << " Stone: " << listOfBuildingTemplates[3].getPriceOfBuilding().stone << " Gold: " << listOfBuildingTemplates[3].getPriceOfBuilding().gold;
         toolTipDiscription << "Collection point for wood and research new wood chopping abilities";
         break;
     case actionTypes::actionBuildBarracks:
         toolTipTitle << "Build Barracks";
-        toolTipText << "Cost: Food: " << priceOfBuilding[4].food << " Wood: " << priceOfBuilding[4].wood << " Stone: " << priceOfBuilding[4].stone << " Gold: " << priceOfBuilding[4].gold;
+        toolTipText << "Cost: Food: " << listOfBuildingTemplates[4].getPriceOfBuilding().food << " Wood: " << listOfBuildingTemplates[4].getPriceOfBuilding().wood << " Stone: " << listOfBuildingTemplates[4].getPriceOfBuilding().stone << " Gold: " << listOfBuildingTemplates[4].getPriceOfBuilding().gold;
         toolTipDiscription << "Train and research melee soldiers and combat abilities";
         break;
     case actionTypes::actionMakeSwordsman:
@@ -105,7 +102,7 @@ void button::showToolTip()
         break;
     case actionTypes::actionBuildMiningCamp:
         toolTipTitle << "Build Mining Camp";
-        toolTipText << "Cost: Food: " << priceOfBuilding[5].food << " Wood: " << priceOfBuilding[5].wood << " Stone: " << priceOfBuilding[5].stone << " Gold: " << priceOfBuilding[5].gold;
+        toolTipText << "Cost: Food: " << listOfBuildingTemplates[5].getPriceOfBuilding().food << " Wood: " << listOfBuildingTemplates[5].getPriceOfBuilding().wood << " Stone: " << listOfBuildingTemplates[5].getPriceOfBuilding().stone << " Gold: " << listOfBuildingTemplates[5].getPriceOfBuilding().gold;
         toolTipDiscription << "Collection point for gold and stone and research new mining abilities";
         break;
     }
@@ -158,7 +155,8 @@ void button::performAction()
     switch(this->actionType)
     {
     case actionTypes::actionBuildTownCenter:
-        if(priceOfBuilding[1].food <= currentPlayer.getStats().amountOfFood && priceOfBuilding[1].wood <= currentPlayer.getStats().amountOfWood && priceOfBuilding[1].stone <= currentPlayer.getStats().amountOfStone && priceOfBuilding[1].gold <= currentPlayer.getStats().amountOfGold)
+
+        if(listOfBuildingTemplates[1].getPriceOfBuilding().food <= currentPlayer.getStats().amountOfFood && listOfBuildingTemplates[1].getPriceOfBuilding().wood <= currentPlayer.getStats().amountOfWood && listOfBuildingTemplates[1].getPriceOfBuilding().stone <= currentPlayer.getStats().amountOfStone && listOfBuildingTemplates[1].getPriceOfBuilding().gold <= currentPlayer.getStats().amountOfGold)
         {
             currentGame.setBuildingType(1);
             currentGame.setIsPlacingBuilding();
@@ -166,12 +164,12 @@ void button::performAction()
         else
         {
             std::stringstream errortext;
-            errortext << "Not enough resources to build a town center! Cost Food: "<< priceOfBuilding[1].food <<" Wood: "<< priceOfBuilding[1].wood <<" Stone: "<< priceOfBuilding[1].stone <<" Gold: "<< priceOfBuilding[1].gold;
+            errortext << "Not enough resources to build a town center! Cost Food: " << listOfBuildingTemplates[1].getPriceOfBuilding().food << " Wood: " << listOfBuildingTemplates[1].getPriceOfBuilding().wood << " Stone: " << listOfBuildingTemplates[1].getPriceOfBuilding().stone << " Gold: " << listOfBuildingTemplates[1].getPriceOfBuilding().gold;
             gameText.addNewMessage(errortext.str(), 1);
         }
         break;
     case actionTypes::actionBuildHouse:
-        if(priceOfBuilding[0].food <= currentPlayer.getStats().amountOfFood && priceOfBuilding[0].wood <= currentPlayer.getStats().amountOfWood && priceOfBuilding[0].stone <= currentPlayer.getStats().amountOfStone && priceOfBuilding[0].gold <= currentPlayer.getStats().amountOfGold)
+        if (listOfBuildingTemplates[0].getPriceOfBuilding().food <= currentPlayer.getStats().amountOfFood && listOfBuildingTemplates[0].getPriceOfBuilding().wood <= currentPlayer.getStats().amountOfWood && listOfBuildingTemplates[0].getPriceOfBuilding().stone <= currentPlayer.getStats().amountOfStone && listOfBuildingTemplates[0].getPriceOfBuilding().gold <= currentPlayer.getStats().amountOfGold)
         {
             currentGame.setBuildingType(0);
             currentGame.setIsPlacingBuilding();
@@ -179,7 +177,7 @@ void button::performAction()
         else
         {
             std::stringstream errortext;
-            errortext << "Not enough resources to build a house! Cost Food: "<< priceOfBuilding[0].food <<" Wood: "<< priceOfBuilding[0].wood <<" Stone: "<< priceOfBuilding[0].stone <<" Gold: "<< priceOfBuilding[0].gold;
+            errortext << "Not enough resources to build a house! Cost Food: " << listOfBuildingTemplates[0].getPriceOfBuilding().food << " Wood: " << listOfBuildingTemplates[0].getPriceOfBuilding().wood << " Stone: " << listOfBuildingTemplates[0].getPriceOfBuilding().stone << " Gold: " << listOfBuildingTemplates[0].getPriceOfBuilding().gold;
             gameText.addNewMessage(errortext.str(), 1);
 
         }
@@ -203,10 +201,10 @@ void button::performAction()
         break;
     case actionTypes::actionCancelBuilding:
         //cancel building
-        currentPlayer.addResources(resourceTypes::resourceFood, priceOfBuilding[listOfBuildings[this->actorOrBuildingId].getType()].food/2 );
-        currentPlayer.addResources(resourceTypes::resourceWood, priceOfBuilding[listOfBuildings[this->actorOrBuildingId].getType()].wood/2 );
-        currentPlayer.addResources(resourceTypes::resourceStone, priceOfBuilding[listOfBuildings[this->actorOrBuildingId].getType()].stone/2 );
-        currentPlayer.addResources(resourceTypes::resourceGold, priceOfBuilding[listOfBuildings[this->actorOrBuildingId].getType()].gold/2 );
+        currentPlayer.addResources(resourceTypes::resourceFood, listOfBuildingTemplates[listOfBuildings[this->actorOrBuildingId].getType()].getPriceOfBuilding().food/2 );
+        currentPlayer.addResources(resourceTypes::resourceWood, listOfBuildingTemplates[listOfBuildings[this->actorOrBuildingId].getType()].getPriceOfBuilding().wood/2 );
+        currentPlayer.addResources(resourceTypes::resourceStone, listOfBuildingTemplates[listOfBuildings[this->actorOrBuildingId].getType()].getPriceOfBuilding().stone/2 );
+        currentPlayer.addResources(resourceTypes::resourceGold, listOfBuildingTemplates[listOfBuildings[this->actorOrBuildingId].getType()].getPriceOfBuilding().gold/2 );
         listOfBuildings[this->actorOrBuildingId].removeBuilding();
         break;
     case actionTypes::actionCancelProduction:
@@ -214,7 +212,7 @@ void button::performAction()
         break;
 
     case actionTypes::actionBuildMill:
-        if (priceOfBuilding[2].food <= currentPlayer.getStats().amountOfFood && priceOfBuilding[2].wood <= currentPlayer.getStats().amountOfWood && priceOfBuilding[2].stone <= currentPlayer.getStats().amountOfStone && priceOfBuilding[2].gold <= currentPlayer.getStats().amountOfGold)
+        if (listOfBuildingTemplates[2].getPriceOfBuilding().food <= currentPlayer.getStats().amountOfFood && listOfBuildingTemplates[2].getPriceOfBuilding().wood <= currentPlayer.getStats().amountOfWood && listOfBuildingTemplates[2].getPriceOfBuilding().stone <= currentPlayer.getStats().amountOfStone && listOfBuildingTemplates[2].getPriceOfBuilding().gold <= currentPlayer.getStats().amountOfGold)
         {
             currentGame.setBuildingType(2);
             currentGame.setIsPlacingBuilding();
@@ -222,13 +220,13 @@ void button::performAction()
         else
         {
             std::stringstream errortext;
-            errortext << "Not enough resources to build a Mill! Cost Food: " << priceOfBuilding[2].food << " Wood: " << priceOfBuilding[2].wood << " Stone: " << priceOfBuilding[2].stone << " Gold: " << priceOfBuilding[2].gold;
+            errortext << "Not enough resources to build a Mill! Cost Food: " << listOfBuildingTemplates[2].getPriceOfBuilding().food << " Wood: " << listOfBuildingTemplates[2].getPriceOfBuilding().wood << " Stone: " << listOfBuildingTemplates[2].getPriceOfBuilding().stone << " Gold: " << listOfBuildingTemplates[2].getPriceOfBuilding().gold;
             gameText.addNewMessage(errortext.str(), 1);
         }
         break;
 
     case actionTypes::actionBuildLumberCamp:
-        if (priceOfBuilding[3].food <= currentPlayer.getStats().amountOfFood && priceOfBuilding[3].wood <= currentPlayer.getStats().amountOfWood && priceOfBuilding[3].stone <= currentPlayer.getStats().amountOfStone && priceOfBuilding[3].gold <= currentPlayer.getStats().amountOfGold)
+        if (listOfBuildingTemplates[3].getPriceOfBuilding().food <= currentPlayer.getStats().amountOfFood && listOfBuildingTemplates[3].getPriceOfBuilding().wood <= currentPlayer.getStats().amountOfWood && listOfBuildingTemplates[3].getPriceOfBuilding().stone <= currentPlayer.getStats().amountOfStone && listOfBuildingTemplates[3].getPriceOfBuilding().gold <= currentPlayer.getStats().amountOfGold)
         {
             currentGame.setBuildingType(3);
             currentGame.setIsPlacingBuilding();
@@ -236,13 +234,13 @@ void button::performAction()
         else
         {
             std::stringstream errortext;
-            errortext << "Not enough resources to build a Lumber Camp! Cost Food: " << priceOfBuilding[3].food << " Wood: " << priceOfBuilding[3].wood << " Stone: " << priceOfBuilding[3].stone << " Gold: " << priceOfBuilding[3].gold;
+            errortext << "Not enough resources to build a Lumber Camp! Cost Food: " << listOfBuildingTemplates[3].getPriceOfBuilding().food << " Wood: " << listOfBuildingTemplates[3].getPriceOfBuilding().wood << " Stone: " << listOfBuildingTemplates[3].getPriceOfBuilding().stone << " Gold: " << listOfBuildingTemplates[3].getPriceOfBuilding().gold;
             gameText.addNewMessage(errortext.str(), 1);
         }
         break;
 
     case actionTypes::actionBuildBarracks:
-        if (priceOfBuilding[4].food <= currentPlayer.getStats().amountOfFood && priceOfBuilding[4].wood <= currentPlayer.getStats().amountOfWood && priceOfBuilding[4].stone <= currentPlayer.getStats().amountOfStone && priceOfBuilding[4].gold <= currentPlayer.getStats().amountOfGold)
+        if (listOfBuildingTemplates[4].getPriceOfBuilding().food <= currentPlayer.getStats().amountOfFood && listOfBuildingTemplates[4].getPriceOfBuilding().wood <= currentPlayer.getStats().amountOfWood && listOfBuildingTemplates[4].getPriceOfBuilding().stone <= currentPlayer.getStats().amountOfStone && listOfBuildingTemplates[4].getPriceOfBuilding().gold <= currentPlayer.getStats().amountOfGold)
         {
             currentGame.setBuildingType(4);
             currentGame.setIsPlacingBuilding();
@@ -250,7 +248,7 @@ void button::performAction()
         else
         {
             std::stringstream errortext;
-            errortext << "Not enough resources to build a Barracks! Cost Food: " << priceOfBuilding[4].food << " Wood: " << priceOfBuilding[4].wood << " Stone: " << priceOfBuilding[4].stone << " Gold: " << priceOfBuilding[4].gold;
+            errortext << "Not enough resources to build a Barracks! Cost Food: " << listOfBuildingTemplates[4].getPriceOfBuilding().food << " Wood: " << listOfBuildingTemplates[4].getPriceOfBuilding().wood << " Stone: " << listOfBuildingTemplates[4].getPriceOfBuilding().stone << " Gold: " << listOfBuildingTemplates[4].getPriceOfBuilding().gold;
             gameText.addNewMessage(errortext.str(), 1);
         }
         break;
@@ -268,7 +266,7 @@ void button::performAction()
         }
         break;
     case actionTypes::actionBuildMiningCamp:
-        if (priceOfBuilding[5].food <= currentPlayer.getStats().amountOfFood && priceOfBuilding[5].wood <= currentPlayer.getStats().amountOfWood && priceOfBuilding[5].stone <= currentPlayer.getStats().amountOfStone && priceOfBuilding[5].gold <= currentPlayer.getStats().amountOfGold)
+        if (listOfBuildingTemplates[5].getPriceOfBuilding().food <= currentPlayer.getStats().amountOfFood && listOfBuildingTemplates[5].getPriceOfBuilding().wood <= currentPlayer.getStats().amountOfWood && listOfBuildingTemplates[5].getPriceOfBuilding().stone <= currentPlayer.getStats().amountOfStone && listOfBuildingTemplates[5].getPriceOfBuilding().gold <= currentPlayer.getStats().amountOfGold)
         {
             currentGame.setBuildingType(5);
             currentGame.setIsPlacingBuilding();
@@ -276,15 +274,14 @@ void button::performAction()
         else
         {
             std::stringstream errortext;
-            errortext << "Not enough resources to build a Mining Camp! Cost Food: " << priceOfBuilding[5].food << " Wood: " << priceOfBuilding[5].wood << " Stone: " << priceOfBuilding[5].stone << " Gold: " << priceOfBuilding[5].gold;
+            errortext << "Not enough resources to build a Mining Camp! Cost Food: " << listOfBuildingTemplates[5].getPriceOfBuilding().food << " Wood: " << listOfBuildingTemplates[5].getPriceOfBuilding().wood << " Stone: " << listOfBuildingTemplates[5].getPriceOfBuilding().stone << " Gold: " << listOfBuildingTemplates[5].getPriceOfBuilding().gold;
             gameText.addNewMessage(errortext.str(), 1);
         }
         break;
     }
 }
 
-
-void button::drawButton()
+void button::drawButton() const
 {
     int xOffSet = 0;
     int yOffset = 0;

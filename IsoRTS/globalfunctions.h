@@ -3,6 +3,8 @@
 
 #include <mutex>
 #include <list>
+#include <iostream>
+
 const int MAP_WIDTH = 256;
 const int MAP_HEIGHT = 256;
 
@@ -14,17 +16,34 @@ struct cords {
     int y;
 };
 
+struct footprintOfBuilding
+{
+    int amountOfXFootprint;
+    int amountOfYFootprint;
+};
 
-static cords toWorldMousePosition(int mouseX, int mouseY);
+struct actorOrBuildingPrice
+{
+    int food;
+    int wood;
+    int stone;
+    int gold;
+    int productionPoints;
+};
+
+cords toWorldMousePosition(int mouseX, int mouseY);
 int roll(int min, int max);
 
-
-bool rectCord (cords& lhs, cords& rhs);
+bool rectCord (const cords& lhs, const cords& rhs);
 bool compareCord(const cords& lhs, const cords& rhs);
 bool sortCordByX(const cords& lhs, const cords& rhs);
-int worldSpace(int x, int y, bool getX);
-int miniMapSpace(int x, int y, bool getX);
+cords worldSpace(cords location);
+cords miniMapSpace(cords location);
 std::list<cords> getListOfCordsInCircle(int startX, int startY, int r);
+
+double dist(double x1, double y1, double x2, double y2);
+double distEuclidean(double x1, double y1, double x2, double y2);
+cords toWorldMousePosition(int mouseX, int mouseY);
 
 extern std::mutex listOfActorsMutex;
 

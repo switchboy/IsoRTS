@@ -3,17 +3,6 @@
 
 gametext gameText;
 
-gametext::gametext()
-{
-    //ctor
-}
-
-gametext::~gametext()
-{
-    //dtor
-}
-
-
 void gametext::addNewMessage(std::string message, int color)
 {
     this->listOfMessages.push_back({message, color, currentGame.getTime()});
@@ -23,7 +12,7 @@ void gametext::addNewMessage(std::string message, int color)
     }
 }
 
-void gametext::drawMessages()
+void gametext::drawMessages() const
 {
     int charSize = 16;
     int startPositionY = (mainWindowHeigth/2)-(20*(charSize+2)) ;
@@ -56,7 +45,7 @@ void gametext::throwOutOldMessages()
     {
         if(!this->listOfMessages.empty())
         {
-            if((this->listOfMessages.front().timeAdded+60) < currentGame.getTime())
+            if((this->listOfMessages.front().timeAdded+30) < currentGame.getTime())
             {
                 this->listOfMessages.pop_front();
             }

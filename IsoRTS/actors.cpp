@@ -1,12 +1,12 @@
+//#include <future>
+#include <iostream>
+#include <string>
 #include "actors.h"
+#include "buildings.h"
+#include "gametext.h"
+#include "globalfunctions.h"
 #include "objects.h"
 #include "player.h"
-#include "buildings.h"
-#include <iostream>
-#include <future>
-#include <string>
-#include "globalfunctions.h"
-#include "gametext.h"
 #include "projectile.h"
 #include "simpleAI.h"
 
@@ -15,22 +15,152 @@ std::vector<int> listOfActorsWhoNeedAPath;
 std::vector <actors> listOfActors;
 std::mutex listOfActorsMutex;
 
-void updateCells(int goalId, int startId, std::vector<Cells> &cellsList)
+namespace
+{
+    int actorOrientation(int Xc, int Yc, int Xn, int Yn)
+    {
+
+        //Orientation:
+        //0 N       0   degrees     = x-1  y-1
+        //1 NE      45  degrees     = x    y-1
+        //2 E       90  degrees     = x+1  y-1
+        //3 SE      135 degrees     = x+1  y
+        //4 S       180 degrees     = x+1  y+1
+        //5 SW      225 degrees     = x    y+1
+        //6 W       270 degrees     = x-1  y+1
+        //7 NW      315 degrees     = x-1  y
+        int diffX = Xn - Xc;
+        int diffY = Yn - Yc;
+
+        switch (diffX)
+        {
+        case -1:
+            switch (diffY)
+            {
+            case -1:
+                return 0;
+            case 0:
+                return 7;
+            case 1:
+                return 6;
+            }
+        case 0:
+            switch (diffY)
+            {
+            case -1:
+                return 1;
+            case 1:
+                return 5;
+            }
+        case 1:
+            switch (diffY)
+            {
+            case -1:
+                return 2;
+            case 0:
+                return 3;
+            case 1:
+                return 4;
+            }
+        default:
+            return 0;
+        }
+    }
+
+    int newOrientation(int oldOrientation, int desiredOrientation)
+    {
+        //int differenceInOrientation = (oldOrientation + desiredOrientation)- desiredOrientation;
+        int output;
+        int amountOfStepsRight;
+        int amountOfStepsLeft;
+        //calcualte amount of tik's going right en left
+        if (oldOrientation < desiredOrientation)
+        {
+            amountOfStepsRight = desiredOrientation - oldOrientation;
+            amountOfStepsLeft = (oldOrientation + 8) - desiredOrientation;
+        }
+        else if (oldOrientation > desiredOrientation)
+        {
+            amountOfStepsRight = (desiredOrientation + 8) - oldOrientation;
+            amountOfStepsLeft = oldOrientation - desiredOrientation;
+        }
+        else
+        {
+            amountOfStepsRight = 0;
+            amountOfStepsLeft = 0;
+        }
+        if (amountOfStepsLeft < amountOfStepsRight)
+        {
+            output = oldOrientation - 1;
+        }
+        else if (amountOfStepsLeft > amountOfStepsRight)
+        {
+            output = oldOrientation + 1;
+        }
+        else if (amountOfStepsLeft == amountOfStepsRight && amountOfStepsLeft != 0)
+        {
+            output = oldOrientation + 1;
+        }
+        else
+        {
+            output = oldOrientation;
+        }
+        if (output < 0)
+        {
+            output = 7;
+        }
+        if (output > 7)
+        {
+            output = 0;
+        }
+        return output;
+    }
+
+    int adjacentTileIsCorrectDropOffPoint(cords start, resourceTypes resourceGatherd, int team) {
+        for (int xOffset = start.x - 1; xOffset < start.x + 2; xOffset++)
+        {
+            for (int yOffset = start.y - 1; yOffset < start.y + 2; yOffset++)
+            {
+                if (currentGame.occupiedByBuildingList[xOffset][yOffset] != -1)
+                {
+                    int i = currentGame.occupiedByBuildingList[xOffset][yOffset];
+                    if ((listOfBuildings[i].getRecievesWhichResources() == resourceGatherd || listOfBuildings[i].getRecievesWhichResources() == resourceTypes::All) && listOfBuildings[i].getTeam() == team && listOfBuildings[i].getCompleted())
+                    {
+                        return i;
+                    }
+                }
+            }
+        }
+        return -1;
+    }
+
+    bool isReallyNextToResource(int unitX, int unitY, int resourceX, int resourceY) {
+        int distX = unitX - resourceX;
+        int distY = unitY - resourceY;
+        if ((distX == 0 || distX == 1 || distX == -1) && (distY == 0 || distY == 1 || distY == -1)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+}
+
+void updateCells(int goalId, int startId, std::vector<Cells>& cellsList)
 {
     int n = 0;
-    for(int i = 0; i < MAP_WIDTH; i++)
+    for (int i = 0; i < MAP_WIDTH; i++)
     {
-        for(int j = 0; j < MAP_HEIGHT; j++)
+        for (int j = 0; j < MAP_HEIGHT; j++)
         {
-            Cells test;
-            cellsList.push_back(test);
-            cellsList[n].positionX = i;
-            cellsList[n].positionY = j;
-            if(n == goalId || n == startId)
+            cellsList.push_back(Cells());
+            cellsList[n].position.x = i;
+            cellsList[n].position.y = j;
+            if (n == goalId || n == startId)
             {
                 cellsList[n].obstacle = false;
             }
-            else if(!currentGame.isPassable(i, j))
+            else if (!currentGame.isPassable({ i, j }))
             {
                 cellsList[n].obstacle = true;
             }
@@ -49,9 +179,9 @@ void updateCells(int goalId, int startId, std::vector<Cells> &cellsList)
     }
 }
 
-void Cells::addNeighbours(std::vector<Cells> &cellsList)
+void Cells::addNeighbours(const std::vector<Cells> &cellsList)
 {
-    if(this->positionX > 0)
+    if(this->position.x > 0)
     {
         //de cell links kan toegevoegd worden
         if(!cellsList[this->cellId-MAP_HEIGHT].obstacle)
@@ -59,7 +189,7 @@ void Cells::addNeighbours(std::vector<Cells> &cellsList)
             this->neighbours.push_back(this->cellId-MAP_HEIGHT);
         }
     }
-    if(this->positionX < MAP_WIDTH-1)
+    if(this->position.x < MAP_WIDTH-1)
     {
         //de cell rechts kan toegevoegd worden
         if(!cellsList[this->cellId+MAP_HEIGHT].obstacle)
@@ -67,7 +197,7 @@ void Cells::addNeighbours(std::vector<Cells> &cellsList)
             this->neighbours.push_back(this->cellId+MAP_HEIGHT);
         }
     }
-    if(this->positionY > 0)
+    if(this->position.y > 0)
     {
         //de cell erboven kan toegevogd worden
         if(!cellsList[this->cellId-1].obstacle)
@@ -75,7 +205,7 @@ void Cells::addNeighbours(std::vector<Cells> &cellsList)
             this->neighbours.push_back(this->cellId-1);
         }
     }
-    if(this->positionY != MAP_HEIGHT-1)
+    if(this->position.y != MAP_HEIGHT-1)
     {
         //de cell eronder kan toegevoegd worden
         if(!cellsList[this->cellId+1].obstacle)
@@ -84,18 +214,18 @@ void Cells::addNeighbours(std::vector<Cells> &cellsList)
         }
     }
     //schuin gaan...
-    if(this->positionY != MAP_HEIGHT-1 && this->positionX < MAP_WIDTH-1)
+    if(this->position.y != MAP_HEIGHT-1 && this->position.x < MAP_WIDTH-1)
     {
         //de cell rechtsonder kan toegevoegd worden
         if(!cellsList[this->cellId+1+MAP_HEIGHT].obstacle )
         {
-            if(!(cellsList[this->cellId+1].obstacle  && cellsList[this->cellId+MAP_HEIGHT].obstacle))
+            if(!(cellsList[this->cellId+1].obstacle && cellsList[this->cellId+MAP_HEIGHT].obstacle))
             {
                 this->neighbours.push_back(this->cellId+1+MAP_HEIGHT);
             }
         }
     }
-    if(this->positionY >0 && this->positionX < MAP_WIDTH-1)
+    if(this->position.y >0 && this->position.x < MAP_WIDTH-1)
     {
         //de cell rechtsboven kan toegevoegd worden
         if(!cellsList[this->cellId-1+MAP_HEIGHT].obstacle)
@@ -106,7 +236,7 @@ void Cells::addNeighbours(std::vector<Cells> &cellsList)
             }
         }
     }
-    if(this->positionY != MAP_HEIGHT-1 && this->positionX > 0)
+    if(this->position.y != MAP_HEIGHT-1 && this->position.x > 0)
     {
         //de cell linksonder kan toegevoegd worden
         if(!cellsList[this->cellId+1-MAP_HEIGHT].obstacle)
@@ -117,7 +247,7 @@ void Cells::addNeighbours(std::vector<Cells> &cellsList)
             }
         }
     }
-    if(this->positionY >0 && this->positionX > 0)
+    if(this->position.y >0 && this->position.x > 0)
     {
         //de cell rechtsboven kan toegevoegd worden
         if(!cellsList[this->cellId-1-MAP_HEIGHT].obstacle)
@@ -130,33 +260,18 @@ void Cells::addNeighbours(std::vector<Cells> &cellsList)
     }
 }
 
-double dist(double x1, double y1, double x2, double y2)
+actors::actors(int type, cords location, int actorTeam, int actorId)
 {
-//Manhattan distance
-    return fabs(x2 - x1) + fabs(y2 - y1);
-}
-
-double distEuclidean(double x1, double y1, double x2, double y2)
-{
-    //Euclidean distance
-    return sqrt(pow((x1 - x2), 2) + pow((y1 - y2), 2));
-}
-
-actors::actors(int type, int actorX, int actorY, int actorTeam, int actorId)
-{
-    currentGame.occupiedByActorList[actorX][actorY] = actorId;
+    currentGame.occupiedByActorList[location.x][location.y] = actorId;
     listOfPlayers[actorTeam].addToCurrentPopulation(1);
     this->actorType = type;
     this->actorTeam = actorTeam;
     this->actorId = actorId;
-    this->actorCords[0] = actorX;
-    this->actorCords[1] = actorY;
+    this->actorCords = location;
     this->timeLastRetry = 0;
     this->isIdle = true;
-    this->actorCommandGoal[0] = 0;
-    this->actorCommandGoal[1] = 0;
-    this->actorRealGoal[0] = 0;
-    this->actorRealGoal[1] = 0;
+    this->actorCommandGoal = { 0,0 };
+    this->actorRealGoal = { 0, 0 };
     this->buildingId = 0;
     this->commonGoal = false;
     this->currentFrame = 0;
@@ -172,6 +287,43 @@ actors::actors(int type, int actorX, int actorY, int actorTeam, int actorId)
     this->waitForAmountOfFrames = 0;
     this->reachedUnloadingPoint = false;
     this->hasStartedSearchingForAlternatives = false;
+    this->timeLastRetry = 0.0f;
+    this->actorAlive = true;
+    this->actorGoal = location;
+    this->orientation = 0;
+    this->spriteYOffset = 0;
+    this->retries = 0;
+    this->amountOfFood = 0;
+    this->amountOfGold = 0;
+    this->amountOfStone = 0;
+    this->amountOfWood = 0;
+    this->timeLastAttempt = 1.0f;
+    this->timeLastOffsetChange = 0.0f;
+    this->timeStartedWalkingToRecource = 0.0f;
+    this->goalNeedsUpdate = false;
+    this->routeNeedsPath = false;
+    this->isBuilding = false;
+    this->busyWalking = false;
+    this->pathFound = false;
+    this->isAtRecource = false;
+    this->isGatheringRecources = false;
+    this->hasToUnloadResource = false;
+    this->isBackAtOwnSquare = false;
+    this->offSetX = 0.0f;
+    this->offSetY = 0.0f;
+    this->hasMoved = false;
+    this->initialized = true;
+    this->ResourceBeingGatherd = resourceTypes::resourceFood;
+    this->actorAlive = true;
+    this->carriesRecources = false;
+    this->dropOffTile = { 0,0,0,0,false };
+    this->actionPreformedOnTile = { 0, 0 };
+    this->hasUnloaded = false;
+    this->isAtCarryCapacity = false;
+    this->isWalkingToUnloadingPoint = false;
+    this->isMeleeAttacking = false;
+
+
     switch(type)
     {
     case 0://villager
@@ -211,43 +363,7 @@ actors::actors(int type, int actorX, int actorY, int actorTeam, int actorId)
         this->rateOfFire = 0;
         break;
     }
-    this->timeLastRetry = 0.0f;
-    this->actorAlive = true;
-    this->actorGoal[0] = actorX;
-    this->actorGoal[1] = actorY;
-    this->orientation = 0;
-    this->spriteYOffset = 0;
-    this->retries = 0;
-    this->amountOfFood = 0;
-    this->amountOfGold = 0;
-    this->amountOfStone = 0;
-    this->amountOfWood = 0;
-    this->timeLastAttempt = 1.0f;
-    this->timeLastOffsetChange = 0.0f;
-    this->timeStartedWalkingToRecource = 0.0f;
-    this->goalNeedsUpdate = false;
-    this->routeNeedsPath = false;
-    this->isBuilding = false;
-    this->busyWalking = false;
-    this->pathFound = false;
-    this->isAtRecource = false;
-    this->isGatheringRecources = false;
-    this->hasToUnloadResource = false;
-    this->isBackAtOwnSquare = false;
-    this->offSetX = 0.0f;
-    this->offSetY = 0.0f;
-    this->hasMoved= false;
-    this->initialized = true;
-    this->ResourceBeingGatherd = resourceTypes::resourceFood;
-    this->actorAlive = true;
-    this->carriesRecources = false;
-    this->dropOffTile = {0,0,0,0,false };
-    this->actionPreformedOnTile[0] = 0;
-    this->actionPreformedOnTile[1] = 0;
-    this->hasUnloaded = false;
-    this->isAtCarryCapacity = false;
-    this->isWalkingToUnloadingPoint = false;
-    this->isMeleeAttacking = false;
+
 }
 
 actors::~actors()
@@ -258,12 +374,12 @@ actors::~actors()
 void actors::chaseTarget() {
     if (this->idOfTarget >= 0) {
         if (listOfActors[this->idOfTarget].isAlive()) {
-            if (listOfActors[this->idOfTarget].getGoal().x != listOfActors[this->idOfTarget].getLocation().x || listOfActors[this->idOfTarget].getGoal().y != listOfActors[this->idOfTarget].getLocation().y) {
+            if (listOfActors[this->idOfTarget].getGoal().x != listOfActors[this->idOfTarget].getActorCords().x || listOfActors[this->idOfTarget].getGoal().y != listOfActors[this->idOfTarget].getActorCords().y) {
                 //target will move
                 //check if this move is allready been caught
-                if (!(this->actionPreformedOnTile[0] == listOfActors[this->idOfTarget].getGoal().x && this->actionPreformedOnTile[1] == listOfActors[this->idOfTarget].getGoal().y)) {
+                if (!(this->actionPreformedOnTile.x == listOfActors[this->idOfTarget].getGoal().x && this->actionPreformedOnTile.y == listOfActors[this->idOfTarget].getGoal().y)) {
                     //update goal
-                    this->updateGoal(listOfActors[this->idOfTarget].getGoal().x, listOfActors[this->idOfTarget].getGoal().y, 0);
+                    this->updateGoal(getGoal(), 0);
                     this->setIsDoingAttack();
                 }
             }
@@ -278,7 +394,7 @@ void actors::chaseTarget() {
             this->isIdle = true;
         }
     }
-    else if (-currentGame.occupiedByBuildingList[this->actorGoal[0]][this->actorGoal[1]] != this->idOfTarget) {
+    else if (-currentGame.occupiedByBuildingList[this->actorGoal.x][this->actorGoal.y] != this->idOfTarget) {
         //Building destroyed!
         this->isMeleeAttacking = false;
         this->isRangedAttacking = false;
@@ -332,6 +448,7 @@ void actors::update()
         }
     }
 }
+
 void actors::searchAltetnative() {
     if (!this->routeNeedsPath){
         if (!this->pathFound) {
@@ -342,7 +459,7 @@ void actors::searchAltetnative() {
                 this->findNearestDropOffPoint();
             }
             else if (this->isGatheringRecources) {
-                this->findNearestSimilairResource();
+                this->findNearestSimilarResource();
             }
         }
         else {
@@ -351,17 +468,13 @@ void actors::searchAltetnative() {
                 this->isWalkingToUnloadingPoint = true;
                 this->dropOffTile = listOfDropOffLocations.front();
             }
-            else if (this->isGatheringRecources) {
-                this->actionPreformedOnTile[0] = this->listOfResourceLocations.front().locationX;
-                this->actionPreformedOnTile[1] = this->listOfResourceLocations.front().locationY;
-            }
             this->listOfDropOffLocations.clear();
             this->listOfResourceLocations.clear();
         }
     }
 }
 
-std::string actors::getRecources() {
+std::string actors::getResources() const {
     std::stringstream output;
     output << "Wood: " << this->amountOfWood << " Food: " << this->amountOfFood << " Stone: " << this->amountOfStone << " Gold: " << this->amountOfGold;
     return output.str();
@@ -371,9 +484,9 @@ void actors::getNewBuildingTileForSameBuilding() {
     nearestBuildingTile tempTile = findNearestBuildingTile(this->buildingId, this->actorId);
     if (tempTile.isSet)
     {
-        this->updateGoal(tempTile.locationX, tempTile.locationY, 0); //this also releases the old building tile, but does not reset the 'buildingId', so we can still use it! But we have to claim new building tile...
+        this->updateGoal(tempTile.location, 0); //this also releases the old building tile, but does not reset the 'buildingId', so we can still use it! But we have to claim new building tile...
         listOfBuildings[this->buildingId].claimFreeBuiildingTile(tempTile.buildingId, this->actorId);
-        this->setIsBuildingTrue(this->buildingId, tempTile.actionLocationX, tempTile.actionLocationY);
+        this->setIsBuildingTrue(this->buildingId, tempTile.actionLocation);
     }
     else {
         //This building is not reachable for this actor! Cancel the current task
@@ -419,8 +532,8 @@ void actors::shootProjectile()
 {
     if (this->timeStartedGatheringRecource + this->timeBetweenShots < currentGame.getTime()) {
         this->timeStartedGatheringRecource = currentGame.getTime();
-        if (currentGame.occupiedByActorList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]] != -1) {
-            projectile newProjectile(this->actorCords[0], this->actorCords[1], this->actionPreformedOnTile[0], this->actionPreformedOnTile[1], this->projectileType, this->rangedDamage, this->splashDamage, this->actorId);
+        if (currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y] != -1) {
+            projectile newProjectile(this->actorCords.x, this->actorCords.y, this->actionPreformedOnTile.x, this->actionPreformedOnTile.y, this->projectileType, this->rangedDamage, this->splashDamage, this->actorId);
             listOfProjectiles.push_back(newProjectile);
         }
         else {
@@ -429,23 +542,19 @@ void actors::shootProjectile()
     }
 }
 
-bool actors::idle()
+bool actors::idle() const
 {
     return this->isIdle;
 }
 
-
-bool actors::isAlive()
+bool actors::isAlive() const
 {
     return this->actorAlive;
 }
 
-cords actors::getActorCords()
+cords actors::getActorCords() const
 {
-    cords blah;
-    blah.x = this->actorCords[0];
-    blah.y = this->actorCords[1];
-    return blah;
+    return this->actorCords;
 }
 
 void actors::setIsDoingAttack()
@@ -456,13 +565,12 @@ void actors::setIsDoingAttack()
     else {
         this->isMeleeAttacking = true;
     }
-    this->actionPreformedOnTile[0] = this->actorGoal[0];
-    this->actionPreformedOnTile[1] = this->actorGoal[1];
-    if (currentGame.occupiedByActorList[this->actorGoal[0]][this->actorGoal[1]] != -1) {
-        this->idOfTarget = currentGame.occupiedByActorList[this->actorGoal[0]][this->actorGoal[1]];
+    this->actionPreformedOnTile = this->actorGoal;
+    if (currentGame.occupiedByActorList[this->actorGoal.x][this->actorGoal.y] != -1) {
+        this->idOfTarget = currentGame.occupiedByActorList[this->actorGoal.x][this->actorGoal.y];
     }
-    else if (currentGame.occupiedByBuildingList[this->actorGoal[0]][this->actorGoal[1]] != -1) {
-        this->idOfTarget = -currentGame.occupiedByActorList[this->actorGoal[0]][this->actorGoal[1]];
+    else if (currentGame.occupiedByBuildingList[this->actorGoal.x][this->actorGoal.y] != -1) {
+        this->idOfTarget = -currentGame.occupiedByActorList[this->actorGoal.x][this->actorGoal.y];
     }
 }
 
@@ -475,17 +583,17 @@ void actors::doMeleeDamage()
     if (currentGame.elapsedTime - this->timeStartedGatheringRecource > this->rateOfFire) 
     {
         this->timeStartedGatheringRecource = currentGame.elapsedTime;
-        if (currentGame.occupiedByActorList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]] != -1) {
-           if (listOfActors[currentGame.occupiedByActorList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]]].getTeam() != this->actorTeam) 
+        if (currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y] != -1) {
+           if (listOfActors[currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].getTeam() != this->actorTeam) 
            {
-                listOfActors[currentGame.occupiedByActorList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]]].takeDamage(this->meleeDamage, this->actorId);
+                listOfActors[currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].takeDamage(this->meleeDamage, this->actorId);
            }
         }
-        else if (currentGame.occupiedByBuildingList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]] != -1)
+        else if (currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y] != -1)
         {
-            if (listOfBuildings[currentGame.occupiedByBuildingList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]]].getTeam() != this->actorTeam) 
+            if (listOfBuildings[currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].getTeam() != this->actorTeam) 
             {
-                listOfBuildings[currentGame.occupiedByBuildingList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]]].takeDamage(this->meleeDamage);
+                listOfBuildings[currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].takeDamage(this->meleeDamage);
             }
         }
         else {
@@ -494,7 +602,7 @@ void actors::doMeleeDamage()
     }
 }
 
-std::list<cords> actors::getRejectedTargetsList()
+const std::list<cords>& actors::getRejectedTargetsList() const
 {
     return listOfTargetsToRejectUntilSuccesfullMovement;
 }
@@ -510,15 +618,15 @@ void actors::takeDamage(int amountOfDamage, int idOfAttacker)
 
 void actors::killActor() {
     this->actorAlive = false;
-    currentGame.occupiedByActorList[this->actorCords[0]][this->actorCords[1]] = -1;
+    currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y] = -1;
 }
 
-int actors::getType()
+int actors::getType() const
 {
     return this->actorType;
 }
 
-std::string actors::nameOfActor()
+std::string actors::nameOfActor() const
 {
     switch(this->actorType)
     {
@@ -534,19 +642,17 @@ std::string actors::nameOfActor()
     }
 }
 
-void actors::updateGoal(int i, int j, int waitTime)
+void actors::updateGoal(cords location, int waitTime)
 {
     //check if values are in bounds
-    if((i >= 0 && i < MAP_WIDTH) && (j >= 0 && j < MAP_HEIGHT))
+    if(location.x >= 0 && location.x < MAP_WIDTH && location.y >= 0 && location.y < MAP_HEIGHT)
     {
         if(this->buildingId != -1)
         {
             listOfBuildings[this->buildingId].removeActorFromBuildingTile(this->actorId);
         }
-        this->actorGoal[0] = i;
-        this->actorGoal[1] = j;
-        this->actorCommandGoal[0] = i;
-        this->actorCommandGoal[1] = j;
+        this->actorGoal = location;
+        this->actorCommandGoal = location;
         this->waitForAmountOfFrames = 0;// waitTime;
         this->goalNeedsUpdate = true;
         this->busyWalking = false;
@@ -562,105 +668,6 @@ void actors::updateGoal(int i, int j, int waitTime)
         this->isFindingAlternative = false;
         this->isIdle = false;
     }
-}
-
-int actorOrientation(int& Xc, int& Yc, int& Xn, int& Yn)
-{
-
-    //Orientation:
-    //0 N       0   degrees     = x-1  y-1
-    //1 NE      45  degrees     = x    y-1
-    //2 E       90  degrees     = x+1  y-1
-    //3 SE      135 degrees     = x+1  y
-    //4 S       180 degrees     = x+1  y+1
-    //5 SW      225 degrees     = x    y+1
-    //6 W       270 degrees     = x-1  y+1
-    //7 NW      315 degrees     = x-1  y
-    int diffX = Xn-Xc;
-    int diffY = Yn-Yc;
-
-    switch(diffX)
-    {
-    case -1:
-        switch(diffY)
-        {
-        case -1:
-            return 0;
-        case 0:
-            return 7;
-        case 1:
-            return 6;
-        }
-    case 0:
-        switch(diffY)
-        {
-        case -1:
-            return 1;
-        case 1:
-            return 5;
-        }
-    case 1:
-        switch(diffY)
-        {
-        case -1:
-            return 2;
-        case 0:
-            return 3;
-        case 1:
-            return 4;
-        }
-    default:
-        return 0;
-    }
-}
-
-int newOrientation(int oldOrientation, int desiredOrientation)
-{
-    int differenceInOrientation = (oldOrientation + desiredOrientation)- desiredOrientation;
-    int output;
-    int amountOfStepsRight;
-    int amountOfStepsLeft;
-    //calcualte amount of tik's going right en left
-    if(oldOrientation < desiredOrientation)
-    {
-        amountOfStepsRight = desiredOrientation - oldOrientation;
-        amountOfStepsLeft = (oldOrientation+8) - desiredOrientation;
-    }
-    else if(oldOrientation > desiredOrientation)
-    {
-        amountOfStepsRight = (desiredOrientation+8) - oldOrientation;
-        amountOfStepsLeft = oldOrientation - desiredOrientation;
-    }
-    else
-    {
-        amountOfStepsRight = 0;
-        amountOfStepsLeft = 0;
-    }
-    if(amountOfStepsLeft < amountOfStepsRight)
-    {
-        output = oldOrientation -1;
-    }
-    else if (amountOfStepsLeft > amountOfStepsRight)
-    {
-        output = oldOrientation +1;
-    }
-    else if(amountOfStepsLeft == amountOfStepsRight && amountOfStepsLeft != 0)
-    {
-        output = oldOrientation +1;
-    }
-    else
-    {
-        output = oldOrientation;
-    }
-    if(output < 0)
-    {
-        output = 7;
-    }
-    if(output > 7)
-    {
-        output = 0;
-    }
-    return output;
 }
 
 void actors::updateGoalPath()
@@ -687,13 +694,12 @@ void actors::moveActorIfWalking()
     {
         this->busyWalking = false;
         this->movedMoreThanHalf = false;
-        this->actorCords[0] = this->actorGoal[0];
-        this->actorCords[1] = this->actorGoal[1];
+        this->actorCords = this->actorGoal;
     }
     else if (this->busyWalking && (currentGame.elapsedTime - this->timeLastUpdate) > 0.5f && !this->movedMoreThanHalf)
     {
 
-        currentGame.occupiedByActorList[this->actorCords[0]][this->actorCords[1]] = -1;
+        currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y] = -1;
         this->movedMoreThanHalf = true;
     }
 }
@@ -715,10 +721,9 @@ void actors::startWalking()
     this->retries = 0;
     this->busyWalking = true;
     this->timeLastUpdate = currentGame.elapsedTime;
-    this->actorGoal[0] = this->route.back().positionX;
-    this->actorGoal[1] = this->route.back().positionY;
+    this->actorGoal = this->route.back().position;
 
-    currentGame.occupiedByActorList[this->route.back().positionX][this->route.back().positionY] = this->actorId;
+    currentGame.occupiedByActorList[this->route.back().position.x][this->route.back().position.y] = this->actorId;
 
     this->route.pop_back();
     if (route.empty())
@@ -737,8 +742,7 @@ void actors::retryWalkingOrChangeGoal() {
         this->timeLastRetry = currentGame.getTime();
         if (this->retries < 30)
         {
-                this->actorGoal[0] = this->actorCommandGoal[0];
-                this->actorGoal[1] = this->actorCommandGoal[1];
+                this->actorGoal = this->actorCommandGoal;
                 this->routeNeedsPath = true;
                 this->pathFound = false;
                 this->realPath = false;
@@ -747,7 +751,7 @@ void actors::retryWalkingOrChangeGoal() {
         }
         else if (this->hasToUnloadResource || this->isGatheringRecources || this->isBuilding)
         {
-            this->listOfTargetsToRejectUntilSuccesfullMovement.push_back({ this->actorCommandGoal[0] , this->actorCommandGoal[1] });
+            this->listOfTargetsToRejectUntilSuccesfullMovement.push_back(this->actorCommandGoal);
             this->clearRoute();
             this->routeNeedsPath = false;
             this->pathFound = false;
@@ -756,7 +760,7 @@ void actors::retryWalkingOrChangeGoal() {
         }
         else
         {
-            this->listOfTargetsToRejectUntilSuccesfullMovement.push_back({ this->actorCommandGoal[0] , this->actorCommandGoal[1] });
+            this->listOfTargetsToRejectUntilSuccesfullMovement.push_back(this->actorCommandGoal);
             this->clearRoute();
             this->pathFound = false;
             this->realPath = false;
@@ -768,7 +772,7 @@ void actors::retryWalkingOrChangeGoal() {
 
 void actors::walkToNextSquare() {
     // Deze actor heeft een doel, dit doel is nog niet bereikt en is klaar met het vorige stuk lopen!
-    if (actorOrientation(this->actorCords[0], this->actorCords[1], this->route.back().positionX, this->route.back().positionY) == this->orientation)
+    if (actorOrientation(this->actorCords.x, this->actorCords.y, this->route.back().position.x, this->route.back().position.y) == this->orientation)
     {
         if ((this->isGatheringRecources || this->isMeleeAttacking) && this->route.size() == 1)
         {
@@ -776,14 +780,14 @@ void actors::walkToNextSquare() {
                 this->clearRoute();
             //}
         }
-        else if (this->isRangedAttacking && distEuclidean(this->actorCords[0], this->actorCords[1], this->actorGoal[0], this->actorGoal[1]) <= this->range)
+        else if (this->isRangedAttacking && distEuclidean(this->actorCords.x, this->actorCords.y, this->actorGoal.x, this->actorGoal.y) <= this->range)
         {
             this->clearRoute();
         }
         else
         {
             //De actor staat met zijn neus de goede kant op en kan dus gaan lopen als de tegel vrij is!
-            if (currentGame.occupiedByActorList[this->route.back().positionX][this->route.back().positionY] == -1)
+            if (currentGame.occupiedByActorList[this->route.back().position.x][this->route.back().position.y] == -1)
             {
                 this->listOfTargetsToRejectUntilSuccesfullMovement.clear();
                 this->startWalking();
@@ -796,7 +800,7 @@ void actors::walkToNextSquare() {
     else
     {
         //De actor moet eerst draaien voordat hij kan gaan lopen
-        this->orientation = newOrientation(this->orientation, actorOrientation(this->actorCords[0], this->actorCords[1], this->route.back().positionX, this->route.back().positionY));
+        this->orientation = newOrientation(this->orientation, actorOrientation(this->actorCords.x, this->actorCords.y, this->route.back().position.x, this->route.back().position.y));
     }
 }
 
@@ -851,7 +855,7 @@ void actors::handleResourceGathering()
 void actors::handleBuilding()
 {
     if (this->realPath) {
-        if (this->orientation == actorOrientation(this->actorCords[0], this->actorCords[1], this->actionPreformedOnTile[0], this->actionPreformedOnTile[1])) {
+        if (this->orientation == actorOrientation(this->actorCords.x, this->actorCords.y, this->actionPreformedOnTile.x, this->actionPreformedOnTile.y)) {
             //villager is aangekomen bij te bouwen gebouw en kan na verplaatst te zijn gaan bouwen!
             if (this->isAtRecource)
             {
@@ -872,7 +876,7 @@ void actors::handleBuilding()
         }
         else {
             //eerst de actor in de juiste orientatie zetten
-            this->orientation = newOrientation(this->orientation, actorOrientation(this->actorCords[0], this->actorCords[1], this->actionPreformedOnTile[0], this->actionPreformedOnTile[1]));
+            this->orientation = newOrientation(this->orientation, actorOrientation(this->actorCords.x, this->actorCords.y, this->actionPreformedOnTile.x, this->actionPreformedOnTile.y));
         }
     }
     else {
@@ -1097,21 +1101,10 @@ void actors::animateWalkingToResource()
     }
 }
 
-bool isRealyNextToRecource(int& unitX, int& unitY, int& resourceX, int& resourceY) {
-    int distX = unitX - resourceX;
-    int distY = unitY - resourceY;
-    if ((distX == 0 || distX == 1 || distX == -1) && (distY == 0 || distY == 1 || distY == -1)) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
 void actors::gatherResource()
 {
-    if (isRealyNextToRecource(this->actorCords[0], this->actorCords[1], this->actionPreformedOnTile[0], this->actionPreformedOnTile[1])) {
-        if (currentGame.objectLocationList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]] != -1)
+    if (isReallyNextToResource(this->actorCords.x, this->actorCords.y, this->actionPreformedOnTile.x, this->actionPreformedOnTile.y)) {
+        if (currentGame.objectLocationList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y] != -1)
         {
             if (currentGame.elapsedTime - this->timeStartedGatheringRecource > 2)
             {
@@ -1130,7 +1123,7 @@ void actors::gatherResource()
                     this->amountOfGold += +1;
                     break;
                 }
-                listOfObjects[currentGame.objectLocationList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]]].substractResource();
+                listOfObjects[currentGame.objectLocationList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].substractResource();
                 this->carriesRecources = true;
                 if ((this->amountOfFood == 10) || (this->amountOfWood == 10) || (this->amountOfStone == 10) || (this->amountOfGold == 10))
                 {
@@ -1193,10 +1186,10 @@ void actors::unloadAndReturnToGathering()
         this->amountOfGold = 0;
         break;
     }
-    if (this->actionPreformedOnTile[0] >= 0 || this->actionPreformedOnTile[0] < MAP_WIDTH || this->actionPreformedOnTile[1] >= 0 || this->actionPreformedOnTile[1] < MAP_HEIGHT) {
-        if (currentGame.objectLocationList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]] != -1)
+    if (this->actionPreformedOnTile.x >= 0 && this->actionPreformedOnTile.x < MAP_WIDTH && this->actionPreformedOnTile.y >= 0 && this->actionPreformedOnTile.y < MAP_HEIGHT) {
+        if (currentGame.objectLocationList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y] != -1)
         {
-            this->updateGoal(this->actionPreformedOnTile[0], this->actionPreformedOnTile[1], 0);
+            this->updateGoal(this->actionPreformedOnTile, 0);
             this->isWalkingToUnloadingPoint = false;
             this->isAtCarryCapacity = false;
             this->carriesRecources = false;
@@ -1208,8 +1201,7 @@ void actors::unloadAndReturnToGathering()
         {
             this->routeNeedsPath = false;
             this->pathFound = false;
-            this->actionPreformedOnTile[0] = this->actorGoal[0];
-            this->actionPreformedOnTile[1] = this->actorGoal[1];
+            this->actionPreformedOnTile = this->actorGoal;
             this->isWalkingToUnloadingPoint = false;
             this->isAtCarryCapacity = false;
             this->carriesRecources = false;
@@ -1222,8 +1214,7 @@ void actors::unloadAndReturnToGathering()
     else {
         this->routeNeedsPath = false;
         this->pathFound = false;
-        this->actionPreformedOnTile[0] = this->actorGoal[0];
-        this->actionPreformedOnTile[1] = this->actorGoal[1];
+        this->actionPreformedOnTile = this->actorGoal;
         this->isWalkingToUnloadingPoint = false;
         this->isAtCarryCapacity = false;
         this->carriesRecources = false;
@@ -1239,11 +1230,10 @@ void actors::setGatheringRecource(bool flag)
 {
     this->isGatheringRecources = flag;
     this->isBuilding = false;
-    if(flag)
+    if (flag && currentGame.objectLocationList[this->actorGoal.x][this->actorGoal.y] != -1) 
     {
-        this->ResourceBeingGatherd = listOfObjects[currentGame.objectLocationList[this->actorGoal[0]][this->actorGoal[1]]].getTypeOfResource();
-        this->actionPreformedOnTile[0] = this->actorGoal[0];
-        this->actionPreformedOnTile[1] = this->actorGoal[1];
+        this->ResourceBeingGatherd = listOfObjects[currentGame.objectLocationList[this->actorGoal.x][this->actorGoal.y]].getTypeOfResource();
+        this->actionPreformedOnTile = this->actorGoal;
     }
 }
 
@@ -1252,16 +1242,13 @@ void actors::setCommonGoalTrue()
     this->commonGoal = true;
 }
 
-void actors::findNearestSimilairResource()
+void actors::findNearestSimilarResource()
 {
     cords newResourceCords = findResource(this->ResourceBeingGatherd, this->actorId);
     if (newResourceCords.x != -1) {
-        this->actorGoal[0] = newResourceCords.x;
-        this->actorGoal[1] = newResourceCords.y;
-        this->actorCommandGoal[0] = newResourceCords.x;
-        this->actorCommandGoal[1] = newResourceCords.y;
-        this->actionPreformedOnTile[0] = this->actorGoal[0];
-        this->actionPreformedOnTile[1] = this->actorGoal[1];
+        this->actorGoal = newResourceCords;
+        this->actorCommandGoal = newResourceCords;
+        this->actionPreformedOnTile = this->actorGoal;
         this->waitForAmountOfFrames = 0;
         this->routeNeedsPath = true;
         listOfActorsWhoNeedAPath.push_back(this->actorId);
@@ -1278,40 +1265,15 @@ void actors::findNearestSimilairResource()
     }
 }
 
-
-cords actors::getLocation(){
-    return {this->actorCords[0], this->actorCords[1]};
-}
-
-int adjacentTileIsCorrectDropOffPoint(int& x, int& y, resourceTypes& resourceGatherd, int& team) {
-    for (int xOffset = x - 1; xOffset < x + 2; xOffset++) 
-    {
-        for (int yOffset = y - 1; yOffset < y + 2; yOffset++) 
-        {
-            if (currentGame.occupiedByBuildingList[xOffset][yOffset] != -1) 
-            {
-                int i = currentGame.occupiedByBuildingList[xOffset][yOffset];
-                if ((listOfBuildings[i].getRecievesWhichResources() == resourceGatherd || listOfBuildings[i].getRecievesWhichResources() == resourceTypes::All) && listOfBuildings[i].getTeam() == team && listOfBuildings[i].getCompleted()) 
-                {
-                    return i;
-                }
-            }
-        }
-    }
-    return -1;
-}
-
 void actors::findNearestDropOffPoint()
 {
     if (!this->routeNeedsPath) {
         //Bugfix for edge case where the actor is ocuping a tile adjacent to a dropoff building
-        int adjacentBuildingAvailableId = adjacentTileIsCorrectDropOffPoint(this->actorCords[0], this->actorCords[1], this->ResourceBeingGatherd, this->actorTeam);
+        int adjacentBuildingAvailableId = adjacentTileIsCorrectDropOffPoint(this->actorCords, this->ResourceBeingGatherd, this->actorTeam);
         if (adjacentBuildingAvailableId != -1) {
-            listOfDropOffLocations.push_back({ 0, this->actorCords[0], this->actorCords[1], adjacentBuildingAvailableId, true, 1 });
-            this->actorGoal[0] = this->actorCords[0];
-            this->actorGoal[1] = this->actorCords[1];
-            this->actorCommandGoal[0] = this->actorCords[0];
-            this->actorCommandGoal[1] = this->actorCords[1];
+            listOfDropOffLocations.push_back({ 0, this->actorCords.x, this->actorCords.y, adjacentBuildingAvailableId, true, 1 });
+            this->actorGoal = this->actorCords;
+            this->actorCommandGoal = this->actorCords;
             this->waitForAmountOfFrames = 0;
             this->routeNeedsPath = true;
             listOfActorsWhoNeedAPath.push_back(this->actorId);
@@ -1326,8 +1288,8 @@ void actors::findNearestDropOffPoint()
                         std::vector<adjacentTile> tileList = listOfBuildings[i].getDropOffTiles();
                         for (int j = 1; j < tileList.size(); j++)
                         {
-                            float tempDeltaDistance = static_cast<float>(dist(this->actorCords[0], this->actorCords[1], tileList[j].goalX, tileList[j].goalY));
-                            listOfDropOffLocations.push_back({ tempDeltaDistance, tileList[j].tileX, tileList[j].tileY, tileList[j].goalX, tileList[j].goalY, i, true, tileList[j].tileId });
+                            float tempDeltaDistance = static_cast<float>(dist(this->actorCords.x, this->actorCords.y, tileList[j].goal.x, tileList[j].goal.y));
+                            listOfDropOffLocations.push_back({ tempDeltaDistance, tileList[j].tileCords, tileList[j].goal.x, tileList[j].goal.y, i, true, tileList[j].tileId });
                         }
                     }
                 }
@@ -1342,7 +1304,7 @@ void actors::findNearestDropOffPoint()
             }
             if (!this->realPath && !listOfDropOffLocations.empty())
             {
-                this->updateGoal(listOfDropOffLocations.front().actionLocationX, listOfDropOffLocations.front().actionLocationY, 0);
+                this->updateGoal(listOfDropOffLocations.front().actionLocation, 0);
                 listOfBuildings[this->buildingId].removeActorFromBuildingTile(this->actorId);
                 this->buildingId = listOfDropOffLocations.front().buildingId;
                 listOfBuildings[this->buildingId].claimFreeBuiildingTile(listOfDropOffLocations.front().tileId, this->actorId);
@@ -1352,12 +1314,12 @@ void actors::findNearestDropOffPoint()
     }
 }
 
-int actors::getTeam()
+int actors::getTeam() const
 {
     return this->actorTeam;
 }
 
-bool actors::isInitialized()
+bool actors::isInitialized() const
 {
     return this->initialized;
 }
@@ -1367,8 +1329,7 @@ void actors::calculateRoute()
     if(this->routeNeedsPath)
     {
         this->route.clear();
-        this->actorRealGoal[0] = this->actorGoal[0];
-        this->actorRealGoal[1] = this->actorGoal[1];
+        this->actorRealGoal = this->actorGoal;
         this->realPath = false;
         this->routeNeedsPath = false;
         this->pathAStar();
@@ -1385,19 +1346,18 @@ void actors::pathAStar()
 {
     std::vector<Cells> cellsList;
     cellsList.reserve(MAP_HEIGHT*MAP_WIDTH);
-    int startCell = (actorCords[0]*MAP_HEIGHT)+actorCords[1]; //eigen positie
-    int endCell = (actorGoal[0]*MAP_HEIGHT)+actorGoal[1]; //doel positie
+    int startCell = (actorCords.x*MAP_HEIGHT)+actorCords.y; //eigen positie
+    int endCell = (actorGoal.x*MAP_HEIGHT)+actorGoal.y; //doel positie
     updateCells(endCell, startCell, cellsList);
     std::list<Cells*> listToCheck;
     std::list<Cells*> checkedList;
     bool endReached = false;
 
-
     //check of de doelcel niet 1 hokje weg is 
-    if(((actorCords[0]-actorGoal[0] == 0) ||(actorCords[0]-actorGoal[0] == -1) ||(actorCords[0]-actorGoal[0] == 1)) && ((actorCords[1]-actorGoal[1] == 0) ||(actorCords[1]-actorGoal[1] == -1) ||(actorCords[1]-actorGoal[1] == 1)))
+    if(((actorCords.x-actorGoal.x == 0) ||(actorCords.x-actorGoal.x == -1) ||(actorCords.x-actorGoal.x == 1)) && ((actorCords.y-actorGoal.y == 0) ||(actorCords.y-actorGoal.y == -1) ||(actorCords.y-actorGoal.y == 1)))
     {
         //en geen obstakel is of het hokje van de actor zelf is
-        if(!cellsList[endCell].obstacle || (actorCords[0] == actorGoal[0] && actorCords[1] == actorGoal[1]))
+        if(!cellsList[endCell].obstacle || (actorCords.x == actorGoal.x && actorCords.y == actorGoal.y))
         {
             this->pathFound = true;
             endReached = true;
@@ -1412,10 +1372,10 @@ void actors::pathAStar()
         //De startcell initialiseren
         this->pathFound = false;
         cellsList[startCell].addNeighbours(cellsList);
-        cellsList[startCell].totalCostGuess = dist(cellsList[startCell].positionX, cellsList[startCell].positionY, cellsList[endCell].positionX, cellsList[endCell].positionY);
+        cellsList[startCell].totalCostGuess = dist(cellsList[startCell].position.x, cellsList[startCell].position.y, cellsList[endCell].position.x, cellsList[endCell].position.y);
         cellsList[startCell].visited = true;
         cellsList[startCell].parentCellId =  -1;
-        cellsList[startCell].costToGoal = dist(cellsList[startCell].positionX, cellsList[startCell].positionY, cellsList[endCell].positionX, cellsList[endCell].positionY);
+        cellsList[startCell].costToGoal = dist(cellsList[startCell].position.x, cellsList[startCell].position.y, cellsList[endCell].position.x, cellsList[endCell].position.y);
         //De startcel in de lijst van te checken cellen zetten om te kunnen beginnen
         listToCheck.push_back(&cellsList[startCell]);
     }
@@ -1451,7 +1411,7 @@ void actors::pathAStar()
                     //Als laatste zetten we de cell in de lijst met cellen die gecheckt moet worden
                     listToCheck.push_back(&cellsList[*iterator]);
                     //En we schatten vanaf deze cell de kosten naar het doel
-                    cellsList[*iterator].costToGoal = dist(cellsList[*iterator].positionX,cellsList[*iterator].positionY,cellsList[endCell].positionX,cellsList[endCell].positionY);
+                    cellsList[*iterator].costToGoal = dist(cellsList[*iterator].position.x,cellsList[*iterator].position.y,cellsList[endCell].position.x,cellsList[endCell].position.y);
                     //Waardoor we dus de totale kosten kunnen schatten
                     cellsList[*iterator].totalCostGuess = cellsList[*iterator].costToGoal + cellsList[*iterator].cummulativeCost;
                     //We zijn voor nu klaar met deze tegel en laten een vlag achter dat de tegel al eens bekeken is
@@ -1496,8 +1456,7 @@ void actors::pathAStar()
                         return f->costToGoal < s->costToGoal;
                     });
                 //Een bereikbare tegel met de laagst geschatte totale kosten staat nu vooraan in de rij van de bezochte tegels
-                this->actorGoal[0] = cellsList[(*checkedList.front()).cellId].positionX;
-                this->actorGoal[1] = cellsList[(*checkedList.front()).cellId].positionY;
+                this->actorGoal = cellsList[(*checkedList.front()).cellId].position;
                 if ((*checkedList.front()).parentCellId != -1) {
                     //Actor staat niet op de dichtsbijzijnde tegel: Stippel de route hiernaartoe uit
                     routing(cellsList, (*checkedList.front()).cellId, startCell, endReached);
@@ -1545,57 +1504,57 @@ void actors::fightOrFlight(int idOfAttacker)
 
         if (hitsToWin < hitsUntilDead) {
             //Fight
-            this->updateGoal(listOfActors[idOfAttacker].getActorCords().x, listOfActors[idOfAttacker].getActorCords().y, 0);
+            this->updateGoal(listOfActors[idOfAttacker].getActorCords(), 0);
             this->setIsDoingAttack();
         }
         else {
             //Flight
             int moveX = 0;
             int moveY = 0;
-            if (this->actorCords[0] < listOfActors[idOfAttacker].getActorCords().x) {
+            if (this->actorCords.x < listOfActors[idOfAttacker].getActorCords().x) {
                 //We want to go to a lower x
                 moveX = -1;
             }
-            else if (this->actorCords[0] > listOfActors[idOfAttacker].getActorCords().x) {
+            else if (this->actorCords.x > listOfActors[idOfAttacker].getActorCords().x) {
                 //We want to go to a higher x
                 moveX = 1;
             }
-            if (this->actorCords[0] < listOfActors[idOfAttacker].getActorCords().y) {
+            if (this->actorCords.x < listOfActors[idOfAttacker].getActorCords().y) {
                 //We want to go to a lower Y
                 moveY = -1;
             }
-            else if (this->actorCords[0] > listOfActors[idOfAttacker].getActorCords().y) {
+            else if (this->actorCords.x > listOfActors[idOfAttacker].getActorCords().y) {
                 //We want to go to a higher Y
                 moveY = 1;
             }
 
-            if (currentGame.isPassable(this->actorCords[0] + moveX, this->actorCords[1] + moveY)) {
+            if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y + moveY })) {
                 //Then do it!
-                this->updateGoal(this->actorCords[0] + moveX, this->actorCords[1] + moveY, 0);
+                this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y + moveY }, 0);
             }
             else {
                 //try only x
-                if (currentGame.isPassable(this->actorCords[0] + moveX, this->actorCords[1])) {
+                if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y })) {
                     //Then do it!
-                    this->updateGoal(this->actorCords[0] + moveX, this->actorCords[1], 0);
+                    this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y }, 0);
                 }
                 else {
                     //try only Y
-                    if (currentGame.isPassable(this->actorCords[0], this->actorCords[1] + moveY)) {
+                    if (currentGame.isPassable({ this->actorCords.x, this->actorCords.y + moveY })) {
                         //Then do it!
-                        this->updateGoal(this->actorCords[0], this->actorCords[1] + moveY, 0);
+                        this->updateGoal({ this->actorCords.x, this->actorCords.y + moveY }, 0);
                     }
                     else {
                         //Well, not good, just two options left!
-                        if (currentGame.isPassable(this->actorCords[0] - moveX, this->actorCords[1] + moveY)) {
-                            this->updateGoal(this->actorCords[0] - moveX, this->actorCords[1] + moveY, 0);
+                        if (currentGame.isPassable({ this->actorCords.x - moveX, this->actorCords.y + moveY })) {
+                            this->updateGoal({ this->actorCords.x - moveX, this->actorCords.y + moveY }, 0);
                         }
-                        else if (currentGame.isPassable(this->actorCords[0] + moveX, this->actorCords[1] - moveY)) {
-                            this->updateGoal(this->actorCords[0] + moveX, this->actorCords[1] - moveY, 0);
+                        else if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y - moveY })) {
+                            this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y - moveY }, 0);
                         }
                         else {
                             //We are doomed, so fight till the last breath! Out in a blaze of glory and all of that
-                            this->updateGoal(listOfActors[idOfAttacker].getActorCords().x, listOfActors[idOfAttacker].getActorCords().y, 0);
+                            this->updateGoal(listOfActors[idOfAttacker].getActorCords(), 0);
                             this->setIsDoingAttack();
                         }
                     }
@@ -1610,10 +1569,10 @@ void actors::doNextStackedCommand()
     if (!this->listOfOrders.empty()) {
         switch (this->listOfOrders.front().orderType) {
         case stackOrderTypes::stackActionMove:
-            this->updateGoal(this->listOfOrders.front().goal.x, this->listOfOrders.front().goal.y, 0);
+            this->updateGoal(this->listOfOrders.front().goal, 0);
             break;
         case stackOrderTypes::stackActionGather:
-            this->updateGoal(this->listOfOrders.front().goal.x, this->listOfOrders.front().goal.y, 0);
+            this->updateGoal(this->listOfOrders.front().goal, 0);
             this->setGatheringRecource(true);
             break;
         case stackOrderTypes::stackActionBuild:
@@ -1621,14 +1580,14 @@ void actors::doNextStackedCommand()
                 if (!listOfBuildings[currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y]].getCompleted()
                     && listOfBuildings[currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y]].getTeam() == this->actorTeam) {
                     nearestBuildingTile tempTile = findNearestBuildingTile(currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y], this->actorId);
-                    this->updateGoal(tempTile.locationX, tempTile.locationY, 0);
+                    this->updateGoal(tempTile.location, 0);
                     listOfBuildings[currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y]].claimFreeBuiildingTile(tempTile.buildingId, this->actorId);
-                    this->setIsBuildingTrue(currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y], this->listOfOrders.front().goal.x, this->listOfOrders.front().goal.y);
+                    this->setIsBuildingTrue(currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y], this->listOfOrders.front().goal);
                 }
             }
             break;
         case stackOrderTypes::stackActionAttack:
-            this->updateGoal(this->listOfOrders.front().goal.x, this->listOfOrders.front().goal.y, 0);
+            this->updateGoal(this->listOfOrders.front().goal, 0);
             this->setIsDoingAttack();
             break;
         }
@@ -1641,16 +1600,16 @@ void actors::stackOrder(cords goal, const stackOrderTypes orderType)
     this->listOfOrders.push_back({ goal, orderType });
 }
 
-void actors::routing(std::vector<Cells>& cellsList, int& endCell, int& startCell, bool& endReached)
+void actors::routing(std::vector<Cells>& cellsList, int endCell, int startCell, bool endReached)
 {
     //Zet de tegel waarnaartoe gelopen wordt in de lijst
-    this->route.push_back({ cellsList[endCell].positionX, cellsList[endCell].positionY, cellsList[endCell].visited, cellsList[endCell].parentCellId });
+    this->route.push_back({ cellsList[endCell].position, cellsList[endCell].visited, cellsList[endCell].parentCellId });
     while (!endReached)
     {
         if (route.back().visited == true)
         {
             //Voeg voor iedere tegel de parent toe aan de lijst (dit was de tegel met de korste weg naar deze tegel)
-            this->route.push_back({ cellsList[route.back().parentCellId].positionX, cellsList[route.back().parentCellId].positionY, cellsList[route.back().parentCellId].visited, cellsList[route.back().parentCellId].parentCellId });
+            this->route.push_back({ cellsList[route.back().parentCellId].position, cellsList[route.back().parentCellId].visited, cellsList[route.back().parentCellId].parentCellId });
             if (this->route.back().parentCellId == startCell) {
                     //Als de nu volgende parentCell de tegel is waar de actor op staat zijn we klaar.
                     endReached = true;
@@ -1661,13 +1620,13 @@ void actors::routing(std::vector<Cells>& cellsList, int& endCell, int& startCell
             //Fix voor een bug waarin op een of andere manier géén parent cell ingevult staat en dus nul zou zijn. (al zou dat niet moeten kunnen)
             if (this->route.back().parentCellId == 0) {
                 //We gaan kijken of het een logische buur kan zijn, gelukkig hoeven we maar drie posities te controleren:
-                if (this->route.back().positionX == 0 && this->route.back().positionX == 1) {
+                if (this->route.back().position.x == 0 && this->route.back().position.x == 1) {
                     //Logische parent; doe niets!
                 }
-                else if(this->route.back().positionX == 0 && this->route.back().positionX == 1) {
+                else if(this->route.back().position.x == 0 && this->route.back().position.x == 1) {
                     //Logische parent; doe niets!
                 }
-                else if (this->route.back().positionX == 1 && this->route.back().positionX == 1) {
+                else if (this->route.back().position.x == 1 && this->route.back().position.x == 1) {
                     //Logische parent; doe niets!
                 }
                 else {
@@ -1692,39 +1651,38 @@ void actors::cleanUp()
         {
             if(currentGame.occupiedByActorList[i][j] == this->actorId)
             {
-                if(i !=  this->actorCords[0] && j != this->actorCords[1])
+                if(i !=  this->actorCords.x && j != this->actorCords.y)
                 {
                     currentGame.occupiedByActorList[i][j] = -1;
                 }
             }
         }
     }
-    currentGame.occupiedByActorList[this->actorCords[0]][this->actorCords[1]] = this->actorId;
+    currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y] = this->actorId;
 }
 
-std::pair<int, int> actors::getHealth()
+std::pair<int, int> actors::getHealth() const
 {
     return {this->actorHealth, this->hitPoints};
 }
 
-int actors::getMeleeDMG()
+int actors::getMeleeDMG() const
 {
     return this->meleeDamage;
 }
 
-int actors::getRangedDMG()
+int actors::getRangedDMG() const
 {
     return this->rangedDamage;
 }
 
-void actors:: drawActor()
+void actors::drawActor()
 {
-    int i = this->actorCords[0];
-    int j = this->actorCords[1];
-    int x = this->actorGoal[0];
-    int y = this->actorGoal[1];
-    int xPosition = worldSpace(i,j,true);
-    int yPosition = worldSpace(i,j,false);
+    int i = this->actorCords.x;
+    int j = this->actorCords.y;
+    int x = this->actorGoal.x;
+    int y = this->actorGoal.y;
+    cords position = worldSpace({ i,j });
     int spriteXoffset = 0;
     int spriteYoffset = 0;
 
@@ -1741,15 +1699,13 @@ void actors:: drawActor()
         }
         if (this->busyWalking)
         {
-            int nXPosition = worldSpace(x, y, true);
-            int nYPosition = worldSpace(x, y, false);
-            int deltaX = xPosition - nXPosition;
-            int deltaY = yPosition - nYPosition;
+            cords nPosition = worldSpace({ x, y });
+            int deltaX = position.x - nPosition.x;
+            int deltaY = position.y - nPosition.y;
             float deltaTime = currentGame.elapsedTime - this->timeLastUpdate;
             float deltaXCompleted = deltaX * deltaTime;
             float deltaYCompleted = deltaY * deltaTime;
-            xPosition = xPosition - static_cast<int>(deltaXCompleted);
-            yPosition = yPosition - static_cast<int>(deltaYCompleted);
+            position = { position.x - static_cast<int>(deltaXCompleted),  position.y - static_cast<int>(deltaYCompleted) };
         }
     }
     else if(this->isAtRecource)
@@ -1832,19 +1788,18 @@ void actors:: drawActor()
         spriteXoffset = 0 + spriteOffset;
         break;
     }
-    xPosition = xPosition + static_cast<int>(this->offSetX);
-    yPosition = yPosition + static_cast<int>(this->offSetY);
+    position = { position.x + static_cast<int>(this->offSetX), position.y + static_cast<int>(this->offSetY) };
 
     bool drawHealth = false;
 
     if(currentGame.isInSelectedActors(this->actorId))
     {
-        currentGame.spriteUnitSelectedTile.setPosition(static_cast<float>(xPosition), static_cast<float>(yPosition));
+        currentGame.spriteUnitSelectedTile.setPosition(static_cast<float>(position.x), static_cast<float>(position.y));
         window.draw(currentGame.spriteUnitSelectedTile);
         drawHealth = true;
         if (!this->listOfOrders.empty() && this->actorTeam == currentPlayer.getTeam()) {
             for (const orderStack order : this->listOfOrders) {
-                currentGame.spriteFlag.setPosition(static_cast<float>(worldSpace(order.goal.x, order.goal.y, true)), static_cast<float>(worldSpace(order.goal.x, order.goal.y, false)));
+                currentGame.spriteFlag.setPosition(static_cast<float>(worldSpace(order.goal).x), static_cast<float>(worldSpace(order.goal).y));
                 window.draw(currentGame.spriteFlag);
             }
         }
@@ -1858,12 +1813,12 @@ void actors:: drawActor()
     switch (this->actorType) 
     {
     case 0:
-        currentGame.spriteVillager.setPosition(static_cast<float>(xPosition), static_cast<float>(yPosition));
+        currentGame.spriteVillager.setPosition(static_cast<float>(position.x), static_cast<float>(position.y));
         currentGame.spriteVillager.setTextureRect(sf::IntRect(spriteXoffset, spriteYoffset, 16, 32));
         window.draw(currentGame.spriteVillager);
         break;
     case 1:
-        currentGame.spriteSwordsman.setPosition(static_cast<float>(xPosition), static_cast<float>(yPosition));
+        currentGame.spriteSwordsman.setPosition(static_cast<float>(position.x), static_cast<float>(position.y));
         currentGame.spriteSwordsman.setTextureRect(sf::IntRect(spriteXoffset, spriteYoffset, 16, 32));
         window.draw(currentGame.spriteSwordsman);
     }
@@ -1873,8 +1828,8 @@ void actors:: drawActor()
         currentGame.healthBarBackground.setSize(sf::Vector2f(32, 3));
         currentGame.healthBarGreenBar.setFillColor(sf::Color(0, 255, 0));
         currentGame.healthBarGreenBar.setSize(sf::Vector2f((static_cast<float>(this->actorHealth) / static_cast<float>(this->hitPoints)) * 32, 3));
-        currentGame.healthBarBackground.setPosition(static_cast<float>(xPosition+16), static_cast<float>(yPosition-28));
-        currentGame.healthBarGreenBar.setPosition(static_cast<float>(xPosition+16), static_cast<float>(yPosition-28));
+        currentGame.healthBarBackground.setPosition(static_cast<float>(position.x+16), static_cast<float>(position.y-28));
+        currentGame.healthBarGreenBar.setPosition(static_cast<float>(position.x+16), static_cast<float>(position.y-28));
         window.draw(currentGame.healthBarBackground);
         window.draw(currentGame.healthBarGreenBar);
 
@@ -1885,13 +1840,13 @@ void actors:: drawActor()
 
 void actors::buildBuilding()
 {
-    if(currentGame.occupiedByBuildingList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]] != -1)
+    if(currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y] != -1)
     {
-        if(!listOfBuildings[currentGame.occupiedByBuildingList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]]].getCompleted())
+        if(!listOfBuildings[currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].getCompleted())
         {
             if(currentGame.elapsedTime - this->timeStartedGatheringRecource > 1)
             {
-                listOfBuildings[currentGame.occupiedByBuildingList[this->actionPreformedOnTile[0]][this->actionPreformedOnTile[1]]].addBuildingPoint();
+                listOfBuildings[currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].addBuildingPoint();
                 this->timeStartedGatheringRecource = currentGame.elapsedTime;
             }
         }
@@ -1909,44 +1864,43 @@ void actors::buildBuilding()
     }
 }
 
-int actors::getActorId()
+int actors::getActorId()  const
 {
     return this->actorId;
 }
 
-bool actors::isGathering()
+bool actors::isGathering() const
 {
     return this->isGatheringRecources;
 }
 
-bool actors::getIsBuilding()
+bool actors::getIsBuilding() const
 {
     return this->isBuilding;
 }
 
-cords actors::getGoal()
+cords actors::getGoal() const
 {
-    return { this->actorGoal[0], this->actorGoal[1] };
+    return { this->actorGoal.x, this->actorGoal.y };
 }
 
-int actors::getBuildingId()
+int actors::getBuildingId() const
 {
     return this->buildingId;
 }
 
-resourceTypes actors::getResourceGathered()
+resourceTypes actors::getResourceGathered() const
 {
     return this->ResourceBeingGatherd;
 }
 
-void actors::setIsBuildingTrue(int buildingId, int& goalX, int& goalY)
+void actors::setIsBuildingTrue(int buildingId, cords goal)
 {
     this->isBuilding = true;
     this->buildingId = buildingId;
     this->isGatheringRecources = false;
     this->ResourceBeingGatherd = resourceTypes::resourceFood;
-    this->actionPreformedOnTile[0] = goalX;
-    this->actionPreformedOnTile[1] = goalY;
+    this->actionPreformedOnTile = goal;
 }
 
 void actors::renderPath()
@@ -1954,7 +1908,7 @@ void actors::renderPath()
     std::list<routeCell>::iterator it;
     for(it = route.begin(); it!=route.end(); it++)
     {
-        currentGame.spriteSelectedTileForPath.setPosition(static_cast<float>(worldSpace(it->positionX, it->positionY, true)), static_cast<float>(worldSpace(it->positionX, it->positionY, false)));
+        currentGame.spriteSelectedTileForPath.setPosition(static_cast<float>(worldSpace(it->position).x), static_cast<float>(worldSpace(it->position).y));
         window.draw(currentGame.spriteSelectedTileForPath);
     }
 }

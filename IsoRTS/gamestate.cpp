@@ -1,59 +1,85 @@
-#include "gamestate.h"
-#include "buildings.h"
-#include "objects.h"
 #include "actors.h"
+#include "buildings.h"
+#include "buildings.h"
+#include "gamestate.h"
+#include "gametext.h"
+#include "objects.h"
+#include "orderCursor.h"
 #include "player.h"
-#include <iostream>
-#include <sstream>
+#include "projectile.h"
+#include "randomMapGenerator.h"
 #include <algorithm> 
 #include <future>
+#include <iostream>
+#include <sstream>
 #include <vector>
-#include "gametext.h"
-#include "buildings.h"
-#include "randomMapGenerator.h"
-#include "projectile.h"
-#include "orderCursor.h"
+
 
 sf::RenderTexture minimapBuildingsTexture;
 sf::RenderTexture minimapActorsTexture;
 sf::RenderTexture minimapMistTexture;
+std::array<sf::RenderTexture, 16> minimapMistSectors;
 sf::RenderTexture minimapObjectsTexture;
 
 bool noNewBuildings;
 
-cords toWorldMousePosition(int mouseX, int mouseY)
+namespace
 {
-    if (!(mouseX < 0 || mouseY < 0))
+    const sf::Color teamColors[] =
     {
-        auto cheatTile = currentGame.textureCheatTile.copyToImage();
-        int cellX = mouseX / 64;
-        int cellY = mouseY / 32;
-        int offSetX = mouseX % 64;
-        int offSetY = mouseY % 32;
-        int worldX = (cellY - mapOffsetY) + (cellX - mapOffsetX);
-        int worldY = (cellY - mapOffsetY) - (cellX - mapOffsetX);
-        auto color = cheatTile.getPixel(offSetX, offSetY);
-        if (color == sf::Color::Red)
+        {0, 0, 255},
+        {0, 255, 0},
+        {255, 0, 0},
+        {255, 255, 0},
+        {0, 255, 255},
+        {255, 0, 255},
+        {255, 127, 0},
+        {127, 127, 127}
+    };
+}
+
+nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId)
+{
+    std::list <nearestBuildingTile> listOfBuildLocations;
+    std::vector<adjacentTile> tileList = listOfBuildings[buildingId].getFreeBuildingTile();
+    if (!tileList.empty()) {
+        for (int j = 0; j < tileList.size(); j++)
         {
-            worldX += -1;
+            float tempDeltaDistance = static_cast<float>(dist(listOfActors[actorId].getActorCords().x, listOfActors[actorId].getActorCords().y, tileList[j].tileCords.x, tileList[j].tileCords.y));
+            listOfBuildLocations.push_back({ tempDeltaDistance, tileList[j].tileCords.x, tileList[j].tileCords.y, tileList[j].goal.x , tileList[j].goal.y, tileList[j].tileId, true });
         }
-        else if (color == sf::Color::Green)
+        if (!listOfBuildLocations.empty())
         {
-            worldY += +1;
+            listOfBuildLocations.sort([](const nearestBuildingTile& f, const nearestBuildingTile& s)
+                {
+                    return f.deltaDistance < s.deltaDistance;
+                });
         }
-        else if (color == sf::Color::Blue)
-        {
-            worldY += -1;
+        bool firstLocationIsNotRejected = false;
+        while (!firstLocationIsNotRejected && !listOfBuildLocations.empty() && !listOfActors[actorId].getRejectedTargetsList().empty()) {
+            bool rejectionsDuringLoop = false;
+            for (const auto& reject : listOfActors[actorId].getRejectedTargetsList())
+            {
+                if (reject.x == listOfBuildLocations.front().location.x && reject.y == listOfBuildLocations.front().location.y) {
+                    //target rejected!
+                    listOfBuildLocations.pop_front();
+                    rejectionsDuringLoop = true;
+                }
+            }
+            if (!rejectionsDuringLoop) {
+                firstLocationIsNotRejected = true; //break the loop 
+            }
         }
-        else if (color == sf::Color::Yellow)
-        {
-            worldX += +1;
+        //Return the location if one is accepted
+        if (!listOfBuildLocations.empty()) {
+            return  listOfBuildLocations.front();
         }
-        return { worldX, worldY };
+        else {
+            return { 0, 0, 0, 0, false };
+        }
     }
-    else
-    {
-        return { 0,0 };
+    else {
+        return { 0, 0, 0, 0, false };
     }
 }
 
@@ -61,21 +87,26 @@ void gameState::drawMousePosition(int x,int y, bool noProblem)
 {
     if(noProblem)
     {
-        spriteSelectedTile.setPosition(static_cast<float>(worldSpace(x, y,true)), static_cast<float>(worldSpace(x, y,false)));
+        spriteSelectedTile.setPosition(static_cast<float>(worldSpace({ x, y }).x), static_cast<float>(worldSpace({ x, y }).y));
         window.draw(spriteSelectedTile);
     }
     else
     {
-        spriteTileObstructed.setPosition(static_cast<float>(worldSpace(x, y,true)), static_cast<float>(worldSpace(x, y,false)));
+        spriteTileObstructed.setPosition(static_cast<float>(worldSpace({ x, y }).x), static_cast<float>(worldSpace({ x, y }).y));
         window.draw(spriteTileObstructed);
     }
 }
 
-bool gameState::isPassable(int x, int y)
+bool gameState::isPassable(cords location) const
 {
     //check if the terrain is passable 1-6 and within map bounds
-    if (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT) {
-        if ((this->currentMap[x][y] > 0 && this->currentMap[x][y] < 7) && this->objectLocationList[x][y] == -1 && this->occupiedByBuildingList[x][y] == -1 && this->occupiedByActorList[x][y] == -1)
+    if (location.x >= 0 && location.x < MAP_WIDTH && location.y >= 0 && location.y < MAP_HEIGHT) {
+        if (
+            (this->currentMap[location.x][location.y] > 0 && this->currentMap[location.x][location.y] < 7) &&
+            this->objectLocationList[location.x][location.y] == -1 &&
+            this->occupiedByBuildingList[location.x][location.y] == -1 &&
+            this->occupiedByActorList[location.x][location.y] == -1
+            )
         {
             return true;
         }
@@ -94,57 +125,57 @@ void gameState::drawGround(int i, int j)
     switch(currentGame.currentMap[i][j])
     {
     case 0:
-        spriteEmptyTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteEmptyTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteEmptyTile);
         break;
     case 1:
-        spriteGrassTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteGrassTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteGrassTile);
         break;
     case 2:
-        spriteSandTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteSandTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteSandTile);
         break;
     case 3:
-        spriteSandTileNE.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteSandTileNE.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteSandTileNE);
         break;
     case 4:
-        spriteSandTileNW.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteSandTileNW.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteSandTileNW);
         break;
     case 5:
-        spriteSandTileSE.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteSandTileSE.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteSandTileSE);
         break;
     case 6:
-        spriteSandTileSW.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteSandTileSW.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteSandTileSW);
         break;
     case 7:
-        spriteWaterTile.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteWaterTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteWaterTile);
         break;
     case 8:
-        spriteBeachTileNE.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteBeachTileNE.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteBeachTileNE);
         break;
     case 9:
-        spriteBeachTileNW.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteBeachTileNW.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteBeachTileNW);
         break;
     case 10:
-        spriteBeachTileSE.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteBeachTileSE.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteBeachTileSE);
         break;
     case 11:
-        spriteBeachTileSW.setPosition(static_cast<float>(worldSpace(i,j,true)), static_cast<float>(worldSpace(i,j,false)));
+        spriteBeachTileSW.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(spriteBeachTileSW);
         break;
     }
     if (this->showPaths) {
-        if (!isPassable(i, j)) {
-            spriteTileObstructed.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
+        if (!isPassable({ i, j })) {
+            spriteTileObstructed.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
             window.draw(spriteTileObstructed);
         }
     }
@@ -165,13 +196,13 @@ void gameState::drawThingsOnTile(int i, int j)
     {
         listOfObjects[this->objectLocationList[i][j]].drawObject(i, j);
     }
-    else if(this->occupiedByActorList[i][j] != -1 && this->visability[(i * MAP_HEIGHT) + j] > 1)
+    else if(this->occupiedByActorList[i][j] != -1 && this->visability[i][j] > 1)
     {
         listOfActors[this->occupiedByActorList[i][j]].drawActor();
     }
 }
 
-bool gameState::isInSelectedActors(int id)
+bool gameState::isInSelectedActors(int id) const
 {
     if(!this->selectedUnits.empty())
     {
@@ -186,7 +217,7 @@ bool gameState::isInSelectedActors(int id)
     return false;
 }
 
-bool gameState::buildingIsSelected(int& id)
+bool gameState::buildingIsSelected(int id) const
 {
     if (this->buildingSelectedId == id) {
         return true;
@@ -198,27 +229,26 @@ bool gameState::buildingIsSelected(int& id)
 
 void gameState::drawMap()
 {
-    int lowX = toWorldMousePosition(viewOffsetX-(mainWindowWidth/2), static_cast<int>(viewOffsetY-((mainWindowWidth*0.8)/2))).x;
 
+    int lowX = toWorldMousePosition(viewOffsetX - (mainWindowWidth / 2), static_cast<int>(viewOffsetY - ((mainWindowWidth * 0.8) / 2))).x;
     int highX = toWorldMousePosition(viewOffsetX + (mainWindowWidth / 2), static_cast<int>(viewOffsetY + ((mainWindowWidth * 0.8) / 2))).x;
-
-    int lowY = toWorldMousePosition(viewOffsetX, viewOffsetY-(mainWindowWidth/2)).y;
-    int highY = toWorldMousePosition(viewOffsetX, viewOffsetY+(mainWindowWidth/2)).y;
+    int lowY = toWorldMousePosition(viewOffsetX, viewOffsetY - (mainWindowWidth / 2)).y;
+    int highY = toWorldMousePosition(viewOffsetX, viewOffsetY + (mainWindowWidth / 2)).y;
     if (lowX < 0) { lowX = 0; }
-    if (highX > MAP_WIDTH) { highX = MAP_WIDTH; }
+    if (highX >= MAP_WIDTH) { highX = MAP_WIDTH; }
     if (lowY < 0) { lowY = 0; }
-    if (highY > MAP_HEIGHT) { highX = MAP_HEIGHT; }
-
-    for(int j = lowY; j < highY; j++)
+    if (highY >= MAP_HEIGHT) { highY = MAP_HEIGHT; }
+    for (int j = lowY; j < highY; j++)
     {
-        for(int i = lowX; i < highX; i++ )
+        for (int i = lowX; i < highX; i++)
         {
-            if (this->visability[(i * MAP_HEIGHT) + j] > 0) {
+            if (this->visability[i][j] > 0) {
                 drawGround(i, j);
             }
             else {
-                 spriteBlackTile.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
-                 window.draw(spriteBlackTile);
+                spriteBlackTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
+                window.draw(spriteBlackTile);
+
             }
         }
     }
@@ -226,7 +256,7 @@ void gameState::drawMap()
     {
         for (int i = lowX; i < highX; i++)
         {
-            if (this->visability[(i * MAP_HEIGHT) + j] > 0) {
+            if (this->visability[i][j] > 0) {
                 drawThingsOnTile(i, j);
             }
            
@@ -236,15 +266,13 @@ void gameState::drawMap()
     {
         for (int i = lowX; i < highX; i++)
         {
-            if (this->visability[(i * MAP_HEIGHT) + j] <= 1) {
-                spriteMistTile.setPosition(static_cast<float>(worldSpace(i, j, true)), static_cast<float>(worldSpace(i, j, false)));
+            if (this->visability[i][j] <= 1) {
+                spriteMistTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
                 window.draw(spriteMistTile);
             }
         }
     }
 }
-
-
 
 void gameState::loadTextures()
 {
@@ -331,65 +359,7 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: tileObstructed.png \n" << std::endl;
     }
-    if(textureBuildingHouse.loadFromFile("textures/house.png"))
-    {
-        spriteBuildingHouse.setTexture(textureBuildingHouse);
-        spriteBuildingHouse.setTextureRect(sf::IntRect(0,0,128,128));
-        spriteBuildingHouse.setOrigin(32,96);
-    }
-    else
-    {
-        std::cout << "Error loading texture: house.png \n" << std::endl;
-    }
-
-
-    if (textureBuildingMill.loadFromFile("textures/mill.png"))
-    {
-        spriteBuildingMill.setTexture(textureBuildingMill);
-        spriteBuildingMill.setTextureRect(sf::IntRect(0, 0, 192, 192));
-        spriteBuildingMill.setOrigin(64, 160);
-    }
-    else
-    {
-        std::cout << "Error loading texture: mill.png \n" << std::endl;
-    }
-
-
-    if (textureBuildingLumberCamp.loadFromFile("textures/lumbercamp.png"))
-    {
-        spriteBuildingLumberCamp.setTexture(textureBuildingLumberCamp);
-        spriteBuildingLumberCamp.setTextureRect(sf::IntRect(0, 0, 192, 192));
-        spriteBuildingLumberCamp.setOrigin(64, 160);
-    }
-    else
-    {
-        std::cout << "Error loading texture: lumbercamp.png \n" << std::endl;
-    }
-
-    if (textureBuildingMiningCamp.loadFromFile("textures/miningCamp.png"))
-    {
-        spriteBuildingMiningCamp.setTexture(textureBuildingMiningCamp);
-        spriteBuildingMiningCamp.setTextureRect(sf::IntRect(0, 0, 192, 192));
-        spriteBuildingMiningCamp.setOrigin(64, 160);
-    }
-    else
-    {
-        std::cout << "Error loading texture: lumbercamp.png \n" << std::endl;
-    }
-
-
-
-    if (textureBuildingBarracks.loadFromFile("textures/barracks.png"))
-    {
-        spriteBuildingBarracks.setTexture(textureBuildingBarracks);
-        spriteBuildingBarracks.setTextureRect(sf::IntRect(0, 0, 192, 192));
-        spriteBuildingBarracks.setOrigin(64, 160);
-    }
-    else
-    {
-        std::cout << "Error loading texture: lumbercamp.png \n" << std::endl;
-    }
-
+    
 
     if(texturePineTreeTile.loadFromFile("textures/pineTree.png"))
     {
@@ -422,16 +392,7 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: cypressTree.png \n" << std::endl;
     }
-    if(textureTownCenter.loadFromFile("textures/townCenter.png"))
-    {
-        spriteTownCenter.setTexture(textureTownCenter);
-        spriteTownCenter.setTextureRect(sf::IntRect(0,0,256,256));
-        spriteTownCenter.setOrigin(96,224);
-    }
-    else
-    {
-        std::cout << "Error loading texture: townCenter.png \n" << std::endl;
-    }
+    
     if(textureCactusTile.loadFromFile("textures/cactus.png"))
     {
         spriteCactusTile.setTexture(textureCactusTile);
@@ -805,12 +766,12 @@ void gameState::calculateRectangle()
     }
 }
 
-void gameState::changeViewFromMiniMap() {
+void gameState::changeViewFromMiniMap() const {
     viewOffsetX = static_cast<int>(((mouseFakePosition.x - (mainWindowWidth * 0.8f)) / (0.2f * mainWindowWidth)) * (MAP_WIDTH * 64));
     viewOffsetY = static_cast<int>(((mouseFakePosition.y - (mainWindowHeigth * 0.8f)) / (0.2f * mainWindowHeigth)) * (MAP_HEIGHT * 32));
 }
 
-void gameState::clickUIButton() {
+void gameState::clickUIButton() const {
     //check if a UI button was pressed
     for (auto& Button : listOfButtons)
     {
@@ -819,14 +780,14 @@ void gameState::clickUIButton() {
 }
 
 void gameState::clickToPlaceBuilding() {
-    if (!(this->mouseWorldPosition.x - footprintOfBuildings[this->buildingTypeSelected].amountOfXFootprint < -1) && !(this->mouseWorldPosition.y - footprintOfBuildings[this->buildingTypeSelected].amountOfYFootprint < -1) && !(this->mouseWorldPosition.x >= MAP_WIDTH) && !(this->mouseWorldPosition.y >= MAP_HEIGHT))
+    if (!(this->mouseWorldPosition.x - listOfBuildingTemplates[this->buildingTypeSelected].getBuildingFootprint().amountOfXFootprint < -1) && !(this->mouseWorldPosition.y - listOfBuildingTemplates[this->buildingTypeSelected].getBuildingFootprint().amountOfYFootprint < -1) && !(this->mouseWorldPosition.x >= MAP_WIDTH) && !(this->mouseWorldPosition.y >= MAP_HEIGHT))
     {
         //check of het gebouw hier kan staan:
         bool buildingPlacable = true;
 
-        for (int i = 0; i < footprintOfBuildings[this->buildingTypeSelected].amountOfXFootprint; i++)
+        for (int i = 0; i < listOfBuildingTemplates[this->buildingTypeSelected].getBuildingFootprint().amountOfXFootprint; i++)
         {
-            for (int j = 0; j < footprintOfBuildings[this->buildingTypeSelected].amountOfYFootprint; j++)
+            for (int j = 0; j < listOfBuildingTemplates[this->buildingTypeSelected].getBuildingFootprint().amountOfYFootprint; j++)
             {
                 if (
                     this->occupiedByBuildingList[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j] != -1 || 
@@ -842,14 +803,14 @@ void gameState::clickToPlaceBuilding() {
         if (buildingPlacable)
         {
             //Zet het gebouw neer
-            buildings newBuilding(this->buildingTypeSelected, this->mouseWorldPosition.x, this->mouseWorldPosition.y, static_cast<int>(listOfBuildings.size()), currentPlayer.getTeam());
+            buildings newBuilding(this->buildingTypeSelected, this->mouseWorldPosition, static_cast<int>(listOfBuildings.size()), currentPlayer.getTeam());
             listOfBuildings.push_back(newBuilding);
             if (this->isPlacingBuilding)
             {
-                currentPlayer.substractResources(0, priceOfBuilding[this->buildingTypeSelected].wood);
-                currentPlayer.substractResources(1, priceOfBuilding[this->buildingTypeSelected].food);
-                currentPlayer.substractResources(2, priceOfBuilding[this->buildingTypeSelected].stone);
-                currentPlayer.substractResources(3, priceOfBuilding[this->buildingTypeSelected].gold);
+                currentPlayer.substractResources(resourceTypes::resourceWood, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().wood);
+                currentPlayer.substractResources(resourceTypes::resourceFood, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().food);
+                currentPlayer.substractResources(resourceTypes::resourceStone, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().stone);
+                currentPlayer.substractResources(resourceTypes::resourceGold, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().gold);
                 for (int i = 0; i < this->selectedUnits.size(); i++)
                 {
                     nearestBuildingTile tempTile = findNearestBuildingTile(this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y], this->selectedUnits[i]);
@@ -859,7 +820,7 @@ void gameState::clickToPlaceBuilding() {
                         {
                             if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
                             {
-                                listOfActors[this->selectedUnits[i]].updateGoal(tempTile.locationX, tempTile.locationY, i / 5);
+                                listOfActors[this->selectedUnits[i]].updateGoal(tempTile.location, i / 5);
                                 listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
                                 listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
                             }
@@ -868,13 +829,13 @@ void gameState::clickToPlaceBuilding() {
                         {
                             if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
                             {
-                                listOfActors[this->selectedUnits[i]].updateGoal(tempTile.locationX, tempTile.locationY, i / 5);
+                                listOfActors[this->selectedUnits[i]].updateGoal(tempTile.location, i / 5);
                                 listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
                             }
                         }
                         if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
                         {
-                            listOfActors[this->selectedUnits[i]].setIsBuildingTrue(listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getBuildingId(), tempTile.actionLocationX, tempTile.actionLocationY);
+                            listOfActors[this->selectedUnits[i]].setIsBuildingTrue(listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getBuildingId(), tempTile.actionLocation);
                         }
                     }
                 }
@@ -885,7 +846,7 @@ void gameState::clickToPlaceBuilding() {
     }
 }
 
-void gameState::clickToPlaceObject()
+void gameState::clickToPlaceObject() const
 {
     if (!(this->mouseWorldPosition.x < 0) && !(this->mouseWorldPosition.y < 0) && !(this->mouseWorldPosition.x >= MAP_WIDTH) && !(this->mouseWorldPosition.y >= MAP_HEIGHT))
     {
@@ -893,13 +854,12 @@ void gameState::clickToPlaceObject()
         if (this->objectLocationList[mouseWorldPosition.x][mouseWorldPosition.y] == -1 && this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] == -1)
         {
             //Zet het object neer
-            objects newObject(static_cast<objectTypes>(this->objectTypeSelected), this->mouseWorldPosition.x, this->mouseWorldPosition.y, static_cast<int>(listOfObjects.size()));
-            listOfObjects.push_back(newObject);
+            listOfObjects.push_back(objects(static_cast<objectTypes>(this->objectTypeSelected), this->mouseWorldPosition, static_cast<int>(listOfObjects.size())));
         }
     }
 }
 
-void gameState::clickToPlaceActor()
+void gameState::clickToPlaceActor() const
 {
     if (!(this->mouseWorldPosition.x < 0) && !(this->mouseWorldPosition.y < 0) && !(this->mouseWorldPosition.x >= MAP_WIDTH) && !(this->mouseWorldPosition.y >= MAP_HEIGHT))
     {
@@ -907,9 +867,8 @@ void gameState::clickToPlaceActor()
         if (this->objectLocationList[mouseWorldPosition.x][mouseWorldPosition.y] == -1 && this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] == -1 && this->occupiedByActorList[mouseWorldPosition.x][mouseWorldPosition.y] == -1)
         {
             //Zet de actor neer
-            listOfActorsMutex.lock();
-            actors newActor(0, this->mouseWorldPosition.x, this->mouseWorldPosition.y, currentPlayer.getTeam(), static_cast<int>(listOfActors.size()));
-            listOfActors.push_back(newActor);
+            listOfActorsMutex.lock(); 
+            listOfActors.push_back(actors(0, this->mouseWorldPosition, currentPlayer.getTeam(), static_cast<int>(listOfActors.size())));
             listOfActorsMutex.unlock();
         }
     }
@@ -1001,8 +960,6 @@ void gameState::mouseLeftClick()
     }
 }
 
-
-
 void gameState::getDefinitiveSelection()
 {
     if (this->mousePressedLeft && !(mouseFakePosition.y > mainWindowHeigth * 0.8f))
@@ -1043,7 +1000,7 @@ void gameState::getDefinitiveSelection()
     }
 }
 
-bool gameState::clickToMove(int posX, int posY, bool minimap)
+bool gameState::clickToMove(cords pos, bool minimap) const
 {
     bool actionDone = false;
     for (int i = 0; i < this->selectedUnits.size(); i++)
@@ -1054,19 +1011,19 @@ bool gameState::clickToMove(int posX, int posY, bool minimap)
             {
                 cords tempCords = { 0,0 };
                 if (minimap) {
-                    if ((posX <= MAP_WIDTH && posY <= MAP_HEIGHT)) {
-                        tempCords = currentGame.getNextCord(posX, posY);
+                    if ((pos.x <= MAP_WIDTH && pos.y <= MAP_HEIGHT)) {
+                        tempCords = currentGame.getNextCord(pos);
                     }
                 }
                 else {
-                    tempCords = currentGame.getNextCord(this->mouseWorldPosition.x, this->mouseWorldPosition.y);
+                    tempCords = currentGame.getNextCord(this->mouseWorldPosition);
                 }
                 if (this->isPressedShift) {
                     listOfActors[this->selectedUnits[i]].stackOrder({ tempCords.x, tempCords.y }, stackOrderTypes::stackActionMove);
                 }
                 else {
                     listOfActors[this->selectedUnits[i]].clearCommandStack();
-                    listOfActors[this->selectedUnits[i]].updateGoal(tempCords.x, tempCords.y, i / 5);
+                    listOfActors[this->selectedUnits[i]].updateGoal(tempCords, i / 5);
                     listOfActors[this->selectedUnits[i]].setCommonGoalTrue();//might be depricated
                 }
                 actionDone = true;
@@ -1077,13 +1034,13 @@ bool gameState::clickToMove(int posX, int posY, bool minimap)
             if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
             {
                 if (minimap) {
-                    if ((posX <= MAP_WIDTH && posY <= MAP_HEIGHT)) {
+                    if ((pos.x <= MAP_WIDTH && pos.y <= MAP_HEIGHT)) {
                         if (this->isPressedShift) {
-                            listOfActors[this->selectedUnits[i]].stackOrder({ posX, posY }, stackOrderTypes::stackActionMove);
+                            listOfActors[this->selectedUnits[i]].stackOrder(pos, stackOrderTypes::stackActionMove);
                         }
                         else {
                             listOfActors[this->selectedUnits[i]].clearCommandStack();
-                            listOfActors[this->selectedUnits[i]].updateGoal(posX, posY, 0);
+                            listOfActors[this->selectedUnits[i]].updateGoal(pos, 0);
                         }
                     }
                 }
@@ -1093,7 +1050,7 @@ bool gameState::clickToMove(int posX, int posY, bool minimap)
                     }
                     else {
                         listOfActors[this->selectedUnits[i]].clearCommandStack();
-                        listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, 0);
+                        listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition, 0);
                     }
                     actionDone = true;
                 }
@@ -1107,7 +1064,7 @@ bool gameState::clickToMove(int posX, int posY, bool minimap)
     return actionDone;
 }
 
-bool gameState::clickToGatherResource()
+bool gameState::clickToGatherResource() const
 {
     bool actionDone = false;
     for (int i = 0; i < this->selectedUnits.size(); i++)
@@ -1117,11 +1074,11 @@ bool gameState::clickToGatherResource()
             if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
             {
                 if (this->isPressedShift) {
-                    listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionGather);
+                    listOfActors[this->selectedUnits[i]].stackOrder(this->mouseWorldPosition, stackOrderTypes::stackActionGather);
                 }
                 else {
                     listOfActors[this->selectedUnits[i]].clearCommandStack();
-                    listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, i / 5);
+                    listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition, i / 5);
                     listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
                 }
                 actionDone = true;
@@ -1132,11 +1089,11 @@ bool gameState::clickToGatherResource()
             if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
             {
                 if (this->isPressedShift) {
-                    listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionGather);
+                    listOfActors[this->selectedUnits[i]].stackOrder(this->mouseWorldPosition, stackOrderTypes::stackActionGather);
                 }
                 else {
                     listOfActors[this->selectedUnits[i]].clearCommandStack();
-                    listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, 0);
+                    listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition, 0);
                 }
                 actionDone = true;
             }
@@ -1151,52 +1108,7 @@ bool gameState::clickToGatherResource()
     return actionDone;
 }
 
-nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId)
-{
-    std::list <nearestBuildingTile> listOfBuildLocations;
-    std::vector<adjacentTile> tileList = listOfBuildings[buildingId].getFreeBuildingTile();
-    if (!tileList.empty()) {
-        for (int j = 0; j < tileList.size(); j++)
-        {
-            float tempDeltaDistance = static_cast<float>(dist(listOfActors[actorId].getLocation().x, listOfActors[actorId].getLocation().y, tileList[j].tileX, tileList[j].tileY));
-            listOfBuildLocations.push_back({ tempDeltaDistance, tileList[j].tileX, tileList[j].tileY, tileList[j].goalX , tileList[j].goalY, tileList[j].tileId, true });
-        }
-        if (!listOfBuildLocations.empty())
-        {
-            listOfBuildLocations.sort([](const nearestBuildingTile& f, const nearestBuildingTile& s)
-                {
-                    return f.deltaDistance < s.deltaDistance;
-                });
-        }
-        bool firstLocationIsNotRejected = false;
-        while (!firstLocationIsNotRejected && !listOfBuildLocations.empty() && !listOfActors[actorId].getRejectedTargetsList().empty()) {
-            bool rejectionsDuringLoop = false;
-            for (const auto& reject : listOfActors[actorId].getRejectedTargetsList())
-            {
-                if (reject.x == listOfBuildLocations.front().locationX && reject.y == listOfBuildLocations.front().locationY) {
-                    //target rejected!
-                    listOfBuildLocations.pop_front();
-                    rejectionsDuringLoop = true;
-                }
-            }
-            if (!rejectionsDuringLoop) {
-                firstLocationIsNotRejected = true; //break the loop 
-            }
-        }
-        //Return the location if one is accepted
-        if (!listOfBuildLocations.empty()) {
-            return  listOfBuildLocations.front();
-        }
-        else {
-            return { 0, 0, 0, 0, false };
-        }
-    }
-    else {
-        return { 0, 0, 0, 0, false };
-    }
-}
-
-bool gameState::clickToBuildOrRepairBuilding()
+bool gameState::clickToBuildOrRepairBuilding() const
 {
     bool actionDone = false;
     if (!listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getCompleted())
@@ -1215,7 +1127,7 @@ bool gameState::clickToBuildOrRepairBuilding()
                         }
                         else {
                             listOfActors[this->selectedUnits[i]].clearCommandStack();
-                            listOfActors[this->selectedUnits[i]].updateGoal(tempTile.locationX, tempTile.locationY, i / 5);
+                            listOfActors[this->selectedUnits[i]].updateGoal(tempTile.location, i / 5);
                             listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
                             listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
                         }
@@ -1231,7 +1143,7 @@ bool gameState::clickToBuildOrRepairBuilding()
                         }
                         else {
                             listOfActors[this->selectedUnits[i]].clearCommandStack();
-                            listOfActors[this->selectedUnits[i]].updateGoal(tempTile.locationX, tempTile.locationY, i / 5);
+                            listOfActors[this->selectedUnits[i]].updateGoal(tempTile.location, i / 5);
                             listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
                             actionDone = true;
                         }
@@ -1240,7 +1152,7 @@ bool gameState::clickToBuildOrRepairBuilding()
                 if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
                 {
                     if (!this->isPressedShift) {
-                        listOfActors[this->selectedUnits[i]].setIsBuildingTrue(listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getBuildingId(), tempTile.actionLocationX, tempTile.actionLocationY);
+                        listOfActors[this->selectedUnits[i]].setIsBuildingTrue(listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getBuildingId(), tempTile.actionLocation);
                     }
                 }
             }
@@ -1274,7 +1186,7 @@ void testfunctiuon(int testVar)
     }
 }
 
-bool gameState::clickToAttack() {
+bool gameState::clickToAttack() const {
     bool actionDone = false;
     for (int i = 0; i < this->selectedUnits.size(); i++)
     {
@@ -1283,11 +1195,11 @@ bool gameState::clickToAttack() {
             if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
             {
                 if (this->isPressedShift) {
-                    listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionAttack);
+                    listOfActors[this->selectedUnits[i]].stackOrder(this->mouseWorldPosition, stackOrderTypes::stackActionAttack);
                 }
                 else {
                     listOfActors[this->selectedUnits[i]].clearCommandStack();
-                    listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, i / 5);
+                    listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition, i / 5);
                     listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
                     listOfActors[this->selectedUnits[i]].setIsDoingAttack();
                 }
@@ -1299,11 +1211,11 @@ bool gameState::clickToAttack() {
             if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
             {
                 if (this->isPressedShift) {
-                    listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionAttack);
+                    listOfActors[this->selectedUnits[i]].stackOrder(this->mouseWorldPosition, stackOrderTypes::stackActionAttack);
                 }
                 else {
                     listOfActors[this->selectedUnits[i]].clearCommandStack();
-                    listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition.x, this->mouseWorldPosition.y, 0);
+                    listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition, 0);
                     listOfActors[this->selectedUnits[i]].setIsDoingAttack();
                 }
                 actionDone = true;
@@ -1319,9 +1231,9 @@ void gameState::clickToGiveCommand()
     this->lastIandJ[0] = 0;
     this->lastIandJ[1] = 0;
     bool actionPreformed = false;
-    if (this->isPassable(this->mouseWorldPosition.x, this->mouseWorldPosition.y))
+    if (this->isPassable(this->mouseWorldPosition))
     {
-        actionPreformed = clickToMove(0,0,false);
+        actionPreformed = clickToMove({ 0,0 }, false);
     }
     else if (this->objectLocationList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1)
     {
@@ -1347,8 +1259,7 @@ void gameState::clickToGiveCommand()
     }
 
     if (actionPreformed) {
-        orderCursor newOrderCursor(this->mousePosition);
-        listOfOrderCursors.push_back(newOrderCursor);
+        listOfOrderCursors.push_back(orderCursor(this->mousePosition));
     }
 
 }
@@ -1364,17 +1275,15 @@ void gameState::clickToGiveMinimapCommand()
 
     for (int posX = minimapToWorldPosition.x - 1; posX < minimapToWorldPosition.x + 2; posX++) {
         for (int posY = minimapToWorldPosition.y - 1; posY < minimapToWorldPosition.y + 2; posY++) {
-            clickToMove(posX, posY, true);
-            orderCursor newOrderCursor(this->mousePosition);
-            listOfOrderCursors.push_back(newOrderCursor);
+            clickToMove({ posX, posY }, true);
+            listOfOrderCursors.push_back(orderCursor(this->mousePosition));
             return;
         }
     }
  }
 
-
-void gameState::orderRallyPoint() {
-    if (this->isPassable(this->mouseWorldPosition.x, this->mouseWorldPosition.y))
+void gameState::orderRallyPoint() const {
+    if (this->isPassable(this->mouseWorldPosition))
     {
         listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionMove);
     }
@@ -1400,8 +1309,7 @@ void gameState::orderRallyPoint() {
             listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionAttack);
         }
     }
-    orderCursor newOrderCursor(this->mousePosition);
-    listOfOrderCursors.push_back(newOrderCursor);
+    listOfOrderCursors.push_back(orderCursor(this->mousePosition));
 }
 
 void gameState::mouseRightClick()
@@ -1449,7 +1357,7 @@ void gameState::changeTiles()
     this->equalIsPressed = true;
 }
 
-void gameState::edgeScrolling()
+void gameState::edgeScrolling() const
 {
     if (mouseFakePosition.x < 0) {
         viewOffsetX += -10;
@@ -1620,6 +1528,11 @@ void gameState::selectUnit(int id)
     this->selectedUnits.push_back(id);
 }
 
+void gameState::setObjectsHaveChanged()
+{
+    this->objectsChanged = true;
+}
+
 void gameState::drawMouseInteraction()
 {
     if(this->mousePressedLeft && !this->mousePressOutofWorld)
@@ -1637,15 +1550,15 @@ void gameState::drawMouseInteraction()
     }
     if(isPressedB || this->isPlacingBuilding)
     {
-        listOfBuildings[0].drawBuildingFootprint(this->buildingTypeSelected, mouseWorldPosition.x, mouseWorldPosition.y);
+        listOfBuildings[0].drawBuildingFootprint(this->buildingTypeSelected, mouseWorldPosition);
     }
     if(isPressedO)
     {
-        listOfObjects[0].drawObjectFootprint(static_cast<objectTypes>(this->objectTypeSelected), mouseWorldPosition.x, mouseWorldPosition.y);
+        listOfObjects[0].drawObjectFootprint(static_cast<objectTypes>(this->objectTypeSelected), mouseWorldPosition);
     }
 }
 
-cords gameState::getNextCord(int x, int y)
+cords gameState::getNextCord(cords pos)
 {
     if(!this->firstRound && this->roundDone)
     {
@@ -1671,14 +1584,14 @@ cords gameState::getNextCord(int x, int y)
     {
         if(this->addSubstractY)
         {
-            x = x + this->lastIandJ[0];
-            y = y + this->lastIandJ[1];
+            pos.x = pos.x + this->lastIandJ[0];
+            pos.y = pos.y + this->lastIandJ[1];
             this->addSubstractY = false;
         }
         else
         {
-            x = x + this->lastIandJ[0];
-            y = y - this->lastIandJ[1] ;
+            pos.x = pos.x + this->lastIandJ[0];
+            pos.y = pos.y - this->lastIandJ[1] ;
             this->addSubstractX = false;
             this->addSubstractY = true;
         }
@@ -1687,111 +1600,70 @@ cords gameState::getNextCord(int x, int y)
     {
         if(this->addSubstractY)
         {
-            x = x - this->lastIandJ[0];
-            y = y + this->lastIandJ[1];
+            pos.x = pos.x - this->lastIandJ[0];
+            pos.y = pos.y + this->lastIandJ[1];
             this->addSubstractY = false;
         }
         else
         {
-            x = x - this->lastIandJ[0];
-            y = y - this->lastIandJ[1] ;
+            pos.x = pos.x - this->lastIandJ[0];
+            pos.y = pos.y - this->lastIandJ[1] ;
             this->roundDone = true;
         }
 
     }
 
-    if(currentGame.isPassable(x, y))
+    if(currentGame.isPassable(pos))
     {
-        return {x, y};
+        return {pos.x, pos.y};
     }
     else
     {
-        return currentGame.getNextCord(x, y);
+        return currentGame.getNextCord(pos);
     }
 }
 
-int gameState::getPlayerCount()
+int gameState::getPlayerCount() const
 {
     return players;
 }
 
-void drawMiniMapBackground(sf::RectangleShape& miniMapPixel)
+void gameState::drawMiniMapBackground(sf::RectangleShape& miniMapPixel)
 {
-    if(!minimapTextureExist)
-    {
-        minimapTexture.clear(sf::Color(0,0,0,0));
-        for(int j = 0; j < MAP_HEIGHT; j++)
+    if (!this->miniMapBackGroundDrawn) {
+        static const sf::Color colors[] =
         {
-            for(int i = 0; i < MAP_WIDTH; i++ )
-            {
-                switch(currentGame.currentMap[i][j])
-                {
-                case 0:
-                    miniMapPixel.setFillColor(sf::Color(0, 0, 0));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 1:
-                    miniMapPixel.setFillColor(sf::Color(152, 205, 115));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 2:
-                    miniMapPixel.setFillColor(sf::Color(200, 160, 80));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 3:
-                    miniMapPixel.setFillColor(sf::Color(200, 160, 80));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 4:
-                    miniMapPixel.setFillColor(sf::Color(200, 160, 80));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 5:
-                    miniMapPixel.setFillColor(sf::Color(200, 160, 80));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 6:
-                    miniMapPixel.setFillColor(sf::Color(200, 160, 80));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 7:
-                    miniMapPixel.setFillColor(sf::Color(69, 164, 208));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 8:
-                    miniMapPixel.setFillColor(sf::Color(69, 164, 208));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 9:
-                    miniMapPixel.setFillColor(sf::Color(69, 164, 208));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 10:
-                    miniMapPixel.setFillColor(sf::Color(69, 164, 208));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                case 11:
-                    miniMapPixel.setFillColor(sf::Color(69, 164, 208));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapTexture.draw(miniMapPixel);
-                    break;
-                }
-            }
+            {0, 0, 0},
+            {152, 205, 115},
+            {200, 160, 80},
+            {200, 160, 80},
+            {200, 160, 80},
+            {200, 160, 80},
+            {200, 160, 80},
+            {69, 164, 208},
+            {69, 164, 208},
+            {69, 164, 208},
+            {69, 164, 208},
+            {69, 164, 208}
+        };
 
+        if (!minimapTextureExist)
+        {
+            minimapTexture.clear(sf::Color(0, 0, 0, 0));
+            for (int j = 0; j < MAP_HEIGHT; j++)
+            {
+                for (int i = 0; i < MAP_WIDTH; i++)
+                {
+                    miniMapPixel.setFillColor(colors[currentGame.currentMap[i][j]]);
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
+                    minimapTexture.draw(miniMapPixel);
+                }
+
+            }
+            minimapTexture.display();
+            minimapTextureExist = true;
         }
-        minimapTexture.display();
-        minimapTextureExist = true;
+        this->miniMapBackGroundDrawn = true;
     }
 }
 
@@ -1806,49 +1678,9 @@ void drawMiniMapBuildings(sf::RectangleShape& miniMapPixel)
             {
                 if(currentGame.occupiedByBuildingList[i][j] != -1)
                 {
-                    switch(listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam())
-                    {
-                    case 0:
-                        miniMapPixel.setFillColor(sf::Color(0, 0, 255));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                        minimapBuildingsTexture.draw(miniMapPixel);
-                        break;
-                    case 1:
-                        miniMapPixel.setFillColor(sf::Color(0, 255, 0));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                        minimapBuildingsTexture.draw(miniMapPixel);
-                        break;
-                    case 2:
-                        miniMapPixel.setFillColor(sf::Color(255, 0, 0));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                        minimapBuildingsTexture.draw(miniMapPixel);
-                        break;
-                    case 3:
-                        miniMapPixel.setFillColor(sf::Color(255, 255, 0 ));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                        minimapBuildingsTexture.draw(miniMapPixel);
-                        break;
-                    case 4:
-                        miniMapPixel.setFillColor(sf::Color(0, 255, 255));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                        minimapBuildingsTexture.draw(miniMapPixel);
-                        break;
-                    case 5:
-                        miniMapPixel.setFillColor(sf::Color(255, 0, 255));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                        minimapBuildingsTexture.draw(miniMapPixel);
-                        break;
-                    case 6:
-                        miniMapPixel.setFillColor(sf::Color(255, 127, 0));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                        minimapBuildingsTexture.draw(miniMapPixel);
-                        break;
-                    case 7:
-                        miniMapPixel.setFillColor(sf::Color(127, 127, 127));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                        minimapBuildingsTexture.draw(miniMapPixel);
-                        break;
-                    }
+                    miniMapPixel.setFillColor(teamColors[listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam()]);
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
+                    minimapBuildingsTexture.draw(miniMapPixel);
                 }
             }
         }
@@ -1864,52 +1696,12 @@ void gameState::drawMiniMapActors(sf::RectangleShape& miniMapPixel)
     {
         for(int i = 0; i < MAP_WIDTH; i++ )
         {
-            if (this->visability[(i * MAP_HEIGHT) + j] > 1) {
+            if (this->visability[i][j] == 2) {
                 if (currentGame.occupiedByActorList[i][j] != -1)
                 {
-                    switch (listOfActors[currentGame.occupiedByActorList[i][j]].getTeam())
-                    {
-                    case 0:
-                        miniMapPixel.setFillColor(sf::Color(0, 0, 255));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
-                        minimapActorsTexture.draw(miniMapPixel);
-                        break;
-                    case 1:
-                        miniMapPixel.setFillColor(sf::Color(0, 255, 0));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
-                        minimapActorsTexture.draw(miniMapPixel);
-                        break;
-                    case 2:
-                        miniMapPixel.setFillColor(sf::Color(255, 0, 0));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
-                        minimapActorsTexture.draw(miniMapPixel);
-                        break;
-                    case 3:
-                        miniMapPixel.setFillColor(sf::Color(255, 255, 0));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
-                        minimapActorsTexture.draw(miniMapPixel);
-                        break;
-                    case 4:
-                        miniMapPixel.setFillColor(sf::Color(0, 255, 255));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
-                        minimapActorsTexture.draw(miniMapPixel);
-                        break;
-                    case 5:
-                        miniMapPixel.setFillColor(sf::Color(255, 0, 255));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
-                        minimapActorsTexture.draw(miniMapPixel);
-                        break;
-                    case 6:
-                        miniMapPixel.setFillColor(sf::Color(255, 127, 0));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
-                        minimapActorsTexture.draw(miniMapPixel);
-                        break;
-                    case 7:
-                        miniMapPixel.setFillColor(sf::Color(127, 127, 127));
-                        miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
-                        minimapActorsTexture.draw(miniMapPixel);
-                        break;
-                    }
+                    miniMapPixel.setFillColor(teamColors[listOfActors[currentGame.occupiedByActorList[i][j]].getTeam()]);
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
+                    minimapActorsTexture.draw(miniMapPixel);
                 }
             }
         }
@@ -1919,67 +1711,102 @@ void gameState::drawMiniMapActors(sf::RectangleShape& miniMapPixel)
 
 void gameState::drawMiniMapMist(sf::RectangleShape& miniMapPixel)
 {
-    if (this->lastMistDraw + 1 < this->elapsedTime) {
+    if (this->lastMistDraw + 0.2f < this->elapsedTime || !this->fogOfWarDrawnOnce) {           //make the fog of war update every 3 seconds to reduce system load
+        //Reset textures and set fill colors
+        sf::Sprite fogMap;
         sf::RectangleShape miniMapPixelTL(sf::Vector2f(20.f, 10.f));
         miniMapPixel.setFillColor(sf::Color(0, 0, 0));
         miniMapPixelTL.setFillColor(sf::Color(0, 0, 0, 75));
         minimapMistTexture.clear(sf::Color(0, 0, 0, 0));
+        minimapMistSectors.at(this->lastFogOfWarMinimapSectorUpdated).clear(sf::Color(0, 0, 0, 0));
         this->lastMistDraw = this->elapsedTime;
-        for (int j = 0; j < MAP_HEIGHT; j++)
+
+        //Determine the bounderies of the sector to be drawn
+        int drawStartX = 0;
+        int drawStartY = 0;
+        if (this->lastFogOfWarMinimapSectorUpdated <= 3) {
+            drawStartX = this->lastFogOfWarMinimapSectorUpdated * spaceBetweenFogOfWarSectorsOnXAxis;
+            drawStartY = 0;
+        }
+        else if (this->lastFogOfWarMinimapSectorUpdated > 3 && this->lastFogOfWarMinimapSectorUpdated <= 7) {
+            drawStartX = (this->lastFogOfWarMinimapSectorUpdated - 4) * spaceBetweenFogOfWarSectorsOnXAxis;
+            drawStartY = spaceBetweenFogOfWarSectorsOnYAxis;
+        }
+        else if (this->lastFogOfWarMinimapSectorUpdated > 7 && this->lastFogOfWarMinimapSectorUpdated <= 11) {
+            drawStartX = (this->lastFogOfWarMinimapSectorUpdated - 8) * spaceBetweenFogOfWarSectorsOnXAxis;
+            drawStartY = spaceBetweenFogOfWarSectorsOnYAxis*2;
+        }
+        else if (this->lastFogOfWarMinimapSectorUpdated > 11 && this->lastFogOfWarMinimapSectorUpdated <= 15) {
+            drawStartX = (this->lastFogOfWarMinimapSectorUpdated - 12) * spaceBetweenFogOfWarSectorsOnXAxis;
+            drawStartY = spaceBetweenFogOfWarSectorsOnYAxis*3;
+        }
+        int drawEndX = drawStartX + spaceBetweenFogOfWarSectorsOnXAxis;
+        int drawEndY = drawStartY + spaceBetweenFogOfWarSectorsOnYAxis;
+
+        //Draw the sector
+        for (int j = drawStartY; j < drawEndY; j++)
         {
-            for (int i = 0; i < MAP_WIDTH; i++)
+            for (int i = drawStartX; i < drawEndX; i++)
             {
-                if (this->visability[(i * MAP_HEIGHT) + j] == 0) {
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
-                    minimapMistTexture.draw(miniMapPixel);
+                if (this->visability[i][j] == 0) {              //not visible so overlay black tile
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
+                    minimapMistSectors.at(this->lastFogOfWarMinimapSectorUpdated).draw(miniMapPixel);
+                    //minimapMistTexture.draw(miniMapPixel);
                 }
-                else if (this->visability[(i * MAP_HEIGHT) + j] == 1) {
-                    miniMapPixelTL.setPosition(static_cast<float>(miniMapSpace(i, j, true)), static_cast<float>(miniMapSpace(i, j, false)));
-                    minimapMistTexture.draw(miniMapPixelTL);
-                }
+                else if (this->visability[i][j] == 1) {         //in shadow so overlay transparent tile
+                    miniMapPixelTL.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
+                    minimapMistSectors.at(this->lastFogOfWarMinimapSectorUpdated).draw(miniMapPixelTL);
+                    //minimapMistTexture.draw(miniMapPixel);
+                }                                               //if visability is 2 then that spot is visable so don't do anything
+
             }
+        }
+
+        //Combine new sector of the map with the other sectors. Somehow i need to invert the Y-axis of the sprite and I am not sure why. It works normaly if I draw to miniMapMistTexture directly instead of miniMapSectors?
+        for (int i = 0; i < minimapMistSectors.size(); i++) {
+            fogMap.setTexture(minimapMistSectors.at(i).getTexture());
+            fogMap.setOrigin((20 * MAP_WIDTH)/2, (10 * MAP_HEIGHT)/2);
+            fogMap.setPosition((20 * MAP_WIDTH) / 2, (10 * MAP_HEIGHT) / 2);
+            fogMap.setScale(1.f, -1.f);
+            minimapMistTexture.draw(fogMap);
+        }
+
+        //Move the sector iterator
+        this->lastFogOfWarMinimapSectorUpdated++;
+        if (this->lastFogOfWarMinimapSectorUpdated > 15) {
+            this->lastFogOfWarMinimapSectorUpdated = 0;
         }
     }
     minimapMistTexture.display();
 }
 
-void drawMiniMapObjects(sf::RectangleShape& miniMapPixel)
+void gameState::drawMiniMapObjects(sf::RectangleShape& miniMapPixel)
 {
-
-    minimapObjectsTexture.clear(sf::Color(0,0,0,0));
-    for(int j = 0; j < MAP_HEIGHT; j++)
-    {
-        for(int i = 0; i < MAP_WIDTH; i++ )
+    if (this->objectsChanged) {
+        static const sf::Color resourceColors[] =
         {
-            if(currentGame.objectLocationList[i][j] != -1)
+            {33, 77, 33}, //Wood
+            {150, 88, 88}, //Food
+            {65, 65, 65}, //Stone
+            {110, 90, 0} //Gold
+        };
+
+        minimapObjectsTexture.clear(sf::Color(0, 0, 0, 0));
+        for (int j = 0; j < MAP_HEIGHT; j++)
+        {
+            for (int i = 0; i < MAP_WIDTH; i++)
             {
-                switch(listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource())
+                if (currentGame.objectLocationList[i][j] != -1)
                 {
-                case resourceTypes::resourceWood:
-                    miniMapPixel.setFillColor(sf::Color(33, 77, 33));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
+                    miniMapPixel.setFillColor(resourceColors[static_cast<int>(listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource())]);
+                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
                     minimapObjectsTexture.draw(miniMapPixel);
-                    break;
-                case resourceTypes::resourceFood:
-                    miniMapPixel.setFillColor(sf::Color(150, 88, 88));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapObjectsTexture.draw(miniMapPixel);
-                    break;
-                case resourceTypes::resourceStone:
-                    miniMapPixel.setFillColor(sf::Color(65, 65, 65));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapObjectsTexture.draw(miniMapPixel);
-                    break;
-                case resourceTypes::resourceGold:
-                    miniMapPixel.setFillColor(sf::Color(110, 90, 0 ));
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace(i,j,true)), static_cast<float>(miniMapSpace(i,j,false)));
-                    minimapObjectsTexture.draw(miniMapPixel);
-                    break;
                 }
             }
         }
+        minimapObjectsTexture.display();
+        this->objectsChanged = false;
     }
-    minimapObjectsTexture.display();
 }
 
 void gameState::drawMiniMap()
@@ -1988,32 +1815,35 @@ void gameState::drawMiniMap()
     sf::RectangleShape miniMapPixel(sf::Vector2f(20.f,10.f));
     sf::Sprite miniMapBackground;
 
-    drawMiniMapBackground(miniMapPixel);
+    if (this->lastMiniMapRefresh + 1 < this->elapsedTime) {
+        drawMiniMapBackground(miniMapPixel);
+        drawMiniMapObjects(miniMapPixel);
+        drawMiniMapBuildings(miniMapPixel);
+        drawMiniMapActors(miniMapPixel);
+        this->lastMiniMapRefresh = this->elapsedTime;
+    }
+    drawMiniMapMist(miniMapPixel);
+
     miniMapBackground.setTexture(minimapTexture.getTexture());
     miniMapBackground.setScale(this->miniMapWidth/(20*MAP_WIDTH), this->miniMapHeigth/(10*MAP_HEIGHT));
-    window.draw(miniMapBackground);
+    window.draw(miniMapBackground);  
 
-    drawMiniMapObjects(miniMapPixel);
     miniMapBackground.setTexture(minimapObjectsTexture.getTexture());
     miniMapBackground.setScale(this->miniMapWidth/(20*MAP_WIDTH), this->miniMapHeigth/(10*MAP_HEIGHT));
     window.draw(miniMapBackground);
 
-    drawMiniMapBuildings(miniMapPixel);
     miniMapBackground.setTexture(minimapBuildingsTexture.getTexture());
     miniMapBackground.setScale(this->miniMapWidth/(20*MAP_WIDTH), this->miniMapHeigth/(10*MAP_HEIGHT));
     window.draw(miniMapBackground);
 
-    drawMiniMapActors(miniMapPixel);
     miniMapBackground.setTexture(minimapActorsTexture.getTexture());
     miniMapBackground.setScale(this->miniMapWidth / (20 * MAP_WIDTH), this->miniMapHeigth / (10 * MAP_HEIGHT));
     window.draw(miniMapBackground);
 
-    drawMiniMapMist(miniMapPixel);
     miniMapBackground.setTexture(minimapMistTexture.getTexture());
     miniMapBackground.setScale(this->miniMapWidth / (20 * MAP_WIDTH), this->miniMapHeigth / (10 * MAP_HEIGHT));
     window.draw(miniMapBackground);
   
-
     sf::RectangleShape viewBox(sf::Vector2f(this->viewBoxX, this->viewBoxY));
     viewBox.setOrigin(sf::Vector2f(viewBoxX/2.f, viewBoxY/2.f));
     viewBox.setFillColor(sf::Color(0,0,0,0));
@@ -2026,34 +1856,34 @@ void gameState::drawMiniMap()
     window.setView(worldView);
 }
 
-void createVillagerButtons(int& startX, int& startY, int& incrementalXOffset,  bool& villagerButtonsAreThere)
+void createVillagerButtons(int startX, int startY, int incrementalXOffset,  bool villagerButtonsAreThere)
 {
     if (!villagerButtonsAreThere) {
         int startXOr = startX;
-        button newButton = { startX, startY, spriteTypes::spriteTownCenter, actionTypes::actionBuildTownCenter, 0, static_cast<int>(listOfButtons.size()),0 };
-        listOfButtons.push_back(newButton);
+
+        listOfButtons.push_back({ startX, startY, spriteTypes::spriteTownCenter, actionTypes::actionBuildTownCenter, 0, static_cast<int>(listOfButtons.size()), 0 });
         startX += incrementalXOffset;
-        button newButton1 = { startX, startY, spriteTypes::spriteHouse, actionTypes::actionBuildHouse, 0, static_cast<int>(listOfButtons.size()),0 };
-        listOfButtons.push_back(newButton1);
+
+        listOfButtons.push_back({ startX, startY, spriteTypes::spriteHouse, actionTypes::actionBuildHouse, 0, static_cast<int>(listOfButtons.size()), 0 });
         startX += incrementalXOffset;
-        button newButton2 = { startX, startY, spriteTypes::spriteMill, actionTypes::actionBuildMill, 0, static_cast<int>(listOfButtons.size()),0 };
-        listOfButtons.push_back(newButton2);
+
+        listOfButtons.push_back({ startX, startY, spriteTypes::spriteMill, actionTypes::actionBuildMill, 0, static_cast<int>(listOfButtons.size()), 0 });
         startX += incrementalXOffset;
-        button newButton3 = { startX, startY, spriteTypes::spriteLumberCamp, actionTypes::actionBuildLumberCamp, 0, static_cast<int>(listOfButtons.size()),0 };
-        listOfButtons.push_back(newButton3);
+
+        listOfButtons.push_back({ startX, startY, spriteTypes::spriteLumberCamp, actionTypes::actionBuildLumberCamp, 0, static_cast<int>(listOfButtons.size()), 0 });
         startX += incrementalXOffset;
-        button newButton4 = { startX, startY, spriteTypes::spriteBarracks, actionTypes::actionBuildBarracks, 0, static_cast<int>(listOfButtons.size()),0 };
-        listOfButtons.push_back(newButton4);
+
+        listOfButtons.push_back({ startX, startY, spriteTypes::spriteBarracks, actionTypes::actionBuildBarracks, 0, static_cast<int>(listOfButtons.size()), 0 });
+
         villagerButtonsAreThere = true;
         startX = startXOr;
         startY += incrementalXOffset;
-        button newButton5 = { startX, startY, spriteTypes::spriteMiningCamp, actionTypes::actionBuildMiningCamp, 0, static_cast<int>(listOfButtons.size()),0 };
-        listOfButtons.push_back(newButton5);
+        listOfButtons.push_back({ startX, startY, spriteTypes::spriteMiningCamp, actionTypes::actionBuildMiningCamp, 0, static_cast<int>(listOfButtons.size()), 0 });
         villagerButtonsAreThere = true;
     }
 }
 
-void addActorSelectorButton(int& actorId, int& startDeck, int& tempY, int& startY, int& incrementalYOffset, int& offSetToNextCard)
+void addActorSelectorButton(int actorId, int startDeck, int tempY, int startY, int incrementalYOffset, int offSetToNextCard)
 {
     int buttonType = 0;
     //Speelruimte is 730 pixels = 1920/2.63 = cardDecksize
@@ -2066,8 +1896,8 @@ void addActorSelectorButton(int& actorId, int& startDeck, int& tempY, int& start
         buttonType = 7;
         break;
     }
-    button newButton = { startDeck, tempY, static_cast<spriteTypes>(buttonType), actionTypes::actionUnitSelect, actorId, static_cast<int>(listOfButtons.size()),0 };
-    listOfButtons.push_back(newButton);
+
+    listOfButtons.push_back({ startDeck, tempY, static_cast<spriteTypes>(buttonType), actionTypes::actionUnitSelect, actorId, static_cast<int>(listOfButtons.size()), 0 });
     if (tempY == startY)
     {
         tempY += incrementalYOffset;
@@ -2079,7 +1909,7 @@ void addActorSelectorButton(int& actorId, int& startDeck, int& tempY, int& start
     }
 }
 
-int getActorSpriteOffSet(int& actorId)
+int getActorSpriteOffSet(int actorId)
 {
     switch (listOfActors[actorId].getType())
     {
@@ -2091,7 +1921,7 @@ int getActorSpriteOffSet(int& actorId)
     return -1;
 }
 
-void gameState::drawActorTitle(int& actorId, int& textStartX, int& textStartY)
+void gameState::drawActorTitle(int actorId, int textStartX, int textStartY)
 {
     text.setString(listOfActors[actorId].nameOfActor());
     text.setCharacterSize(26);
@@ -2102,14 +1932,14 @@ void gameState::drawActorTitle(int& actorId, int& textStartX, int& textStartY)
     window.draw(text);
 }
 
-void gameState::drawActorBigSprite(int& actorId)
+void gameState::drawActorBigSprite(int actorId)
 {
     this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(128, getActorSpriteOffSet(actorId), 128, 128));
     this->spriteBigSelectedIcon.setPosition(static_cast<float>(mainWindowWidth / 4.08), static_cast<float>(mainWindowHeigth / 30));
     window.draw(this->spriteBigSelectedIcon);
 }
 
-void gameState::drawActorStats(int& actorId, int& textStartX, int& textStartY)
+void gameState::drawActorStats(int actorId, int textStartX, int textStartY)
 {
     text.setCharacterSize(18);
     std::stringstream healthText;
@@ -2138,27 +1968,29 @@ void gameState::drawActorStats(int& actorId, int& textStartX, int& textStartY)
     window.draw(text);
     if (listOfActors[actorId].getType() == 0) {
         textStartY += 20;
-        text.setString(listOfActors[actorId].getRecources());
+        text.setString(listOfActors[actorId].getResources());
         text.setPosition(static_cast<float>(textStartX), static_cast<float>(textStartY));
         window.draw(text);
     }
 }
 
-void gameState::drawActorToolbar(int &startX, int &startY, int &incrementalXOffset, int &spriteYOffset, int &startDeck, int &tempY, int &incrementalYOffset, int &offSetTonextCard)
+void gameState::drawActorToolbar(int spriteYOffset, int tempY, int offSetTonextCard)
 {
     bool villagerButtonsAreThere = false;
-    int textStartX = static_cast<int>((mainWindowWidth / 4.08) + (128 + (mainWindowWidth / 160)));
-    int textStartY = static_cast<int>(mainWindowHeigth / 30);
+    int textStartX = static_cast<int>(static_cast<float>((mainWindowWidth / 4.08f) + (128.f + (mainWindowWidth / 160.f))));
+    int textStartY = static_cast<int>(static_cast<float>(mainWindowHeigth / 30.f));
+    int startX = this->preCalcStartX;
+    int startY = this->preCalcStartY;
     for (int i = 0; i < this->selectedUnits.size(); i++)
     {
         if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
         {
-            createVillagerButtons(startX, startY, incrementalXOffset, villagerButtonsAreThere);
+            createVillagerButtons(startX, startY, this->preCalcIncrementalXOffset, villagerButtonsAreThere);
         }
         if (this->selectedUnits.size() > 1)
         {
             startY = mainWindowHeigth / 30;
-            addActorSelectorButton(this->selectedUnits[i], startDeck, tempY, startY, incrementalYOffset, offSetTonextCard);
+            addActorSelectorButton(this->selectedUnits[i], this->preCalcStartDeck, tempY, startY, this->preCalcincrementalYOffset, offSetTonextCard);
         }
         else if (i == 0) {
             drawActorBigSprite(this->selectedUnits[i]);
@@ -2168,7 +2000,7 @@ void gameState::drawActorToolbar(int &startX, int &startY, int &incrementalXOffs
     }
 }
 
-int getBuildingSpriteOffset(int& buildingId)
+int getBuildingSpriteOffset(int buildingId)
 {
     switch (listOfBuildings[buildingId].getType())
     {
@@ -2198,7 +2030,7 @@ int getBuildingSpriteOffset(int& buildingId)
     return -1;
 }
 
-void createBuildingButtons(int& buildingId, int& startX, int& startY)
+void createBuildingButtons(int buildingId, int startX, int startY)
 {
     switch (listOfBuildings[buildingId].getType())
     {
@@ -2239,14 +2071,14 @@ void createBuildingButtons(int& buildingId, int& startX, int& startY)
     }
 }
 
-void gameState::drawBuildingBigSprite(int& buildingId)
+void gameState::drawBuildingBigSprite(int buildingId)
 {
     this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(0, getBuildingSpriteOffset(buildingId), 128, 128));
     this->spriteBigSelectedIcon.setPosition(static_cast<float>(mainWindowWidth / 4.08), static_cast<float>(mainWindowHeigth / 30));
     window.draw(this->spriteBigSelectedIcon);
 }
 
-void gameState::drawBuildingToolbarTitle(int& textStartX, int& textStartY)
+void gameState::drawBuildingToolbarTitle(int textStartX, int textStartY)
 {
     text.setString(listOfBuildings[this->buildingSelectedId].getName());
     text.setCharacterSize(26);
@@ -2257,7 +2089,7 @@ void gameState::drawBuildingToolbarTitle(int& textStartX, int& textStartY)
     window.draw(text);
 }
 
-void gameState::drawBuildingToolbarStats(int& textStartX, int& textStartY)
+void gameState::drawBuildingToolbarStats(int textStartX, int textStartY)
 {
     text.setCharacterSize(18);
     std::stringstream healthText;
@@ -2286,7 +2118,7 @@ void gameState::drawBuildingToolbarStats(int& textStartX, int& textStartY)
     window.draw(text);
 }
 
-void gameState::drawProgressBar(float pointsGained, float pointsRequired, int& totalBarLength, int& startBarX, int& startBarY)
+void gameState::drawProgressBar(float pointsGained, float pointsRequired, int totalBarLength, int startBarX, int startBarY)
 {
     sf::RectangleShape totalBar(sf::Vector2f(static_cast<float>(totalBarLength), 18.f));
     sf::RectangleShape completeBar(sf::Vector2f((pointsGained /pointsRequired ) * totalBarLength, 18.f));
@@ -2302,7 +2134,7 @@ void gameState::drawProgressBar(float pointsGained, float pointsRequired, int& t
     window.draw(completeBar);
 }
 
-std::string getBuildingIsProducingName(int& buildingId)
+std::string getBuildingIsProducingName(int buildingId)
 {
     if (listOfBuildings[buildingId].productionQueue.front().isResearch)
     {
@@ -2329,7 +2161,7 @@ std::string getBuildingIsProducingName(int& buildingId)
     }
 }
 
-cords getSpriteOffSetTask(int& buildingId)
+cords getSpriteOffSetTask(int buildingId)
 {
     if (listOfBuildings[buildingId].productionQueue.front().isResearch)
     {
@@ -2357,7 +2189,7 @@ cords getSpriteOffSetTask(int& buildingId)
     }
 }
 
-int getCardForButtonByTask(int& buildingId, int& taskId)
+int getCardForButtonByTask(int buildingId, int taskId)
 {
     if (listOfBuildings[buildingId].productionQueue[taskId].isResearch)
     {
@@ -2386,13 +2218,8 @@ int getCardForButtonByTask(int& buildingId, int& taskId)
     }
 }
 
-void gameState::drawBuildingTaskToolbar(int& startDeck, int& startY)
+void gameState::drawBuildingTaskToolbar(int startY)
 {
-    int iconStartX = startDeck + static_cast<int>(mainWindowWidth / 30);
-    int iconStartY = startY + static_cast<int>(mainWindowHeigth / 27);
-    int startBarX = iconStartX + static_cast<int>(mainWindowWidth / 25.6);
-    int startBarY = iconStartY + static_cast<int>(mainWindowHeigth / 46.9);
-    int totalBarLength = static_cast<int>(mainWindowWidth / 6.4f);
     float percentageCompleted = static_cast<float>(static_cast<float>(listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsGained) / static_cast<float>(listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsNeeded)) * 100;
     int tempXOffset = 0;
     int tempYOffset = 0;
@@ -2401,13 +2228,13 @@ void gameState::drawBuildingTaskToolbar(int& startDeck, int& startY)
     text.setPosition(static_cast<float>(startBarX), static_cast<float>(iconStartY));
     window.draw(text);
     this->spriteUIButton.setTextureRect(sf::IntRect(getSpriteOffSetTask(this->buildingSelectedId).x, getSpriteOffSetTask(this->buildingSelectedId).y, 64, 64));
-    this->spriteUIButton.setPosition(static_cast<float>(iconStartX), static_cast<float>(iconStartY));
+    this->spriteUIButton.setPosition(static_cast<float>(iconBarStartX), static_cast<float>(iconStartY));
     window.draw(this->spriteUIButton);
     button cancelTask = { static_cast<int>(startBarX + totalBarLength + static_cast<int>(mainWindowWidth / 174.54)), iconStartY, spriteTypes::spriteCancel, actionTypes::actionCancelProduction, this->buildingSelectedId, static_cast<int>(listOfButtons.size()), 0 };
     listOfButtons.push_back(cancelTask);
     if (listOfBuildings[this->buildingSelectedId].productionQueue.size() > 1)
     {
-        tempXOffset = iconStartX + static_cast<int>(mainWindowWidth / 24.93);
+        tempXOffset = iconBarStartX + static_cast<int>(mainWindowWidth / 24.93);
         tempYOffset = iconStartY + static_cast<int>(mainWindowHeigth / 22.97);
         for (int i = 1; i < listOfBuildings[this->buildingSelectedId].productionQueue.size(); i++)
         {
@@ -2418,29 +2245,26 @@ void gameState::drawBuildingTaskToolbar(int& startDeck, int& startY)
     }
 }
 
-void gameState::drawBuildingConstructionToolbar(int& startDeck, int& startY)
+void gameState::drawBuildingConstructionToolbar(int startY)
 {
-    int iconStartX = startDeck + static_cast<int>(mainWindowWidth / 30);
-    int iconStartY = startY + static_cast<int>(mainWindowHeigth / 27);
-    int startBarX = iconStartX + static_cast<int>(mainWindowWidth / 25.6);
-    int startBarY = iconStartY + static_cast<int>(mainWindowHeigth / 46.9);
-    int totalBarLength = static_cast<int>(mainWindowWidth / 6.4f);
     drawProgressBar(static_cast<float>(listOfBuildings[this->buildingSelectedId].getBuildingPoints().first), static_cast<float>(listOfBuildings[this->buildingSelectedId].getBuildingPoints().second), totalBarLength, startBarX, startBarY);
     float percentageCompleted = static_cast<float>(static_cast<float>(listOfBuildings[this->buildingSelectedId].getBuildingPoints().first) / static_cast<float>(listOfBuildings[this->buildingSelectedId].getBuildingPoints().second)) * 100;
     text.setString("Building: " + listOfBuildings[this->buildingSelectedId].getName() + " " + std::to_string(static_cast<int>(percentageCompleted)) + "%...");
     text.setPosition(static_cast<float>(startBarX), static_cast<float>(iconStartY));
     window.draw(text);
     this->spriteUIButton.setTextureRect(sf::IntRect(0, (getBuildingSpriteOffset(this->buildingSelectedId) / 2), 64, 64));
-    this->spriteUIButton.setPosition(static_cast<float>(iconStartX), static_cast<float>(iconStartY));
+    this->spriteUIButton.setPosition(static_cast<float>(iconBarStartX), static_cast<float>(iconStartY));
     window.draw(this->spriteUIButton);
     button cancelBuilding = { static_cast<int>(startBarX + totalBarLength + (mainWindowWidth / 174.54)), iconStartY, spriteTypes::spriteCancel, actionTypes::actionCancelBuilding, this->buildingSelectedId, static_cast<int>(listOfButtons.size()),0 };
     listOfButtons.push_back(cancelBuilding);
 }
 
-void gameState::drawBuildingToolbar(int& startX, int& startY, int& incrementalXOffset, int& spriteYOffset, int& startDeck, int& tempY, int& incrementalYOffset, int& offSetTonextCard)
+void gameState::drawBuildingToolbar(int spriteYOffset, int tempY, int offSetTonextCard)
 {
-    int textStartX = static_cast<int>((mainWindowWidth / 4.08) + (128 + (mainWindowWidth / 160)));
-    int textStartY = static_cast<int>(mainWindowHeigth / 30);
+    int textStartX = static_cast<int>(round(static_cast<float>((mainWindowWidth / 4.08f) + (128.f + (mainWindowWidth / 160.f)))));
+    int textStartY = static_cast<int>(round(static_cast<float>(mainWindowHeigth / 30.f)));
+    int startX = this->preCalcStartX;
+    int startY = this->preCalcStartY;
     createBuildingButtons(this->buildingSelectedId, startX, startY);
     drawBuildingBigSprite(this->buildingSelectedId);
     drawBuildingToolbarTitle(textStartX, textStartY);
@@ -2449,15 +2273,15 @@ void gameState::drawBuildingToolbar(int& startX, int& startY, int& incrementalXO
     //Show what the building is doing ATM
     if (!listOfBuildings[this->buildingSelectedId].getCompleted())
     {
-        drawBuildingConstructionToolbar(startDeck, startY);
+        drawBuildingConstructionToolbar(startY);
     }
     else if (listOfBuildings[this->buildingSelectedId].hasTask())
     {
-        drawBuildingTaskToolbar(startDeck, startY);
+        drawBuildingTaskToolbar(startY);
     }
 }
 
-int getObjectBigSpriteYOffset(int& objectId)
+int getObjectBigSpriteYOffset(int objectId)
 {
     switch (listOfObjects[objectId].getType())
     {
@@ -2488,7 +2312,7 @@ int getObjectBigSpriteYOffset(int& objectId)
     }
 }
 
-void gameState::drawObjectToolbar(int& startX, int& startY, int& incrementalXOffset, int& spriteYOffset, int& startDeck, int& tempY, int& incrementalYOffset, int& offSetTonextCard)
+void gameState::drawObjectToolbar(int spriteYOffset, int tempY, int offSetTonextCard)
 {
     this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(256, getObjectBigSpriteYOffset(this->objectSelectedId), 128, 128));
     this->spriteBigSelectedIcon.setPosition(static_cast<float>(mainWindowWidth / 4.08), static_cast<float>(mainWindowHeigth / 30));
@@ -2498,8 +2322,8 @@ void gameState::drawObjectToolbar(int& startX, int& startY, int& incrementalXOff
     text.setOutlineColor(sf::Color::Black);
     text.setOutlineThickness(2.f);
     text.setFillColor(sf::Color::White);
-    int textStartX = static_cast<int>((mainWindowWidth / 4.08) + (128 + (mainWindowWidth / 160)));
-    int textStartY = static_cast<int>(mainWindowHeigth / 30);
+    int textStartX = static_cast<int>(round((mainWindowWidth / 4.08f) + (128.f + (mainWindowWidth / 160.f))));
+    int textStartY = static_cast<int>(round(mainWindowHeigth / 30.f));
     text.setPosition(static_cast<float>(textStartX), static_cast<float>(textStartY));
     window.draw(text);
     text.setCharacterSize(18);
@@ -2523,12 +2347,10 @@ void gameState::drawToolbar()
 {
     listOfButtons.clear();
     window.setView(toolBar);
-    int startX = mainWindowWidth/60;
-    int startY = mainWindowHeigth/30;
-    int tempY = startY;
-    int incrementalXOffset = 64+(mainWindowWidth/160);
-    int incrementalYOffset = 64+(mainWindowHeigth/90);
-    int spriteYOffset;
+    int startX = this->preCalcStartX;
+    int startY = this->preCalcStartY;
+    int tempY = startY;  
+    int spriteYOffset = 0;
     int cardDeckSize = static_cast<int>(mainWindowWidth / 1.82);
     int amountOfCardsPerRow = static_cast<int>((this->selectedUnits.size()+1)/2);
     int requiredSize = amountOfCardsPerRow*64;
@@ -2536,20 +2358,19 @@ void gameState::drawToolbar()
     if(devider == 0) devider = 1;
     int spaceBetweenCards = (cardDeckSize - requiredSize)/devider;
     int offSetTonextCard = 64 + spaceBetweenCards;
-    int startDeck = static_cast<int>(mainWindowWidth / 4.2);
-    int startProgress = static_cast<int>(mainWindowWidth / 2.48);
+;
 
     if(!this->selectedUnits.empty())
     {
-        drawActorToolbar(startX, startY, incrementalXOffset, spriteYOffset, startDeck, tempY, incrementalYOffset, offSetTonextCard);
+        drawActorToolbar(spriteYOffset, tempY, offSetTonextCard);
     }
     else if(this->buildingSelectedId != -1)
     {
-        drawBuildingToolbar(startX, startY, incrementalXOffset, spriteYOffset, startProgress, tempY, incrementalYOffset, offSetTonextCard);
+        drawBuildingToolbar(spriteYOffset, tempY, offSetTonextCard);
     }
     else if(this->objectSelectedId != -1)
     {
-        drawObjectToolbar(startX, startY, incrementalXOffset, spriteYOffset, startProgress, tempY, incrementalYOffset, offSetTonextCard);
+        drawObjectToolbar(spriteYOffset, tempY, offSetTonextCard);
     }
     drawButtons();
     window.setView(worldView);
@@ -2593,7 +2414,7 @@ void gameState::drawTopBar()
         ")  |                |  Population: " << tempStats.currentPopulation << "/" << tempStats.populationRoom <<
         "  |  Idle: " << currentPlayer.getIdleVillagers() <<
         "  |  Building: " << currentPlayer.getTotalBuilding() <<
-        "  |                |  Team: " << tempStats.team << " |" <<
+        "  |                |  Team: " << tempStats.team <<
         "  |                |  Time: " << time.str() << " |";
 
     text.setString(resourcesText.str());
@@ -2612,7 +2433,7 @@ void gameState::drawToolTip()
     {
         for (auto& Button : listOfButtons)
         {
-            Button.isHoverd(mouseFakePosition);
+            Button.isHovered(mouseFakePosition);
         }
     }
 }
@@ -2665,52 +2486,30 @@ void gameState::drawGame()
     window.display();
 }
 
-float gameState::getTime()
+float gameState::getTime() const
 {
     return this->elapsedTime;
 }
 
 void gameState::loadMap()
 {
-    for(int i = 0; i < MAP_HEIGHT; i++)
+    for(int i = 0; i < MAP_WIDTH; i++)
     {
-        for(int j = 0; j < MAP_WIDTH; j++)
+        for(int j = 0; j < MAP_HEIGHT; j++)
         {
-            this->currentMap[j][i] = 1;
-            this->buildingLocationList[j][i] = -1;
-            this->occupiedByBuildingList[j][i] = -1;
-            this->objectLocationList[j][i] = -1;
-            this->occupiedByActorList[j][i] = -1;
-            this->visability.push_back(0);
+            this->currentMap[i][j] = 0;
+            this->buildingLocationList[i][j] = -1;
+            this->occupiedByBuildingList[i][j] = -1;
+            this->objectLocationList[i][j] = -1;
+            this->occupiedByActorList[i][j] = -1;
+            this->visability[i][j] = 0;
         }
     }
     generateRandomMap(this->players,16,16,16,5,0);
-}
-
-void gameState::loadBuildings()
-{
-    //food, wood, stone, gold
-    //house 0
-    footprintOfBuildings.push_back({2,2});
-    priceOfBuilding.push_back({0,25,0,0});
-    //towncenter 1
-    footprintOfBuildings.push_back({4,4});
-    priceOfBuilding.push_back({0,300,100,0});
-    //mill 2
-    footprintOfBuildings.push_back({ 3,3 });
-    priceOfBuilding.push_back({ 0,100,0,0 });
-    //Lumbercamp 3
-    footprintOfBuildings.push_back({ 3,3 });
-    priceOfBuilding.push_back({ 0,100,0,0 });
-    //barracks 4
-    footprintOfBuildings.push_back({ 3,3 });
-    priceOfBuilding.push_back({ 0,175,0,0 });
-    //Mining camp 5
-    footprintOfBuildings.push_back({ 3,3 });
-    priceOfBuilding.push_back({ 0,100,0,0 });
-    //Mining camp 6
-    footprintOfBuildings.push_back({ 3,3 });
-    priceOfBuilding.push_back({ 0,100,0,0 });
+    sf::RectangleShape miniMapPixel(sf::Vector2f(20.f, 10.f));
+    for (int i = 0; i < minimapMistSectors.size(); i++) {
+        drawMiniMapMist(miniMapPixel);
+    }
 }
 
 void loadActors()
@@ -2744,6 +2543,9 @@ void createMiniMapTexture()
     minimapTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
     minimapActorsTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
     minimapMistTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
+    for (int i = 0; i < minimapMistSectors.size(); i++) {
+        minimapMistSectors.at(i).create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
+    }
     minimapObjectsTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
     minimapBuildingsTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
 }
@@ -2816,17 +2618,35 @@ void gameState::createFogOfWar()
 {
     if (lastFogOfWarUpdated + 0.5f < this->elapsedTime) {
         if (!noFogOfWar) {
-            for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++) {
-                if (this->visability[i] == 2) {
-                    this->visability[i] = 1;
+            for (int i = 0; i <MAP_WIDTH; i++) {
+                for (int j = 0; j < MAP_WIDTH; j++) {
+                    if (this->visability[i][j] == 2) {
+                        this->visability[i][j] = 1;
+                    }
                 }
             }
             for (int i = 0; i < listOfActors.size(); i++) {
                 if (listOfActors[i].getTeam() == currentPlayer.getTeam()) {
-                    std::list<cords> tempList = getListOfCordsInCircle(listOfActors[i].getLocation().x, listOfActors[i].getLocation().y, 6);
+                    std::list<cords> tempList = getListOfCordsInCircle(listOfActors[i].getActorCords().x, listOfActors[i].getActorCords().y, 6);
                     for (const cords& cord : tempList)
                     {
-                        this->visability[(cord.x * MAP_HEIGHT) + cord.y] = 2;
+                        this->visability[cord.x][cord.y] = 2;
+                    }
+                }
+            }
+            for (int i = 1; i < listOfBuildings.size(); i++) {
+                if (listOfBuildings[i].getTeam() == currentPlayer.getTeam()) {
+                    int visRadius = 1;
+                    if (listOfBuildings[i].getCompleted()) {
+                        visRadius = 8;
+                    }
+                    std::list<cords> buidlingFootprint = listOfBuildings[i].getFootprintOfBuilding();
+                    for (const cords& footprintTile : buidlingFootprint) {
+                        std::list<cords> tempList = getListOfCordsInCircle(footprintTile.x, footprintTile.y, visRadius);
+                        for (const cords& cord : tempList)
+                        {
+                            this->visability[cord.x][cord.y] = 2;
+                        }
                     }
                 }
             }
@@ -2848,11 +2668,12 @@ void gameState::createFogOfWar()
             }
         }
         else {
-            for (int i = 0; i < MAP_HEIGHT * MAP_WIDTH; i++) {
-                this->visability[i] = 2;
+            for (int i = 0; i < MAP_WIDTH; i++) {
+                for (int j = 0; j < MAP_WIDTH; j++) {
+                    this->visability[i][j] = 2;
+                }
             }
         }
         lastFogOfWarUpdated = this->elapsedTime;
     }
 }
-

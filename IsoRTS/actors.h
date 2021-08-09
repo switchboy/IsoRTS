@@ -2,18 +2,15 @@
 #define ACTORS_H
 #include <cmath>
 #include <list>
+#include <SFML/System.hpp>
 #include "gamestate.h"
 #include "globalfunctions.h"
-#include <SFML/System.hpp>
-#include <thread>
-
 
 class Cells
 {
 public:
     Cells() {
-        positionX = 0;
-        positionY = 0; 
+        position = { 0,0 };
         parentCellId = 0; 
         cummulativeCost = 0; 
         cellId = 0; 
@@ -21,34 +18,29 @@ public:
         costToGoal = 0;
         totalCostGuess = 0;
     }
-    int positionX, positionY, parentCellId, cummulativeCost, cellId, backParent;
+    cords position;
+    int parentCellId, cummulativeCost, cellId, backParent;
     double costToGoal, totalCostGuess;
     bool visited = false;
     bool visitedBack = false;
     bool obstacle = false;
     std::vector<int> neighbours;
-    void addNeighbours(std::vector<Cells> &cellsList);
+    void addNeighbours(const std::vector<Cells> &cellsList);
 };
 
 struct nearestBuildingTile
 {
     float deltaDistance;
-    int locationX;
-    int locationY;
-    int actionLocationX;
-    int actionLocationY;
+    cords location;
+    cords actionLocation;
     int buildingId;
     bool isSet;
     int tileId;
 };
 
-extern void updateCells(int goalId, int startId, std::vector<Cells> &cellsList);
-extern nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId);
-
 struct islandCell
 {
-    int positionX;
-    int positionY;
+    cords position;
     int cellId;
     int cellScore;
     int parentId;
@@ -56,8 +48,7 @@ struct islandCell
 
 struct routeCell
 {
-    int positionX;
-    int positionY;
+    cords position;
     bool visited;
     int parentCellId;
     int backParent;
@@ -72,68 +63,69 @@ struct orderStack
 class actors
 {
 public:
-    actors(int type, int actorX, int actorY, int actorTeam, int actorId);
+    actors(int type, cords location, int actorTeam, int actorId);
     virtual ~actors();
-    void update();
-    void searchAltetnative();
+    void animateWalkingToResource();
+    void buildBuilding();
     void calculateRoute();
+    void chaseTarget();
+    void cleanUp();
+    void clearCommandStack();
+    void clearRoute();
+    void doMeleeDamage();
+    void doNextStackedCommand();
+    void doTaskIfNotWalking();
     void drawActor();
-    std::string nameOfActor();
-    std::string getRecources();
-    void updateGoal(int i, int j, int waitTime);
+    void fightOrFlight(int idOfAttacker);
+    void findNearestDropOffPoint();
+    void findNearestSimilarResource();
+    void gatherResource();
+    void getNewBuildingTileForSameBuilding();
+    void handleBuilding();
+    void handleResourceGathering();
+    void houseKeeping();
+    void killActor();
+    void moveActorIfWalking();
+    void pathAStar();
     void renderPath();
+    void retryWalkingOrChangeGoal();
+    void routing(std::vector<Cells>& cellsList, int endCell, int startCell, bool endReached);
+    void searchAltetnative();
     void setCommonGoalTrue();
     void setGatheringRecource(bool flag);
-    void findNearestDropOffPoint();
-    void findNearestSimilairResource();
-    void getNewBuildingTileForSameBuilding();
-    void pathAStar();
-    void clearCommandStack();
-    void fightOrFlight(int idOfAttacker);
-    void doNextStackedCommand();
-    void stackOrder(cords Goal, stackOrderTypes orderType);
-    void routing(std::vector<Cells>& cellsList, int& endCell, int& startCell, bool& endReached);
-    bool isInitialized();
-    int getTeam();
-    cords getLocation();
-    int getType();
-    int getActorId();
-    bool isGathering();
-    bool getIsBuilding();
-    cords getGoal();
-    int getBuildingId();
-    void chaseTarget();
-    resourceTypes getResourceGathered();
-    void setIsBuildingTrue(int buildingId, int& goalX, int& goalY);
-    std::pair<int, int> getHealth();
-    void walkBackToOwnSquare();
-    void startGatheringAnimation();
-    void animateWalkingToResource();
-    void gatherResource();
-    void buildBuilding();
-    void unloadAndReturnToGathering();
-    void cleanUp();
-    void killActor();
-    void doMeleeDamage();
-    std::list<cords> getRejectedTargetsList();
-    void takeDamage(int amountOfDamage, int idOfAttacker);
-    int getMeleeDMG();
-    int getRangedDMG();
-    void updateGoalPath();
-    void moveActorIfWalking();
-    void walkToNextSquare();
-    void clearRoute();
-    void startWalking();
-    void retryWalkingOrChangeGoal();
-    void handleResourceGathering();
-    void handleBuilding();
-    void houseKeeping();
-    void setIsDoingAttack();
-    void doTaskIfNotWalking();
     void shootProjectile();
-    bool idle();
-    bool isAlive();
-    cords getActorCords();
+    void stackOrder(cords Goal, stackOrderTypes orderType);
+    void startGatheringAnimation();
+    void startWalking();
+    void takeDamage(int amountOfDamage, int idOfAttacker);
+    void unloadAndReturnToGathering();
+    void update();
+    void updateGoal(cords goal, int waitTime);
+    void updateGoalPath();
+    void walkBackToOwnSquare();
+    void walkToNextSquare();
+
+    bool getIsBuilding() const;
+    bool idle() const;
+    bool isAlive() const;
+    bool isGathering() const;
+    bool isInitialized() const;
+    int getActorId() const;
+    int getBuildingId() const;
+    int getMeleeDMG() const;
+    int getRangedDMG() const;
+    int getTeam() const;
+    int getType() const;
+    cords getGoal() const;
+    resourceTypes getResourceGathered() const;
+    cords getActorCords() const;
+    const std::list<cords>& getRejectedTargetsList() const;
+    std::pair<int, int> getHealth() const;
+    std::string nameOfActor() const;
+    std::string getResources() const;
+
+    void setIsBuildingTrue(int buildingId, cords goal);
+    void setIsDoingAttack();
 
 private:
     bool actorAlive;
@@ -163,6 +155,11 @@ private:
     bool isIdle;
     bool realPath;
     bool hasStartedSearchingForAlternatives;
+    cords actorCords;
+    cords actorGoal;
+    cords actorRealGoal;
+    cords actorCommandGoal;
+    cords actionPreformedOnTile;
     int idOfTarget;
     int actorType;
     int actorTeam;
@@ -173,11 +170,6 @@ private:
     int meleeDamage;
     int rangedDamage;
     int range;
-    int actorCords[2];
-    int actorGoal[2];
-    int actorRealGoal[2];
-    int actorCommandGoal[2];
-    int actionPreformedOnTile[2];
     resourceTypes ResourceBeingGatherd;
     int amountOfGold;
     int amountOfWood;
@@ -210,6 +202,9 @@ private:
 };
 
 extern std::vector<actors> listOfActors;
-extern std::vector<int> listOfActorsWhoNeedAPath;
+extern std::vector<int>    listOfActorsWhoNeedAPath;
+
+extern void                updateCells(int goalId, int startId, std::vector<Cells>& cellsList);
+extern nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId);
 
 #endif // ACTORS_H

@@ -246,7 +246,7 @@ void loadBuildings()
         25,                         //int                     buildingPointsNeeded,
         0,                          //int                     supportsPopulationOf,
         1,                          //int                     offSetYStore,
-        8,                          //int                     amountOfAnimationSprites,
+        0,                          //int                     amountOfAnimationSprites,
         { 0,175,0,0 },              //actorOrBuildingPrice    priceOfBuilding, food, wood, stone, gold
         { 3,3 },                    //footprintOfBuilding     buildingFootprint,
         {192,192},                  //cords                   buildingSprite,

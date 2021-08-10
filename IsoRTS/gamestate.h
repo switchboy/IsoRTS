@@ -68,6 +68,7 @@ public:
     void drawActorStats(int actorId, int textStartX, int textStartY);
     void drawActorTitle(int actorId, int textStartX, int textStartY);
     void drawActorToolbar(int spriteYOffset, int tempY, int offSetTonextCard);
+    void addActorSelectorButton(int i, int actorId, int startDeck, int tempY, int startY, int offSetToNextCard);
     void drawBuildingBigSprite(int buildingId);
     void drawBuildingConstructionToolbar(int startY);
     void drawBuildingTaskToolbar(int startY);

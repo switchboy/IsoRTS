@@ -1856,7 +1856,7 @@ void gameState::drawMiniMap()
     window.setView(worldView);
 }
 
-void createVillagerButtons(int startX, int startY, int incrementalXOffset,  bool villagerButtonsAreThere)
+void createVillagerButtons(int startX, int startY, int incrementalXOffset,  bool& villagerButtonsAreThere)
 {
     if (!villagerButtonsAreThere) {
         int startXOr = startX;
@@ -1874,16 +1874,15 @@ void createVillagerButtons(int startX, int startY, int incrementalXOffset,  bool
         startX += incrementalXOffset;
 
         listOfButtons.push_back({ startX, startY, spriteTypes::spriteBarracks, actionTypes::actionBuildBarracks, 0, static_cast<int>(listOfButtons.size()), 0 });
-
-        villagerButtonsAreThere = true;//TODO: this variable assignment is useless?
+      
         startX = startXOr;
         startY += incrementalXOffset;
         listOfButtons.push_back({ startX, startY, spriteTypes::spriteMiningCamp, actionTypes::actionBuildMiningCamp, 0, static_cast<int>(listOfButtons.size()), 0 });
-        villagerButtonsAreThere = true;//TODO: this variable assignment is useless?
+        villagerButtonsAreThere = true;
     }
 }
 
-void addActorSelectorButton(int actorId, int startDeck, int tempY, int startY, int incrementalYOffset, int offSetToNextCard)
+void gameState::addActorSelectorButton(int i, int actorId, int startDeck, int tempY, int startY, int offSetToNextCard)
 {
     int buttonType = 0;
     //Speelruimte is 730 pixels = 1920/2.63 = cardDecksize
@@ -1897,16 +1896,19 @@ void addActorSelectorButton(int actorId, int startDeck, int tempY, int startY, i
         break;
     }
 
-    listOfButtons.push_back({ startDeck, tempY, static_cast<spriteTypes>(buttonType), actionTypes::actionUnitSelect, actorId, static_cast<int>(listOfButtons.size()), 0 });
-    if (tempY == startY)
-    {
-        tempY += incrementalYOffset;//TODO: this variable assignment is useless?
+    int xPosition;
+    if(i < ceil(static_cast<float>(this->selectedUnits.size())/2.f)){
+        xPosition = startDeck + offSetToNextCard*i;
     }
-    else
-    {
-        startDeck += offSetToNextCard;//TODO: this variable assignment is useless?
-        tempY = startY;//TODO: this variable assignment is useless?
+    else if (this->selectedUnits.size() % 2) {
+        xPosition = static_cast<int>(startDeck + offSetToNextCard * ((static_cast<float>(i)-1.f) - (static_cast<float>(selectedUnits.size()) / 2.f)));
+        tempY = tempY + this->preCalcincrementalYOffset;
+    } else {
+        xPosition = static_cast<int>(startDeck + offSetToNextCard * (static_cast<float>(i) - (static_cast<float>(selectedUnits.size()) / 2.f)));
+        tempY = tempY + this->preCalcincrementalYOffset;
     }
+
+    listOfButtons.push_back({ xPosition, tempY, static_cast<spriteTypes>(buttonType), actionTypes::actionUnitSelect, actorId, static_cast<int>(listOfButtons.size()), 0 });
 }
 
 int getActorSpriteOffSet(int actorId)
@@ -1990,7 +1992,7 @@ void gameState::drawActorToolbar(int spriteYOffset, int tempY, int offSetTonextC
         if (this->selectedUnits.size() > 1)
         {
             startY = mainWindowHeigth / 30;
-            addActorSelectorButton(this->selectedUnits[i], this->preCalcStartDeck, tempY, startY, this->preCalcincrementalYOffset, offSetTonextCard);
+            addActorSelectorButton(i, this->selectedUnits[i], this->preCalcStartDeck, tempY, startY, offSetTonextCard);
         }
         else if (i == 0) {
             drawActorBigSprite(this->selectedUnits[i]);
@@ -2347,9 +2349,7 @@ void gameState::drawToolbar()
 {
     listOfButtons.clear();
     window.setView(toolBar);
-    int startX = this->preCalcStartX;//TODO: this variable assignment is useless?
-    int startY = this->preCalcStartY;//TODO: this variable assignment is useless?
-    int tempY = startY;  
+    int tempY = this->preCalcStartY;
     int spriteYOffset = 0;
     int cardDeckSize = static_cast<int>(mainWindowWidth / 1.82);
     int amountOfCardsPerRow = static_cast<int>((this->selectedUnits.size()+1)/2);

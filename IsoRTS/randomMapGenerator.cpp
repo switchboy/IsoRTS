@@ -114,15 +114,16 @@ namespace
 
 	bool spawnFoodStoneGold(int resource, int amountOfGroups)
 	{
-		int gridMinX = 0;//TODO: these variables are never used
-		int gridMinY = 0;//TODO: these variables are never used
+		//tries to place resources pseudorandomly into a 32*32 grid and repeats this until the map is full on a 256 tiles wide map this means 64 groups can be placed. To lower the chance of a succesful placement only a 1 tile will be tested for suitability
+		int gridMinX = 0;
+		int gridMinY = 0;
 		int succesFullPlacements = 0;
 		for (int gridMaxX = 32; gridMaxX < MAP_WIDTH; gridMaxX += 32) {
 			for (int gridMaxY = 32; gridMaxY < MAP_HEIGHT; gridMaxY += 32) {
 				bool resourcePlaced = false;
 				int maxTries = 0;
-				while (!resourcePlaced && maxTries < 999999999999 && succesFullPlacements <= amountOfGroups) {
-					cords suggestedCords = { roll(0,MAP_WIDTH), roll(0,MAP_HEIGHT) };
+				while (!resourcePlaced && maxTries < 1 && succesFullPlacements <= amountOfGroups) {
+					cords suggestedCords = { roll(gridMinX,gridMaxX), roll(gridMinY,gridMaxY) };
 					if (suggestedCords.y - 1 >= 0 && suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
 						if (currentGame.isPassable(suggestedCords) && currentGame.isPassable({ suggestedCords.x, suggestedCords.y + 1 }) && currentGame.isPassable({ suggestedCords.x + 1, suggestedCords.y }) && currentGame.isPassable({ suggestedCords.x + 1, suggestedCords.y - 1 }))
 						{
@@ -319,7 +320,7 @@ void generateRandomMap(int players, int amountOfFoodGroups, int amountOfStoneGro
 	if (!spawnFoodStoneGold(4, amountOfStoneGroups)) { mapGenerationSuccefull = false; std::cout << "map generation failed on stone sources!" << std::endl;	}
 	if (!spawnFoodStoneGold(5, amountOfGoldGroups)) { mapGenerationSuccefull = false; std::cout << "map generation failed on gold sources!" << std::endl; }
 	centerViewOnVillager();
-	if (!mapGenerationSuccefull && tries < 99) {
+	if (!mapGenerationSuccefull && tries < 1024) {
 		tries++;
 		generateRandomMap(players, amountOfFoodGroups, amountOfStoneGroups, amountOfGoldGroups, treeDensityLevel, tries);
 	}

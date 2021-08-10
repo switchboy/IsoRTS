@@ -24,7 +24,7 @@ templateBuildings::templateBuildings(bool canDoRangedDamage, bool recievesWood, 
     this->origin = origin;
     if (!this->buildingTexture.loadFromFile(buildingTexture))
     {
-        std::cout << "Error loading texture: house.png \n" << std::endl;
+        std::cout << "Error loading texture: house.png \n" << std::endl;//TODO:: house.png is hardcoded
     }
 }
 

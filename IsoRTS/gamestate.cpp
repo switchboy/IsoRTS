@@ -1874,7 +1874,7 @@ void createVillagerButtons(int startX, int startY, int incrementalXOffset,  bool
         startX += incrementalXOffset;
 
         listOfButtons.push_back({ startX, startY, spriteTypes::spriteBarracks, actionTypes::actionBuildBarracks, 0, static_cast<int>(listOfButtons.size()), 0 });
-
+      
         startX = startXOr;
         startY += incrementalXOffset;
         listOfButtons.push_back({ startX, startY, spriteTypes::spriteMiningCamp, actionTypes::actionBuildMiningCamp, 0, static_cast<int>(listOfButtons.size()), 0 });
@@ -1895,6 +1895,7 @@ void gameState::addActorSelectorButton(int i, int actorId, int startDeck, int te
         buttonType = 7;
         break;
     }
+
     int xPosition;
     if(i < ceil(static_cast<float>(this->selectedUnits.size())/2.f)){
         xPosition = startDeck + offSetToNextCard*i;
@@ -2348,8 +2349,6 @@ void gameState::drawToolbar()
 {
     listOfButtons.clear();
     window.setView(toolBar);
-    //int startX = this->preCalcStartX;
-    //int startY = this->preCalcStartY;
     int tempY = this->preCalcStartY;
     int spriteYOffset = 0;
     int cardDeckSize = static_cast<int>(mainWindowWidth / 1.82);

@@ -134,7 +134,7 @@ namespace
 		int tries = 0;
 		std::default_random_engine gen(roll(0,99));
 
-		//While not all resources are placed shuffle the grids and try to place on the first one. If placed remove grid from the list
+		//While not all resources are placed shuffle the grids and try to place on the last one. If placed remove grid from the list
 		while (amountOfGroupsPlaced < amountOfGroups && tries < 9000 && mapGrid.size() > 0 ) {
 			std::shuffle(mapGrid.begin(), mapGrid.end(), gen);
 			cords suggestedCords = { roll(mapGrid.back().start.x,mapGrid.back().end.x), roll(mapGrid.back().start.y,mapGrid.back().end.y) };

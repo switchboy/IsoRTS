@@ -5,6 +5,8 @@
 #include <SFML/System.hpp>
 #include "gamestate.h"
 #include "globalfunctions.h"
+#include "actorTemplates.h"
+
 
 class Cells
 {
@@ -193,6 +195,7 @@ private:
     float offSetY;
     float timeBetweenShots;
     float timeLastRetry;
+    float timeToCrossOneTile;
     nearestBuildingTile dropOffTile;
     std::list<cords> listOfTargetsToRejectUntilSuccesfullMovement;
     std::list<routeCell> route;

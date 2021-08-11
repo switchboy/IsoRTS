@@ -22,6 +22,7 @@ templateBuildings::templateBuildings(bool canDoRangedDamage, bool recievesWood, 
     this->buildingFootprint = buildingFootprint;
     this->textureRect = buildingSprite;
     this->origin = origin;
+    this->realBuildingName = realBuildingName;
     if (!this->buildingTexture.loadFromFile(buildingTexture))
     {
         std::cout << "Error loading texture: "<< buildingTexture << std::endl;
@@ -289,7 +290,7 @@ void loadBuildings()
         { 3,3 },                    //footprintOfBuilding     buildingFootprint,
         {192,192},                  //cords                   buildingSprite,
         "textures/miningCamp.png",  //std::string             buildingTexture,
-        {64,160},                  //cords                   origin
+        {64,160},                   //cords                   origin
         "Miningcamp"                //std::string             realBuildingName;
         });
 

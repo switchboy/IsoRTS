@@ -535,30 +535,6 @@ void gameState::loadTextures()
         std::cout << "Error loading texture: cheatTile.png \n" << std::endl;
     }
 
-    //actors
-    if(this->textureVillager.loadFromFile("textures/testVillagerSprite.png"))
-    {
-        this->spriteVillager.setTexture(textureVillager);
-        this->spriteVillager.setTextureRect(sf::IntRect(0,0,16,32));
-        this->spriteVillager.setOrigin(-24,12);
-
-    }
-    else
-    {
-        std::cout << "Error loading texture: testVillagerSprite.png \n" << std::endl;
-    }
-    if (this->textureSwordsman.loadFromFile("textures/swordsman.png"))
-    {
-        this->spriteSwordsman.setTexture(textureSwordsman);
-        this->spriteSwordsman.setTextureRect(sf::IntRect(0, 0, 16, 32));
-        this->spriteSwordsman.setOrigin(-24, 12);
-
-    }
-    else
-    {
-        std::cout << "Error loading texture: swordsman.png \n" << std::endl;
-    }
-
     if (this->textureFlag.loadFromFile("textures/flag.png"))
     {
         this->spriteFlag.setTexture(textureFlag);
@@ -2510,13 +2486,6 @@ void gameState::loadMap()
     for (int i = 0; i < minimapMistSectors.size(); i++) {
         drawMiniMapMist(miniMapPixel);
     }
-}
-
-void loadActors()
-{
-    //food, wood, stone, gold, production points
-    priceOfActor.push_back({ 50,0,0,0,25 });   //villager    0
-    priceOfActor.push_back({ 60,0,0,20,25 });  //Swordsman   1
 }
 
 void gameState::loadFonts()

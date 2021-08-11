@@ -4,6 +4,7 @@
 #include <string>
 #include "globalfunctions.h"
 #include "humanReadableNames.h"
+#include "objectTemplates.h"
 
 class objects
 {
@@ -11,7 +12,7 @@ class objects
 public:
     objects(){
         objectId =0;
-        objectType = objectTypes::objectBerry;
+        objectType = objectBerry;
         location = { 0, 0 };
         typeOfResource = resourceTypes::resourceFood;
         resourceLeft = 0;

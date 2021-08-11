@@ -312,33 +312,6 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: unitSelectedTile.png \n" << std::endl;
     }
-    if(textureStone.loadFromFile("textures/stone.png"))
-    {
-        spriteStone.setTexture(textureStone);
-        spriteStone.setOrigin(0,2);
-    }
-    else
-    {
-        std::cout << "Error loading texture: stone.png \n" << std::endl;
-    }
-    if(textureGold.loadFromFile("textures/gold.png"))
-    {
-        spriteGold.setTexture(textureGold);
-        spriteGold.setOrigin(0,2);
-    }
-    else
-    {
-        std::cout << "Error loading texture: gold.png \n" << std::endl;
-    }
-    if(textureBerryBush.loadFromFile("textures/berrybush.png"))
-    {
-        spriteBerryBush.setTexture(textureBerryBush);
-        spriteBerryBush.setOrigin(0,2);
-    }
-    else
-    {
-        std::cout << "Error loading texture: berrybush.png \n" << std::endl;
-    }
 
     if (textureCommandCursor.loadFromFile("textures/giveOrder.png"))
     {
@@ -360,48 +333,16 @@ void gameState::loadTextures()
         std::cout << "Error loading texture: tileObstructed.png \n" << std::endl;
     }
     
-
-    if(texturePineTreeTile.loadFromFile("textures/pineTree.png"))
-    {
-        spritePineTreeTile.setTexture(texturePineTreeTile);
-        spritePineTreeTile.setOrigin(0,32);
-    }
-    else
-    {
-        std::cout << "Error loading texture: normalTree.png \n" << std::endl;
-    }
-    if(textureNormalTreeTile.loadFromFile("textures/normalTree.png"))
-    {
-        spriteNormalTreeTile.setTexture(textureNormalTreeTile);
-        spriteNormalTreeTile.setOrigin(0,32);
-    }
-    else
-    {
-        std::cout << "Error loading texture: normalTree.png \n" << std::endl;
-    }
-    if(textureCypressTrileTile.loadFromFile("textures/cypressTree.png"))
-    {
-        spriteCypressTrileTile.setTexture(textureCypressTrileTile);
-        spriteCypressTrileTile.setOrigin(0,32);
-    }
     if(textureTotalBackground.loadFromFile("textures/totalBackground.png"))
     {
         spriteTotalBackground.setTexture(textureTotalBackground);
     }
     else
     {
-        std::cout << "Error loading texture: cypressTree.png \n" << std::endl;
+        std::cout << "Error loading texture: totalbackground.png \n" << std::endl;
     }
     
-    if(textureCactusTile.loadFromFile("textures/cactus.png"))
-    {
-        spriteCactusTile.setTexture(textureCactusTile);
-        spriteCactusTile.setOrigin(0,32);
-    }
-    else
-    {
-        std::cout << "Error loading texture: cactus.png \n" << std::endl;
-    }
+    
     if(textureSelectedTile.loadFromFile("textures/tileSelected.png"))
     {
         spriteSelectedTile.setTexture(textureSelectedTile);
@@ -410,6 +351,7 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: tileSelected.png \n" << std::endl;
     }
+
     if (textureMistTile.loadFromFile("textures/mistTile.png"))
     {
         spriteMistTile.setTexture(textureMistTile);
@@ -418,6 +360,7 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: mistTile.png \n" << std::endl;
     }
+
     if(textureSelectedTileForPath.loadFromFile("textures/tileSelectedForPath.png"))
     {
         spriteSelectedTileForPath.setTexture(textureSelectedTileForPath);
@@ -2577,6 +2520,7 @@ void gameState::loadGame()
     createMiniMapTexture();
     loadTextures();
     loadActors();
+    loadObjects();
     setDefaultValues();
     loadBuildings();
     loadMap();

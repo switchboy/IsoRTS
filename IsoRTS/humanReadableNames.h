@@ -11,7 +11,7 @@ enum class resourceTypes
     None
 };
 
-enum class objectTypes
+enum objectTypes
 {
     objectCactus,
     objectCypress,

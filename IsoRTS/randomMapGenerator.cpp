@@ -274,13 +274,18 @@ namespace
 
 	void generateTerrain() {
 		srand(static_cast<int>(time(NULL)));
-		float noiseMap[MAP_WIDTH * MAP_HEIGHT];
-		float noiseSeed[MAP_WIDTH * MAP_HEIGHT];
+		//Moved noiseMap and noiseSeed from stack to heap because of size
+		float* noiseMap = nullptr;
+		float* noiseSeed = nullptr;
+		noiseSeed = new float[MAP_WIDTH * MAP_HEIGHT];
+		noiseMap = new float[MAP_WIDTH * MAP_HEIGHT];
 		for (int i = 0; i < MAP_WIDTH * MAP_HEIGHT; i++) {
 			noiseSeed[i] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 		};
 		generatePerlinNoise(1.4f, 5, noiseSeed, noiseMap);
 		convertPerlinNoiseToMap(noiseMap);
+		delete[]noiseMap;
+		delete[]noiseSeed;
 	}
 
 }

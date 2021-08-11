@@ -12,7 +12,7 @@ class objects
 public:
     objects(){
         objectId =0;
-        objectType = objectTypes::objectBerry;
+        objectType = objectTypes::berry;
         location = { 0, 0 };
         typeOfResource = resourceTypes::resourceFood;
         resourceLeft = 0;
@@ -27,6 +27,7 @@ public:
     int             amountOfResourcesLeft() const;
     std::string     nameOfResource() const;
 
+   
     cords           getLocation() const;
     std::string     getName() const;
     objectTypes     getType() const;
@@ -38,6 +39,7 @@ private:
     cords         location;
     resourceTypes typeOfResource;
     int           resourceLeft;
+   
 
 };
 extern std::vector<objects> listOfObjects;

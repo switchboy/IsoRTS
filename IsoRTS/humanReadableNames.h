@@ -13,13 +13,13 @@ enum class resourceTypes
 
 enum class objectTypes : uint32_t
 {
-    objectCactus,
-    objectCypress,
-    objectMaple,
-    objectPine,
-    objectStone,
-    objectGold,
-    objectBerry
+    cactus,
+    cypress,
+    maple,
+    pine,
+    stone,
+    gold,
+    berry
 };
 
 enum class spriteTypes

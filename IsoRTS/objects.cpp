@@ -23,6 +23,8 @@ void objects::substractResource()
     }
 }
 
+
+
 cords objects::getLocation() const {
     return this->location;
 }

@@ -4,6 +4,8 @@
 #include "objects.h"
 #include <SFML/Graphics.hpp>
 
+
+
 class objectTemplates
 {
 public:
@@ -14,7 +16,8 @@ public:
         std::string             realName,
         cords                   spriteOrigin,
         cords                   textureRect,
-        std::string             texture
+        std::string             texture,
+        int                     objectBigSpriteYOffset
     );
 
     objectTypes             getObjectId() const;
@@ -24,6 +27,7 @@ public:
     cords                   getSpriteOrigin() const;
     cords                   getTextureRect() const;
     sf::Sprite&             getSprite();
+    int                     getObjectBigSpriteYOffset() const;
     sf::Texture             getTexture();
     void                    setTexture();
 
@@ -36,6 +40,7 @@ private:
     cords                   textureRect;
     sf::Sprite              sprite;
     sf::Texture             texture;
+    int                     objectBigSpriteYOffset;
 };
 
 extern void loadObjects();

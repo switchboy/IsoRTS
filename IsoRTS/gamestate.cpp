@@ -1830,18 +1830,6 @@ void gameState::addActorSelectorButton(int i, int actorId, int startDeck, int te
     listOfButtons.push_back({ xPosition, tempY, static_cast<spriteTypes>(buttonType), actionTypes::actionUnitSelect, actorId, static_cast<int>(listOfButtons.size()), 0 });
 }
 
-int getActorSpriteOffSet(int actorId)
-{
-    switch (listOfActors[actorId].getType())
-    {
-    case 0:
-        return  0;
-    case 1:
-        return 128;
-    }
-    return -1;
-}
-
 void gameState::drawActorTitle(int actorId, int textStartX, int textStartY)
 {
     text.setString(listOfActors[actorId].nameOfActor());
@@ -1855,7 +1843,7 @@ void gameState::drawActorTitle(int actorId, int textStartX, int textStartY)
 
 void gameState::drawActorBigSprite(int actorId)
 {
-    this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(128, getActorSpriteOffSet(actorId), 128, 128));
+    this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(128, listOfActorTemplates[listOfActors[actorId].getType()].getBigSpriteYOffset(), 128, 128));
     this->spriteBigSelectedIcon.setPosition(static_cast<float>(mainWindowWidth / 4.08), static_cast<float>(mainWindowHeigth / 30));
     window.draw(this->spriteBigSelectedIcon);
 }
@@ -1921,36 +1909,6 @@ void gameState::drawActorToolbar(int spriteYOffset, int tempY, int offSetTonextC
     }
 }
 
-int getBuildingSpriteOffset(int buildingId)
-{
-    switch (listOfBuildings[buildingId].getType())
-    {
-    case 0:
-        return  128;
-        break;
-    case 1:
-        return  0;
-        break;
-    case 2:
-        return  384;
-        break;
-    case 3:
-        return  256;
-        break;
-    case 4:
-        return  512;
-        break;
-    case 5:
-        return  640;
-        break;
-    case 6:
-        return  640;
-        break;
-
-    }
-    return -1;
-}
-
 void createBuildingButtons(int buildingId, int startX, int startY)
 {
     switch (listOfBuildings[buildingId].getType())
@@ -1994,7 +1952,7 @@ void createBuildingButtons(int buildingId, int startX, int startY)
 
 void gameState::drawBuildingBigSprite(int buildingId)
 {
-    this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(0, getBuildingSpriteOffset(buildingId), 128, 128));
+    this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(0, listOfBuildingTemplates[listOfBuildings[buildingId].getType()].getBigSpriteYOffset(), 128, 128));
     this->spriteBigSelectedIcon.setPosition(static_cast<float>(mainWindowWidth / 4.08), static_cast<float>(mainWindowHeigth / 30));
     window.draw(this->spriteBigSelectedIcon);
 }
@@ -2173,7 +2131,7 @@ void gameState::drawBuildingConstructionToolbar(int startY)
     text.setString("Building: " + listOfBuildings[this->buildingSelectedId].getName() + " " + std::to_string(static_cast<int>(percentageCompleted)) + "%...");
     text.setPosition(static_cast<float>(startBarX), static_cast<float>(iconStartY));
     window.draw(text);
-    this->spriteUIButton.setTextureRect(sf::IntRect(0, (getBuildingSpriteOffset(this->buildingSelectedId) / 2), 64, 64));
+    this->spriteUIButton.setTextureRect(sf::IntRect(0, (listOfBuildingTemplates[listOfBuildings[this->buildingSelectedId].getType()].getBigSpriteYOffset() / 2), 64, 64));
     this->spriteUIButton.setPosition(static_cast<float>(iconBarStartX), static_cast<float>(iconStartY));
     window.draw(this->spriteUIButton);
     button cancelBuilding = { static_cast<int>(startBarX + totalBarLength + (mainWindowWidth / 174.54)), iconStartY, spriteTypes::spriteCancel, actionTypes::actionCancelBuilding, this->buildingSelectedId, static_cast<int>(listOfButtons.size()),0 };
@@ -2202,40 +2160,9 @@ void gameState::drawBuildingToolbar(int spriteYOffset, int tempY, int offSetTone
     }
 }
 
-int getObjectBigSpriteYOffset(int objectId)
-{
-    switch (listOfObjects[objectId].getType())
-    {
-    case objectTypes::objectCactus:
-        return 0;
-        break;
-    case objectTypes::objectCypress:
-        return 128;
-        break;
-    case objectTypes::objectMaple:
-        return 256;
-        break;
-    case objectTypes::objectPine:
-        return 384;
-        break;
-    case objectTypes::objectStone:
-        return 512;
-        break;
-    case objectTypes::objectGold:
-        return 640;
-        break;
-    case objectTypes::objectBerry:
-        return 768;
-        break;
-    default:
-        return 0;
-        break;
-    }
-}
-
 void gameState::drawObjectToolbar(int spriteYOffset, int tempY, int offSetTonextCard)
 {
-    this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(256, getObjectBigSpriteYOffset(this->objectSelectedId), 128, 128));
+    this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(256, listOfObjectTemplates[static_cast<uint32_t>(listOfObjects[this->objectSelectedId].getType())].getObjectBigSpriteYOffset(), 128, 128));
     this->spriteBigSelectedIcon.setPosition(static_cast<float>(mainWindowWidth / 4.08), static_cast<float>(mainWindowHeigth / 30));
     window.draw(this->spriteBigSelectedIcon);
     text.setString(listOfObjects[this->objectSelectedId].getName());

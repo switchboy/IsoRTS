@@ -65,7 +65,7 @@ namespace
 		}
 		else if (currentGame.currentMap[x][y] == 2)//Cactus
 		{
-			listOfObjects.push_back(objects(objectTypes::objectCactus, { x, y }, static_cast<int>(listOfObjects.size())));
+			listOfObjects.push_back(objects(objectTypes::cactus, { x, y }, static_cast<int>(listOfObjects.size())));
 		}
 	}
 
@@ -75,10 +75,10 @@ namespace
 				if (i >= 0 && i < MAP_WIDTH && j >= 0 && j < MAP_HEIGHT) {
 					if (currentGame.objectLocationList[i][j] != -1) {
 						if (
-							listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::objectCypress ||
-							listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::objectCactus ||
-							listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::objectMaple ||
-							listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::objectPine
+							listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::cypress ||
+							listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::cactus ||
+							listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::maple ||
+							listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::pine
 							)
 						{
 							return true;

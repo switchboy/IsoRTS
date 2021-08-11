@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 
-enum actorNames {
+enum class actorNames : uint32_t {
     villager,
     swordsman
 };
@@ -28,11 +28,13 @@ public:
         actorOrBuildingPrice    priceOfActor,
         std::string             actorTexture,
         std::string             realActorName,
-        cords                   spriteOrigin
+        cords                   spriteOrigin,
+        int                     bigSpriteYOffset
     );
 
     //getters
     actorNames              getActorId() const;
+    int                     getBigSpriteYOffset() const;
     bool                    getDoesRangedDamage() const;
     float                   getTimeBetweenShots() const;
     float                   getTimeToCrossOneTile() const;
@@ -56,6 +58,7 @@ public:
 
 private:
     actorNames              actorId;
+    int                     bigSpriteYOffset;
     bool                    doesRangedDamage;
     float                   timeBetweenShots;
     float                   timeToCrossOneTile;

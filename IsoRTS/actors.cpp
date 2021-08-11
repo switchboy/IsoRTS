@@ -379,7 +379,7 @@ void actors::chaseTarget() {
                 //check if this move is allready been caught
                 if (!(this->actionPreformedOnTile.x == listOfActors[this->idOfTarget].getGoal().x && this->actionPreformedOnTile.y == listOfActors[this->idOfTarget].getGoal().y)) {
                     //update goal
-                    this->updateGoal(getGoal(), 0);
+                    this->updateGoal(listOfActors[this->idOfTarget].getGoal(), 0);
                     this->setIsDoingAttack();
                 }
             }

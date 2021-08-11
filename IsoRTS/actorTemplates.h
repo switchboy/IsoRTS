@@ -27,29 +27,31 @@ public:
         int                     splashDamage,
         cords                   textureRect,
         actorOrBuildingPrice    priceOfActor,
-        sf::Sprite              actorSprite,
-        sf::Texture             actorTexture,
+        std::string             actorTexture,
         std::string             realActorName
     );
 
     //getters
-    actorNames              getActorId;
-    bool                    getDoesRangedDamage;
-    float                   getTimeBetweenShots;
-    float                   getTimeToCrossOneTile;
-    int                     getActorHealth;
-    int                     getHitPoints;
-    int                     getMeleeDamage;
-    int                     getProjectileType;
-    int                     getRange;
-    int                     getRangedDamage;
-    int                     getRateOfFire;
-    int                     getSplashDamage;
-    cords                   getTextureRect;
-    actorOrBuildingPrice    getPriceOfActor;
-    sf::Sprite&             getActorSprite;
-    sf::Texture             getActorTexture;
-    std::string             getRealActorName;
+    actorNames              getActorId() const;
+    bool                    getDoesRangedDamage() const;
+    float                   getTimeBetweenShots() const;
+    float                   getTimeToCrossOneTile() const;
+    int                     getActorHealth() const;
+    int                     getHitPoints() const;
+    int                     getMeleeDamage() const;
+    int                     getProjectileType() const;
+    int                     getRange() const;
+    int                     getRangedDamage() const;
+    int                     getRateOfFire() const;
+    int                     getSplashDamage() const;
+    cords                   getTextureRect() const;
+    actorOrBuildingPrice    getPriceOfActor() const;
+    sf::Sprite&             getActorSprite();
+    sf::Texture             getActorTexture();
+    std::string             getRealActorName() const;
+
+    //setters
+    void                    setActorTexture();
 
 
 private:

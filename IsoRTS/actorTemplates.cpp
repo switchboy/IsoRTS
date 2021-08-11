@@ -14,6 +14,7 @@ actorTemplates::actorTemplates(actorNames actorId, bool doesRangedDamage, float 
     this->rateOfFire = rateOfFire;
     this->splashDamage = splashDamage;
     this->textureRect = textureRect;
+    this->spriteOrigin = spriteOrigin;
     this->priceOfActor = priceOfActor;
     this->realActorName = realActorName;
     if (!this->actorTexture.loadFromFile(actorTexture))
@@ -89,7 +90,7 @@ actorOrBuildingPrice actorTemplates::getPriceOfActor() const
 
 sf::Sprite& actorTemplates::getActorSprite()
 {
-    this->actorSprite;
+    return this->actorSprite;
 }
 
 sf::Texture actorTemplates::getActorTexture()
@@ -107,6 +108,10 @@ void actorTemplates::setActorTexture()
     this->actorSprite.setTexture(this->actorTexture);
     this->actorSprite.setTextureRect(sf::IntRect(0, 0, this->textureRect.x, this->textureRect.y));
     this->actorSprite.setOrigin(static_cast<float>(this->spriteOrigin.x), static_cast<float>(this->spriteOrigin.y));
+}
+
+void actorTemplates::setSpritePosition(cords position) {
+    this->actorSprite.setPosition(static_cast<float>(position.x), static_cast<float>(position.y));
 }
 
 void loadActors()
@@ -129,7 +134,7 @@ void loadActors()
         { 50, 0, 0, 0, 25 },                //actorOrBuildingPrice    priceOfActor, (food, wood, stone, gold, production points)
         "textures/testVillagerSprite.png",  //std::string             actorTexture,
         "Villager",                         //std::string             realActorName
-        {-24,12}
+        {-24, 12 }                          //cords                   spriteOrigin
     });
 
     //priceOfActor.push_back({ 60,0,0,20,25 });  Swordsman
@@ -149,6 +154,11 @@ void loadActors()
         { 50, 0, 0, 0, 25 },                //actorOrBuildingPrice    priceOfActor, (food, wood, stone, gold, production points)
         "textures/swordsman.png",           //std::string             actorTexture,
         "Swordsman",                        //std::string             realActorName
-        {-24,12}
+        {-24, 12}                           //cords                   spriteOrigin
     });
+
+    for (int i = 0; i < listOfActorTemplates.size(); i++) {
+        listOfActorTemplates[i].setActorTexture();
+    }
 }
+std::vector<actorTemplates> listOfActorTemplates;

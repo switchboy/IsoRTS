@@ -67,7 +67,7 @@ void button::showToolTip() const
         break;
     case actionTypes::actionMakeVillager:
         toolTipTitle << "Make villager";
-        toolTipText << "Cost: Food: "<< priceOfActor[0].food <<" Wood: "<< priceOfActor[0].wood <<" Stone: "<< priceOfActor[0].stone <<" Gold: "<< priceOfActor[0].gold;
+        toolTipText << "Cost: Food: "<< listOfActorTemplates[0].getPriceOfActor().food <<" Wood: "<< listOfActorTemplates[0].getPriceOfActor().wood <<" Stone: "<< listOfActorTemplates[0].getPriceOfActor().stone <<" Gold: "<< listOfActorTemplates[0].getPriceOfActor().gold;
         toolTipDiscription << "The town center will start to well... generate a new villager. Villagers can collect resources and build buildings.";
         break;
     case actionTypes::actionCancelBuilding:
@@ -97,7 +97,7 @@ void button::showToolTip() const
         break;
     case actionTypes::actionMakeSwordsman:
         toolTipTitle << "Create Swordsman";
-        toolTipText << "Cost: Food: " << priceOfActor[1].food << " Wood: " << priceOfActor[1].wood << " Stone: " << priceOfActor[1].stone << " Gold: " << priceOfActor[1].gold;
+        toolTipText << "Cost: Food: " << listOfActorTemplates[1].getPriceOfActor().food << " Wood: " << listOfActorTemplates[1].getPriceOfActor().wood << " Stone: " << listOfActorTemplates[1].getPriceOfActor().stone << " Gold: " << listOfActorTemplates[1].getPriceOfActor().gold;
         toolTipDiscription << "Train a basic melee sword wielding soldier";
         break;
     case actionTypes::actionBuildMiningCamp:
@@ -188,14 +188,14 @@ void button::performAction()
         break;
     case actionTypes::actionMakeVillager:
         //create villager
-        if(priceOfActor[0].food <= currentPlayer.getStats().amountOfFood && priceOfActor[0].wood <= currentPlayer.getStats().amountOfWood && priceOfActor[0].stone <= currentPlayer.getStats().amountOfStone && priceOfActor[0].gold <= currentPlayer.getStats().amountOfGold)
+        if(listOfActorTemplates[0].getPriceOfActor().food <= currentPlayer.getStats().amountOfFood && listOfActorTemplates[0].getPriceOfActor().wood <= currentPlayer.getStats().amountOfWood && listOfActorTemplates[0].getPriceOfActor().stone <= currentPlayer.getStats().amountOfStone && listOfActorTemplates[0].getPriceOfActor().gold <= currentPlayer.getStats().amountOfGold)
         {
             listOfBuildings[this->actorOrBuildingId].getTask(false, 0);
         }
         else
         {
             std::stringstream errortext;
-            errortext << "Not enough resources to produce a villager! Cost Food: "<< priceOfActor[0].food <<" Wood: "<< priceOfActor[0].wood <<" Stone: "<< priceOfActor[0].stone <<" Gold: "<< priceOfActor[0].gold;
+            errortext << "Not enough resources to produce a villager! Cost Food: "<< listOfActorTemplates[0].getPriceOfActor().food <<" Wood: "<< listOfActorTemplates[0].getPriceOfActor().wood <<" Stone: "<< listOfActorTemplates[0].getPriceOfActor().stone <<" Gold: "<< listOfActorTemplates[0].getPriceOfActor().gold;
             gameText.addNewMessage(errortext.str(), 1);
         }
         break;
@@ -254,14 +254,14 @@ void button::performAction()
         break;
     case actionTypes::actionMakeSwordsman:
         //create a swordman
-        if (priceOfActor[1].food <= currentPlayer.getStats().amountOfFood && priceOfActor[1].wood <= currentPlayer.getStats().amountOfWood && priceOfActor[1].stone <= currentPlayer.getStats().amountOfStone && priceOfActor[1].gold <= currentPlayer.getStats().amountOfGold)
+        if (listOfActorTemplates[1].getPriceOfActor().food <= currentPlayer.getStats().amountOfFood && listOfActorTemplates[1].getPriceOfActor().wood <= currentPlayer.getStats().amountOfWood && listOfActorTemplates[1].getPriceOfActor().stone <= currentPlayer.getStats().amountOfStone && listOfActorTemplates[1].getPriceOfActor().gold <= currentPlayer.getStats().amountOfGold)
         {
             listOfBuildings[this->actorOrBuildingId].getTask(false, 1);
         }
         else
         {
             std::stringstream errortext;
-            errortext << "Not enough resources to produce a Swordsman! Cost Food: " << priceOfActor[1].food << " Wood: " << priceOfActor[1].wood << " Stone: " << priceOfActor[1].stone << " Gold: " << priceOfActor[1].gold;
+            errortext << "Not enough resources to produce a Swordsman! Cost Food: " << listOfActorTemplates[1].getPriceOfActor().food << " Wood: " << listOfActorTemplates[1].getPriceOfActor().wood << " Stone: " << listOfActorTemplates[1].getPriceOfActor().stone << " Gold: " << listOfActorTemplates[1].getPriceOfActor().gold;
             gameText.addNewMessage(errortext.str(), 1);
         }
         break;

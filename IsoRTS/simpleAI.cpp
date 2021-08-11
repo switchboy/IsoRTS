@@ -261,7 +261,7 @@ void simpleAI::sandboxScript()
 				std::vector<int> listOfTownCenterIds = getBuildingIdsOfType(1);
 				for (int i = 0; i < listOfTownCenterIds.size(); i++) {
 					//maakt een villager als de resources er zijn
-					if (priceOfActor[0].food <= listOfPlayers[this->playerId].getStats().amountOfFood && priceOfActor[0].wood <= listOfPlayers[this->playerId].getStats().amountOfWood && priceOfActor[0].stone <= listOfPlayers[this->playerId].getStats().amountOfStone && priceOfActor[0].gold <= listOfPlayers[this->playerId].getStats().amountOfGold) {
+					if (listOfActorTemplates[0].getPriceOfActor().food <= listOfPlayers[this->playerId].getStats().amountOfFood && listOfActorTemplates[0].getPriceOfActor().wood <= listOfPlayers[this->playerId].getStats().amountOfWood && listOfActorTemplates[0].getPriceOfActor().stone <= listOfPlayers[this->playerId].getStats().amountOfStone && listOfActorTemplates[0].getPriceOfActor().gold <= listOfPlayers[this->playerId].getStats().amountOfGold) {
 						produceCommandBuilding(listOfTownCenterIds[i], false, 0);
 					}
 				}
@@ -293,7 +293,7 @@ void simpleAI::sandboxScript()
 			std::vector<int> listOfTownCenterIds = getBuildingIdsOfType(4);
 			for (int i = 0; i < listOfTownCenterIds.size(); i++) {
 				//maakt een sworsman als er resources zijn
-				if (priceOfActor[1].food <= listOfPlayers[this->playerId].getStats().amountOfFood && priceOfActor[1].wood <= listOfPlayers[this->playerId].getStats().amountOfWood && priceOfActor[1].stone <= listOfPlayers[this->playerId].getStats().amountOfStone && priceOfActor[1].gold <= listOfPlayers[this->playerId].getStats().amountOfGold) {
+				if (listOfActorTemplates[1].getPriceOfActor().food <= listOfPlayers[this->playerId].getStats().amountOfFood && listOfActorTemplates[1].getPriceOfActor().wood <= listOfPlayers[this->playerId].getStats().amountOfWood && listOfActorTemplates[1].getPriceOfActor().stone <= listOfPlayers[this->playerId].getStats().amountOfStone && listOfActorTemplates[1].getPriceOfActor().gold <= listOfPlayers[this->playerId].getStats().amountOfGold) {
 					produceCommandBuilding(listOfTownCenterIds[i], false, 1);
 				}
 			}

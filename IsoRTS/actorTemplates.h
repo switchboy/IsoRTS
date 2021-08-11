@@ -28,7 +28,7 @@ public:
         actorOrBuildingPrice    priceOfActor,
         std::string             actorTexture,
         std::string             realActorName,
-        cords                   spriteOrigin;
+        cords                   spriteOrigin
     );
 
     //getters
@@ -51,6 +51,7 @@ public:
 
     //setters
     void                    setActorTexture();
+    void                    setSpritePosition(cords position);
 
 
 private:

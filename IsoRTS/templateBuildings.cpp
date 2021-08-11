@@ -290,7 +290,7 @@ void loadBuildings()
         { 3,3 },                    //footprintOfBuilding     buildingFootprint,
         {192,192},                  //cords                   buildingSprite,
         "textures/miningCamp.png",  //std::string             buildingTexture,
-        {64,160},                  //cords                   origin
+        {64,160},                   //cords                   origin
         "Miningcamp"                //std::string             realBuildingName;
         });
 

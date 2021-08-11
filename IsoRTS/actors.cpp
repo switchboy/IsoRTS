@@ -10,7 +10,6 @@
 #include "projectile.h"
 #include "simpleAI.h"
 
-std::vector<actorOrBuildingPrice> priceOfActor;
 std::vector<int> listOfActorsWhoNeedAPath;
 std::vector <actors> listOfActors;
 std::mutex listOfActorsMutex;
@@ -322,48 +321,17 @@ actors::actors(int type, cords location, int actorTeam, int actorId)
     this->isAtCarryCapacity = false;
     this->isWalkingToUnloadingPoint = false;
     this->isMeleeAttacking = false;
-
-
-    switch(type)
-    {
-    case 0://villager
-        this->actorHealth = 25;
-        this->hitPoints = 25;
-        this->meleeDamage = 3;
-        this->range = 3;
-        this->rangedDamage = 1;
-        this->timeBetweenShots = 2.0f;
-        this->splashDamage = 0;
-        this->projectileType = 0;
-        this->doesRangedDamage = false;
-        this->rateOfFire = 2;
-        break;
-    case 1://swordsman
-        this->actorHealth = 60;
-        this->hitPoints = 60;
-        this->meleeDamage = 12;
-        this->range = 0;
-        this->rangedDamage = 0;
-        this->timeBetweenShots = 2.0f;
-        this->splashDamage = 0;
-        this->projectileType = 0;
-        this->doesRangedDamage = false;
-        this->rateOfFire = 3;
-        break;
-    default:
-        this->actorHealth = 0;
-        this->hitPoints = 0;
-        this->meleeDamage = 0;
-        this->range = 0;
-        this->rangedDamage = 0;
-        this->timeBetweenShots = 0.0f;
-        this->splashDamage = 0;
-        this->projectileType = 0;
-        this->doesRangedDamage = false;
-        this->rateOfFire = 0;
-        break;
-    }
-
+    this->actorHealth = listOfActorTemplates[type].getHitPoints();
+    this->hitPoints = listOfActorTemplates[type].getHitPoints();
+    this->meleeDamage = listOfActorTemplates[type].getMeleeDamage();
+    this->range = listOfActorTemplates[type].getRange();
+    this->rangedDamage = listOfActorTemplates[type].getRangedDamage();
+    this->timeBetweenShots = listOfActorTemplates[type].getTimeBetweenShots();
+    this->splashDamage = listOfActorTemplates[type].getSplashDamage();
+    this->projectileType = listOfActorTemplates[type].getProjectileType();
+    this->doesRangedDamage = listOfActorTemplates[type].getDoesRangedDamage();
+    this->rateOfFire = listOfActorTemplates[type].getRateOfFire();
+    this->timeToCrossOneTile = listOfActorTemplates[type].getTimeToCrossOneTile();
 }
 
 actors::~actors()
@@ -698,13 +666,13 @@ void actors::updateGoalPath()
 
 void actors::moveActorIfWalking()
 {
-    if (this->busyWalking && (currentGame.elapsedTime - this->timeLastUpdate) > 1.0f)
+    if (this->busyWalking && (currentGame.elapsedTime - this->timeLastUpdate) > this->timeToCrossOneTile)
     {
         this->busyWalking = false;
         this->movedMoreThanHalf = false;
         this->actorCords = this->actorGoal;
     }
-    else if (this->busyWalking && (currentGame.elapsedTime - this->timeLastUpdate) > 0.5f && !this->movedMoreThanHalf)
+    else if (this->busyWalking && (currentGame.elapsedTime - this->timeLastUpdate) > static_cast<float>(this->timeToCrossOneTile/2.f) && !this->movedMoreThanHalf)
     {
 
         currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y] = -1;
@@ -1711,8 +1679,9 @@ void actors::drawActor()
             int deltaX = position.x - nPosition.x;
             int deltaY = position.y - nPosition.y;
             float deltaTime = currentGame.elapsedTime - this->timeLastUpdate;
-            float deltaXCompleted = deltaX * deltaTime;
-            float deltaYCompleted = deltaY * deltaTime;
+            float speedMultiplier = 1.f / this->timeToCrossOneTile;
+            float deltaXCompleted = deltaX * (deltaTime * speedMultiplier);  
+            float deltaYCompleted = deltaY * (deltaTime * speedMultiplier);
             position = { position.x - static_cast<int>(deltaXCompleted),  position.y - static_cast<int>(deltaYCompleted) };
         }
     }
@@ -1811,25 +1780,15 @@ void actors::drawActor()
                 window.draw(currentGame.spriteFlag);
             }
         }
-    }
-
-    if (this->actorHealth < this->hitPoints) {
+    } else if (this->actorHealth < this->hitPoints) {
         drawHealth = true;
     }
 
+    //Draw the actor
+    listOfActorTemplates[this->actorType].setSpritePosition(position);
+    listOfActorTemplates[this->actorType].getActorSprite().setTextureRect(sf::IntRect(spriteXoffset, spriteYoffset, 16, 32));
+    window.draw(listOfActorTemplates[this->actorType].getActorSprite());
 
-    switch (this->actorType) 
-    {
-    case 0:
-        currentGame.spriteVillager.setPosition(static_cast<float>(position.x), static_cast<float>(position.y));
-        currentGame.spriteVillager.setTextureRect(sf::IntRect(spriteXoffset, spriteYoffset, 16, 32));
-        window.draw(currentGame.spriteVillager);
-        break;
-    case 1:
-        currentGame.spriteSwordsman.setPosition(static_cast<float>(position.x), static_cast<float>(position.y));
-        currentGame.spriteSwordsman.setTextureRect(sf::IntRect(spriteXoffset, spriteYoffset, 16, 32));
-        window.draw(currentGame.spriteSwordsman);
-    }
 
     if (drawHealth) {
         currentGame.healthBarBackground.setFillColor(sf::Color(255, 0, 0));
@@ -1842,8 +1801,6 @@ void actors::drawActor()
         window.draw(currentGame.healthBarGreenBar);
 
     }
-
-
 }
 
 void actors::buildBuilding()

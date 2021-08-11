@@ -24,7 +24,7 @@ templateBuildings::templateBuildings(bool canDoRangedDamage, bool recievesWood, 
     this->origin = origin;
     if (!this->buildingTexture.loadFromFile(buildingTexture))
     {
-        std::cout << "Error loading texture: house.png \n" << std::endl;//TODO:: house.png is hardcoded
+        std::cout << "Error loading texture: "<< buildingTexture << std::endl;
     }
 }
 
@@ -37,15 +37,6 @@ void templateBuildings::setSpriteTexture() {
 
 void templateBuildings::setSpritePosition(cords position){
     this->buildingSprite.setPosition(static_cast<float>(position.x), static_cast<float>(position.y));
-}
-
-void templateBuildings::setSpriteTextureRect(sf::IntRect value) {
-    this->buildingSprite.setTextureRect(value);
-}
-
-void templateBuildings::setSpriteColor(sf::Color color)
-{
-    this->buildingSprite.setColor(color);
 }
 
 bool templateBuildings::getCanDoRangedDamage() const
@@ -123,7 +114,7 @@ footprintOfBuilding templateBuildings::getBuildingFootprint() const
     return this->buildingFootprint;
 }
 
-sf::Sprite templateBuildings::getBuildingSprite()
+sf::Sprite& templateBuildings::getBuildingSprite()
 {
     return this->buildingSprite;
 }

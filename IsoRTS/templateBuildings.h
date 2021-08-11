@@ -54,15 +54,13 @@ public:
     int                     getAmountOfAnimationSprites() const;
     actorOrBuildingPrice    getPriceOfBuilding() const;
     footprintOfBuilding     getBuildingFootprint() const;
-    sf::Sprite              getBuildingSprite();//TODO: should this return an sf::Sprite& instead?
-    sf::Texture             getBuildingTexture();//TODO: should this return an sf::Texture& instead?
+    sf::Sprite&             getBuildingSprite();
+    sf::Texture             getBuildingTexture();//TODO: should this return an sf::Texture& instead? - If I keep it probably, but I haven't yet foud a use for it so it might get scrapped
     std::string             getBuildingName() const; 
 
     //setters
-    void                    setSpriteTextureRect(sf::IntRect value);
-    void                    setSpriteColor(sf::Color color);
-    void                    setSpritePosition(cords position);
-    void                    setSpriteTexture();
+    void                    setSpritePosition(cords position); //actually no longer really needed now getBuildingSprite returns a reference, but it makes life easier since I can feed it a singe cords
+    void                    setSpriteTexture(); //still needed since texture needs to set on sprite AFTER it is in its 'permanent' momory position (once the listOfBuildingTemplates is finished)
 
 private:
     bool                    canDoRangedDamage;

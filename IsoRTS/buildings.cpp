@@ -369,9 +369,9 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
         transparant = 128;
     }
 
-    listOfBuildingTemplates[type].setSpriteTextureRect(sf::IntRect(0, listOfBuildingTemplates[type].getBuildingSprite().getTextureRect().height * offsetY, listOfBuildingTemplates[type].getBuildingSprite().getTextureRect().width, listOfBuildingTemplates[type].getBuildingSprite().getTextureRect().height));
+    listOfBuildingTemplates[type].getBuildingSprite().setTextureRect(sf::IntRect(0, listOfBuildingTemplates[type].getBuildingSprite().getTextureRect().height * offsetY, listOfBuildingTemplates[type].getBuildingSprite().getTextureRect().width, listOfBuildingTemplates[type].getBuildingSprite().getTextureRect().height));
     listOfBuildingTemplates[type].setSpritePosition(worldSpace({ i,j }));
-    listOfBuildingTemplates[type].setSpriteColor(sf::Color(255, 255, 255, transparant));
+    listOfBuildingTemplates[type].getBuildingSprite().setColor(sf::Color(255, 255, 255, transparant));
     window.draw(listOfBuildingTemplates[type].getBuildingSprite());
 
     //Redraw possible overdrawn sprites

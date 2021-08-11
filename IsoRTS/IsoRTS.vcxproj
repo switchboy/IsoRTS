@@ -28,6 +28,7 @@
     <ClInclude Include="globalfunctions.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="objects.h" />
+    <ClInclude Include="objectTemplates.h" />
     <ClInclude Include="orderCursor.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="projectile.h" />
@@ -47,6 +48,7 @@
     <ClCompile Include="globalfunctions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="objects.cpp" />
+    <ClCompile Include="objectTemplates.cpp" />
     <ClCompile Include="orderCursor.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="projectile.cpp" />

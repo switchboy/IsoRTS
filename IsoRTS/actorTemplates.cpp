@@ -1,6 +1,6 @@
 #include "actorTemplates.h"
 
-actorTemplates::actorTemplates(actorNames actorId, bool doesRangedDamage, float timeBetweenShots, float timeToCrossOneTile, int hitPoints, int meleeDamage, int projectileType, int range, int rangedDamage, int rateOfFire, int splashDamage, cords textureRect, actorOrBuildingPrice priceOfActor, std::string actorTexture, std::string realActorName, cords spriteOrigin)
+actorTemplates::actorTemplates(actorNames actorId, bool doesRangedDamage, float timeBetweenShots, float timeToCrossOneTile, int hitPoints, int meleeDamage, int projectileType, int range, int rangedDamage, int rateOfFire, int splashDamage, cords textureRect, actorOrBuildingPrice priceOfActor, std::string actorTexture, std::string realActorName, cords spriteOrigin, int bigSpriteYOffset)
 {
     this->actorId = actorId;
     this->doesRangedDamage = doesRangedDamage;
@@ -17,6 +17,7 @@ actorTemplates::actorTemplates(actorNames actorId, bool doesRangedDamage, float 
     this->spriteOrigin = spriteOrigin;
     this->priceOfActor = priceOfActor;
     this->realActorName = realActorName;
+    this->bigSpriteYOffset = bigSpriteYOffset;
     if (!this->actorTexture.loadFromFile(actorTexture))
     {
         std::cout << "Error loading texture: " << actorTexture << std::endl;
@@ -26,6 +27,11 @@ actorTemplates::actorTemplates(actorNames actorId, bool doesRangedDamage, float 
 actorNames actorTemplates::getActorId() const
 {
     return this->actorId;
+}
+
+int actorTemplates::getBigSpriteYOffset() const
+{
+    return this->bigSpriteYOffset;
 }
 
 bool actorTemplates::getDoesRangedDamage() const
@@ -119,7 +125,7 @@ void loadActors()
 
     //villager 
     listOfActorTemplates.push_back({
-        villager,                           //actorNames              actorId,
+        actorNames::villager,                           //actorNames              actorId,
         false,                              //bool                    doesRangedDamage,
         2.0f,                               //float                   timeBetweenShots,
         1.0f,                               //float                   timeToCrossOneTile,
@@ -134,12 +140,13 @@ void loadActors()
         { 50, 0, 0, 0, 25 },                //actorOrBuildingPrice    priceOfActor, (food, wood, stone, gold, production points)
         "textures/testVillagerSprite.png",  //std::string             actorTexture,
         "Villager",                         //std::string             realActorName
-        {-24, 12 }                          //cords                   spriteOrigin
+        {-24, 12 },                          //cords                   spriteOrigin
+        0
     });
 
     //priceOfActor.push_back({ 60,0,0,20,25 });  Swordsman
     listOfActorTemplates.push_back({
-        swordsman,                           //actorNames              actorId,
+        actorNames::swordsman,                           //actorNames              actorId,
         false,                              //bool                    doesRangedDamage,
         2.0f,                               //float                   timeBetweenShots,
         0.8f,                               //float                   timeToCrossOneTile,
@@ -154,7 +161,8 @@ void loadActors()
         { 50, 0, 0, 0, 25 },                //actorOrBuildingPrice    priceOfActor, (food, wood, stone, gold, production points)
         "textures/swordsman.png",           //std::string             actorTexture,
         "Swordsman",                        //std::string             realActorName
-        {-24, 12}                           //cords                   spriteOrigin
+        {-24, 12},                           //cords                   spriteOrigin
+        128
     });
 
     for (int i = 0; i < listOfActorTemplates.size(); i++) {

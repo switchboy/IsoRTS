@@ -312,33 +312,6 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: unitSelectedTile.png \n" << std::endl;
     }
-    if(textureStone.loadFromFile("textures/stone.png"))
-    {
-        spriteStone.setTexture(textureStone);
-        spriteStone.setOrigin(0,2);
-    }
-    else
-    {
-        std::cout << "Error loading texture: stone.png \n" << std::endl;
-    }
-    if(textureGold.loadFromFile("textures/gold.png"))
-    {
-        spriteGold.setTexture(textureGold);
-        spriteGold.setOrigin(0,2);
-    }
-    else
-    {
-        std::cout << "Error loading texture: gold.png \n" << std::endl;
-    }
-    if(textureBerryBush.loadFromFile("textures/berrybush.png"))
-    {
-        spriteBerryBush.setTexture(textureBerryBush);
-        spriteBerryBush.setOrigin(0,2);
-    }
-    else
-    {
-        std::cout << "Error loading texture: berrybush.png \n" << std::endl;
-    }
 
     if (textureCommandCursor.loadFromFile("textures/giveOrder.png"))
     {
@@ -360,48 +333,16 @@ void gameState::loadTextures()
         std::cout << "Error loading texture: tileObstructed.png \n" << std::endl;
     }
     
-
-    if(texturePineTreeTile.loadFromFile("textures/pineTree.png"))
-    {
-        spritePineTreeTile.setTexture(texturePineTreeTile);
-        spritePineTreeTile.setOrigin(0,32);
-    }
-    else
-    {
-        std::cout << "Error loading texture: normalTree.png \n" << std::endl;
-    }
-    if(textureNormalTreeTile.loadFromFile("textures/normalTree.png"))
-    {
-        spriteNormalTreeTile.setTexture(textureNormalTreeTile);
-        spriteNormalTreeTile.setOrigin(0,32);
-    }
-    else
-    {
-        std::cout << "Error loading texture: normalTree.png \n" << std::endl;
-    }
-    if(textureCypressTrileTile.loadFromFile("textures/cypressTree.png"))
-    {
-        spriteCypressTrileTile.setTexture(textureCypressTrileTile);
-        spriteCypressTrileTile.setOrigin(0,32);
-    }
     if(textureTotalBackground.loadFromFile("textures/totalBackground.png"))
     {
         spriteTotalBackground.setTexture(textureTotalBackground);
     }
     else
     {
-        std::cout << "Error loading texture: cypressTree.png \n" << std::endl;
+        std::cout << "Error loading texture: totalbackground.png \n" << std::endl;
     }
     
-    if(textureCactusTile.loadFromFile("textures/cactus.png"))
-    {
-        spriteCactusTile.setTexture(textureCactusTile);
-        spriteCactusTile.setOrigin(0,32);
-    }
-    else
-    {
-        std::cout << "Error loading texture: cactus.png \n" << std::endl;
-    }
+    
     if(textureSelectedTile.loadFromFile("textures/tileSelected.png"))
     {
         spriteSelectedTile.setTexture(textureSelectedTile);
@@ -410,6 +351,7 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: tileSelected.png \n" << std::endl;
     }
+
     if (textureMistTile.loadFromFile("textures/mistTile.png"))
     {
         spriteMistTile.setTexture(textureMistTile);
@@ -418,6 +360,7 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: mistTile.png \n" << std::endl;
     }
+
     if(textureSelectedTileForPath.loadFromFile("textures/tileSelectedForPath.png"))
     {
         spriteSelectedTileForPath.setTexture(textureSelectedTileForPath);
@@ -1887,18 +1830,6 @@ void gameState::addActorSelectorButton(int i, int actorId, int startDeck, int te
     listOfButtons.push_back({ xPosition, tempY, static_cast<spriteTypes>(buttonType), actionTypes::actionUnitSelect, actorId, static_cast<int>(listOfButtons.size()), 0 });
 }
 
-int getActorSpriteOffSet(int actorId)
-{
-    switch (listOfActors[actorId].getType())
-    {
-    case 0:
-        return  0;
-    case 1:
-        return 128;
-    }
-    return -1;
-}
-
 void gameState::drawActorTitle(int actorId, int textStartX, int textStartY)
 {
     text.setString(listOfActors[actorId].nameOfActor());
@@ -1912,7 +1843,7 @@ void gameState::drawActorTitle(int actorId, int textStartX, int textStartY)
 
 void gameState::drawActorBigSprite(int actorId)
 {
-    this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(128, getActorSpriteOffSet(actorId), 128, 128));
+    this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(128, listOfActorTemplates[listOfActors[actorId].getType()].getBigSpriteYOffset(), 128, 128));
     this->spriteBigSelectedIcon.setPosition(static_cast<float>(mainWindowWidth / 4.08), static_cast<float>(mainWindowHeigth / 30));
     window.draw(this->spriteBigSelectedIcon);
 }
@@ -1978,36 +1909,6 @@ void gameState::drawActorToolbar(int spriteYOffset, int tempY, int offSetTonextC
     }
 }
 
-int getBuildingSpriteOffset(int buildingId)
-{
-    switch (listOfBuildings[buildingId].getType())
-    {
-    case 0:
-        return  128;
-        break;
-    case 1:
-        return  0;
-        break;
-    case 2:
-        return  384;
-        break;
-    case 3:
-        return  256;
-        break;
-    case 4:
-        return  512;
-        break;
-    case 5:
-        return  640;
-        break;
-    case 6:
-        return  640;
-        break;
-
-    }
-    return -1;
-}
-
 void createBuildingButtons(int buildingId, int startX, int startY)
 {
     switch (listOfBuildings[buildingId].getType())
@@ -2051,7 +1952,7 @@ void createBuildingButtons(int buildingId, int startX, int startY)
 
 void gameState::drawBuildingBigSprite(int buildingId)
 {
-    this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(0, getBuildingSpriteOffset(buildingId), 128, 128));
+    this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(0, listOfBuildingTemplates[listOfBuildings[buildingId].getType()].getBigSpriteYOffset(), 128, 128));
     this->spriteBigSelectedIcon.setPosition(static_cast<float>(mainWindowWidth / 4.08), static_cast<float>(mainWindowHeigth / 30));
     window.draw(this->spriteBigSelectedIcon);
 }
@@ -2230,7 +2131,7 @@ void gameState::drawBuildingConstructionToolbar(int startY)
     text.setString("Building: " + listOfBuildings[this->buildingSelectedId].getName() + " " + std::to_string(static_cast<int>(percentageCompleted)) + "%...");
     text.setPosition(static_cast<float>(startBarX), static_cast<float>(iconStartY));
     window.draw(text);
-    this->spriteUIButton.setTextureRect(sf::IntRect(0, (getBuildingSpriteOffset(this->buildingSelectedId) / 2), 64, 64));
+    this->spriteUIButton.setTextureRect(sf::IntRect(0, (listOfBuildingTemplates[listOfBuildings[this->buildingSelectedId].getType()].getBigSpriteYOffset() / 2), 64, 64));
     this->spriteUIButton.setPosition(static_cast<float>(iconBarStartX), static_cast<float>(iconStartY));
     window.draw(this->spriteUIButton);
     button cancelBuilding = { static_cast<int>(startBarX + totalBarLength + (mainWindowWidth / 174.54)), iconStartY, spriteTypes::spriteCancel, actionTypes::actionCancelBuilding, this->buildingSelectedId, static_cast<int>(listOfButtons.size()),0 };
@@ -2259,40 +2160,9 @@ void gameState::drawBuildingToolbar(int spriteYOffset, int tempY, int offSetTone
     }
 }
 
-int getObjectBigSpriteYOffset(int objectId)
-{
-    switch (listOfObjects[objectId].getType())
-    {
-    case objectTypes::objectCactus:
-        return 0;
-        break;
-    case objectTypes::objectCypress:
-        return 128;
-        break;
-    case objectTypes::objectMaple:
-        return 256;
-        break;
-    case objectTypes::objectPine:
-        return 384;
-        break;
-    case objectTypes::objectStone:
-        return 512;
-        break;
-    case objectTypes::objectGold:
-        return 640;
-        break;
-    case objectTypes::objectBerry:
-        return 768;
-        break;
-    default:
-        return 0;
-        break;
-    }
-}
-
 void gameState::drawObjectToolbar(int spriteYOffset, int tempY, int offSetTonextCard)
 {
-    this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(256, getObjectBigSpriteYOffset(this->objectSelectedId), 128, 128));
+    this->spriteBigSelectedIcon.setTextureRect(sf::IntRect(256, listOfObjectTemplates[static_cast<uint32_t>(listOfObjects[this->objectSelectedId].getType())].getObjectBigSpriteYOffset(), 128, 128));
     this->spriteBigSelectedIcon.setPosition(static_cast<float>(mainWindowWidth / 4.08), static_cast<float>(mainWindowHeigth / 30));
     window.draw(this->spriteBigSelectedIcon);
     text.setString(listOfObjects[this->objectSelectedId].getName());
@@ -2577,6 +2447,7 @@ void gameState::loadGame()
     createMiniMapTexture();
     loadTextures();
     loadActors();
+    loadObjects();
     setDefaultValues();
     loadBuildings();
     loadMap();

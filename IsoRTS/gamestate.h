@@ -121,15 +121,13 @@ public:
 
     sf::Font font;
     sf::Text text;
-    sf::Sprite  spriteSelectedTile,spriteSelectedTileForPath, spriteEmptyTile, spriteGrassTile, spriteSandTile, spriteSandTileNE, 
-    spriteSandTileNW,spriteSandTileSE,spriteSandTileSW, spriteCactusTile, spriteCypressTrileTile, spriteBigSelectedIcon, spriteCommandCursor, 
-    spriteNormalTreeTile, spritePineTreeTile, spriteTileObstructed, spriteBlackTile, spriteArrow, spriteFlag,
-    spriteStone, spriteGold, spriteBerryBush, spriteUIButton, spriteUnitSelectedTile, spriteMistTile, spriteWaterTile, spriteBeachTileNE, spriteBeachTileNW,spriteBeachTileSE,spriteBeachTileSW, spriteTotalBackground;
 
-    sf::Texture textureSelectedTile, textureSelectedTileForPath, textureEmptyTile, textureGrassTile, textureSandTile, textureSandTileNE, textureSandTileNW,textureSandTileSE,textureSandTileSW, textureCactusTile, 
-    textureCypressTrileTile, textureBigSelectedIcon, textureBlackTile, textureCommandCursor,
-    textureNormalTreeTile, texturePineTreeTile, textureCheatTile, textureTileObstructed, textureMistTile, textureArrow, textureFlag,
-    textureStone, textureGold, textureBerryBush, textureUIButton, textureUnitSelectedTile, textureWaterTile, textureBeachTileNE, textureBeachTileNW,textureBeachTileSE, textureBeachTileSW, textureTotalBackground;
+    sf::Sprite  spriteSelectedTile,spriteSelectedTileForPath, spriteEmptyTile, spriteGrassTile, spriteSandTile, spriteSandTileNE, spriteSandTileNW,spriteSandTileSE,spriteSandTileSW,  spriteBigSelectedIcon, spriteCommandCursor,  
+    spriteTileObstructed, spriteBlackTile, spriteArrow, spriteFlag, spriteUIButton, spriteUnitSelectedTile, spriteMistTile, spriteWaterTile, spriteBeachTileNE, spriteBeachTileNW,spriteBeachTileSE,spriteBeachTileSW, spriteTotalBackground;
+
+    sf::Texture textureSelectedTile, textureSelectedTileForPath, textureEmptyTile, textureGrassTile, textureSandTile, textureSandTileNE, textureSandTileNW,textureSandTileSE,textureSandTileSW, textureBigSelectedIcon, textureBlackTile, textureCommandCursor,
+    textureCheatTile, textureTileObstructed, textureMistTile, textureArrow, textureFlag, textureUIButton, textureUnitSelectedTile, textureWaterTile, textureBeachTileNE, textureBeachTileNW,textureBeachTileSE, textureBeachTileSW, textureTotalBackground;
+
     sf::RectangleShape selectionRectangle;
     sf::RectangleShape healthBarBackground;
     sf::RectangleShape healthBarGreenBar;

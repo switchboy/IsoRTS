@@ -3,7 +3,7 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 
-enum buildingNames {
+enum class buildingNames : uint32_t {
     house,
     towncenter,
     mill,
@@ -35,7 +35,8 @@ public:
     cords                   buildingSprite, 
     std::string             buildingTexture, 
     cords                   origin,
-    std::string             realBuildingName
+    std::string             realBuildingName,
+    int                     bigSpriteYOffset
     );
 
     //Getters
@@ -57,6 +58,7 @@ public:
     sf::Sprite&             getBuildingSprite();
     sf::Texture             getBuildingTexture();//TODO: should this return an sf::Texture& instead? - If I keep it probably, but I haven't yet foud a use for it so it might get scrapped
     std::string             getBuildingName() const; 
+    int                     getBigSpriteYOffset() const;
 
     //setters
     void                    setSpritePosition(cords position); //actually no longer really needed now getBuildingSprite returns a reference, but it makes life easier since I can feed it a singe cords
@@ -83,6 +85,7 @@ private:
     sf::Sprite              buildingSprite;
     sf::Texture             buildingTexture;
     std::string             realBuildingName;
+    int                     bigSpriteYOffset;
 };
 
 extern std::vector<templateBuildings>            listOfBuildingTemplates;

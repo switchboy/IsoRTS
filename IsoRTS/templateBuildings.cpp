@@ -3,7 +3,7 @@
 
 std::vector<templateBuildings> listOfBuildingTemplates;
 
-templateBuildings::templateBuildings(bool canDoRangedDamage, bool recievesWood, bool recievesStone, bool recievesGold, bool recievesFood, buildingNames idOfBuilding, int hitPointsTotal, int amountOfRangedDamage, int range, int buildingPointsNeeded, int supportsPopulationOf, int offSetYStore, int amountOfAnimationSprites, actorOrBuildingPrice priceOfBuilding, footprintOfBuilding buildingFootprint, cords buildingSprite, std::string buildingTexture, cords origin, std::string realBuildingName)
+templateBuildings::templateBuildings(bool canDoRangedDamage, bool recievesWood, bool recievesStone, bool recievesGold, bool recievesFood, buildingNames idOfBuilding, int hitPointsTotal, int amountOfRangedDamage, int range, int buildingPointsNeeded, int supportsPopulationOf, int offSetYStore, int amountOfAnimationSprites, actorOrBuildingPrice priceOfBuilding, footprintOfBuilding buildingFootprint, cords buildingSprite, std::string buildingTexture, cords origin, std::string realBuildingName, int bigSpriteYOffset)
 {
     this->canDoRangedDamage = canDoRangedDamage;
     this->recievesWood = recievesWood;
@@ -129,6 +129,12 @@ std::string templateBuildings::getBuildingName() const
 {
     return this->realBuildingName;
 }
+\
+
+int templateBuildings::getBigSpriteYOffset() const
+{
+    return this->bigSpriteYOffset;
+}
 
 void loadBuildings()
 {
@@ -139,7 +145,7 @@ void loadBuildings()
         false,                      //bool                    recievesStone,
         false,                      //bool                    recievesGold,
         false,                      //bool                    recievesFood,
-        house,                      //buildingNames           idOfBuilding,
+        buildingNames::house,       //buildingNames           idOfBuilding,
         450,                        //int                     hitPointsTotal,
         0,                          //int                     amountOfRangedDamage,
         0,                          //int                     range,
@@ -152,7 +158,8 @@ void loadBuildings()
         {128,128},                  //cords                   buildingSprite,
         "textures/house.png",       //std::string             buildingTexture,
         {32,96},                    //cords                   origin
-        "Town house"                //std::string             realBuildingName;
+        "Town house",                //std::string             realBuildingName;
+        128
     });
 
     //load towncenter
@@ -162,7 +169,7 @@ void loadBuildings()
         true,                       //bool                    recievesStone,
         true,                       //bool                    recievesGold,
         true,                       //bool                    recievesFood,
-        towncenter,                 //buildingNames           idOfBuilding,
+        buildingNames::towncenter,  //buildingNames           idOfBuilding,
         5000,                       //int                     hitPointsTotal,
         10,                         //int                     amountOfRangedDamage,
         4,                          //int                     range,
@@ -175,7 +182,8 @@ void loadBuildings()
         {256,256},                  //cords                   buildingSprite,
         "textures/townCenter.png",  //std::string             buildingTexture,
         {96,224},                   //cords                   origin
-         "Towncenter"               //std::string             realBuildingName;
+         "Towncenter",               //std::string             realBuildingName;
+         0
         });
 
     //load mill
@@ -185,7 +193,7 @@ void loadBuildings()
         false,                      //bool                    recievesStone,
         false,                      //bool                    recievesGold,
         true,                       //bool                    recievesFood,
-        mill,                       //buildingNames           idOfBuilding,
+        buildingNames::mill,        //buildingNames           idOfBuilding,
         350,                        //int                     hitPointsTotal,
         0,                          //int                     amountOfRangedDamage,
         0,                          //int                     range,
@@ -198,7 +206,8 @@ void loadBuildings()
         {192,192},                  //cords                   buildingSprite,
         "textures/mill.png",        //std::string             buildingTexture,
         {64,160},                   //cords                   origin
-         "Mill"                     //std::string             realBuildingName;
+         "Mill",                     //std::string             realBuildingName;
+         384
     });
 
     //lumbercamp,
@@ -208,7 +217,7 @@ void loadBuildings()
         false,                      //bool                    recievesStone,
         false,                      //bool                    recievesGold,
         false,                      //bool                    recievesFood,
-        lumbercamp,                 //buildingNames           idOfBuilding,
+        buildingNames::lumbercamp,  //buildingNames           idOfBuilding,
         250,                        //int                     hitPointsTotal,
         0,                          //int                     amountOfRangedDamage,
         0,                          //int                     range,
@@ -221,7 +230,8 @@ void loadBuildings()
         {192,192},                  //cords                   buildingSprite,
         "textures/lumbercamp.png",  //std::string             buildingTexture,
         {64,160},                   //cords                   origin
-        "Lumbercamp"                //std::string             realBuildingName;
+        "Lumbercamp",                //std::string             realBuildingName;
+        256
         });
 
     //barracks 4
@@ -231,7 +241,7 @@ void loadBuildings()
         false,                      //bool                    recievesStone,
         false,                      //bool                    recievesGold,
         false,                      //bool                    recievesFood,
-        barracks,                   //buildingNames           idOfBuilding,
+        buildingNames::barracks,    //buildingNames           idOfBuilding,
         250,                        //int                     hitPointsTotal,
         0,                          //int                     amountOfRangedDamage,
         0,                          //int                     range,
@@ -243,55 +253,58 @@ void loadBuildings()
         { 3,3 },                    //footprintOfBuilding     buildingFootprint,
         {192,192},                  //cords                   buildingSprite,
         "textures/barracks.png",    //std::string             buildingTexture,
-        {64,160},                    //cords                   origin
-        "Barracks"                //std::string             realBuildingName;
+        {64,160},                   //cords                  origin
+        "Barracks",                  //std::string             realBuildingName;
+        512
         });
     
     //Mining camp stone
     listOfBuildingTemplates.push_back({
-        false,                      //bool                    canDoRangedDamage,
-        false,                      //bool                    recievesWood,
-        true,                       //bool                    recievesStone,
-        true,                       //bool                    recievesGold,
-        false,                      //bool                    recievesFood,
-        miningcampstone,            //buildingNames           idOfBuilding,
-        250,                        //int                     hitPointsTotal,
-        0,                          //int                     amountOfRangedDamage,
-        0,                          //int                     range,
-        25,                         //int                     buildingPointsNeeded,
-        0,                          //int                     supportsPopulationOf,
-        1,                          //int                     offSetYStore,
-        8,                          //int                     amountOfAnimationSprites,
-        { 0,100,0,0 },              //actorOrBuildingPrice    priceOfBuilding, food, wood, stone, gold
-        { 3,3 },                    //footprintOfBuilding     buildingFootprint,
-        {192,192},                  //cords                   buildingSprite,
-        "textures/miningCamp.png",  //std::string             buildingTexture,
-        {64,160} ,                  //cords                   origin
-        "Miningcamp"                //std::string             realBuildingName;
+        false,                              //bool                    canDoRangedDamage,
+        false,                              //bool                    recievesWood,
+        true,                               //bool                    recievesStone,
+        true,                               //bool                    recievesGold,
+        false,                              //bool                    recievesFood,
+        buildingNames::miningcampstone,     //buildingNames           idOfBuilding,
+        250,                                //int                     hitPointsTotal,
+        0,                                  //int                     amountOfRangedDamage,
+        0,                                  //int                     range,
+        25,                                 //int                     buildingPointsNeeded,
+        0,                                  //int                     supportsPopulationOf,
+        1,                                  //int                     offSetYStore,
+        8,                                  //int                     amountOfAnimationSprites,
+        { 0,100,0,0 },                      //actorOrBuildingPrice    priceOfBuilding, food, wood, stone, gold
+        { 3,3 },                            //footprintOfBuilding     buildingFootprint,
+        {192,192},                          //cords                   buildingSprite,
+        "textures/miningCamp.png",          //std::string             buildingTexture,
+        {64,160} ,                          //cords                   origin
+        "Miningcamp",                        //std::string             realBuildingName;
+        640
         });
 
 
     //Mining camp gold
     listOfBuildingTemplates.push_back({
-        false,                      //bool                    canDoRangedDamage,
-        false,                      //bool                    recievesWood,
-        true,                       //bool                    recievesStone,
-        true,                       //bool                    recievesGold,
-        false,                      //bool                    recievesFood,
-        miningcampgold,             //buildingNames           idOfBuilding,
-        250,                        //int                     hitPointsTotal,
-        0,                          //int                     amountOfRangedDamage,
-        0,                          //int                     range,
-        25,                         //int                     buildingPointsNeeded,
-        0,                          //int                     supportsPopulationOf,
-        1,                          //int                     offSetYStore,
-        8,                          //int                     amountOfAnimationSprites,
-        { 0,100,0,0 },              //actorOrBuildingPrice    priceOfBuilding, food, wood, stone, gold
-        { 3,3 },                    //footprintOfBuilding     buildingFootprint,
-        {192,192},                  //cords                   buildingSprite,
-        "textures/miningCamp.png",  //std::string             buildingTexture,
-        {64,160},                   //cords                   origin
-        "Miningcamp"                //std::string             realBuildingName;
+        false,                                  //bool                    canDoRangedDamage,
+        false,                                  //bool                    recievesWood,
+        true,                                   //bool                    recievesStone,
+        true,                                   //bool                    recievesGold,
+        false,                                  //bool                    recievesFood,
+        buildingNames::miningcampgold,          //buildingNames           idOfBuilding,
+        250,                                    //int                     hitPointsTotal,
+        0,                                      //int                     amountOfRangedDamage,
+        0,                                      //int                     range,
+        25,                                     //int                     buildingPointsNeeded,
+        0,                                      //int                     supportsPopulationOf,
+        1,                                      //int                     offSetYStore,
+        8,                                      //int                     amountOfAnimationSprites,
+        { 0,100,0,0 },                          //actorOrBuildingPrice    priceOfBuilding, food, wood, stone, gold
+        { 3,3 },                                //footprintOfBuilding     buildingFootprint,
+        {192,192},                              //cords                   buildingSprite,
+        "textures/miningCamp.png",              //std::string             buildingTexture,
+        {64,160},                               //cords                   origin
+        "Miningcamp",                           //std::string             realBuildingName;
+        640                                     //int                     bigSpriteYoffset
         });
 
 
@@ -300,3 +313,4 @@ void loadBuildings()
     }
 
 }
+

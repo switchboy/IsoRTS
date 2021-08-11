@@ -65,7 +65,7 @@ namespace
 		}
 		else if (currentGame.currentMap[x][y] == 2)//Cactus
 		{
-			listOfObjects.push_back(objects(objectTypes::objectCactus, { x, y }, static_cast<int>(listOfObjects.size())));
+			listOfObjects.push_back(objects(objectTypes::cactus, { x, y }, static_cast<int>(listOfObjects.size())));
 		}
 	}
 
@@ -75,10 +75,10 @@ namespace
 				if (i >= 0 && i < MAP_WIDTH && j >= 0 && j < MAP_HEIGHT) {
 					if (currentGame.objectLocationList[i][j] != -1) {
 						if (
-							listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::objectCypress ||
-							listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::objectCactus ||
-							listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::objectMaple ||
-							listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::objectPine
+							listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::cypress ||
+							listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::cactus ||
+							listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::maple ||
+							listOfObjects[currentGame.objectLocationList[i][j]].getType() == objectTypes::pine
 							)
 						{
 							return true;
@@ -217,12 +217,7 @@ namespace
 					foodcords = foodLocations[possibleFood].foodCords;
 				}
 			}
-			if (foodFound) {//TODO: this is always true
-				return foodcords;
-			}
-			else {
-				return { -1,-1 };
-			}
+			return foodcords;
 		}
 		else {
 			//There is not enough food on the map!
@@ -274,13 +269,18 @@ namespace
 
 	void generateTerrain() {
 		srand(static_cast<int>(time(NULL)));
-		float noiseMap[MAP_WIDTH * MAP_HEIGHT];
-		float noiseSeed[MAP_WIDTH * MAP_HEIGHT];
+		//Moved noiseMap and noiseSeed from stack to heap because of size
+		float* noiseMap = nullptr;
+		float* noiseSeed = nullptr;
+		noiseSeed = new float[MAP_WIDTH * MAP_HEIGHT];
+		noiseMap = new float[MAP_WIDTH * MAP_HEIGHT];
 		for (int i = 0; i < MAP_WIDTH * MAP_HEIGHT; i++) {
 			noiseSeed[i] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 		};
 		generatePerlinNoise(1.4f, 5, noiseSeed, noiseMap);
 		convertPerlinNoiseToMap(noiseMap);
+		delete[]noiseMap;
+		delete[]noiseSeed;
 	}
 
 }

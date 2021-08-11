@@ -4,6 +4,9 @@
 #include <mutex>
 #include <list>
 #include <iostream>
+#include <algorithm>
+#include <vector>
+#include <random>
 
 const int MAP_WIDTH = 256;
 const int MAP_HEIGHT = 256;

@@ -112,37 +112,49 @@ namespace
 		}
 	}
 
-	bool spawnFoodStoneGold(int resource, int amountOfGroups)
-	{
-		//tries to place resources pseudorandomly into a 32*32 grid and repeats this until the map is full on a 256 tiles wide map this means 64 groups can be placed. To lower the chance of a succesful placement only a 1 tile will be tested for suitability
+	bool spawnFoodStoneGold(int resource, int amountOfGroups) {
+		//Devide the map into grids of 32x32
+		struct gridTile{
+			cords start;
+			cords end;
+			bool hasThisResourceGroup;
+		};
+		std::vector<gridTile> mapGrid;
 		int gridMinX = 0;
 		int gridMinY = 0;
-		int succesFullPlacements = 0;
 		for (int gridMaxX = 32; gridMaxX < MAP_WIDTH; gridMaxX += 32) {
 			for (int gridMaxY = 32; gridMaxY < MAP_HEIGHT; gridMaxY += 32) {
-				bool resourcePlaced = false;
-				int maxTries = 0;
-				while (!resourcePlaced && maxTries < 1 && succesFullPlacements <= amountOfGroups) {
-					cords suggestedCords = { roll(gridMinX,gridMaxX), roll(gridMinY,gridMaxY) };
-					if (suggestedCords.y - 1 >= 0 && suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
-						if (currentGame.isPassable(suggestedCords) && currentGame.isPassable({ suggestedCords.x, suggestedCords.y + 1 }) && currentGame.isPassable({ suggestedCords.x + 1, suggestedCords.y }) && currentGame.isPassable({ suggestedCords.x + 1, suggestedCords.y - 1 }))
-						{
-							listOfObjects.push_back(objects(static_cast<objectTypes>(resource), suggestedCords, static_cast<int>(listOfObjects.size())));
-							listOfObjects.push_back(objects(static_cast<objectTypes>(resource), { suggestedCords.x, suggestedCords.y + 1 }, static_cast<int>(listOfObjects.size())));
-							listOfObjects.push_back(objects(static_cast<objectTypes>(resource), { suggestedCords.x + 1, suggestedCords.y }, static_cast<int>(listOfObjects.size())));
-							listOfObjects.push_back(objects(static_cast<objectTypes>(resource), { suggestedCords.x + 1, suggestedCords.y - 1 }, static_cast<int>(listOfObjects.size())));
-							resourcePlaced = true;
-							succesFullPlacements++;
-						}
-					}
-					maxTries++;
-				}
-				gridMinY = gridMaxY;//TODO: this variable assignment is useless?
+				mapGrid.push_back({ { gridMinX, gridMinY }, { gridMaxX, gridMaxY }, false });
+				gridMinY = gridMaxY;
 			}
-			gridMinX = gridMaxX;//TODO: this variable assignment is useless?
+			gridMinX = gridMaxX;
 		}
-		if (succesFullPlacements <= amountOfGroups) {
-			return false;
+
+		int amountOfGroupsPlaced = 0;
+		int tries = 0;
+		std::default_random_engine gen(roll(0,99));
+
+		//While not all resources are placed shuffle the grids and try to place on the first one. If placed remove grid from the list
+		while (amountOfGroupsPlaced < amountOfGroups && tries < 9000 && mapGrid.size() > 0 ) {
+			std::shuffle(mapGrid.begin(), mapGrid.end(), gen);
+			cords suggestedCords = { roll(mapGrid.back().start.x,mapGrid.back().end.x), roll(mapGrid.back().start.y,mapGrid.back().end.y) };
+			if (suggestedCords.y - 1 >= 0 && suggestedCords.y + 1 < MAP_HEIGHT && suggestedCords.x + 1 < MAP_WIDTH) {
+				if (currentGame.isPassable(suggestedCords) && currentGame.isPassable({ suggestedCords.x, suggestedCords.y + 1 }) && currentGame.isPassable({ suggestedCords.x + 1, suggestedCords.y }) && currentGame.isPassable({ suggestedCords.x + 1, suggestedCords.y - 1 }))
+				{
+					listOfObjects.push_back(objects(static_cast<objectTypes>(resource), suggestedCords, static_cast<int>(listOfObjects.size())));
+					listOfObjects.push_back(objects(static_cast<objectTypes>(resource), { suggestedCords.x, suggestedCords.y + 1 }, static_cast<int>(listOfObjects.size())));
+					listOfObjects.push_back(objects(static_cast<objectTypes>(resource), { suggestedCords.x + 1, suggestedCords.y }, static_cast<int>(listOfObjects.size())));
+					listOfObjects.push_back(objects(static_cast<objectTypes>(resource), { suggestedCords.x + 1, suggestedCords.y - 1 }, static_cast<int>(listOfObjects.size())));
+					amountOfGroupsPlaced++;
+					mapGrid.pop_back();
+				}
+			}
+			tries++;
+		}
+
+		//Check if resource placement was correct, otherwise raise the alarm.
+		if (amountOfGroupsPlaced < amountOfGroups) {
+			return false; 
 		}
 		else {
 			return true;

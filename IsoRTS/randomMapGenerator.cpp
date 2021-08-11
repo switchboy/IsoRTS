@@ -217,12 +217,7 @@ namespace
 					foodcords = foodLocations[possibleFood].foodCords;
 				}
 			}
-			if (foodFound) {//TODO: this is always true
-				return foodcords;
-			}
-			else {
-				return { -1,-1 };
-			}
+			return foodcords;
 		}
 		else {
 			//There is not enough food on the map!

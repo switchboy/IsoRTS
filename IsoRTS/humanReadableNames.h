@@ -11,7 +11,7 @@ enum class resourceTypes
     None
 };
 
-enum objectTypes
+enum class objectTypes : uint32_t
 {
     objectCactus,
     objectCypress,

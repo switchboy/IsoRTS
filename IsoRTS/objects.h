@@ -12,7 +12,7 @@ class objects
 public:
     objects(){
         objectId =0;
-        objectType = objectBerry;
+        objectType = objectTypes::objectBerry;
         location = { 0, 0 };
         typeOfResource = resourceTypes::resourceFood;
         resourceLeft = 0;

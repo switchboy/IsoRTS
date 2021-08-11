@@ -8,8 +8,8 @@ objects::objects(objectTypes type, cords location, int objectId)
     this->objectType = type;
     this->location = location;
     this->objectId = objectId;
-    this->typeOfResource = listOfObjectTemplates[type].getTypeOfResource();
-    this->resourceLeft = listOfObjectTemplates[type].getStartAmountOfResources();
+    this->typeOfResource = listOfObjectTemplates[static_cast<uint32_t>(type)].getTypeOfResource();
+    this->resourceLeft = listOfObjectTemplates[static_cast<uint32_t>(type)].getStartAmountOfResources();
     currentGame.objectLocationList[location.x][location.y] = objectId;
     currentGame.setObjectsHaveChanged();
 }
@@ -39,13 +39,13 @@ resourceTypes objects::getTypeOfResource() const
 
 void objects::drawObjectSprite(objectTypes spriteNumber, int i, int j) const
 {
-    listOfObjectTemplates[this->objectType].getSprite().setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-    window.draw(listOfObjectTemplates[this->objectType].getSprite());
+    listOfObjectTemplates[static_cast<uint32_t>(this->objectType)].getSprite().setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
+    window.draw(listOfObjectTemplates[static_cast<uint32_t>(this->objectType)].getSprite());
 }
 
 std::string objects::getName() const
 {
-    return listOfObjectTemplates[this->objectType].getRealName();
+    return listOfObjectTemplates[static_cast<uint32_t>(this->objectType)].getRealName();
 }
 
 objectTypes objects::getType() const

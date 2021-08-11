@@ -17,7 +17,6 @@ public:
         bool                    doesRangedDamage,
         float                   timeBetweenShots,
         float                   timeToCrossOneTile,
-        int                     actorHealth,
         int                     hitPoints,
         int                     meleeDamage,
         int                     projectileType,
@@ -28,7 +27,8 @@ public:
         cords                   textureRect,
         actorOrBuildingPrice    priceOfActor,
         std::string             actorTexture,
-        std::string             realActorName
+        std::string             realActorName,
+        cords                   spriteOrigin;
     );
 
     //getters
@@ -36,7 +36,6 @@ public:
     bool                    getDoesRangedDamage() const;
     float                   getTimeBetweenShots() const;
     float                   getTimeToCrossOneTile() const;
-    int                     getActorHealth() const;
     int                     getHitPoints() const;
     int                     getMeleeDamage() const;
     int                     getProjectileType() const;
@@ -59,7 +58,6 @@ private:
     bool                    doesRangedDamage;
     float                   timeBetweenShots;
     float                   timeToCrossOneTile;
-    int                     actorHealth;
     int                     hitPoints;
     int                     meleeDamage;
     int                     projectileType;
@@ -67,6 +65,7 @@ private:
     int                     rangedDamage;
     int                     rateOfFire;
     int                     splashDamage;
+    cords                   spriteOrigin;
     cords                   textureRect;
     actorOrBuildingPrice    priceOfActor;
     sf::Sprite              actorSprite;

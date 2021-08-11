@@ -1,12 +1,11 @@
 #include "actorTemplates.h"
 
-actorTemplates::actorTemplates(actorNames actorId, bool doesRangedDamage, float timeBetweenShots, float timeToCrossOneTile, int actorHealth, int hitPoints, int meleeDamage, int projectileType, int range, int rangedDamage, int rateOfFire, int splashDamage, cords textureRect, actorOrBuildingPrice priceOfActor, std::string actorTexture, std::string realActorName)
+actorTemplates::actorTemplates(actorNames actorId, bool doesRangedDamage, float timeBetweenShots, float timeToCrossOneTile, int hitPoints, int meleeDamage, int projectileType, int range, int rangedDamage, int rateOfFire, int splashDamage, cords textureRect, actorOrBuildingPrice priceOfActor, std::string actorTexture, std::string realActorName, cords spriteOrigin)
 {
     this->actorId = actorId;
     this->doesRangedDamage = doesRangedDamage;
     this->timeBetweenShots = timeBetweenShots;
     this->timeToCrossOneTile = timeToCrossOneTile;
-    this->actorHealth = actorHealth;
     this->hitPoints = hitPoints;
     this->meleeDamage = meleeDamage;
     this->projectileType = projectileType;
@@ -41,11 +40,6 @@ float actorTemplates::getTimeBetweenShots() const
 float actorTemplates::getTimeToCrossOneTile() const
 {
     return this->timeToCrossOneTile;
-}
-
-int actorTemplates::getActorHealth() const
-{
-    return this->actorHealth;
 }
 
 int actorTemplates::getHitPoints() const
@@ -111,4 +105,50 @@ std::string actorTemplates::getRealActorName() const
 void actorTemplates::setActorTexture()
 {
     this->actorSprite.setTexture(this->actorTexture);
+    this->actorSprite.setTextureRect(sf::IntRect(0, 0, this->textureRect.x, this->textureRect.y));
+    this->actorSprite.setOrigin(static_cast<float>(this->spriteOrigin.x), static_cast<float>(this->spriteOrigin.y));
+}
+
+void loadActors()
+{
+
+    //villager 
+    listOfActorTemplates.push_back({
+        villager,                           //actorNames              actorId,
+        false,                              //bool                    doesRangedDamage,
+        2.0f,                               //float                   timeBetweenShots,
+        1.0f,                               //float                   timeToCrossOneTile,
+        25,                                 //int                     hitPoints,
+        3,                                  //int                     meleeDamage,
+        0,                                  //int                     projectileType,
+        3,                                  //int                     range,
+        1,                                  //int                     rangedDamage,
+        2,                                  //int                     rateOfFire,
+        0,                                  //int                     splashDamage,
+        { 16, 32 },                         //cords                   textureRect,
+        { 50, 0, 0, 0, 25 },                //actorOrBuildingPrice    priceOfActor, (food, wood, stone, gold, production points)
+        "textures/testVillagerSprite.png",  //std::string             actorTexture,
+        "Villager",                         //std::string             realActorName
+        {-24,12}
+    });
+
+    //priceOfActor.push_back({ 60,0,0,20,25 });  Swordsman
+    listOfActorTemplates.push_back({
+        swordsman,                           //actorNames              actorId,
+        false,                              //bool                    doesRangedDamage,
+        2.0f,                               //float                   timeBetweenShots,
+        0.8f,                               //float                   timeToCrossOneTile,
+        60,                                 //int                     hitPoints,
+        12,                                  //int                    meleeDamage,
+        0,                                  //int                     projectileType,
+        3,                                  //int                     range,
+        0,                                  //int                     rangedDamage,
+        3,                                  //int                     rateOfFire,
+        0,                                  //int                     splashDamage,
+        { 16, 32 },                         //cords                   textureRect,
+        { 50, 0, 0, 0, 25 },                //actorOrBuildingPrice    priceOfActor, (food, wood, stone, gold, production points)
+        "textures/swordsman.png",           //std::string             actorTexture,
+        "Swordsman",                        //std::string             realActorName
+        {-24,12}
+    });
 }

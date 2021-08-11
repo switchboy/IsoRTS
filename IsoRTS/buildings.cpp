@@ -470,11 +470,11 @@ void buildings::getTask(bool isResearch, int idOfUnitOrResearch)
     if(this->productionQueue.size() < 5 )
     {
         if (!isResearch) {
-            this->productionQueue.push_back({isResearch, idOfUnitOrResearch, 0, priceOfActor[idOfUnitOrResearch].productionPoints, 0});
-            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceFood, priceOfActor[idOfUnitOrResearch].food);
-            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceWood, priceOfActor[idOfUnitOrResearch].wood);
-            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceStone, priceOfActor[idOfUnitOrResearch].stone);
-            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceGold, priceOfActor[idOfUnitOrResearch].gold);
+            this->productionQueue.push_back({isResearch, idOfUnitOrResearch, 0, listOfActorTemplates[idOfUnitOrResearch].getPriceOfActor().productionPoints, 0});
+            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceFood, listOfActorTemplates[idOfUnitOrResearch].getPriceOfActor().food);
+            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceWood, listOfActorTemplates[idOfUnitOrResearch].getPriceOfActor().wood);
+            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceStone, listOfActorTemplates[idOfUnitOrResearch].getPriceOfActor().stone);
+            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceGold, listOfActorTemplates[idOfUnitOrResearch].getPriceOfActor().gold);
         }
     }
     else

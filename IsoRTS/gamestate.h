@@ -9,6 +9,9 @@
 #include "globalfunctions.h"
 #include "humanReadableNames.h"
 #include "templateBuildings.h"
+#include "actorTemplates.h"
+
+
 
 struct adjacentTile
 {
@@ -18,8 +21,6 @@ struct adjacentTile
     bool occupied;
     int actorId;
 };
-
-extern std::vector<actorOrBuildingPrice> priceOfActor;
 
 extern int mainWindowWidth;
 extern int mainWindowHeigth;
@@ -121,15 +122,14 @@ public:
     sf::Font font;
     sf::Text text;
     sf::Sprite  spriteSelectedTile,spriteSelectedTileForPath, spriteEmptyTile, spriteGrassTile, spriteSandTile, spriteSandTileNE, 
-    spriteSandTileNW,spriteSandTileSE,spriteSandTileSW, spriteCactusTile, spriteCypressTrileTile, spriteBigSelectedIcon, spriteSwordsman, spriteCommandCursor, 
+    spriteSandTileNW,spriteSandTileSE,spriteSandTileSW, spriteCactusTile, spriteCypressTrileTile, spriteBigSelectedIcon, spriteCommandCursor, 
     spriteNormalTreeTile, spritePineTreeTile, spriteTileObstructed, spriteBlackTile, spriteArrow, spriteFlag,
-    spriteStone, spriteGold, spriteBerryBush, spriteUIButton, spriteUnitSelectedTile, spriteMistTile, spriteWaterTile, spriteBeachTileNE, spriteBeachTileNW,spriteBeachTileSE,spriteBeachTileSW, spriteVillager, spriteTotalBackground;
+    spriteStone, spriteGold, spriteBerryBush, spriteUIButton, spriteUnitSelectedTile, spriteMistTile, spriteWaterTile, spriteBeachTileNE, spriteBeachTileNW,spriteBeachTileSE,spriteBeachTileSW, spriteTotalBackground;
 
-    sf::Texture textureSelectedTile, textureSelectedTileForPath, textureEmptyTile, textureGrassTile, textureSandTile, textureSandTileNE, textureSwordsman,
-    textureSandTileNW,textureSandTileSE,textureSandTileSW, textureCactusTile, textureCypressTrileTile, textureBigSelectedIcon, textureBlackTile, textureCommandCursor,
-    textureNormalTreeTile, texturePineTreeTile, textureCheatTile, textureTileObstructed, textureTownCenter, textureMistTile, textureArrow, textureFlag,
-    textureStone, textureGold, textureBerryBush, textureUIButton, textureUnitSelectedTile,
-    textureWaterTile, textureBeachTileNE, textureBeachTileNW,textureBeachTileSE, textureBeachTileSW, textureVillager, textureTotalBackground;
+    sf::Texture textureSelectedTile, textureSelectedTileForPath, textureEmptyTile, textureGrassTile, textureSandTile, textureSandTileNE, textureSandTileNW,textureSandTileSE,textureSandTileSW, textureCactusTile, 
+    textureCypressTrileTile, textureBigSelectedIcon, textureBlackTile, textureCommandCursor,
+    textureNormalTreeTile, texturePineTreeTile, textureCheatTile, textureTileObstructed, textureMistTile, textureArrow, textureFlag,
+    textureStone, textureGold, textureBerryBush, textureUIButton, textureUnitSelectedTile, textureWaterTile, textureBeachTileNE, textureBeachTileNW,textureBeachTileSE, textureBeachTileSW, textureTotalBackground;
     sf::RectangleShape selectionRectangle;
     sf::RectangleShape healthBarBackground;
     sf::RectangleShape healthBarGreenBar;
@@ -140,7 +140,6 @@ public:
     std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> occupiedByBuildingList;
     std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> occupiedByActorList;
     std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> visability;
-
 
     bool showPaths;
 

@@ -1822,7 +1822,7 @@ void gameState::addActorSelectorButton(int i, int actorId, int startDeck, int te
         xPosition = startDeck + offSetToNextCard*i;
     }
     else if (this->selectedUnits.size() % 2) {
-        xPosition = static_cast<int>(startDeck + offSetToNextCard * ((static_cast<float>(i)-1.f) - (static_cast<float>(selectedUnits.size()) / 2.f)));
+        xPosition = static_cast<int>(startDeck + offSetToNextCard * ceil(static_cast<float>(i) - (static_cast<float>(selectedUnits.size()) / 2.f)-1));
         tempY = tempY + this->preCalcincrementalYOffset;
     } else {
         xPosition = static_cast<int>(startDeck + offSetToNextCard * (static_cast<float>(i) - (static_cast<float>(selectedUnits.size()) / 2.f)));
@@ -2199,7 +2199,7 @@ void gameState::drawToolbar()
     window.setView(toolBar);
     int tempY = this->preCalcStartY;
     int spriteYOffset = 0;
-    int cardDeckSize = static_cast<int>(mainWindowWidth / 1.82);
+    int cardDeckSize = static_cast<int>(mainWindowWidth / 1.9);
     int amountOfCardsPerRow = static_cast<int>((this->selectedUnits.size()+1)/2);
     int requiredSize = amountOfCardsPerRow*64;
     int devider = static_cast<int>((this->selectedUnits.size()+1)/2);

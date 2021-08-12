@@ -1278,17 +1278,17 @@ void gameState::changeTiles()
 
 void gameState::edgeScrolling() const
 {
-    if (mouseFakePosition.x < 0) {
+    if (mouseFakePosition.x < 75) {
         viewOffsetX += -10;
     }
-    else if (mouseFakePosition.x > mainWindowWidth)
+    else if (mouseFakePosition.x > mainWindowWidth-75)
     {
         viewOffsetX += 10;
     }
-    if (mouseFakePosition.y < 0) {
+    if (mouseFakePosition.y < 75) {
         viewOffsetY += -10;
     }
-    else if (mouseFakePosition.y > mainWindowHeigth)
+    else if (mouseFakePosition.y > mainWindowHeigth-75)
     {
         viewOffsetY += 10;
     }
@@ -1318,7 +1318,9 @@ void gameState::interact()
     if (this->focus)
     {
         this->mouseWorldPosition = toWorldMousePosition(static_cast<int>(this->mousePosition.x), static_cast<int>(this->mousePosition.y));
-        edgeScrolling();
+        if (mouseFakePosition.x >= 0 && mouseFakePosition.x <= window.getSize().x && mouseFakePosition.y >= 0 && mouseFakePosition.y <= window.getSize().y) {
+            edgeScrolling();
+        }
     }
 
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && this->focus)

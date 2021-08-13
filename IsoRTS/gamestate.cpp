@@ -1433,14 +1433,15 @@ void gameState::interact()
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Tab) && this->focus && !this->isPressedTab)
     {
         this->isPressedTab = true;
-        int tempTeam = currentPlayer.getTeam()+1;
-        if(tempTeam > 7)
-        {
-            currentPlayer = listOfPlayers[1];
-        }
-        else
-        {
-            currentPlayer = listOfPlayers[tempTeam];
+        if (this->isPressedShift) {
+            if (currentPlayer.getTeam() + 1 > this->players-1)
+            {
+                currentPlayer = listOfPlayers[0];
+            }
+            else
+            {
+                currentPlayer = listOfPlayers[currentPlayer.getTeam() + 1];
+            }
         }
 
     }

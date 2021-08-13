@@ -159,7 +159,7 @@ void updateCells(int goalId, int startId, std::vector<Cells>& cellsList)
             {
                 cellsList[n].obstacle = false;
             }
-            else if (!currentGame.isPassable({ i, j }))
+            else if (!currentGame.isPassableButMightHaveActor({ i, j }))
             {
                 cellsList[n].obstacle = true;
             }
@@ -261,7 +261,7 @@ void Cells::addNeighbours(const std::vector<Cells> &cellsList)
 
 actors::actors(int type, cords location, int actorTeam, int actorId)
 {
-    currentGame.occupiedByActorList[location.x][location.y] = actorId;
+    currentGame.occupiedByActorList[location.x][location.y].push_back(actorId);
     listOfPlayers[actorTeam].addToCurrentPopulation(1);
     this->actorType = type;
     this->actorTeam = actorTeam;
@@ -500,7 +500,7 @@ void actors::shootProjectile()
 {
     if (this->timeStartedGatheringRecource + this->timeBetweenShots < currentGame.getTime()) {
         this->timeStartedGatheringRecource = currentGame.getTime();
-        if (currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y] != -1) {
+        if (currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y].empty()) {
             projectile newProjectile(this->actorCords.x, this->actorCords.y, this->actionPreformedOnTile.x, this->actionPreformedOnTile.y, this->projectileType, this->rangedDamage, this->splashDamage, this->actorId);
             listOfProjectiles.push_back(newProjectile);
         }
@@ -534,11 +534,11 @@ void actors::setIsDoingAttack()
         this->isMeleeAttacking = true;
     }
     this->actionPreformedOnTile = this->actorGoal;
-    if (currentGame.occupiedByActorList[this->actorGoal.x][this->actorGoal.y] != -1) {
-        this->idOfTarget = currentGame.occupiedByActorList[this->actorGoal.x][this->actorGoal.y];
+    if (!currentGame.occupiedByActorList[this->actorGoal.x][this->actorGoal.y].empty()) {
+        this->idOfTarget = currentGame.occupiedByActorList[this->actorGoal.x][this->actorGoal.y].front();
     }
     else if (currentGame.occupiedByBuildingList[this->actorGoal.x][this->actorGoal.y] != -1) {
-        this->idOfTarget = -currentGame.occupiedByActorList[this->actorGoal.x][this->actorGoal.y];
+        this->idOfTarget = -currentGame.occupiedByBuildingList[this->actorGoal.x][this->actorGoal.y];
     }
 }
 
@@ -551,10 +551,10 @@ void actors::doMeleeDamage()
     if (currentGame.elapsedTime - this->timeStartedGatheringRecource > this->rateOfFire) 
     {
         this->timeStartedGatheringRecource = currentGame.elapsedTime;
-        if (currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y] != -1) {
-           if (listOfActors[currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].getTeam() != this->actorTeam) 
+        if (!currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y].empty()) {
+           if (listOfActors[currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y].front()].getTeam() != this->actorTeam) 
            {
-                listOfActors[currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].takeDamage(this->meleeDamage, this->actorId);
+                listOfActors[currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y].front()].takeDamage(this->meleeDamage, this->actorId);
            }
         }
         else if (currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y] != -1)
@@ -590,9 +590,7 @@ void actors::killActor() {
     {
         for (auto& elem : rows)
         {
-            if (elem == this->actorId) {
-                elem = -1;
-            }
+            elem.erase(std::remove(elem.begin(), elem.end(), this->actorId), elem.end());
         }
     }
 }
@@ -679,8 +677,7 @@ void actors::moveActorIfWalking()
     }
     else if (this->busyWalking && (currentGame.elapsedTime - this->timeLastUpdate) > static_cast<float>(this->timeToCrossOneTile/2.f) && !this->movedMoreThanHalf)
     {
-
-        currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y] = -1;
+        currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].erase(std::remove(currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].begin(), currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].end(), this->actorId), currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].end());
         this->movedMoreThanHalf = true;
     }
 }
@@ -704,7 +701,7 @@ void actors::startWalking()
     this->timeLastUpdate = currentGame.elapsedTime;
     this->actorGoal = this->route.back().position;
 
-    currentGame.occupiedByActorList[this->route.back().position.x][this->route.back().position.y] = this->actorId;
+    currentGame.occupiedByActorList[this->route.back().position.x][this->route.back().position.y].push_back(this->actorId);
 
     this->route.pop_back();
     if (route.empty())
@@ -768,14 +765,14 @@ void actors::walkToNextSquare() {
         else
         {
             //De actor staat met zijn neus de goede kant op en kan dus gaan lopen als de tegel vrij is!
-            if (currentGame.occupiedByActorList[this->route.back().position.x][this->route.back().position.y] == -1)
-            {
+            //if (currentGame.occupiedByActorList[this->route.back().position.x][this->route.back().position.y] == -1)
+            //{
                 this->listOfTargetsToRejectUntilSuccesfullMovement.clear();
                 this->startWalking();
-            }
-            else {
-                this->retryWalkingOrChangeGoal();
-            }
+            //}
+            //else {
+               // this->retryWalkingOrChangeGoal();
+            //}
         }
     }
     else
@@ -1630,16 +1627,10 @@ void actors::cleanUp()
     {
         for(int j = 0; j < MAP_HEIGHT; j++)
         {
-            if(currentGame.occupiedByActorList[i][j] == this->actorId)
-            {
-                if(i !=  this->actorCords.x && j != this->actorCords.y)
-                {
-                    currentGame.occupiedByActorList[i][j] = -1;
-                }
-            }
+            currentGame.occupiedByActorList[i][j].erase(std::remove(currentGame.occupiedByActorList[i][j].begin(), currentGame.occupiedByActorList[i][j].end(), this->actorId), currentGame.occupiedByActorList[i][j].end());
         }
     }
-    currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y] = this->actorId;
+    currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].push_back(this->actorId);
 }
 
 std::pair<int, int> actors::getHealth() const
@@ -1774,6 +1765,22 @@ void actors::drawActor()
 
     bool drawHealth = false;
 
+    //determine if actor is the only actor on the tile
+    if(currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].size() > 1){
+        //Tile is occupied by more then one actor!
+        int id = 0;
+        for (auto& actorId : currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y]) {
+            if (actorId == this->actorId) {
+                break;
+            }
+            id++;
+        }
+        //If the actor was occuping the cell before the other one let it step asside to let the other pass
+        if (id == 0) {
+            position.x = position.x - 7;
+        }
+    }
+
     if(currentGame.isInSelectedActors(this->actorId))
     {
         currentGame.spriteUnitSelectedTile.setPosition(static_cast<float>(position.x), static_cast<float>(position.y));
@@ -1789,6 +1796,7 @@ void actors::drawActor()
         drawHealth = true;
     }
 
+   
     //Draw the actor
     listOfActorTemplates[this->actorType].setSpritePosition(position);
     listOfActorTemplates[this->actorType].getActorSprite().setTextureRect(sf::IntRect(spriteXoffset, spriteYoffset, 16, 32));

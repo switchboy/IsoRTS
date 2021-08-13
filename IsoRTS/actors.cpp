@@ -159,7 +159,7 @@ void updateCells(int goalId, int startId, std::vector<Cells>& cellsList)
             {
                 cellsList[n].obstacle = false;
             }
-            else if (!currentGame.isPassable({ i, j }))
+            else if (!currentGame.isPassableButMightHaveActor({ i, j }))
             {
                 cellsList[n].obstacle = true;
             }

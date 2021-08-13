@@ -450,7 +450,7 @@ void buildings::drawBuildingFootprint(int type, cords mouseWorld)
                 if(
                     currentGame.occupiedByBuildingList[mouseWorld.x-i][mouseWorld.y-j] != -1 ||
                     currentGame.objectLocationList[mouseWorld.x - i][mouseWorld.y - j] != -1 ||
-                    currentGame.occupiedByActorList[mouseWorld.x - i][mouseWorld.y - j] != -1 ||
+                    (!currentGame.occupiedByActorList[mouseWorld.x - i][mouseWorld.y - j].empty()) ||
                     currentGame.currentMap[mouseWorld.x - i][mouseWorld.y - j] == 7
                     )
                 {
@@ -571,13 +571,15 @@ void buildings::checkOnEnemyAndShoot()
             std::list<cords> tempList = getListOfCordsInCircle(footprintTile.x, footprintTile.y, this->range);
             for (const cords& cord : tempList)
             {
-                if (currentGame.occupiedByActorList[cord.x][cord.y] != -1)
+                if (!currentGame.occupiedByActorList[cord.x][cord.y].empty())
                 {
-                    if (listOfActors[currentGame.occupiedByActorList[cord.x][cord.y]].getTeam() != this->ownedByPlayer)
-                    {
-                        cords sourceTile = findCloseTile(buidlingFootprint, cord);
-                        listOfProjectiles.push_back(projectile(sourceTile.x, sourceTile.y, cord.x, cord.y, 0, this->amountOfRangedDamage, 0, -this->buildingId));
-                        return;
+                    for (auto& id : currentGame.occupiedByActorList[cord.x][cord.y]) {
+                        if (listOfActors[id].getTeam() != this->ownedByPlayer)
+                        {
+                            cords sourceTile = findCloseTile(buidlingFootprint, cord);
+                            listOfProjectiles.push_back(projectile(sourceTile.x, sourceTile.y, cord.x, cord.y, 0, this->amountOfRangedDamage, 0, -this->buildingId));
+                            return;
+                        }
                     }
                 }
             }

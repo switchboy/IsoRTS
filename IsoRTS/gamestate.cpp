@@ -105,7 +105,29 @@ bool gameState::isPassable(cords location) const
             (this->currentMap[location.x][location.y] > 0 && this->currentMap[location.x][location.y] < 7) &&
             this->objectLocationList[location.x][location.y] == -1 &&
             this->occupiedByBuildingList[location.x][location.y] == -1 &&
-            this->occupiedByActorList[location.x][location.y] == -1
+            this->occupiedByActorList[location.x][location.y].empty()
+            )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else {
+        return false;
+    }
+}
+
+bool gameState::isPassableButMightHaveActor(cords location) const
+{
+    //check if the terrain is passable 1-6 and within map bounds
+    if (location.x >= 0 && location.x < MAP_WIDTH && location.y >= 0 && location.y < MAP_HEIGHT) {
+        if (
+            (this->currentMap[location.x][location.y] > 0 && this->currentMap[location.x][location.y] < 7) &&
+            this->objectLocationList[location.x][location.y] == -1 &&
+            this->occupiedByBuildingList[location.x][location.y] == -1
             )
         {
             return true;
@@ -196,9 +218,11 @@ void gameState::drawThingsOnTile(int i, int j)
     {
         listOfObjects[this->objectLocationList[i][j]].drawObject(i, j);
     }
-    else if(this->occupiedByActorList[i][j] != -1 && this->visability[i][j] > 1)
+    else if(!this->occupiedByActorList[i][j].empty() && this->visability[i][j] > 1)
     {
-        listOfActors[this->occupiedByActorList[i][j]].drawActor();
+        for (int& id : this->occupiedByActorList[i][j]) {
+            listOfActors[id].drawActor();
+        }
     }
 }
 
@@ -711,7 +735,7 @@ void gameState::clickToPlaceBuilding() {
                 if (
                     this->occupiedByBuildingList[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j] != -1 || 
                     this->objectLocationList[mouseWorldPosition.x - i][mouseWorldPosition.y - j] != -1 || 
-                    this->occupiedByActorList[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j] != -1 ||
+                    (!this->occupiedByActorList[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j].empty())||
                     this->currentMap[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j] == 7
                     )
                 {
@@ -783,7 +807,7 @@ void gameState::clickToPlaceActor() const
     if (!(this->mouseWorldPosition.x < 0) && !(this->mouseWorldPosition.y < 0) && !(this->mouseWorldPosition.x >= MAP_WIDTH) && !(this->mouseWorldPosition.y >= MAP_HEIGHT))
     {
         //check of de actor hier kan staan:
-        if (this->objectLocationList[mouseWorldPosition.x][mouseWorldPosition.y] == -1 && this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] == -1 && this->occupiedByActorList[mouseWorldPosition.x][mouseWorldPosition.y] == -1)
+        if (this->objectLocationList[mouseWorldPosition.x][mouseWorldPosition.y] == -1 && this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] == -1 && this->occupiedByActorList[mouseWorldPosition.x][mouseWorldPosition.y].empty())
         {
             //Zet de actor neer
             listOfActorsMutex.lock(); 
@@ -1179,8 +1203,8 @@ void gameState::clickToGiveCommand()
         }
         
     }
-    else if (this->occupiedByActorList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1) {
-        if (listOfActors[this->occupiedByActorList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getTeam() != currentPlayer.getTeam()) 
+    else if (!this->occupiedByActorList[this->mouseWorldPosition.x][this->mouseWorldPosition.y].empty()) {
+        if (listOfActors[this->occupiedByActorList[this->mouseWorldPosition.x][this->mouseWorldPosition.y].front()].getTeam() != currentPlayer.getTeam()) 
         {
             clickToAttack();
         }
@@ -1231,10 +1255,12 @@ void gameState::orderRallyPoint() const {
         }
 
     }
-    else if (this->occupiedByActorList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1) {
-        if (listOfActors[this->occupiedByActorList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getTeam() != currentPlayer.getTeam())
-        {
-            listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionAttack);
+    else if (!this->occupiedByActorList[this->mouseWorldPosition.x][this->mouseWorldPosition.y].empty()) {
+        for (auto& id : this->occupiedByActorList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]) {
+            if (listOfActors[id].getTeam() != currentPlayer.getTeam())
+            {
+                listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionAttack);
+            }
         }
     }
     listOfOrderCursors.push_back(orderCursor(this->mousePosition));
@@ -1627,9 +1653,9 @@ void gameState::drawMiniMapActors(sf::RectangleShape& miniMapPixel)
         for(int i = 0; i < MAP_WIDTH; i++ )
         {
             if (this->visability[i][j] == 2) {
-                if (currentGame.occupiedByActorList[i][j] != -1)
+                if (!currentGame.occupiedByActorList[i][j].empty())
                 {
-                    miniMapPixel.setFillColor(teamColors[listOfActors[currentGame.occupiedByActorList[i][j]].getTeam()]);
+                    miniMapPixel.setFillColor(teamColors[listOfActors[currentGame.occupiedByActorList[i][j].front()].getTeam()]);
                     miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
                     minimapActorsTexture.draw(miniMapPixel);
                 }
@@ -2358,7 +2384,7 @@ void gameState::loadMap()
             this->buildingLocationList[i][j] = -1;
             this->occupiedByBuildingList[i][j] = -1;
             this->objectLocationList[i][j] = -1;
-            this->occupiedByActorList[i][j] = -1;
+            this->occupiedByActorList[i][j].clear();
             this->visability[i][j] = 0;
         }
     }

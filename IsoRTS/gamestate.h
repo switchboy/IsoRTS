@@ -51,6 +51,7 @@ public:
     bool clickToMove(cords pos, bool minimap) const;
     bool isInSelectedActors(int id) const;
     bool isPassable(cords location) const;
+    bool isPassableButMightHaveActor(cords location) const;
     void calculateRectangle();
     void changeBuildingType();
     void changeObjectType();
@@ -136,7 +137,7 @@ public:
     std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> currentMap;
     std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> objectLocationList;
     std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> occupiedByBuildingList;
-    std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> occupiedByActorList;
+    std::array<std::array<std::vector<int>, MAP_HEIGHT>, MAP_WIDTH> occupiedByActorList;
     std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> visability;
 
     bool showPaths;

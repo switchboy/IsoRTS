@@ -69,6 +69,7 @@ void projectile::updatePosition()
 			this->deltaZ -= 0.096f;
 			if (this->Z >= 0.0f) {
 				doDamage();
+				doSplashDamage();
 				reachedTarget = true;
 			}
 		}
@@ -84,8 +85,10 @@ void projectile::drawProjectile() const
 
 void projectile::doDamage() const
 {
-	if (currentGame.occupiedByActorList[this->projectileTarget.x][this->projectileTarget.y] != -1) {
-		listOfActors[currentGame.occupiedByActorList[this->projectileTarget.x][this->projectileTarget.y]].takeDamage(this->damageOnImpact, this->firedBy);
+	if (!currentGame.occupiedByActorList[this->projectileTarget.x][this->projectileTarget.y].empty()) {
+		for (auto& id : currentGame.occupiedByActorList[this->projectileTarget.x][this->projectileTarget.y]) {
+			listOfActors[id].takeDamage(this->damageOnImpact, this->firedBy);
+		}
 	}
 	else if (currentGame.occupiedByBuildingList[this->projectileTarget.x][this->projectileTarget.y] != -1)
 	{

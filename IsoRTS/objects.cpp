@@ -31,6 +31,10 @@ cords objects::getLocation() const {
 
 void objects::drawObject(int i, int j) const
 {
+    if (currentGame.objectSelectedId == this->objectId) {
+        currentGame.spriteSelectedTile.setPosition(static_cast<float>(worldSpace({ i, j }).x), static_cast<float>(worldSpace({ i, j }).y));
+        window.draw(currentGame.spriteSelectedTile);
+    }
     drawObjectSprite(this->objectType, i, j);
 }
 
@@ -43,6 +47,7 @@ void objects::drawObjectSprite(objectTypes spriteNumber, int i, int j) const
 {
     listOfObjectTemplates[static_cast<uint32_t>(this->objectType)].getSprite().setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
     window.draw(listOfObjectTemplates[static_cast<uint32_t>(this->objectType)].getSprite());
+
 }
 
 std::string objects::getName() const

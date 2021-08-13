@@ -673,12 +673,8 @@ void actors::moveActorIfWalking()
     {
         this->busyWalking = false;
         this->movedMoreThanHalf = false;
-        this->actorCords = this->actorGoal;
-    }
-    else if (this->busyWalking && (currentGame.elapsedTime - this->timeLastUpdate) > static_cast<float>(this->timeToCrossOneTile/2.f) && !this->movedMoreThanHalf)
-    {
         currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].erase(std::remove(currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].begin(), currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].end(), this->actorId), currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].end());
-        this->movedMoreThanHalf = true;
+        this->actorCords = this->actorGoal;
     }
 }
 

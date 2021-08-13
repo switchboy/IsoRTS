@@ -819,22 +819,27 @@ void gameState::clickToPlaceActor() const
 
 void gameState::clickToSelectObjectOrBuilding()
 {
+    this->objectSelectedId = -1;
+    this->buildingSelectedId = -1;
     if (this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1)
     {
         this->buildingSelectedId = this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y];
-    }
-    else
+    }else
     {
-        this->buildingSelectedId = -1;
-    }
-    if (this->objectLocationList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1)
-    {
-        this->objectSelectedId = this->objectLocationList[this->mouseWorldPosition.x][this->mouseWorldPosition.y];
-    }
-    else
-    {
-        this->objectSelectedId = -1;
-    }
+        sf::IntRect selection = sf::IntRect(mousePosition.x, mousePosition.y, 1, 1);
+        if (listOfObjects.size() > 0) {
+            int highestTop = 0;
+            for (const objects& object : listOfObjects) {
+                sf::IntRect result;
+                if (selection.intersects(object.getLastIntRect(), result)) {
+                    if (object.getLastIntRect().top > highestTop) {
+                        this->objectSelectedId = object.getObjectId();
+                        highestTop = object.getLastIntRect().top;
+                    }
+                }
+            }
+        }       
+    } 
 }
 
 void gameState::clickToSelect()

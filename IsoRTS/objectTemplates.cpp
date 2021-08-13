@@ -106,20 +106,20 @@ void loadObjects()
         resourceTypes::resourceWood,        //resourceTypes           typeOfResource,
         200,                                //int                     startAmountOfResources,
         "Cactus",                           //std::string             realName,
-        {0 , 32},                           //cords                   spriteOrigin,
-        {64, 64},                           //cords                   textureRect,
+        {-23 , 16},                           //cords                   spriteOrigin,
+        {20, 33},                           //cords                   textureRect,
         "textures/cactus.png",              //std::string             texture
         0                                   //int                     ObjectBigSpriteYOffset
         });
 
-    //cactus
+    //cypress
     listOfObjectTemplates.push_back({
         objectTypes::cypress,         //objectTypes             objectId,
         resourceTypes::resourceWood,        //resourceTypes           typeOfResource,
         200,                                //int                     startAmountOfResources,
         "Cypress",                          //std::string             realName,
-        {0 , 32},                           //cords                   spriteOrigin,
-        {64, 64},                           //cords                   textureRect,
+        {-20 , 37},                           //cords                   spriteOrigin,
+        {25, 54},                           //cords                   textureRect,
         "textures/cypressTree.png",          //std::string             texture
         128                                 //int                     ObjectBigSpriteYOffset
         });
@@ -130,8 +130,8 @@ void loadObjects()
         resourceTypes::resourceWood,        //resourceTypes           typeOfResource,
         200,                                //int                     startAmountOfResources,
         "Maple",                            //std::string             realName,
-        {0 , 32},                           //cords                   spriteOrigin,
-        {64, 64},                           //cords                   textureRect,
+        {-19 , 34},                           //cords                   spriteOrigin,
+        {29, 52},                           //cords                   textureRect,
         "textures/normalTree.png",           //std::string             texture
         256                                 //int                     ObjectBigSpriteYOffset
         });
@@ -142,8 +142,8 @@ void loadObjects()
         resourceTypes::resourceWood,        //resourceTypes           typeOfResource,
         200,                                //int                     startAmountOfResources,
         "Pine",                             //std::string             realName,
-        {0 , 32},                           //cords                   spriteOrigin,
-        {64, 64},                           //cords                   textureRect,
+        {-19 , 37},                           //cords                   spriteOrigin,
+        {30, 54},                           //cords                   textureRect,
         "textures/pineTree.png",             //std::string             texture
         384                                 //int                     ObjectBigSpriteYOffset
         });

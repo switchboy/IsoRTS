@@ -25,18 +25,25 @@ void objects::substractResource()
 
 
 
+int objects::getObjectId() const
+{
+    return this->objectId;
+}
+
 cords objects::getLocation() const {
     return this->location;
 }
 
-void objects::drawObject(int i, int j) const
+void objects::drawObject(int i, int j)
 {
     if (currentGame.objectSelectedId == this->objectId) {
         currentGame.spriteSelectedTile.setPosition(static_cast<float>(worldSpace({ i, j }).x), static_cast<float>(worldSpace({ i, j }).y));
         window.draw(currentGame.spriteSelectedTile);
     }
     drawObjectSprite(this->objectType, i, j);
+    this->lastIntRect = static_cast<sf::IntRect>(listOfObjectTemplates[static_cast<int>(this->objectType)].getSprite().getGlobalBounds());
 }
+
 
 resourceTypes objects::getTypeOfResource() const
 {
@@ -84,6 +91,11 @@ std::string objects::nameOfResource() const
     default:
         return "undefined";
     }
+}
+
+sf::IntRect objects::getLastIntRect() const
+{
+    return this->lastIntRect;
 }
 
 void objects::destroyObject()

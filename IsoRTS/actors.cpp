@@ -1765,6 +1765,22 @@ void actors::drawActor()
 
     bool drawHealth = false;
 
+    //determine if actor is the only actor on the tile
+    if(currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].size() > 1){
+        //Tile is occupied by more then one actor!
+        int id = 0;
+        for (auto& actorId : currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y]) {
+            if (actorId == this->actorId) {
+                break;
+            }
+            id++;
+        }
+        //If the actor was occuping the cell before the other one let it step asside to let the other pass
+        if (id == 0) {
+            position.x = position.x - 7;
+        }
+    }
+
     if(currentGame.isInSelectedActors(this->actorId))
     {
         currentGame.spriteUnitSelectedTile.setPosition(static_cast<float>(position.x), static_cast<float>(position.y));
@@ -1780,6 +1796,7 @@ void actors::drawActor()
         drawHealth = true;
     }
 
+   
     //Draw the actor
     listOfActorTemplates[this->actorType].setSpritePosition(position);
     listOfActorTemplates[this->actorType].getActorSprite().setTextureRect(sf::IntRect(spriteXoffset, spriteYoffset, 16, 32));

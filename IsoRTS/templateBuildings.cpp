@@ -23,6 +23,7 @@ templateBuildings::templateBuildings(bool canDoRangedDamage, bool recievesWood, 
     this->textureRect = buildingSprite;
     this->origin = origin;
     this->realBuildingName = realBuildingName;
+    this->bigSpriteYOffset = bigSpriteYOffset;
     if (!this->buildingTexture.loadFromFile(buildingTexture))
     {
         std::cout << "Error loading texture: "<< buildingTexture << std::endl;
@@ -159,7 +160,7 @@ void loadBuildings()
         "textures/house.png",       //std::string             buildingTexture,
         {32,96},                    //cords                   origin
         "Town house",                //std::string             realBuildingName;
-        128
+        128                         //int                     bigSpriteYoffset
     });
 
     //load towncenter
@@ -183,7 +184,7 @@ void loadBuildings()
         "textures/townCenter.png",  //std::string             buildingTexture,
         {96,224},                   //cords                   origin
          "Towncenter",               //std::string             realBuildingName;
-         0
+         0                          //int                     bigSpriteYoffset
         });
 
     //load mill
@@ -207,7 +208,7 @@ void loadBuildings()
         "textures/mill.png",        //std::string             buildingTexture,
         {64,160},                   //cords                   origin
          "Mill",                     //std::string             realBuildingName;
-         384
+         384                        //int                     bigSpriteYoffset
     });
 
     //lumbercamp,
@@ -231,7 +232,7 @@ void loadBuildings()
         "textures/lumbercamp.png",  //std::string             buildingTexture,
         {64,160},                   //cords                   origin
         "Lumbercamp",                //std::string             realBuildingName;
-        256
+        256                         //int                     bigSpriteYoffset
         });
 
     //barracks 4
@@ -255,7 +256,7 @@ void loadBuildings()
         "textures/barracks.png",    //std::string             buildingTexture,
         {64,160},                   //cords                  origin
         "Barracks",                  //std::string             realBuildingName;
-        512
+        512                         //int                     bigSpriteYoffset
         });
     
     //Mining camp stone
@@ -279,7 +280,7 @@ void loadBuildings()
         "textures/miningCamp.png",          //std::string             buildingTexture,
         {64,160} ,                          //cords                   origin
         "Miningcamp",                        //std::string             realBuildingName;
-        640
+        640                                 //int                     bigSpriteYoffset
         });
 
 

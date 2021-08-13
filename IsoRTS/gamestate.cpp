@@ -884,37 +884,46 @@ void gameState::getDefinitiveSelection()
     if (this->mousePressedLeft && !(mouseFakePosition.y > mainWindowHeigth * 0.8f))
     {
         this->selectedUnits.clear();
-        if (!this->rectangleCords.empty())
-        {
-            for (int i = 0; i < this->rectangleCords.size(); i++)
-            {
-                if (this->occupiedByActorList[this->rectangleCords[i].x][this->rectangleCords[i].y] != -1)
-                {
-                    selectedUnits.push_back({ this->occupiedByActorList[this->rectangleCords[i].x][this->rectangleCords[i].y] });
+        sf::IntRect selection;
+
+        if (!(this->startLocation[0] == this->mouseWorldPosition.x && this->startLocation[1] == this->mouseWorldPosition.y)) {
+            //there is a selection box find all actors in this box!
+            selection = static_cast<sf::IntRect>(this->selectionRectangle.getGlobalBounds());
+        } else {
+            //One cordinate was clicked find actor there
+            selection = sf::IntRect(mousePosition.x, mousePosition.y, 1, 1);
+        }
+
+        if(listOfActors.size() > 0){
+            for (const actors& actor : listOfActors) {
+                sf::IntRect result;
+                if (selection.intersects(actor.getLastIntRect(), result)) {
+                    selectedUnits.push_back({ actor.getActorId() });
                 }
             }
-            if (selectedUnits.size() > 1) {
-                //Haal duplicaten eruit
-                sort(selectedUnits.begin(), selectedUnits.end());
-                selectedUnits.erase(unique(selectedUnits.begin(), selectedUnits.end()), selectedUnits.end());
-                //Haal id's eruit die niet in de actor list zitten
-                selectedUnits.erase(std::remove_if(
-                    selectedUnits.begin(), selectedUnits.end(),
-                    [&](const int id) -> bool {
-                        {return (id < 0 || id > listOfActors.size()); }
-                    }),
-                    selectedUnits.end());
+        }
 
-                //haal id's eruit die niet 
-                selectedUnits.erase(std::remove_if(selectedUnits.begin(),
-                    selectedUnits.end(),
-                    [&](const int id) -> bool
-                    {
-                        return listOfActors[id].getTeam() != currentPlayer.getTeam();
-                    }), 
-                    selectedUnits.end());
-            }
+        if (selectedUnits.size() > 1) {
+            //Haal duplicaten eruit
+            sort(selectedUnits.begin(), selectedUnits.end());
+            selectedUnits.erase(unique(selectedUnits.begin(), selectedUnits.end()), selectedUnits.end());
 
+            //Haal id's eruit die niet in de actor list zitten
+            selectedUnits.erase(std::remove_if(
+                selectedUnits.begin(), selectedUnits.end(),
+                [&](const int id) -> bool {
+                    {return (id < 0 || id > listOfActors.size()); }
+                }),
+                selectedUnits.end());
+
+            //haal id's eruit die niet 
+            selectedUnits.erase(std::remove_if(selectedUnits.begin(),
+                selectedUnits.end(),
+                [&](const int id) -> bool
+                {
+                    return listOfActors[id].getTeam() != currentPlayer.getTeam();
+                }),
+                selectedUnits.end());
         }
     }
 }
@@ -1318,7 +1327,7 @@ void gameState::interact()
     if (this->focus)
     {
         this->mouseWorldPosition = toWorldMousePosition(static_cast<int>(this->mousePosition.x), static_cast<int>(this->mousePosition.y));
-        if (mouseFakePosition.x >= 0 && mouseFakePosition.x <= window.getSize().x && mouseFakePosition.y >= 0 && mouseFakePosition.y <= window.getSize().y) {
+        if (mouseFakePosition.x >= 0 && static_cast<int>(mouseFakePosition.x) <= static_cast<int>(window.getSize().x) && mouseFakePosition.y >= 0 && static_cast<int>(mouseFakePosition.y) <= static_cast<int>(window.getSize().y)) {
             edgeScrolling();
         }
     }

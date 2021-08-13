@@ -118,6 +118,7 @@ public:
     int getRangedDMG() const;
     int getTeam() const;
     int getType() const;
+    sf::IntRect getLastIntRect() const;
     cords getGoal() const;
     resourceTypes getResourceGathered() const;
     cords getActorCords() const;
@@ -202,6 +203,7 @@ private:
     std::list <nearestBuildingTile> listOfDropOffLocations;
     std::list <nearestBuildingTile> listOfResourceLocations;
     std::list<orderStack> listOfOrders;
+    sf::IntRect lastIntRect;
 };
 
 extern std::vector<actors> listOfActors;

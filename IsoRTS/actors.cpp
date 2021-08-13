@@ -602,6 +602,11 @@ int actors::getType() const
     return this->actorType;
 }
 
+sf::IntRect actors::getLastIntRect() const
+{
+    return this->lastIntRect;
+}
+
 std::string actors::nameOfActor() const
 {
     switch(this->actorType)
@@ -1788,6 +1793,10 @@ void actors::drawActor()
     listOfActorTemplates[this->actorType].setSpritePosition(position);
     listOfActorTemplates[this->actorType].getActorSprite().setTextureRect(sf::IntRect(spriteXoffset, spriteYoffset, 16, 32));
     window.draw(listOfActorTemplates[this->actorType].getActorSprite());
+
+    //Set last intRect for selection handeling
+
+    this->lastIntRect = static_cast<sf::IntRect>(listOfActorTemplates[this->actorType].getActorSprite().getGlobalBounds());
 
 
     if (drawHealth) {

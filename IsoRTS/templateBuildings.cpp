@@ -24,7 +24,8 @@ templateBuildings::templateBuildings(bool canDoRangedDamage, bool recievesWood, 
     this->origin = origin;
     this->realBuildingName = realBuildingName;
     this->bigSpriteYOffset = bigSpriteYOffset;
-    if (!this->buildingTexture.loadFromFile(buildingTexture))
+
+    if (!Collision::CreateTextureAndBitmask(this->buildingTexture, buildingTexture))
     {
         std::cout << "Error loading texture: "<< buildingTexture << std::endl;
     }

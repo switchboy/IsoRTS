@@ -937,7 +937,7 @@ void gameState::getDefinitiveSelection()
 
         if (listOfActors.size() > 0) {
             if (!(this->startLocation[0] == this->mouseWorldPosition.x && this->startLocation[1] == this->mouseWorldPosition.y)) {
-                //there is a selection box find all actors in this box!
+                //there is a selection box find all actors in this box! (we will use old style intRect collision detection)
                 selection = static_cast<sf::IntRect>(this->selectionRectangle.getGlobalBounds());
                 for (const actors& actor : listOfActors) {
                     sf::IntRect result;

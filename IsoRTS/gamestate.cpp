@@ -968,6 +968,10 @@ void gameState::getDefinitiveSelection()
                 }),
                 selectedUnits.end());
         }
+        if (!this->selectedUnits.empty()) {
+            this->objectSelectedId = -1;
+            this->buildingSelectedId = -1;
+        }
     }
 }
 

@@ -846,12 +846,18 @@ void gameState::clickToSelectObjectOrBuilding()
         int highestTop = 0;
         for (const objects& object : listOfObjects) {
             sf::IntRect result;
+            listOfObjectTemplates[static_cast<uint32_t>(object.getType())].setPosition(worldSpace(object.getLocation()));
+            if (Collision::PixelPerfectTest(listOfObjectTemplates[static_cast<uint32_t>(object.getType())].getSprite(), this->spriteMouseCord, 128)) {
+                this->objectSelectedId = object.getObjectId();
+            }
+            /* Old style detection
             if (selection.intersects(object.getLastIntRect(), result)) {
                 if (object.getLastIntRect().top > highestTop) {
                     this->objectSelectedId = object.getObjectId();
                     highestTop = object.getLastIntRect().top;
                 }
             }
+            */
         }
     }
 }
@@ -929,19 +935,25 @@ void gameState::getDefinitiveSelection()
         this->selectedUnits.clear();
         sf::IntRect selection;
 
-        if (!(this->startLocation[0] == this->mouseWorldPosition.x && this->startLocation[1] == this->mouseWorldPosition.y)) {
-            //there is a selection box find all actors in this box!
-            selection = static_cast<sf::IntRect>(this->selectionRectangle.getGlobalBounds());
-        } else {
-            //One cordinate was clicked find actor there
-            selection = sf::IntRect(mousePosition.x, mousePosition.y, 1, 1);
-        }
-
-        if(listOfActors.size() > 0){
-            for (const actors& actor : listOfActors) {
-                sf::IntRect result;
-                if (selection.intersects(actor.getLastIntRect(), result)) {
-                    selectedUnits.push_back({ actor.getActorId() });
+        if (listOfActors.size() > 0) {
+            if (!(this->startLocation[0] == this->mouseWorldPosition.x && this->startLocation[1] == this->mouseWorldPosition.y)) {
+                //there is a selection box find all actors in this box!
+                selection = static_cast<sf::IntRect>(this->selectionRectangle.getGlobalBounds());
+                for (const actors& actor : listOfActors) {
+                    sf::IntRect result;
+                    if (selection.intersects(actor.getLastIntRect(), result)) {
+                        selectedUnits.push_back({ actor.getActorId() });
+                    }
+                }
+            }
+            else {
+                //One coordinate was clicked find actor there we will be pixel perfect!
+                this->spriteMouseCord.setPosition(mousePosition.x, mousePosition.y);
+                for (const actors& actor : listOfActors) {
+                    listOfActorTemplates[actor.getType()].setSpritePosition(worldSpace(actor.getActorCords()));
+                    if (Collision::PixelPerfectTest(listOfActorTemplates[actor.getType()].getActorSprite(), this->spriteMouseCord, 128)) {
+                        selectedUnits.push_back({ actor.getActorId() });
+                    }
                 }
             }
         }

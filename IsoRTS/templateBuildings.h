@@ -62,7 +62,7 @@ public:
     int                     getBigSpriteYOffset() const;
 
     //setters
-    void                    setSpritePosition(cords position); //actually no longer really needed now getBuildingSprite returns a reference, but it makes life easier since I can feed it a singe cords
+    void                    setSpritePosition(cords position); 
     void                    setSpriteTexture(); //still needed since texture needs to set on sprite AFTER it is in its 'permanent' momory position (once the listOfBuildingTemplates is finished)
 
 private:

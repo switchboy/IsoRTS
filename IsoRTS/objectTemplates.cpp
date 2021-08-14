@@ -9,7 +9,8 @@ objectTemplates::objectTemplates(objectTypes objectId, resourceTypes typeOfResou
     this->spriteOrigin = spriteOrigin;
     this->textureRect = textureRect;
     this->objectBigSpriteYOffset = objectBigSpriteYOffset;
-    if (!this->texture.loadFromFile(texture))
+
+    if (!Collision::CreateTextureAndBitmask(this->texture, texture))
     {
         std::cout << "Error loading texture: " << texture << std::endl;
     }
@@ -65,6 +66,11 @@ void objectTemplates::setTexture()
     this->sprite.setTexture(this->texture);
     this->sprite.setTextureRect(sf::IntRect(0, 0, this->textureRect.x, this->textureRect.y));
     this->sprite.setOrigin(static_cast<float>(this->spriteOrigin.x), static_cast<float>(this->spriteOrigin.y));
+}
+
+void objectTemplates::setPosition(cords position)
+{
+    this->sprite.setPosition(static_cast<float>(position.x), static_cast<float>(position.y));
 }
 
 int getObjectBigSpriteYOffset(int objectId)

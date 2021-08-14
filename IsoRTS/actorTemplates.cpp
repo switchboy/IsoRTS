@@ -18,7 +18,8 @@ actorTemplates::actorTemplates(actorNames actorId, bool doesRangedDamage, float 
     this->priceOfActor = priceOfActor;
     this->realActorName = realActorName;
     this->bigSpriteYOffset = bigSpriteYOffset;
-    if (!this->actorTexture.loadFromFile(actorTexture))
+
+    if (!Collision::CreateTextureAndBitmask(this->actorTexture, actorTexture))
     {
         std::cout << "Error loading texture: " << actorTexture << std::endl;
     }

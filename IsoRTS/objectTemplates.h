@@ -3,6 +3,7 @@
 #include "humanReadableNames.h"
 #include "objects.h"
 #include <SFML/Graphics.hpp>
+#include "collision.h"
 
 
 
@@ -30,6 +31,7 @@ public:
     int                     getObjectBigSpriteYOffset() const;
     sf::Texture             getTexture();
     void                    setTexture();
+    void                    setPosition(cords position);
 
 private:
     objectTypes             objectId;

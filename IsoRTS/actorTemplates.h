@@ -2,6 +2,7 @@
 #include "globalfunctions.h"
 #include <vector>
 #include <SFML/Graphics.hpp>
+#include "collision.h"
 
 
 enum class actorNames : uint32_t {

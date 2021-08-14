@@ -145,7 +145,7 @@ namespace
     }
 }
 
-void updateCells(int goalId, int startId, std::vector<Cells>& cellsList)
+void updateCells(int goalId, int startId, std::vector<Cells>& cellsList, bool cantPassActors)
 {
     int n = 0;
     for (int i = 0; i < MAP_WIDTH; i++)
@@ -159,7 +159,10 @@ void updateCells(int goalId, int startId, std::vector<Cells>& cellsList)
             {
                 cellsList[n].obstacle = false;
             }
-            else if (!currentGame.isPassableButMightHaveActor({ i, j }))
+            else if (cantPassActors && !currentGame.isPassable({ i, j })) {
+                cellsList[n].obstacle = true;
+            }
+            else if(!currentGame.isPassableButMightHaveActor({ i, j }))
             {
                 cellsList[n].obstacle = true;
             }
@@ -332,6 +335,8 @@ actors::actors(int type, cords location, int actorTeam, int actorId)
     this->doesRangedDamage = listOfActorTemplates[type].getDoesRangedDamage();
     this->rateOfFire = listOfActorTemplates[type].getRateOfFire();
     this->timeToCrossOneTile = listOfActorTemplates[type].getTimeToCrossOneTile();
+    this->isWalkingBackXYDrawOverride.isActive = false;
+    this->isWalkingToMiddleOfSquare = false;
 }
 
 actors::~actors()
@@ -374,12 +379,37 @@ void actors::chaseTarget() {
     }
 }
 
+void actors::walkBackAfterAbortedCommand() {
+    float timeSinceWalkingBackStarted = currentGame.getTime() - this->dataOnPositionAbortedWalk.timeWalkingBackStarted;
+    if (this->dataOnPositionAbortedWalk.timePassedSinceChangingOffset > timeSinceWalkingBackStarted) {
+        //actor is still walking back so calculate new XY after putting him in the right orientation
+        if (actorOrientation(this->dataOnPositionAbortedWalk.nPosition.x, this->dataOnPositionAbortedWalk.nPosition.y, this->dataOnPositionAbortedWalk.position.x, this->dataOnPositionAbortedWalk.position.y) == this->orientation) {
+            float deltaXCompleted = this->dataOnPositionAbortedWalk.startDeltaX * ((this->dataOnPositionAbortedWalk.timePassedSinceChangingOffset - timeSinceWalkingBackStarted) * this->dataOnPositionAbortedWalk.speedMultiplier);
+            float deltaYCompleted = this->dataOnPositionAbortedWalk.startDeltaY * ((this->dataOnPositionAbortedWalk.timePassedSinceChangingOffset - timeSinceWalkingBackStarted) * this->dataOnPositionAbortedWalk.speedMultiplier);
+            this->isWalkingBackXYDrawOverride.isActive = true;
+            this->isWalkingBackXYDrawOverride.newXY = { this->dataOnPositionAbortedWalk.position.x - static_cast<int>(deltaXCompleted),  this->dataOnPositionAbortedWalk.position.y - static_cast<int>(deltaYCompleted) };
+            this->busyWalking = true;
+        }
+        else {
+            this->orientation = newOrientation(this->orientation, actorOrientation(this->dataOnPositionAbortedWalk.nPosition.x, this->dataOnPositionAbortedWalk.nPosition.y, this->dataOnPositionAbortedWalk.position.x, this->dataOnPositionAbortedWalk.position.y));
+        }
+    } else {
+        //actor is done
+        this->isWalkingToMiddleOfSquare = false;
+        this->isWalkingBackXYDrawOverride.isActive = false;
+        this->busyWalking = false;
+    }
+}
+
 void actors::update()
 {
     if (this->actorAlive)
     {
         if (this->isIdle) {
             doNextStackedCommand();
+        }
+        else if (this->isWalkingToMiddleOfSquare) {
+            walkBackAfterAbortedCommand();
         }
         else {
             if ((this->isMeleeAttacking || this->isRangedAttacking)) {
@@ -623,10 +653,21 @@ std::string actors::nameOfActor() const
 
 void actors::updateGoal(cords location, int waitTime)
 {
+
     //check if values are in bounds
-    if(location.x >= 0 && location.x < MAP_WIDTH && location.y >= 0 && location.y < MAP_HEIGHT)
+    if (location.x >= 0 && location.x < MAP_WIDTH && location.y >= 0 && location.y < MAP_HEIGHT)
     {
-        if(this->buildingId != -1)
+        if (this->busyWalking) {
+            this->isWalkingToMiddleOfSquare = true;
+            this->dataOnPositionAbortedWalk = {
+                currentGame.getTime() - this->timeLastUpdate,
+                currentGame.getTime(),
+                worldSpace({ this->actorCords.x,this->actorCords.y }),
+                worldSpace({ this->actorGoal.x, this->actorGoal.y }),
+                1.f / this->timeToCrossOneTile
+            };
+        }
+        if (this->buildingId != -1)
         {
             listOfBuildings[this->buildingId].removeActorFromBuildingTile(this->actorId);
         }
@@ -646,6 +687,7 @@ void actors::updateGoal(cords location, int waitTime)
         this->timeStartedGatheringRecource = 0.0f;
         this->isFindingAlternative = false;
         this->isIdle = false;
+        this->lastTile = false;
     }
 }
 
@@ -745,30 +787,43 @@ void actors::retryWalkingOrChangeGoal() {
 }
 
 void actors::walkToNextSquare() {
+    this->lastTile = false;
     // Deze actor heeft een doel, dit doel is nog niet bereikt en is klaar met het vorige stuk lopen!
     if (actorOrientation(this->actorCords.x, this->actorCords.y, this->route.back().position.x, this->route.back().position.y) == this->orientation)
     {
-        if ((this->isGatheringRecources || this->isMeleeAttacking) && this->route.size() == 1)
-        {
+        if ((this->isGatheringRecources || this->isMeleeAttacking)&& this->route.size() == 1){
             //if (!this->isWalkingToUnloadingPoint) {
                 this->clearRoute();
-            //}
-        }
-        else if (this->isRangedAttacking && distEuclidean(this->actorCords.x, this->actorCords.y, this->actorGoal.x, this->actorGoal.y) <= this->range)
+        } else if ((this->isGatheringRecources || this->isMeleeAttacking) && this->route.size() == 2) {
+                if (!currentGame.occupiedByActorList[this->route.back().position.x][this->route.back().position.y].empty()) {
+                    this->lastTile = true;
+                    this->retryWalkingOrChangeGoal();
+                }
+                else {
+                    this->listOfTargetsToRejectUntilSuccesfullMovement.clear();
+                    this->startWalking();
+                }
+        } else if (this->isRangedAttacking && distEuclidean(this->actorCords.x, this->actorCords.y, this->actorGoal.x, this->actorGoal.y) <= this->range)
         {
             this->clearRoute();
         }
-        else
-        {
-            //De actor staat met zijn neus de goede kant op en kan dus gaan lopen als de tegel vrij is!
-            //if (currentGame.occupiedByActorList[this->route.back().position.x][this->route.back().position.y] == -1)
-            //{
+        else {
+            //De actor staat met zijn neus de goede kant op en kan dus gaan lope
+            if (this->route.size() == 1) {
+                //De laatste tegel van een route moet wel vrij zijn
+                if (!currentGame.occupiedByActorList[this->route.back().position.x][this->route.back().position.y].empty()) {
+                    this->lastTile = true;
+                    this->retryWalkingOrChangeGoal();
+                }
+                else {
+                    this->listOfTargetsToRejectUntilSuccesfullMovement.clear();
+                    this->startWalking();
+                }
+            }
+            else {
                 this->listOfTargetsToRejectUntilSuccesfullMovement.clear();
                 this->startWalking();
-            //}
-            //else {
-               // this->retryWalkingOrChangeGoal();
-            //}
+            }
         }
     }
     else
@@ -1322,7 +1377,7 @@ void actors::pathAStar()
     cellsList.reserve(MAP_HEIGHT*MAP_WIDTH);
     int startCell = (actorCords.x*MAP_HEIGHT)+actorCords.y; //eigen positie
     int endCell = (actorGoal.x*MAP_HEIGHT)+actorGoal.y; //doel positie
-    updateCells(endCell, startCell, cellsList);
+    updateCells(endCell, startCell, cellsList, this->lastTile);
     std::list<Cells*> listToCheck;
     std::list<Cells*> checkedList;
     bool endReached = false;
@@ -1758,6 +1813,10 @@ void actors::drawActor()
         break;
     }
     position = { position.x + static_cast<int>(this->offSetX), position.y + static_cast<int>(this->offSetY) };
+
+    if (this->isWalkingBackXYDrawOverride.isActive) {
+        position = this->isWalkingBackXYDrawOverride.newXY;
+    }
 
     bool drawHealth = false;
 

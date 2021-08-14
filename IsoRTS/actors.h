@@ -62,6 +62,25 @@ struct orderStack
     stackOrderTypes orderType;
 };
 
+struct unfinischedWalking {
+    float timePassedSinceChangingOffset;
+    float timeWalkingBackStarted;
+    cords position;
+    cords nPosition;
+    float speedMultiplier;
+
+    //calculations
+    int startDeltaX = position.x - nPosition.x;
+    int startDeltaY = position.y - nPosition.y;
+    float deltaXCompleted = startDeltaX * (this->timePassedSinceChangingOffset * this->speedMultiplier);
+    float deltaYCompleted = startDeltaY * (this->timePassedSinceChangingOffset * this->speedMultiplier);
+};
+
+struct drawXYOverride {
+    bool isActive;
+    cords newXY;
+};
+
 class actors
 {
 public:
@@ -106,6 +125,7 @@ public:
     void updateGoalPath();
     void walkBackToOwnSquare();
     void walkToNextSquare();
+    void walkBackAfterAbortedCommand();
 
     bool getIsBuilding() const;
     bool idle() const;
@@ -131,6 +151,8 @@ public:
     void setIsDoingAttack();
 
 private:
+    bool isWalkingToMiddleOfSquare;
+    bool lastTile;
     bool actorAlive;
     bool doesRangedDamage;
     bool busyWalking;
@@ -186,6 +208,7 @@ private:
     int projectileType;
     int waitForAmountOfFrames;
     int rateOfFire;
+    float timePassedSinceChangingOffset;
     float timeStartedGatheringRecource;
     float timeLastOffsetChange;
     float timeLastUpdate;
@@ -197,6 +220,8 @@ private:
     float timeBetweenShots;
     float timeLastRetry;
     float timeToCrossOneTile;
+    drawXYOverride isWalkingBackXYDrawOverride;
+    unfinischedWalking dataOnPositionAbortedWalk;
     nearestBuildingTile dropOffTile;
     std::list<cords> listOfTargetsToRejectUntilSuccesfullMovement;
     std::list<routeCell> route;
@@ -209,7 +234,7 @@ private:
 extern std::vector<actors> listOfActors;
 extern std::vector<int>    listOfActorsWhoNeedAPath;
 
-extern void                updateCells(int goalId, int startId, std::vector<Cells>& cellsList);
+extern void                updateCells(int goalId, int startId, std::vector<Cells>& cellsList, bool cantPassActors);
 extern nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId);
 
 #endif // ACTORS_H

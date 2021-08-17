@@ -12,6 +12,7 @@ enum class buildingNames : uint32_t {
     barracks,
     miningcampstone,
     miningcampgold,
+    wall
 };
 
 class templateBuildings
@@ -37,7 +38,8 @@ public:
     std::string             buildingTexture, 
     cords                   origin,
     std::string             realBuildingName,
-    int                     bigSpriteYOffset
+    int                     bigSpriteYOffset,
+    bool                    isWall
     );
 
     //Getters
@@ -46,6 +48,7 @@ public:
     bool                    getRecievesStone() const;
     bool                    getRecievesGold() const;
     bool                    getRecievesFood() const;
+    bool                    getIsWall() const;
     buildingNames           getIdOfBuilding() const;
     int                     getHitPointsTotal() const;
     int                     getAmountOfRangedDamage() const;
@@ -71,6 +74,7 @@ private:
     bool                    recievesStone;
     bool                    recievesGold;
     bool                    recievesFood;
+    bool                    isWall;
     buildingNames           idOfBuilding;
     int                     hitPointsTotal;
     int                     amountOfRangedDamage;

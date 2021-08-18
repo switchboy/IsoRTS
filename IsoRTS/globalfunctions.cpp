@@ -157,12 +157,12 @@ std::list<cords> bresenham(cords first, cords second) {
             }
         }
         if (startWithX) {
-            mapPointsCrossed.push_back({ S,O });
+            mapPointsCrossed.push_back({ S, O });
         }
         else {
-            mapPointsCrossed.push_back({ O,S });
+            mapPointsCrossed.push_back({ O, S });
         }
-        while (S <= End)
+        while (S < End)
         {
             S++;
             if (P < 0)
@@ -175,10 +175,10 @@ std::list<cords> bresenham(cords first, cords second) {
                 else
                     O--;
             }
-            if (startWithX == true)
-                mapPointsCrossed.push_back({ S,O });
+            if (startWithX)
+                mapPointsCrossed.push_back({ S, O });
             else
-                mapPointsCrossed.push_back({ O,S });
+                mapPointsCrossed.push_back({ O, S });
         }
     }
     else {

@@ -440,7 +440,7 @@ void buildings::setRallyPoint(cords goal, stackOrderTypes orderType)
 
 void buildings::drawBuildingFootprint(int type, cords mouseWorld)
 {
-    if (!listOfBuildingTemplates[type].getIsWall() && currentGame.getFirstWallClick().x == -1) {
+    if (!listOfBuildingTemplates[type].getIsWall() || currentGame.getFirstWallClick().x == -1) {
         if (!(mouseWorld.x - listOfBuildingTemplates[type].getBuildingFootprint().amountOfXFootprint < -1) && !(mouseWorld.y - listOfBuildingTemplates[type].getBuildingFootprint().amountOfYFootprint < -1) && !(mouseWorld.x >= MAP_WIDTH) && !(mouseWorld.y >= MAP_HEIGHT))
         {
             drawBuilding(mouseWorld.x, mouseWorld.y, type, true);
@@ -469,24 +469,18 @@ void buildings::drawBuildingFootprint(int type, cords mouseWorld)
         std::list<cords> listOfWallTilesToDraw = bresenham(currentGame.getFirstWallClick(), mouseWorld);
         for (cords& wallTile : listOfWallTilesToDraw) {
             drawBuilding(wallTile.x, wallTile.y, type, true);
-            for (int i = 0; i < listOfBuildingTemplates[type].getBuildingFootprint().amountOfXFootprint; i++)
+            if (
+                currentGame.occupiedByBuildingList[wallTile.x][wallTile.y] != -1 ||
+                currentGame.objectLocationList[wallTile.x][wallTile.y] != -1 ||
+                (!currentGame.occupiedByActorList[wallTile.x][wallTile.y].empty()) ||
+                currentGame.currentMap[wallTile.x][wallTile.y] == 7
+            )
             {
-                for (int j = 0; j < listOfBuildingTemplates[type].getBuildingFootprint().amountOfYFootprint; j++)
-                {
-                    if (
-                        currentGame.occupiedByBuildingList[wallTile.x - i][wallTile.y - j] != -1 ||
-                        currentGame.objectLocationList[wallTile.x - i][wallTile.y - j] != -1 ||
-                        (!currentGame.occupiedByActorList[wallTile.x - i][wallTile.y - j].empty()) ||
-                        currentGame.currentMap[wallTile.x - i][wallTile.y - j] == 7
-                        )
-                    {
-                        currentGame.drawMousePosition(wallTile.x - i, wallTile.y - j, false);
-                    }
-                    else
-                    {
-                        currentGame.drawMousePosition(wallTile.x - i, wallTile.y - j, true);
-                    }
-                }
+                currentGame.drawMousePosition(wallTile.x, wallTile.y, false);
+            }
+            else
+            {
+                currentGame.drawMousePosition(wallTile.x, wallTile.y, true);
             }
         }
     }

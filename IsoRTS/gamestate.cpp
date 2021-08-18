@@ -920,7 +920,7 @@ void gameState::clickToSelectObjectOrBuilding()
 {
     this->objectSelectedId = -1;
     this->buildingSelectedId = -1;
-    sf::IntRect selection = sf::IntRect(mousePosition.x, mousePosition.y, 1, 1);
+    //sf::IntRect selection = sf::IntRect(static_cast<int>(mousePosition.x), static_cast<int>(mousePosition.y), 1, 1);
     this->spriteMouseCord.setPosition(mousePosition.x, mousePosition.y);
 
     if (listOfBuildings.size() > 0) {

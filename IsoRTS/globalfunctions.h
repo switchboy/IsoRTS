@@ -43,7 +43,7 @@ bool sortCordByX(const cords& lhs, const cords& rhs);
 cords worldSpace(cords location);
 cords miniMapSpace(cords location);
 std::list<cords> getListOfCordsInCircle(int startX, int startY, int r);
-
+std::list<cords> bresenham(cords first, cords second);
 double dist(double x1, double y1, double x2, double y2);
 double distEuclidean(double x1, double y1, double x2, double y2);
 cords toWorldMousePosition(int mouseX, int mouseY);

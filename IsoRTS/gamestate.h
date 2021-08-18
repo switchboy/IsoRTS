@@ -182,7 +182,7 @@ private:
     int startLocation[2];
     int startMouseCords[2];
     int toolBarWidth;
-
+    cords firstWallClick = { -1,-1 };
     cords mouseWorldPosition;
     sf::Event event;
     std::vector<int> selectedUnits;

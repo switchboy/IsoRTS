@@ -144,7 +144,7 @@ int templateBuildings::getBigSpriteYOffset() const
 
 bool templateBuildings::getIsWall() const
 {
-    return false;
+    return this->isWall;
 }
 
 void loadBuildings()
@@ -323,6 +323,31 @@ void loadBuildings()
         "Miningcamp",                           //std::string             realBuildingName;
         640 ,                                   //int                     bigSpriteYoffset
         false                                   //bool                   isWall
+        });
+
+    //Wall
+    listOfBuildingTemplates.push_back({
+        false,                                  //bool                    canDoRangedDamage,
+        false,                                  //bool                    recievesWood,
+        false,                                  //bool                    recievesStone,
+        false,                                  //bool                    recievesGold,
+        false,                                  //bool                    recievesFood,
+        buildingNames::wall,                    //buildingNames           idOfBuilding,
+        750,                                    //int                     hitPointsTotal,
+        0,                                      //int                     amountOfRangedDamage,
+        0,                                      //int                     range,
+        10,                                     //int                     buildingPointsNeeded,
+        0,                                      //int                     supportsPopulationOf,
+        1,                                      //int                     offSetYStore,
+        0,                                      //int                     amountOfAnimationSprites,
+        { 0,0,5,0 },                            //actorOrBuildingPrice    priceOfBuilding, food, wood, stone, gold
+        { 1,1 },                                //footprintOfBuilding     buildingFootprint,
+        {64,96},                                //cords                   buildingSprite,
+        "textures/wall.png",                    //std::string             buildingTexture,
+        {0,64},                                //cords                   origin
+        "Wall",                                //std::string             realBuildingName;
+        640,                                   //int                     bigSpriteYoffset
+        true                                   //bool                   isWall
         });
 
 

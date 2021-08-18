@@ -105,6 +105,11 @@ void button::showToolTip() const
         toolTipText << "Cost: Food: " << listOfBuildingTemplates[5].getPriceOfBuilding().food << " Wood: " << listOfBuildingTemplates[5].getPriceOfBuilding().wood << " Stone: " << listOfBuildingTemplates[5].getPriceOfBuilding().stone << " Gold: " << listOfBuildingTemplates[5].getPriceOfBuilding().gold;
         toolTipDiscription << "Collection point for gold and stone and research new mining abilities";
         break;
+    case actionTypes::actionBuildWall:
+        toolTipTitle << "Build Wall";
+        toolTipText << "Cost: Food: " << listOfBuildingTemplates[7].getPriceOfBuilding().food << " Wood: " << listOfBuildingTemplates[7].getPriceOfBuilding().wood << " Stone: " << listOfBuildingTemplates[7].getPriceOfBuilding().stone << " Gold: " << listOfBuildingTemplates[7].getPriceOfBuilding().gold;
+        toolTipDiscription << "Collection point for gold and stone and research new mining abilities";
+        break;
     }
 
     int longestStringLength = 0;
@@ -278,6 +283,19 @@ void button::performAction()
             gameText.addNewMessage(errortext.str(), 1);
         }
         break;
+    case actionTypes::actionBuildWall:
+        if (listOfBuildingTemplates[7].getPriceOfBuilding().food <= currentPlayer.getStats().amountOfFood && listOfBuildingTemplates[7].getPriceOfBuilding().wood <= currentPlayer.getStats().amountOfWood && listOfBuildingTemplates[7].getPriceOfBuilding().stone <= currentPlayer.getStats().amountOfStone && listOfBuildingTemplates[7].getPriceOfBuilding().gold <= currentPlayer.getStats().amountOfGold)
+        {
+            currentGame.setBuildingType(7);
+            currentGame.setIsPlacingBuilding();
+        }
+        else
+        {
+            std::stringstream errortext;
+            errortext << "Not enough resources to build a wall! Cost Food: " << listOfBuildingTemplates[7].getPriceOfBuilding().food << " Wood: " << listOfBuildingTemplates[7].getPriceOfBuilding().wood << " Stone: " << listOfBuildingTemplates[7].getPriceOfBuilding().stone << " Gold: " << listOfBuildingTemplates[7].getPriceOfBuilding().gold;
+            gameText.addNewMessage(errortext.str(), 1);
+        }
+        break;
     }
 }
 
@@ -322,6 +340,10 @@ void button::drawButton() const
     case spriteTypes::spriteMiningCamp: //Mining Camp
         xOffSet = 0;
         yOffset = 320;
+        break;
+    case spriteTypes::spriteWall: //wall
+        xOffSet = 0;
+        yOffset = 384;
         break;
     }
     currentGame.spriteUIButton.setTextureRect(sf::IntRect(xOffSet, yOffset, 64, 64));

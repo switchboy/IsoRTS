@@ -32,7 +32,8 @@ enum class spriteTypes
     spriteLumberCamp,
     spriteBarracks,
     spriteSwordsman,
-    spriteMiningCamp
+    spriteMiningCamp,
+    spriteWall
 };
 
 enum class actionTypes
@@ -47,7 +48,8 @@ enum class actionTypes
     actionBuildLumberCamp,
     actionBuildBarracks,
     actionMakeSwordsman,
-    actionBuildMiningCamp
+    actionBuildMiningCamp,
+    actionBuildWall
 };
 
 enum class stackOrderTypes

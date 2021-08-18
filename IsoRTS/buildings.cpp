@@ -466,21 +466,21 @@ void buildings::drawBuildingFootprint(int type, cords mouseWorld)
         }
     }
     else {
-        std::list<cords> listOfWallTilesToDraw = bresenham(currentGame.getFirstWallClick(), mouseWorld);
+        std::list<cords> listOfWallTilesToDraw = bresenham(mouseWorld, currentGame.getFirstWallClick());
         for (cords& wallTile : listOfWallTilesToDraw) {
             drawBuilding(wallTile.x, wallTile.y, type, true);
-            if (
-                currentGame.occupiedByBuildingList[wallTile.x][wallTile.y] != -1 ||
-                currentGame.objectLocationList[wallTile.x][wallTile.y] != -1 ||
-                (!currentGame.occupiedByActorList[wallTile.x][wallTile.y].empty()) ||
-                currentGame.currentMap[wallTile.x][wallTile.y] == 7
-            )
-            {
-                currentGame.drawMousePosition(wallTile.x, wallTile.y, false);
-            }
-            else
-            {
-                currentGame.drawMousePosition(wallTile.x, wallTile.y, true);
+            if (wallTile.x > 0 && wallTile.x < MAP_WIDTH && wallTile.y >0 && wallTile.y < MAP_HEIGHT) {
+                if (
+                    currentGame.occupiedByBuildingList[wallTile.x][wallTile.y] != -1 ||
+                    currentGame.objectLocationList[wallTile.x][wallTile.y] != -1 ||
+                    (!currentGame.occupiedByActorList[wallTile.x][wallTile.y].empty()) ||
+                    currentGame.currentMap[wallTile.x][wallTile.y] == 7
+                    ) {
+                    currentGame.drawMousePosition(wallTile.x, wallTile.y, false);
+                }
+                else {
+                    currentGame.drawMousePosition(wallTile.x, wallTile.y, true);
+                }
             }
         }
     }

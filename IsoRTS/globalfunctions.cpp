@@ -134,7 +134,7 @@ std::list<cords> bresenham(cords first, cords second) {
             else
             {
                 S = first.x;
-                O = second.y;
+                O = first.y;
                 End = second.x;
             }
         }
@@ -170,20 +170,36 @@ std::list<cords> bresenham(cords first, cords second) {
             else
             {
                 P = P + pInc;
-                if (slope > 0.0)
+                if (slope > 0.0) {
                     O++;
-                else
+                }
+                else {
                     O--;
+                }
             }
-            if (startWithX)
+            if (startWithX) {
                 mapPointsCrossed.push_back({ S, O });
-            else
+            }
+            else {
                 mapPointsCrossed.push_back({ O, S });
+            }
         }
     }
     else {
-        //Slope Infinite, clicked the same spot?
-        mapPointsCrossed.push_back(first);
+        //Slope Infinite, clicked the same spot? Or up and down in Y plane without X increase?;
+        int start = 0;
+        int stop = 0;
+        if (first.y < second.y) {
+            start = first.y;
+            stop = second.y;
+        }
+        else {
+            stop = first.y;
+            start = second.y;
+        }
+        for (int i = start; i <= stop; i++) {
+            mapPointsCrossed.push_back({first.x, i});
+        }
     }
     return mapPointsCrossed;
 }

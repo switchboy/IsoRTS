@@ -1403,6 +1403,7 @@ void gameState::mouseRightClick()
 {
     this->rectangleCords.clear();
     this->mousePressedRight = true;
+    this->firstWallClick = { -1,-1 };
     if (mouseFakePosition.y > mainWindowHeigth * 0.8f)
     {
         this->clickToGiveMinimapCommand();

@@ -875,6 +875,7 @@ void gameState::clickToPlaceBuilding() {
                         " Gold: " << listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().gold * mapPointsCrossed.size();
                     gameText.addNewMessage(errortext.str(), 1);
                 }
+                this->firstWallClick = { -1, -1 };
             }
         }
         else {
@@ -1641,6 +1642,11 @@ void gameState::selectUnit(int id)
 void gameState::setObjectsHaveChanged()
 {
     this->objectsChanged = true;
+}
+
+cords gameState::getFirstWallClick() const
+{
+    return this->firstWallClick;
 }
 
 void gameState::drawMouseInteraction()

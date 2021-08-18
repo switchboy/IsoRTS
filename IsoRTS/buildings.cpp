@@ -440,25 +440,52 @@ void buildings::setRallyPoint(cords goal, stackOrderTypes orderType)
 
 void buildings::drawBuildingFootprint(int type, cords mouseWorld)
 {
-    if(!(mouseWorld.x- listOfBuildingTemplates[type].getBuildingFootprint().amountOfXFootprint < -1) && !(mouseWorld.y- listOfBuildingTemplates[type].getBuildingFootprint().amountOfYFootprint < -1) && !(mouseWorld.x >= MAP_WIDTH) && !(mouseWorld.y >= MAP_HEIGHT))
-    {
-        drawBuilding(mouseWorld.x, mouseWorld.y, type, true);
-        for(int i = 0; i < listOfBuildingTemplates[type].getBuildingFootprint().amountOfXFootprint; i++)
+    if (!listOfBuildingTemplates[type].getIsWall() && currentGame.getFirstWallClick().x == -1) {
+        if (!(mouseWorld.x - listOfBuildingTemplates[type].getBuildingFootprint().amountOfXFootprint < -1) && !(mouseWorld.y - listOfBuildingTemplates[type].getBuildingFootprint().amountOfYFootprint < -1) && !(mouseWorld.x >= MAP_WIDTH) && !(mouseWorld.y >= MAP_HEIGHT))
         {
-            for(int j = 0; j < listOfBuildingTemplates[type].getBuildingFootprint().amountOfYFootprint; j++)
+            drawBuilding(mouseWorld.x, mouseWorld.y, type, true);
+            for (int i = 0; i < listOfBuildingTemplates[type].getBuildingFootprint().amountOfXFootprint; i++)
             {
-                if(
-                    currentGame.occupiedByBuildingList[mouseWorld.x-i][mouseWorld.y-j] != -1 ||
-                    currentGame.objectLocationList[mouseWorld.x - i][mouseWorld.y - j] != -1 ||
-                    (!currentGame.occupiedByActorList[mouseWorld.x - i][mouseWorld.y - j].empty()) ||
-                    currentGame.currentMap[mouseWorld.x - i][mouseWorld.y - j] == 7
-                    )
+                for (int j = 0; j < listOfBuildingTemplates[type].getBuildingFootprint().amountOfYFootprint; j++)
                 {
-                    currentGame.drawMousePosition(mouseWorld.x-i, mouseWorld.y-j, false);
+                    if (
+                        currentGame.occupiedByBuildingList[mouseWorld.x - i][mouseWorld.y - j] != -1 ||
+                        currentGame.objectLocationList[mouseWorld.x - i][mouseWorld.y - j] != -1 ||
+                        (!currentGame.occupiedByActorList[mouseWorld.x - i][mouseWorld.y - j].empty()) ||
+                        currentGame.currentMap[mouseWorld.x - i][mouseWorld.y - j] == 7
+                        )
+                    {
+                        currentGame.drawMousePosition(mouseWorld.x - i, mouseWorld.y - j, false);
+                    }
+                    else
+                    {
+                        currentGame.drawMousePosition(mouseWorld.x - i, mouseWorld.y - j, true);
+                    }
                 }
-                else
+            }
+        }
+    }
+    else {
+        std::list<cords> listOfWallTilesToDraw = bresenham(currentGame.getFirstWallClick(), mouseWorld);
+        for (cords& wallTile : listOfWallTilesToDraw) {
+            drawBuilding(wallTile.x, wallTile.y, type, true);
+            for (int i = 0; i < listOfBuildingTemplates[type].getBuildingFootprint().amountOfXFootprint; i++)
+            {
+                for (int j = 0; j < listOfBuildingTemplates[type].getBuildingFootprint().amountOfYFootprint; j++)
                 {
-                    currentGame.drawMousePosition(mouseWorld.x-i, mouseWorld.y-j, true);
+                    if (
+                        currentGame.occupiedByBuildingList[wallTile.x - i][wallTile.y - j] != -1 ||
+                        currentGame.objectLocationList[wallTile.x - i][wallTile.y - j] != -1 ||
+                        (!currentGame.occupiedByActorList[wallTile.x - i][wallTile.y - j].empty()) ||
+                        currentGame.currentMap[wallTile.x - i][wallTile.y - j] == 7
+                        )
+                    {
+                        currentGame.drawMousePosition(wallTile.x - i, wallTile.y - j, false);
+                    }
+                    else
+                    {
+                        currentGame.drawMousePosition(wallTile.x - i, wallTile.y - j, true);
+                    }
                 }
             }
         }

@@ -108,11 +108,10 @@ public:
     void orderRallyPoint() const;
     void selectUnit(int id);
     void setObjectsHaveChanged();
-
+    cords getFirstWallClick() const;
     cords getNextCord(cords pos);
     float getTime() const;
     int   getPlayerCount() const;
-
     void setBuildingType(int id);
     void setDefaultValues();
     void setIsPlacingBuilding();

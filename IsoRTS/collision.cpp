@@ -6,6 +6,7 @@
 #include <map>
 #include "Collision.h"
 #include <iostream>
+#include "globalFunctions.h"
 
 namespace Collision
 {
@@ -58,13 +59,29 @@ namespace Collision
 
 	BitmaskManager Bitmasks;
 
+	bool singlePixelTest(const sf::Sprite& Object1, sf::Vector2f& mousePosition, sf::Uint8 AlphaLimit) {
+		if (Object1.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
+			sf::IntRect O1SubRect = Object1.getTextureRect();
+			sf::Uint8* mask1 = Bitmasks.GetMask(Object1.getTexture());
+
+			sf::Vector2f o1v = Object1.getInverseTransform().transformPoint(mousePosition.x, mousePosition.y);
+			// Make sure pixels fall within the sprite's subrect
+			if (o1v.x > 0 && o1v.y > 0 && o1v.x < O1SubRect.width && o1v.y < O1SubRect.height) {
+				if (Bitmasks.GetPixel(mask1, Object1.getTexture(), (int)(o1v.x) + O1SubRect.left, (int)(o1v.y) + O1SubRect.top) > AlphaLimit) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	bool PixelPerfectTest(const sf::Sprite& Object1, const sf::Sprite& Object2, sf::Uint8 AlphaLimit) {
 		sf::FloatRect Intersection;
-		//std::cout << Object1.getPosition().x << " - " << Object1.getPosition().y << " O2:" << Object2.getPosition().x << " - " << Object2.getPosition().y << std::endl;
+		std::cout << "trying to collide: O1:" << Object1.getPosition().x << " - " << Object1.getPosition().y << " O2:" << Object2.getPosition().x << " - " << Object2.getPosition().y << std::endl;
 		if (Object1.getGlobalBounds().intersects(Object2.getGlobalBounds(), Intersection)) {
 			sf::IntRect O1SubRect = Object1.getTextureRect();
 			sf::IntRect O2SubRect = Object2.getTextureRect();
-
+			std::cout << std::endl << std::endl << std::endl << "!!there is overlap lets see if it is pixel perfect!!" << std::endl << std::endl << std::endl;
 			sf::Uint8* mask1 = Bitmasks.GetMask(Object1.getTexture());
 			sf::Uint8* mask2 = Bitmasks.GetMask(Object2.getTexture());
 
@@ -190,3 +207,4 @@ namespace Collision
 		return true;
 	}
 }
+

@@ -829,28 +829,44 @@ void gameState::clickToSelectObjectOrBuilding()
 {
     this->objectSelectedId = -1;
     this->buildingSelectedId = -1;
-    sf::IntRect selection = sf::IntRect(mousePosition.x, mousePosition.y, 1, 1);
-    this->spriteMouseCord.setPosition(mousePosition.x, mousePosition.y);
+    //sf::IntRect selection = sf::IntRect(mousePosition.x, mousePosition.y, 1, 1);
+    this->spriteMouseCord.setPosition(static_cast<float>(round(mousePosition.x)), static_cast<float>(round(mousePosition.y)));
 
     if (listOfBuildings.size() > 0) {
         //Check if a bulding is clicked
         for (const buildings& building : listOfBuildings) {
             listOfBuildingTemplates[building.getType()].setSpritePosition(worldSpace(building.getLocation()));
-            if (Collision::PixelPerfectTest(listOfBuildingTemplates[building.getType()].getBuildingSprite(), this->spriteMouseCord, 128)) {
+            //using a pixel cord
+            if (Collision::singlePixelTest(listOfBuildingTemplates[building.getType()].getBuildingSprite(), mousePosition, 128)) {
                 this->buildingSelectedId = building.getBuildingId();
             }
+
+
+
+            /*/if (Collision::PixelPerfectTest(listOfBuildingTemplates[building.getType()].getBuildingSprite(), this->spriteMouseCord, 128)) {
+                this->buildingSelectedId = building.getBuildingId();
+            }
+            */
+
         }
     }
       
     if (listOfObjects.size() > 0) {
         int highestTop = 0;
         for (const objects& object : listOfObjects) {
-            sf::IntRect result;
             listOfObjectTemplates[static_cast<uint32_t>(object.getType())].setPosition(worldSpace(object.getLocation()));
-            if (Collision::PixelPerfectTest(listOfObjectTemplates[static_cast<uint32_t>(object.getType())].getSprite(), this->spriteMouseCord, 128)) {
+            //using a pixel cord
+            if (Collision::singlePixelTest(listOfObjectTemplates[static_cast<uint32_t>(object.getType())].getSprite(), mousePosition, 128)) {
                 this->objectSelectedId = object.getObjectId();
             }
+
+            /*Using a sprite            
+            if (Collision::PixelPerfectTest(listOfObjectTemplates[static_cast<uint32_t>(object.getType())].getSprite(), this->spriteMouseCord, 128)) {
+                this->objectSelectedId = object.getObjectId();
+            }*/
+
             /* Old style detection
+            sf::IntRect result;
             if (selection.intersects(object.getLastIntRect(), result)) {
                 if (object.getLastIntRect().top > highestTop) {
                     this->objectSelectedId = object.getObjectId();
@@ -948,12 +964,21 @@ void gameState::getDefinitiveSelection()
             }
             else {
                 //One coordinate was clicked find actor there we will be pixel perfect!
-                this->spriteMouseCord.setPosition(mousePosition.x, mousePosition.y);
+
+                //using a pixel cord
+                //this->spriteMouseCord.setPosition(mousePosition.x, mousePosition.y);
+                
                 for (const actors& actor : listOfActors) {
                     listOfActorTemplates[actor.getType()].setSpritePosition(worldSpace(actor.getActorCords()));
+                    if (Collision::singlePixelTest(listOfActorTemplates[actor.getType()].getActorSprite(), mousePosition, 128)) {
+                        selectedUnits.push_back({ actor.getActorId() });
+                    }
+
+                    /* using a mouse sprite which was buggy
                     if (Collision::PixelPerfectTest(listOfActorTemplates[actor.getType()].getActorSprite(), this->spriteMouseCord, 128)) {
                         selectedUnits.push_back({ actor.getActorId() });
                     }
+                    */
                 }
             }
         }

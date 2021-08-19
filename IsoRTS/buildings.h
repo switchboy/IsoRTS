@@ -73,9 +73,10 @@ public:
     void                        takeDamage(int amountOfDamage);
     void                        update();
     std::vector<buildingQueue>  productionQueue;
-
     int                         getBuildingId() const;
     bool                        getCompleted() const;
+    bool                        getGateIsOpen() const;
+    bool                        getIsGate() const;
     cords                       getLocation() const;
     int                         getRangedDMG() const;
     int                         getTeam() const;
@@ -87,12 +88,13 @@ public:
     std::string                 getName() const;
     std::vector<adjacentTile>   getDropOffTiles() const;
     std::vector<adjacentTile>   getFreeBuildingTile() const;
-
     void                        setCompleted();
+    void                        setGateOpen(bool state);
     void                        setRallyPoint(cords goal, stackOrderTypes orderType);
 
 private:
     bool                        buildingCompleted;
+    bool                        gateIsOpen = false;
     bool                        canDoRangedDamage;
     bool                        exists;
     bool                        hasDisplayedError;
@@ -100,6 +102,7 @@ private:
     bool                        recievesGold;
     bool                        recievesStone;
     bool                        recievesWood;
+    bool                        isGate;
     float                       lastFrameUpdate;
     float                       lastShotFired;
     int                         amountOfAnimationSprites;

@@ -126,7 +126,6 @@ public:
     void walkBackToOwnSquare();
     void walkToNextSquare();
     void walkBackAfterAbortedCommand();
-
     bool getIsBuilding() const;
     bool idle() const;
     bool isAlive() const;

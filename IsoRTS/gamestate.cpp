@@ -101,10 +101,17 @@ bool gameState::isPassable(cords location) const
 {
     //check if the terrain is passable 1-6 and within map bounds
     if (location.x >= 0 && location.x < MAP_WIDTH && location.y >= 0 && location.y < MAP_HEIGHT) {
+        bool noBuildingOrGateOpen = true;
+        if (this->occupiedByBuildingList[location.x][location.y] == -1) {
+            if (!listOfBuildings[this->occupiedByBuildingList[location.x][location.y]].getGateIsOpen()) {
+                noBuildingOrGateOpen = false;
+            }
+        }
+
         if (
             (this->currentMap[location.x][location.y] > 0 && this->currentMap[location.x][location.y] < 7) &&
             this->objectLocationList[location.x][location.y] == -1 &&
-            this->occupiedByBuildingList[location.x][location.y] == -1 &&
+            noBuildingOrGateOpen &&
             this->occupiedByActorList[location.x][location.y].empty()
             )
         {
@@ -124,9 +131,15 @@ bool gameState::isPassableButMightHaveActor(cords location) const
 {
     //check if the terrain is passable 1-6 and within map bounds
     if (location.x >= 0 && location.x < MAP_WIDTH && location.y >= 0 && location.y < MAP_HEIGHT) {
+        bool noBuildingOrGateOpen = true;
+        if (this->occupiedByBuildingList[location.x][location.y] == -1) {
+            if (!listOfBuildings[this->occupiedByBuildingList[location.x][location.y]].getGateIsOpen()) {
+                noBuildingOrGateOpen = false;
+            }
+        }
         if (
             (this->currentMap[location.x][location.y] > 0 && this->currentMap[location.x][location.y] < 7) &&
-            this->objectLocationList[location.x][location.y] == -1 &&
+            noBuildingOrGateOpen &&
             this->occupiedByBuildingList[location.x][location.y] == -1
             )
         {

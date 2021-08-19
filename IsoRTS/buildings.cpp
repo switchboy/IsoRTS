@@ -213,6 +213,16 @@ bool buildings::getCompleted() const
     return this->buildingCompleted;
 }
 
+bool buildings::getGateIsOpen() const
+{
+    return this->gateIsOpen;
+}
+
+bool buildings::getIsGate() const
+{
+    return this->isGate;
+}
+
 void buildings::setCompleted()
 {
     this->buildingCompleted = true;
@@ -220,6 +230,11 @@ void buildings::setCompleted()
         gameText.addNewMessage("- Building completed! -", 0);
     }
     listOfPlayers[this->ownedByPlayer].addToPopulationRoom(this->supportsPopulationOf);
+}
+
+void buildings::setGateOpen(bool state)
+{
+    this->gateIsOpen = state;
 }
 
 void buildings::removeBuilding()

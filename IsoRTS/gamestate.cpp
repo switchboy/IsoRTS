@@ -1447,17 +1447,17 @@ void gameState::changeTiles()
 
 void gameState::edgeScrolling() const
 {
-    if (mouseFakePosition.x < 75) {
+    if (mouseFakePosition.x < 125) {
         viewOffsetX += -10;
     }
-    else if (mouseFakePosition.x > mainWindowWidth-75)
+    else if (mouseFakePosition.x > mainWindowWidth-125)
     {
         viewOffsetX += 10;
     }
-    if (mouseFakePosition.y < 75) {
+    if (mouseFakePosition.y < static_cast<float>(mainWindowHeigth * 0.03f) + 75 && mouseFakePosition.y > static_cast<float>(mainWindowHeigth * 0.03f)) {
         viewOffsetY += -10;
     }
-    else if (mouseFakePosition.y > mainWindowHeigth-75)
+    else if (mouseFakePosition.y > static_cast<float>(mainWindowHeigth * 0.77f) - 75 && mouseFakePosition.y <  static_cast<float>(mainWindowHeigth * 0.77f))
     {
         viewOffsetY += 10;
     }

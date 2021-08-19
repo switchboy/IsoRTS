@@ -203,7 +203,7 @@ namespace
 			cords foodcords;
 			//Now the following while loop should always be able to finish
 			while (!foodFound) {
-				int possibleFood = roll(0, static_cast<int>(foodLocations.size()));
+				int possibleFood = roll(0, static_cast<int>(foodLocations.size()-1));
 				bool foodSourceOccupied = false;
 				for (const int& foodOwned : occupiedFoodSources)
 				{

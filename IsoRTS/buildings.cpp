@@ -334,8 +334,12 @@ void buildings::addBuildingPoint()
 }
 
 bool isWallPiece(cords suspect) {
+    std::cout << suspect.x << "-" << suspect.y << std::endl;
     if (suspect.x >= 0 && suspect.x < MAP_WIDTH && suspect.y >= 0 && suspect.y < MAP_HEIGHT) {
+        std::cout << currentGame.buildingLocationList[suspect.x][suspect.y] << std::endl;
+
         if (currentGame.buildingLocationList[suspect.x][suspect.y] != 1) {
+            std::cout << listOfBuildings[currentGame.buildingLocationList[suspect.x][suspect.y]].getType() <<std::endl;
             return listOfBuildingTemplates[listOfBuildings[currentGame.buildingLocationList[suspect.x][suspect.y]].getType()].getIsWall();
         }
         else {

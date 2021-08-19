@@ -305,6 +305,20 @@ int buildings::getType() const
     return this->buildingType;
 }
 
+bool isWallPiece(cords suspect) {
+    if (suspect.x >= 0 && suspect.x < MAP_WIDTH && suspect.y >= 0 && suspect.y < MAP_HEIGHT) {
+        if (currentGame.buildingLocationList[suspect.x][suspect.y] != -1) {
+            return listOfBuildingTemplates[listOfBuildings[currentGame.buildingLocationList[suspect.x][suspect.y]].getType()].getIsWall();
+        }
+        else {
+            return false; //no building here
+        }
+    }
+    else {
+        return false;
+    }
+}
+
 bool buildings::canBeGate() const
 {
     if (listOfBuildingTemplates[this->buildingType].getIsWall() && this->buildingCompleted) {
@@ -439,20 +453,6 @@ resourceTypes buildings::getRecievesWhichResources() const
 void buildings::addBuildingPoint()
 {
     this->buildingPointsRecieved += 1;
-}
-
-bool isWallPiece(cords suspect) {
-    if (suspect.x >= 0 && suspect.x < MAP_WIDTH && suspect.y >= 0 && suspect.y < MAP_HEIGHT) {
-        if (currentGame.buildingLocationList[suspect.x][suspect.y] != -1) {
-            return listOfBuildingTemplates[listOfBuildings[currentGame.buildingLocationList[suspect.x][suspect.y]].getType()].getIsWall();
-        }
-        else {
-            return false; //no building here
-        }
-    }
-    else {
-        return false;
-    }
 }
 
 void buildings::drawBuilding(int i, int j, int type, bool typeOverride)

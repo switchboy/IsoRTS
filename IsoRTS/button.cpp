@@ -53,7 +53,7 @@ void button::showToolTip() const
     case actionTypes::actionBuildTownCenter:
         toolTipTitle << "Town center";
         toolTipText << "Cost: Food: "<< listOfBuildingTemplates[1].getPriceOfBuilding().food <<" Wood: "<< listOfBuildingTemplates[1].getPriceOfBuilding().wood <<" Stone: "<< listOfBuildingTemplates[1].getPriceOfBuilding().stone <<" Gold: "<< listOfBuildingTemplates[1].getPriceOfBuilding().gold;
-        toolTipDiscription << "Collection point of resources, production of new villagers and research facility. Grants 10 population.";
+        toolTipDiscription << "Collection point of resources (any type), production of new villagers and research facility. Grants 10 population.";
         break;
     case actionTypes::actionBuildHouse:
         toolTipTitle << "House";
@@ -68,7 +68,7 @@ void button::showToolTip() const
     case actionTypes::actionMakeVillager:
         toolTipTitle << "Make villager";
         toolTipText << "Cost: Food: "<< listOfActorTemplates[0].getPriceOfActor().food <<" Wood: "<< listOfActorTemplates[0].getPriceOfActor().wood <<" Stone: "<< listOfActorTemplates[0].getPriceOfActor().stone <<" Gold: "<< listOfActorTemplates[0].getPriceOfActor().gold;
-        toolTipDiscription << "The town center will start to well... generate a new villager. Villagers can collect resources and build buildings.";
+        toolTipDiscription << "The people of the town will start to well... generate a new villager. Villagers can collect resources and build buildings.";
         break;
     case actionTypes::actionCancelBuilding:
         toolTipTitle << "Cancel building";
@@ -108,7 +108,7 @@ void button::showToolTip() const
     case actionTypes::actionBuildWall:
         toolTipTitle << "Build Wall";
         toolTipText << "Cost: Food: " << listOfBuildingTemplates[7].getPriceOfBuilding().food << " Wood: " << listOfBuildingTemplates[7].getPriceOfBuilding().wood << " Stone: " << listOfBuildingTemplates[7].getPriceOfBuilding().stone << " Gold: " << listOfBuildingTemplates[7].getPriceOfBuilding().gold;
-        toolTipDiscription << "Collection point for gold and stone and research new mining abilities";
+        toolTipDiscription << "Stone building that acts as a barrier. To place left-click a starting location then move the mouse to an end location and left-click again  ";
         break;
     }
 

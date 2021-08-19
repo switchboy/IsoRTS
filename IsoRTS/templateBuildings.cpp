@@ -1,12 +1,12 @@
 #include "templateBuildings.h"
-
+#include "buildings.h"
 
 std::vector<templateBuildings> listOfBuildingTemplates;
 
 templateBuildings::templateBuildings(bool canDoRangedDamage, bool recievesWood, bool recievesStone, bool recievesGold, bool recievesFood, buildingNames idOfBuilding,
     int hitPointsTotal, int amountOfRangedDamage, int range, int buildingPointsNeeded, int supportsPopulationOf, int offSetYStore, int amountOfAnimationSprites, 
     actorOrBuildingPrice priceOfBuilding, footprintOfBuilding buildingFootprint, cords buildingSprite, std::string buildingTexture, cords origin, std::string realBuildingName, 
-    int bigSpriteYOffset, bool isWall)
+    int bigSpriteYOffset, bool isWall, std::list<buttonVariables> listOfBuildingButtons)
 {
     this->canDoRangedDamage = canDoRangedDamage;
     this->recievesWood = recievesWood;
@@ -28,7 +28,7 @@ templateBuildings::templateBuildings(bool canDoRangedDamage, bool recievesWood, 
     this->realBuildingName = realBuildingName;
     this->bigSpriteYOffset = bigSpriteYOffset;
     this->isWall = isWall;
-
+    this->listOfBuildingButtons = listOfBuildingButtons;
     if (!Collision::CreateTextureAndBitmask(this->buildingTexture, buildingTexture))
     {
         std::cout << "Error loading texture: "<< buildingTexture << std::endl;
@@ -147,6 +147,32 @@ bool templateBuildings::getIsWall() const
     return this->isWall;
 }
 
+
+void templateBuildings::createBuildingButtons(int startX, int startY, int buildingId, int incrementalXOffset, bool& buttonsAreThere)
+{
+    if (!buttonsAreThere) {
+        if (listOfBuildings[buildingId].getCompleted()) {
+            int startXOr = startX;
+            int buttonCounter = 0;
+            for (buttonVariables currentButton : this->listOfBuildingButtons) {
+                buttonCounter++;
+                if (buttonCounter <= 5) {
+                    listOfButtons.push_back({ startX, startY, currentButton.sprite, currentButton.action, buildingId, static_cast<int>(listOfButtons.size()), 0 });
+                    startX += incrementalXOffset;
+                }
+                else {
+                    buttonCounter = 1;
+                    startX = startXOr;
+                    startY += incrementalXOffset;
+                    listOfButtons.push_back({ startX, startY, currentButton.sprite, currentButton.action, buildingId, static_cast<int>(listOfButtons.size()), 0 });
+                    startX += incrementalXOffset;
+                }
+            }
+        }
+        buttonsAreThere = true;
+    }
+}
+
 void loadBuildings()
 {
     //load house
@@ -171,7 +197,10 @@ void loadBuildings()
         {32,96},                    //cords                   origin
         "Town house",                //std::string             realBuildingName;
         128,                         //int                     bigSpriteYoffset
-        false                       //bool                   isWall
+        false,                       //bool                   isWall
+        {                            //                       Begin list of building buttons
+         
+        }                           //                        end list of building buttons
     });
 
     //load towncenter
@@ -196,7 +225,10 @@ void loadBuildings()
         {96,224},                   //cords                   origin
          "Towncenter",               //std::string             realBuildingName;
          0,                         //int                     bigSpriteYoffset
-        false                       //bool                   isWall
+        false,                       //bool                   isWall
+        {                            //                       Begin list of building buttons
+         {spriteTypes::spriteVillager, actionTypes::actionMakeVillager}
+        }                           //                        end list of building buttons
         });
 
     //load mill
@@ -221,7 +253,10 @@ void loadBuildings()
         {64,160},                   //cords                   origin
          "Mill",                     //std::string             realBuildingName;
          384,                         //int                     bigSpriteYoffset
-        false                       //bool                   isWall
+        false,                       //bool                   isWall
+        {                            //                       Begin list of building buttons
+
+        }                           //                        end list of building buttons
     });
 
     //lumbercamp,
@@ -244,9 +279,12 @@ void loadBuildings()
         {192,192},                  //cords                   buildingSprite,
         "textures/lumbercamp.png",  //std::string             buildingTexture,
         {64,160},                   //cords                   origin
-        "Lumbercamp",                //std::string             realBuildingName;
-        256 ,                         //int                     bigSpriteYoffset
-        false                       //bool                   isWall
+        "Lumbercamp",                //std::string            realBuildingName;
+        256 ,                         //int                   bigSpriteYoffset
+        false,                       //bool                   isWall
+        {                            //                       Begin list of building buttons
+
+        }                           //                        end list of building buttons
         });
 
     //barracks 4
@@ -271,7 +309,10 @@ void loadBuildings()
         {64,160},                   //cords                  origin
         "Barracks",                  //std::string             realBuildingName;
         512,                         //int                     bigSpriteYoffset
-        false                       //bool                   isWall
+        false,                       //bool                   isWall
+        {                            //                       Begin list of building buttons
+            {spriteTypes::spriteSwordsman, actionTypes::actionMakeSwordsman}
+        }                           //                        end list of building buttons
         });
     
     //Mining camp stone
@@ -296,7 +337,10 @@ void loadBuildings()
         {64,160} ,                          //cords                   origin
         "Miningcamp",                       //std::string             realBuildingName;
         640,                                //int                     bigSpriteYoffset
-        false                               //bool                    isWall
+        false,                              //bool                   isWall
+        {                                   //                       Begin list of building buttons
+
+        }                                   //                       End list of building buttons
         });
 
 
@@ -322,7 +366,10 @@ void loadBuildings()
         {64,160},                               //cords                   origin
         "Miningcamp",                           //std::string             realBuildingName;
         640 ,                                   //int                     bigSpriteYoffset
-        false                                   //bool                   isWall
+        false,                                  //bool                   isWall
+        {                                       //                       Begin list of building buttons
+
+        }                                       //                       End list of building buttons
         });
 
     //Wall
@@ -347,7 +394,10 @@ void loadBuildings()
         {0,64},                                //cords                   origin
         "Wall",                                //std::string             realBuildingName;
         640,                                   //int                     bigSpriteYoffset
-        true                                   //bool                   isWall
+        true,                                  //bool                   isWall
+        {                                      //                       Begin list of building buttons
+
+        }                                      //                       End list of building buttons
         });
 
 

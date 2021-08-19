@@ -7,8 +7,6 @@
 #include "gamestate.h"
 #include "globalfunctions.h"
 
-
-
 struct buildingQueue
 {
     bool isResearch;
@@ -103,7 +101,7 @@ private:
     bool                        recievesGold;
     bool                        recievesStone;
     bool                        recievesWood;
-    bool                        isGate;
+    bool                        isGate = false;
     float                       lastFrameUpdate;
     float                       lastShotFired;
     int                         amountOfAnimationSprites;

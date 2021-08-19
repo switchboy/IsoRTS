@@ -102,7 +102,7 @@ bool gameState::isPassable(cords location) const
     //check if the terrain is passable 1-6 and within map bounds
     if (location.x >= 0 && location.x < MAP_WIDTH && location.y >= 0 && location.y < MAP_HEIGHT) {
         bool noBuildingOrGateOpen = true;
-        if (this->occupiedByBuildingList[location.x][location.y] == -1) {
+        if (this->occupiedByBuildingList[location.x][location.y] != -1) {
             if (!listOfBuildings[this->occupiedByBuildingList[location.x][location.y]].getGateIsOpen()) {
                 noBuildingOrGateOpen = false;
             }
@@ -132,7 +132,7 @@ bool gameState::isPassableButMightHaveActor(cords location) const
     //check if the terrain is passable 1-6 and within map bounds
     if (location.x >= 0 && location.x < MAP_WIDTH && location.y >= 0 && location.y < MAP_HEIGHT) {
         bool noBuildingOrGateOpen = true;
-        if (this->occupiedByBuildingList[location.x][location.y] == -1) {
+        if (this->occupiedByBuildingList[location.x][location.y] != -1) {
             if (!listOfBuildings[this->occupiedByBuildingList[location.x][location.y]].getGateIsOpen()) {
                 noBuildingOrGateOpen = false;
             }
@@ -140,7 +140,7 @@ bool gameState::isPassableButMightHaveActor(cords location) const
         if (
             (this->currentMap[location.x][location.y] > 0 && this->currentMap[location.x][location.y] < 7) &&
             noBuildingOrGateOpen &&
-            this->occupiedByBuildingList[location.x][location.y] == -1
+            this->objectLocationList[location.x][location.y] == -1
             )
         {
             return true;
@@ -1965,6 +1965,8 @@ void gameState::drawMiniMap()
     window.setView(worldView);
 }
 
+
+
 void createVillagerButtons(int startX, int startY, int incrementalXOffset,  bool& villagerButtonsAreThere)
 {
     if (!villagerButtonsAreThere) {
@@ -2099,47 +2101,6 @@ void gameState::drawActorToolbar(int spriteYOffset, int tempY, int offSetTonextC
             drawActorTitle(this->selectedUnits[i], textStartX, textStartY);
             drawActorStats(this->selectedUnits[i], textStartX, textStartY);
         }
-    }
-}
-
-void createBuildingButtons(int buildingId, int startX, int startY)
-{
-    switch (listOfBuildings[buildingId].getType())
-    {
-    case 0:
-        break;
-    case 1:
-        //town center
-        if (listOfBuildings[buildingId].getCompleted())
-        {
-            button makeVillager = { startX, startY, spriteTypes::spriteVillager, actionTypes::actionMakeVillager, buildingId, static_cast<int>(listOfButtons.size()),0 };
-            listOfButtons.push_back(makeVillager);
-            //research will also go here
-        }
-        break;
-    case 2:
-        //mill
-        break;
-    case 3:
-        //lumbercamp
-        break;
-    case 4:
-        //Barracks
-        if (listOfBuildings[buildingId].getCompleted())
-        {
-            button makeSwordsman = { startX, startY, spriteTypes::spriteSwordsman, actionTypes::actionMakeSwordsman, buildingId, static_cast<int>(listOfButtons.size()),0 };
-            listOfButtons.push_back(makeSwordsman);
-            //research will also go here
-        }
-        break;
-    case 5:
-        //mingincamp
-        break;
-    case 6:
-        //mingincamp
-        break;
-    default:
-        break;
     }
 }
 
@@ -2337,7 +2298,8 @@ void gameState::drawBuildingToolbar(int spriteYOffset, int tempY, int offSetTone
     int textStartY = static_cast<int>(round(static_cast<float>(mainWindowHeigth / 30.f)));
     int startX = this->preCalcStartX;
     int startY = this->preCalcStartY;
-    createBuildingButtons(this->buildingSelectedId, startX, startY);
+    bool buttonsAreThere = false;
+    listOfBuildingTemplates[listOfBuildings[this->buildingSelectedId].getType()].createBuildingButtons(startX, startY, this->buildingSelectedId, this->preCalcIncrementalXOffset, buttonsAreThere);
     drawBuildingBigSprite(this->buildingSelectedId);
     drawBuildingToolbarTitle(textStartX, textStartY);
     drawBuildingToolbarStats(textStartX, textStartY);

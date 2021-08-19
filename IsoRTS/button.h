@@ -26,4 +26,6 @@ private:
     spriteTypes spriteId;
 };
 
+extern std::list<button> listOfButtons;
+
 #endif // BUTTON_H

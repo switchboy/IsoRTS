@@ -3,6 +3,9 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 #include "collision.h"
+#include "humanReadableNames.h"
+#include "button.h"
+//#include "buildings.h"
 
 enum class buildingNames : uint32_t {
     house,
@@ -13,6 +16,11 @@ enum class buildingNames : uint32_t {
     miningcampstone,
     miningcampgold,
     wall
+};
+
+struct buttonVariables {
+    spriteTypes sprite;
+    actionTypes action;
 };
 
 class templateBuildings
@@ -39,7 +47,8 @@ public:
     cords                   origin,
     std::string             realBuildingName,
     int                     bigSpriteYOffset,
-    bool                    isWall
+    bool                    isWall,
+    std::list<buttonVariables>         listOfBuildingButtons
     );
 
     //Getters
@@ -63,6 +72,7 @@ public:
     sf::Texture             getBuildingTexture();//TODO: should this return an sf::Texture& instead? - If I keep it probably, but I haven't yet foud a use for it so it might get scrapped
     std::string             getBuildingName() const; 
     int                     getBigSpriteYOffset() const;
+    void                    createBuildingButtons(int startX, int startY, int buildingId, int incrementalXOffset, bool& buttonsAreThere);
 
     //setters
     void                    setSpritePosition(cords position); 
@@ -91,6 +101,7 @@ private:
     sf::Texture             buildingTexture;
     std::string             realBuildingName;
     int                     bigSpriteYOffset;
+    std::list<buttonVariables>         listOfBuildingButtons;
 };
 
 extern std::vector<templateBuildings>            listOfBuildingTemplates;

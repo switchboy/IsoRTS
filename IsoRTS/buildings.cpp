@@ -471,7 +471,34 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
         }
     }
 
-    listOfBuildingTemplates[type].getBuildingSprite().setTextureRect(sf::IntRect(0, listOfBuildingTemplates[type].getBuildingSprite().getTextureRect().height * offsetY, listOfBuildingTemplates[type].getBuildingSprite().getTextureRect().width, listOfBuildingTemplates[type].getBuildingSprite().getTextureRect().height));
+    if (currentGame.buildingIsSelected(this->buildingId)) {
+        if (this->rallyPoint.isSet) {
+            currentGame.listOfFlagsToDraw.push_back(this->rallyPoint.goal);
+        }
+        sf::CircleShape selectionCircle(static_cast<float>((listOfBuildingTemplates[type].getBuildingSprite().getTextureRect().width) / 2.f));
+        selectionCircle.setFillColor(sf::Color(255, 255, 255, 0));
+        selectionCircle.setOutlineThickness(2.f);
+        selectionCircle.setOutlineColor(sf::Color(255, 234, 0));
+        selectionCircle.scale(static_cast<float>(1.1), static_cast<float>(0.5));
+        switch (listOfBuildingTemplates[type].getBuildingFootprint().amountOfXFootprint) {
+        case 1:
+            selectionCircle.setOrigin(static_cast<float>(0), static_cast<float>(0));
+            break;
+        case 2:
+            selectionCircle.setOrigin(static_cast<float>(32), static_cast<float>(64));
+            break;
+        case 3:
+            selectionCircle.setOrigin(static_cast<float>(64), static_cast<float>(128));
+            break;
+        case 4:
+            selectionCircle.setOrigin(static_cast<float>(96), static_cast<float>(192));
+            break;
+        }
+        selectionCircle.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i,j }).y));
+        window.draw(selectionCircle);
+    }
+
+    listOfBuildingTemplates[type].getBuildingSprite().setTextureRect(sf::IntRect(0, listOfBuildingTemplates[type].getBuildingSprite().getTextureRect().height* offsetY, listOfBuildingTemplates[type].getBuildingSprite().getTextureRect().width, listOfBuildingTemplates[type].getBuildingSprite().getTextureRect().height));
     listOfBuildingTemplates[type].setSpritePosition(worldSpace({ i,j }));
     listOfBuildingTemplates[type].getBuildingSprite().setColor(sf::Color(255, 255, 255, transparant));
     window.draw(listOfBuildingTemplates[type].getBuildingSprite());
@@ -490,13 +517,6 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
         }
     }
 
-    //Draw rally point if set
-    if (currentGame.buildingIsSelected(this->buildingId)) {
-        if (this->rallyPoint.isSet) {
-            currentGame.listOfFlagsToDraw.push_back(this->rallyPoint.goal);
-        }
-    }
-
     if (currentGame.showPaths) {
         //draw adjecent tiles
         for (adjacentTile const &tile : adjacentTiles) {
@@ -512,6 +532,10 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
             window.draw(currentGame.spriteUnitSelectedTile);
         }
     }
+
+    //Draw rally point if set
+
+
 }
 
 std::string buildings::getName() const

@@ -37,8 +37,13 @@ cords objects::getLocation() const {
 void objects::drawObject(int i, int j)
 {
     if (currentGame.objectSelectedId == this->objectId) {
-        currentGame.spriteSelectedTile.setPosition(static_cast<float>(worldSpace({ i, j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        window.draw(currentGame.spriteSelectedTile);
+        sf::CircleShape selectionCircle(static_cast<float>(32));
+        selectionCircle.setFillColor(sf::Color(255, 255, 255, 0));
+        selectionCircle.setOutlineThickness(3.f);
+        selectionCircle.setOutlineColor(sf::Color(255, 234, 0));
+        selectionCircle.scale(static_cast<float>(1.1), static_cast<float>(0.5));
+        selectionCircle.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i,j }).y));
+        window.draw(selectionCircle);
     }
     drawObjectSprite(this->objectType, i, j);
     this->lastIntRect = static_cast<sf::IntRect>(listOfObjectTemplates[static_cast<int>(this->objectType)].getSprite().getGlobalBounds());

@@ -493,8 +493,7 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
     //Draw rally point if set
     if (currentGame.buildingIsSelected(this->buildingId)) {
         if (this->rallyPoint.isSet) {
-            currentGame.spriteFlag.setPosition(static_cast<float>(worldSpace(this->rallyPoint.goal).x), static_cast<float>(worldSpace(this->rallyPoint.goal).y));
-            window.draw(currentGame.spriteFlag);
+            currentGame.listOfFlagsToDraw.push_back(this->rallyPoint.goal);
         }
     }
 

@@ -1843,8 +1843,7 @@ void actors::drawActor()
         drawHealth = true;
         if (!this->listOfOrders.empty() && this->actorTeam == currentPlayer.getTeam()) {
             for (const orderStack order : this->listOfOrders) {
-                currentGame.spriteFlag.setPosition(static_cast<float>(worldSpace(order.goal).x), static_cast<float>(worldSpace(order.goal).y));
-                window.draw(currentGame.spriteFlag);
+                currentGame.listOfFlagsToDraw.push_back(order.goal);
             }
         }
     } else if (this->actorHealth < this->hitPoints) {

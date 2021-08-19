@@ -115,7 +115,7 @@ public:
     void setBuildingType(int id);
     void setDefaultValues();
     void setIsPlacingBuilding();
-
+    std::list<cords> listOfFlagsToDraw;
     float elapsedTime;
     int buildingSelectedId;
     int objectSelectedId;

@@ -2489,9 +2489,19 @@ void drawCommandCursors()
     }
 }
 
+void drawRallyPoints(){
+    if (!currentGame.listOfFlagsToDraw.empty()) {
+        for (cords& flags : currentGame.listOfFlagsToDraw) {
+            currentGame.spriteFlag.setPosition(static_cast<float>(worldSpace(flags).x), static_cast<float>(worldSpace(flags).y));
+            window.draw(currentGame.spriteFlag);
+        }
+    }
+}
+
 void gameState::drawGame()
 {
     window.clear(sf::Color(0, 0, 0));
+    this->listOfFlagsToDraw.clear();
     worldView.setCenter(static_cast<float>(viewOffsetX), static_cast<float>(viewOffsetY));
     window.setView(totalView);
     window.draw(spriteTotalBackground);
@@ -2499,6 +2509,7 @@ void gameState::drawGame()
     createFogOfWar();
     drawTopBar();
     drawMap();
+    drawRallyPoints();
     drawProjectiles();
     drawToolbar();
     drawMiniMap();

@@ -107,3 +107,99 @@ cords toWorldMousePosition(int mouseX, int mouseY)
         return { 0,0 };
     }
 }
+
+std::list<cords> bresenham(cords first, cords second) {
+    std::list<cords> mapPointsCrossed;
+    int S, O, End;
+    int P;
+    int dx = abs(first.x - second.x);
+    int dy = abs(first.y - second.y);
+    float slope;
+    int pInc, nInc;
+    bool startWithX;
+    if (dx != 0)
+    {
+        slope = (static_cast<float>(first.y) - static_cast<float>(second.y)) / (static_cast<float>(first.x) - static_cast<float>(second.x));
+        if (slope > -1 && slope < 1) {
+            startWithX = true;
+            pInc = 2 * (dy - dx);
+            nInc = 2 * dy;
+            P = 2 * dy - dx;
+            if (first.x > second.x)
+            {
+                S = second.x;
+                O = second.y;
+                End = first.x;
+            }
+            else
+            {
+                S = first.x;
+                O = first.y;
+                End = second.x;
+            }
+        }
+        else {
+            startWithX = false;
+            pInc = 2 * (dx - dy);
+            nInc = 2 * dx;
+            P = 2 * dx - dy;
+            if (first.y > second.y)
+            {
+                O = second.x;
+                S = second.y;
+                End = first.y;
+            }
+            else
+            {
+                O = first.x;
+                S = first.y;
+                End = second.y;
+            }
+        }
+        if (startWithX) {
+            mapPointsCrossed.push_back({ S, O });
+        }
+        else {
+            mapPointsCrossed.push_back({ O, S });
+        }
+        while (S < End)
+        {
+            S++;
+            if (P < 0)
+                P = P + nInc;
+            else
+            {
+                P = P + pInc;
+                if (slope > 0.0) {
+                    O++;
+                }
+                else {
+                    O--;
+                }
+            }
+            if (startWithX) {
+                mapPointsCrossed.push_back({ S, O });
+            }
+            else {
+                mapPointsCrossed.push_back({ O, S });
+            }
+        }
+    }
+    else {
+        //Slope Infinite, clicked the same spot? Or up and down in Y plane without X increase?;
+        int start = 0;
+        int stop = 0;
+        if (first.y < second.y) {
+            start = first.y;
+            stop = second.y;
+        }
+        else {
+            stop = first.y;
+            start = second.y;
+        }
+        for (int i = start; i <= stop; i++) {
+            mapPointsCrossed.push_back({first.x, i});
+        }
+    }
+    return mapPointsCrossed;
+}

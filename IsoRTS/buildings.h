@@ -5,6 +5,7 @@
 #include <vector>
 //#include "humanReadableNames.h"
 #include "gamestate.h"
+#include "globalfunctions.h"
 
 
 

@@ -3,7 +3,10 @@
 
 std::vector<templateBuildings> listOfBuildingTemplates;
 
-templateBuildings::templateBuildings(bool canDoRangedDamage, bool recievesWood, bool recievesStone, bool recievesGold, bool recievesFood, buildingNames idOfBuilding, int hitPointsTotal, int amountOfRangedDamage, int range, int buildingPointsNeeded, int supportsPopulationOf, int offSetYStore, int amountOfAnimationSprites, actorOrBuildingPrice priceOfBuilding, footprintOfBuilding buildingFootprint, cords buildingSprite, std::string buildingTexture, cords origin, std::string realBuildingName, int bigSpriteYOffset)
+templateBuildings::templateBuildings(bool canDoRangedDamage, bool recievesWood, bool recievesStone, bool recievesGold, bool recievesFood, buildingNames idOfBuilding,
+    int hitPointsTotal, int amountOfRangedDamage, int range, int buildingPointsNeeded, int supportsPopulationOf, int offSetYStore, int amountOfAnimationSprites, 
+    actorOrBuildingPrice priceOfBuilding, footprintOfBuilding buildingFootprint, cords buildingSprite, std::string buildingTexture, cords origin, std::string realBuildingName, 
+    int bigSpriteYOffset, bool isWall)
 {
     this->canDoRangedDamage = canDoRangedDamage;
     this->recievesWood = recievesWood;
@@ -24,6 +27,7 @@ templateBuildings::templateBuildings(bool canDoRangedDamage, bool recievesWood, 
     this->origin = origin;
     this->realBuildingName = realBuildingName;
     this->bigSpriteYOffset = bigSpriteYOffset;
+    this->isWall = isWall;
 
     if (!Collision::CreateTextureAndBitmask(this->buildingTexture, buildingTexture))
     {
@@ -138,6 +142,11 @@ int templateBuildings::getBigSpriteYOffset() const
     return this->bigSpriteYOffset;
 }
 
+bool templateBuildings::getIsWall() const
+{
+    return this->isWall;
+}
+
 void loadBuildings()
 {
     //load house
@@ -161,7 +170,8 @@ void loadBuildings()
         "textures/house.png",       //std::string             buildingTexture,
         {32,96},                    //cords                   origin
         "Town house",                //std::string             realBuildingName;
-        128                         //int                     bigSpriteYoffset
+        128,                         //int                     bigSpriteYoffset
+        false                       //bool                   isWall
     });
 
     //load towncenter
@@ -185,7 +195,8 @@ void loadBuildings()
         "textures/townCenter.png",  //std::string             buildingTexture,
         {96,224},                   //cords                   origin
          "Towncenter",               //std::string             realBuildingName;
-         0                          //int                     bigSpriteYoffset
+         0,                         //int                     bigSpriteYoffset
+        false                       //bool                   isWall
         });
 
     //load mill
@@ -209,7 +220,8 @@ void loadBuildings()
         "textures/mill.png",        //std::string             buildingTexture,
         {64,160},                   //cords                   origin
          "Mill",                     //std::string             realBuildingName;
-         384                        //int                     bigSpriteYoffset
+         384,                         //int                     bigSpriteYoffset
+        false                       //bool                   isWall
     });
 
     //lumbercamp,
@@ -233,7 +245,8 @@ void loadBuildings()
         "textures/lumbercamp.png",  //std::string             buildingTexture,
         {64,160},                   //cords                   origin
         "Lumbercamp",                //std::string             realBuildingName;
-        256                         //int                     bigSpriteYoffset
+        256 ,                         //int                     bigSpriteYoffset
+        false                       //bool                   isWall
         });
 
     //barracks 4
@@ -257,7 +270,8 @@ void loadBuildings()
         "textures/barracks.png",    //std::string             buildingTexture,
         {64,160},                   //cords                  origin
         "Barracks",                  //std::string             realBuildingName;
-        512                         //int                     bigSpriteYoffset
+        512,                         //int                     bigSpriteYoffset
+        false                       //bool                   isWall
         });
     
     //Mining camp stone
@@ -280,8 +294,9 @@ void loadBuildings()
         {192,192},                          //cords                   buildingSprite,
         "textures/miningCamp.png",          //std::string             buildingTexture,
         {64,160} ,                          //cords                   origin
-        "Miningcamp",                        //std::string             realBuildingName;
-        640                                 //int                     bigSpriteYoffset
+        "Miningcamp",                       //std::string             realBuildingName;
+        640,                                //int                     bigSpriteYoffset
+        false                               //bool                    isWall
         });
 
 
@@ -306,7 +321,33 @@ void loadBuildings()
         "textures/miningCamp.png",              //std::string             buildingTexture,
         {64,160},                               //cords                   origin
         "Miningcamp",                           //std::string             realBuildingName;
-        640                                     //int                     bigSpriteYoffset
+        640 ,                                   //int                     bigSpriteYoffset
+        false                                   //bool                   isWall
+        });
+
+    //Wall
+    listOfBuildingTemplates.push_back({
+        false,                                  //bool                    canDoRangedDamage,
+        false,                                  //bool                    recievesWood,
+        false,                                  //bool                    recievesStone,
+        false,                                  //bool                    recievesGold,
+        false,                                  //bool                    recievesFood,
+        buildingNames::wall,                    //buildingNames           idOfBuilding,
+        750,                                    //int                     hitPointsTotal,
+        0,                                      //int                     amountOfRangedDamage,
+        0,                                      //int                     range,
+        10,                                     //int                     buildingPointsNeeded,
+        0,                                      //int                     supportsPopulationOf,
+        1,                                      //int                     offSetYStore,
+        0,                                      //int                     amountOfAnimationSprites,
+        { 0,0,5,0 },                            //actorOrBuildingPrice    priceOfBuilding, food, wood, stone, gold
+        { 1,1 },                                //footprintOfBuilding     buildingFootprint,
+        {64,96},                                //cords                   buildingSprite,
+        "textures/wall.png",                    //std::string             buildingTexture,
+        {0,64},                                //cords                   origin
+        "Wall",                                //std::string             realBuildingName;
+        640,                                   //int                     bigSpriteYoffset
+        true                                   //bool                   isWall
         });
 
 

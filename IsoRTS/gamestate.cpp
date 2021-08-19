@@ -731,71 +731,142 @@ void gameState::clickUIButton() const {
 }
 
 void gameState::clickToPlaceBuilding() {
-    if (!(this->mouseWorldPosition.x - listOfBuildingTemplates[this->buildingTypeSelected].getBuildingFootprint().amountOfXFootprint < -1) && !(this->mouseWorldPosition.y - listOfBuildingTemplates[this->buildingTypeSelected].getBuildingFootprint().amountOfYFootprint < -1) && !(this->mouseWorldPosition.x >= MAP_WIDTH) && !(this->mouseWorldPosition.y >= MAP_HEIGHT))
-    {
-        //check of het gebouw hier kan staan:
-        bool buildingPlacable = true;
+    if (!listOfBuildingTemplates[this->buildingTypeSelected].getIsWall()) {
+        if (!(this->mouseWorldPosition.x - listOfBuildingTemplates[this->buildingTypeSelected].getBuildingFootprint().amountOfXFootprint < -1) && !(this->mouseWorldPosition.y - listOfBuildingTemplates[this->buildingTypeSelected].getBuildingFootprint().amountOfYFootprint < -1) && !(this->mouseWorldPosition.x >= MAP_WIDTH) && !(this->mouseWorldPosition.y >= MAP_HEIGHT))
+        {
+            //check of het gebouw hier kan staan:
+            bool buildingPlacable = true;
 
-        for (int i = 0; i < listOfBuildingTemplates[this->buildingTypeSelected].getBuildingFootprint().amountOfXFootprint; i++)
-        {
-            for (int j = 0; j < listOfBuildingTemplates[this->buildingTypeSelected].getBuildingFootprint().amountOfYFootprint; j++)
+            for (int i = 0; i < listOfBuildingTemplates[this->buildingTypeSelected].getBuildingFootprint().amountOfXFootprint; i++)
             {
-                if (
-                    this->occupiedByBuildingList[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j] != -1 || 
-                    this->objectLocationList[mouseWorldPosition.x - i][mouseWorldPosition.y - j] != -1 || 
-                    (!this->occupiedByActorList[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j].empty())||
-                    this->currentMap[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j] == 7
-                    )
+                for (int j = 0; j < listOfBuildingTemplates[this->buildingTypeSelected].getBuildingFootprint().amountOfYFootprint; j++)
                 {
-                    buildingPlacable = false;
-                }
-            }
-        }
-        if (buildingPlacable)
-        {
-            //Zet het gebouw neer
-            buildings newBuilding(this->buildingTypeSelected, this->mouseWorldPosition, static_cast<int>(listOfBuildings.size()), currentPlayer.getTeam());
-            listOfBuildings.push_back(newBuilding);
-            if (this->isPlacingBuilding)
-            {
-                currentPlayer.substractResources(resourceTypes::resourceWood, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().wood);
-                currentPlayer.substractResources(resourceTypes::resourceFood, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().food);
-                currentPlayer.substractResources(resourceTypes::resourceStone, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().stone);
-                currentPlayer.substractResources(resourceTypes::resourceGold, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().gold);
-                for (int i = 0; i < this->selectedUnits.size(); i++)
-                {
-                    nearestBuildingTile tempTile = findNearestBuildingTile(this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y], this->selectedUnits[i]);
-                    if (tempTile.isSet)
+                    if (
+                        this->occupiedByBuildingList[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j] != -1 ||
+                        this->objectLocationList[mouseWorldPosition.x - i][mouseWorldPosition.y - j] != -1 ||
+                        (!this->occupiedByActorList[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j].empty()) ||
+                        this->currentMap[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j] == 7
+                        )
                     {
-                        if (this->selectedUnits.size() > 1)
-                        {
-                            if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
-                            {
-                                listOfActors[this->selectedUnits[i]].updateGoal(tempTile.location, i / 5);
-                                listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
-                                listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
-                            }
-                        }
-                        else
-                        {
-                            if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
-                            {
-                                listOfActors[this->selectedUnits[i]].updateGoal(tempTile.location, i / 5);
-                                listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
-                            }
-                        }
-                        if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
-                        {
-                            listOfActors[this->selectedUnits[i]].setIsBuildingTrue(listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getBuildingId(), tempTile.actionLocation);
-                        }
+                        buildingPlacable = false;
                     }
                 }
             }
-            this->isPlacingBuilding = false;
-            this->mousePressOutofWorld = true;
+            if (buildingPlacable)
+            {
+                //Zet het gebouw neer
+                buildings newBuilding(this->buildingTypeSelected, this->mouseWorldPosition, static_cast<int>(listOfBuildings.size()), currentPlayer.getTeam());
+                listOfBuildings.push_back(newBuilding);
+                if (this->isPlacingBuilding)
+                {
+                    currentPlayer.substractResources(resourceTypes::resourceWood, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().wood);
+                    currentPlayer.substractResources(resourceTypes::resourceFood, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().food);
+                    currentPlayer.substractResources(resourceTypes::resourceStone, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().stone);
+                    currentPlayer.substractResources(resourceTypes::resourceGold, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().gold);
+                    for (int i = 0; i < this->selectedUnits.size(); i++)
+                    {
+                        nearestBuildingTile tempTile = findNearestBuildingTile(this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y], this->selectedUnits[i]);
+                        if (tempTile.isSet)
+                        {
+                            if (this->selectedUnits.size() > 1)
+                            {
+                                if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+                                {
+                                    listOfActors[this->selectedUnits[i]].updateGoal(tempTile.location, i / 5);
+                                    listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
+                                    listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
+                                }
+                            }
+                            else
+                            {
+                                if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+                                {
+                                    listOfActors[this->selectedUnits[i]].updateGoal(tempTile.location, i / 5);
+                                    listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
+                                }
+                            }
+                            if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+                            {
+                                listOfActors[this->selectedUnits[i]].setIsBuildingTrue(listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getBuildingId(), tempTile.actionLocation);
+                            }
+                        }
+                    }
+                }
+                this->isPlacingBuilding = false;
+                this->mousePressOutofWorld = true;
+            }
+        }
+    }
+    else {
+        if (this->firstWallClick.x != -1) {
+            //First location was allready established!
+            if (isPassable(this->mouseWorldPosition))//Check is second location is valid
+            {
+                //Determine tiles the wall will occupy with Bresenham's Line Drawing Algorithm for paths between the two points
+                std::list<cords> mapPointsCrossed = bresenham(this->mouseWorldPosition, this->firstWallClick);
+
+                //check if the entire path is clear, if so place building
+                bool allPointsAreBuildable = true;
+                for (cords& thisCord : mapPointsCrossed) {
+                    if (!isPassable(thisCord)) { allPointsAreBuildable = false; }
+                }
+                //check if the player can pay for this wall, if so place it, if not throw error in his face!
+                if (allPointsAreBuildable) {
+                    if (
+                        (listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().food * mapPointsCrossed.size() <= currentPlayer.getStats().amountOfFood &&
+                            listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().wood * mapPointsCrossed.size() <= currentPlayer.getStats().amountOfWood &&
+                            listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().stone * mapPointsCrossed.size() <= currentPlayer.getStats().amountOfStone &&
+                            listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().gold * mapPointsCrossed.size() <= currentPlayer.getStats().amountOfGold) ||
+                        !isPlacingBuilding //Check to see if building is placed from the debugging hotkeys or map builder 
+                        ) {
+                        //place the building
+                        for (cords& thisCord : mapPointsCrossed) {
+                            buildings newBuilding(this->buildingTypeSelected, thisCord, static_cast<int>(listOfBuildings.size()), currentPlayer.getTeam());
+                            listOfBuildings.push_back(newBuilding);
+                            if (this->isPlacingBuilding) //Check to see if building is placed from the debugging hotkeys or map builder
+                            {
+                                currentPlayer.substractResources(resourceTypes::resourceWood, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().wood);
+                                currentPlayer.substractResources(resourceTypes::resourceFood, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().food);
+                                currentPlayer.substractResources(resourceTypes::resourceStone, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().stone);
+                                currentPlayer.substractResources(resourceTypes::resourceGold, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().gold);
+                                for (int i = 0; i < this->selectedUnits.size(); i++)
+                                {
+                                    listOfActors[this->selectedUnits[i]].stackOrder(thisCord, stackOrderTypes::stackActionBuild);
+                                }
+                            }
+                        }
+                        this->isPlacingBuilding = false;
+                        this->mousePressOutofWorld = true;
+                    }
+                    else {
+                        //throw error!
+                        std::stringstream errortext;
+                        errortext << "Not enough resources to build this length of wall! Cost" <<
+                            " Food: " << listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().food * mapPointsCrossed.size() <<
+                            " Wood: " << listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().wood * mapPointsCrossed.size() <<
+                            " Stone: " << listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().stone * mapPointsCrossed.size() <<
+                            " Gold: " << listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().gold * mapPointsCrossed.size();
+                        gameText.addNewMessage(errortext.str(), 1);
+                    }
+                    this->firstWallClick = { -1, -1 };
+                }
+                else {
+                    std::stringstream errortext;
+                    errortext << "Cant build a wall here, one of the tiles is obstructed!";
+                    gameText.addNewMessage(errortext.str(), 1);
+                }
+            }
+        }
+        else {
+            if (isPassable(this->mouseWorldPosition))
+            {
+                this->firstWallClick = this->mouseWorldPosition;
+            }
         }
     }
 }
+
+
 
 void gameState::clickToPlaceObject() const
 {
@@ -829,8 +900,10 @@ void gameState::clickToSelectObjectOrBuilding()
 {
     this->objectSelectedId = -1;
     this->buildingSelectedId = -1;
+
     //sf::IntRect selection = sf::IntRect(mousePosition.x, mousePosition.y, 1, 1);
     this->spriteMouseCord.setPosition(static_cast<float>(round(mousePosition.x)), static_cast<float>(round(mousePosition.y)));
+
 
     if (listOfBuildings.size() > 0) {
         //Check if a bulding is clicked
@@ -1176,7 +1249,7 @@ bool gameState::clickToBuildOrRepairBuilding() const
 void gameState::changeBuildingType()
 {
     this->buildingTypeSelected += 1;
-    if (this->buildingTypeSelected > 5)
+    if (this->buildingTypeSelected > 7)
     {
         this->buildingTypeSelected = 0;
     }
@@ -1330,6 +1403,7 @@ void gameState::mouseRightClick()
 {
     this->rectangleCords.clear();
     this->mousePressedRight = true;
+    this->firstWallClick = { -1,-1 };
     if (mouseFakePosition.y > mainWindowHeigth * 0.8f)
     {
         this->clickToGiveMinimapCommand();
@@ -1548,6 +1622,11 @@ void gameState::selectUnit(int id)
 void gameState::setObjectsHaveChanged()
 {
     this->objectsChanged = true;
+}
+
+cords gameState::getFirstWallClick() const
+{
+    return this->firstWallClick;
 }
 
 void gameState::drawMouseInteraction()
@@ -1895,6 +1974,9 @@ void createVillagerButtons(int startX, int startY, int incrementalXOffset,  bool
         startX = startXOr;
         startY += incrementalXOffset;
         listOfButtons.push_back({ startX, startY, spriteTypes::spriteMiningCamp, actionTypes::actionBuildMiningCamp, 0, static_cast<int>(listOfButtons.size()), 0 });
+        startX += incrementalXOffset;
+        listOfButtons.push_back({ startX, startY, spriteTypes::spriteMiningCamp, actionTypes::actionBuildWall, 0, static_cast<int>(listOfButtons.size()), 0 });
+
         villagerButtonsAreThere = true;
     }
 }

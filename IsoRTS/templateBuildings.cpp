@@ -1,5 +1,6 @@
 #include "templateBuildings.h"
 #include "buildings.h"
+#include "player.h"
 
 std::vector<templateBuildings> listOfBuildingTemplates;
 
@@ -157,14 +158,18 @@ void templateBuildings::createBuildingButtons(int startX, int startY, int buildi
             for (buttonVariables currentButton : this->listOfBuildingButtons) {
                 buttonCounter++;
                 if (buttonCounter <= 5) {
-                    listOfButtons.push_back({ startX, startY, currentButton.sprite, currentButton.action, buildingId, static_cast<int>(listOfButtons.size()), 0 });
+                    if (buttons::requirementForButtonIsMet(currentButton.action, buildingId, listOfBuildings[buildingId].getTeam())) {
+                        listOfButtons.push_back({ startX, startY, currentButton.sprite, currentButton.action, buildingId, static_cast<int>(listOfButtons.size()), 0 });
+                    }
                     startX += incrementalXOffset;
                 }
                 else {
                     buttonCounter = 1;
                     startX = startXOr;
                     startY += incrementalXOffset;
-                    listOfButtons.push_back({ startX, startY, currentButton.sprite, currentButton.action, buildingId, static_cast<int>(listOfButtons.size()), 0 });
+                    if (buttons::requirementForButtonIsMet(currentButton.action, buildingId, listOfBuildings[buildingId].getTeam())) {
+                        listOfButtons.push_back({ startX, startY, currentButton.sprite, currentButton.action, buildingId, static_cast<int>(listOfButtons.size()), 0 });
+                    }
                     startX += incrementalXOffset;
                 }
             }

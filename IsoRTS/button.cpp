@@ -355,3 +355,48 @@ button::~button()
 {
     //dtor
 }
+
+namespace buttons {
+    bool requirementForButtonIsMet(actionTypes actionType, int unitOrBuildingId, int playerId) {
+
+        switch (actionType) {
+        case actionTypes::actionBuildTownCenter:
+            return true;
+            break;
+        case actionTypes::actionBuildHouse:
+            return true;
+            break;
+        case actionTypes::actionUnitSelect:
+            return true;
+            break;
+        case actionTypes::actionMakeVillager:
+            return true;
+            break;
+        case actionTypes::actionCancelBuilding:
+            return true;
+            break;
+        case actionTypes::actionCancelProduction:
+            return true;
+            break;
+        case actionTypes::actionBuildMill:
+            return true;
+            break;
+        case actionTypes::actionBuildLumberCamp:
+            return true;
+            break;
+        case actionTypes::actionBuildBarracks:
+            return true;
+            break;
+        case actionTypes::actionMakeSwordsman:
+            return true;
+            break;
+        case actionTypes::actionBuildMiningCamp:
+            return true;
+            break;
+        case actionTypes::actionBuildWall:
+            return true;
+            break;
+        }
+        return false;
+    }
+}

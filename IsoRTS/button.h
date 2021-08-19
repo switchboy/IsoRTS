@@ -26,6 +26,11 @@ private:
     spriteTypes spriteId;
 };
 
+namespace buttons {
+    extern bool requirementForButtonIsMet(actionTypes actionType, int unitOrBuildingId, int playerId);
+    }
+}
+
 extern std::list<button> listOfButtons;
 
 #endif // BUTTON_H

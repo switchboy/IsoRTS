@@ -304,27 +304,27 @@ resourceTypes buildings::getRecievesWhichResources() const
 {
     if(recievesFood && recievesGold && recievesStone && recievesWood)
     {
-        return resourceTypes::All;
+    return resourceTypes::All;
     }
-    else if(recievesGold)
+    else if (recievesGold)
     {
-        return resourceTypes::resourceGold;
+    return resourceTypes::resourceGold;
     }
-    else if(recievesStone)
+    else if (recievesStone)
     {
-        return resourceTypes::resourceStone;
+    return resourceTypes::resourceStone;
     }
-    else if(recievesFood)
+    else if (recievesFood)
     {
-        return resourceTypes::resourceFood;
+    return resourceTypes::resourceFood;
     }
-    else if(recievesWood)
+    else if (recievesWood)
     {
-        return resourceTypes::resourceWood;
+    return resourceTypes::resourceWood;
     }
     else
     {
-        return resourceTypes::None;
+    return resourceTypes::None;
     }
 }
 
@@ -333,24 +333,38 @@ void buildings::addBuildingPoint()
     this->buildingPointsRecieved += 1;
 }
 
+bool isWallPiece(cords suspect) {
+    if (suspect.x >= 0 && suspect.x < MAP_WIDTH && suspect.y >= 0 && suspect.y < MAP_HEIGHT) {
+        if (currentGame.buildingLocationList[suspect.x][suspect.y] != 1) {
+            return listOfBuildingTemplates[listOfBuildings[currentGame.buildingLocationList[suspect.x][suspect.y]].getType()].getIsWall();
+        }
+        else {
+            return false; //no building here
+        }
+    }
+    else {
+        return false;
+    }
+}
+
 void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
 {
     int transparant;
     int offsetY;
-    if(!typeOverride)
+    if (!typeOverride)
     {
         type = this->buildingType;
-        if(this->buildingCompleted)
+        if (this->buildingCompleted)
         {
             offsetY = 1;
-            if(this->amountOfAnimationSprites > 0)
+            if (this->amountOfAnimationSprites > 0)
             {
                 offsetY = this->offSetYStore;
                 if (this->lastFrameUpdate + 0.2 < currentGame.getTime()) {
                     this->lastFrameUpdate = currentGame.getTime();
                     offsetY++;
                 }
-                if(offsetY > amountOfAnimationSprites)
+                if (offsetY > amountOfAnimationSprites)
                 {
                     offsetY = 1;
                 }
@@ -367,6 +381,94 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
     {
         offsetY = 1;
         transparant = 128;
+    }
+
+    if (listOfBuildingTemplates[type].getIsWall() && this->buildingCompleted && !typeOverride) {
+        /* Determine which wall type to draw.
+        *  Rules:
+        *  - A wall can only be a wall piece if it connects two other wall pieces in a line.
+        *  - If no straigt line can be formed that part of the wall is a corner.
+        *  - If a third wall tile is adjecent it will be a corner piece and not a wall
+        *
+        *  Going up and down                    { x+1 , y+1 }   AND { x-1, y-1 }    Sprite: 6
+        *  Going up left or down right means    { x, y-1 }      AND { x, y+1 }      Sprite: 3
+        *  Going down left or up right means    { x+1, y }      AND { x-1, y }      Sprite: 2
+        *  Going left to right                  { x-1, y+1}     AND { x+1, y-1}     Sprite: 4
+        *
+        *  Any other combination = sprite 1
+        */
+
+        if ( //Going up and down   
+                (
+                    isWallPiece({ this->getLocation().x + 1 , this->getLocation().y + 1 }) &&
+                    isWallPiece({ this->getLocation().x - 1, this->getLocation().y - 1 })
+                ) &&
+                !(  
+                    
+                    isWallPiece({ this->getLocation().x , this->getLocation().y - 1 }) ||
+                    isWallPiece({ this->getLocation().x , this->getLocation().y + 1}) ||
+                    isWallPiece({ this->getLocation().x + 1 , this->getLocation().y }) ||
+                    isWallPiece({ this->getLocation().x - 1 , this->getLocation().y }) ||
+                    isWallPiece({ this->getLocation().x - 1 , this->getLocation().y + 1 }) ||
+                    isWallPiece({ this->getLocation().x + 1 , this->getLocation().y - 1 })
+                 )
+            ) 
+        {
+            offsetY = 6;
+        } else if ( //Going up left or down right
+            (
+                isWallPiece({ this->getLocation().x , this->getLocation().y - 1 }) &&
+                isWallPiece({ this->getLocation().x , this->getLocation().y + 1 })
+
+                ) &&
+            !(
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y + 1 }) ||
+                isWallPiece({ this->getLocation().x - 1, this->getLocation().y - 1 }) ||
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y }) ||
+                isWallPiece({ this->getLocation().x - 1 , this->getLocation().y }) ||
+                isWallPiece({ this->getLocation().x - 1 , this->getLocation().y + 1 }) ||
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y - 1 })
+                )
+            )
+        {
+            offsetY = 3;
+        }
+        else if ( //Going down left or up right
+            (
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y }) &&
+                isWallPiece({ this->getLocation().x - 1 , this->getLocation().y })
+
+                ) &&
+            !(
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y + 1 }) ||
+                isWallPiece({ this->getLocation().x - 1, this->getLocation().y - 1 }) ||
+                isWallPiece({ this->getLocation().x , this->getLocation().y - 1 }) ||
+                isWallPiece({ this->getLocation().x , this->getLocation().y + 1 }) ||
+                isWallPiece({ this->getLocation().x - 1 , this->getLocation().y + 1 }) ||
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y - 1 })
+                )
+            )
+        {
+            offsetY = 2;
+        }
+        else if ( //Going left to right
+            (
+                isWallPiece({ this->getLocation().x - 1 , this->getLocation().y + 1 }) &&
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y - 1 })
+                
+                ) &&
+            !(
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y + 1 }) ||
+                isWallPiece({ this->getLocation().x - 1, this->getLocation().y - 1 }) ||
+                isWallPiece({ this->getLocation().x , this->getLocation().y - 1 }) ||
+                isWallPiece({ this->getLocation().x , this->getLocation().y + 1 }) ||
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y }) ||
+                isWallPiece({ this->getLocation().x - 1 , this->getLocation().y }) 
+                )
+            )
+        {
+            offsetY = 4;
+        }
     }
 
     listOfBuildingTemplates[type].getBuildingSprite().setTextureRect(sf::IntRect(0, listOfBuildingTemplates[type].getBuildingSprite().getTextureRect().height * offsetY, listOfBuildingTemplates[type].getBuildingSprite().getTextureRect().width, listOfBuildingTemplates[type].getBuildingSprite().getTextureRect().height));

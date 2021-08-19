@@ -13,9 +13,9 @@ class objects
 public:
     objects(){
         objectId =0;
-        objectType = objectTypes::berry;
-        location = { 0, 0 };
-        typeOfResource = resourceTypes::resourceFood;
+        objectType = objectTypes::cypress;
+        location = { -1, -1 };
+        typeOfResource = resourceTypes::resourceWood;
         resourceLeft = 0;
     }
     objects(objectTypes type, cords location, int objectId);

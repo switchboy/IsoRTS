@@ -305,6 +305,99 @@ int buildings::getType() const
     return this->buildingType;
 }
 
+bool buildings::canBeGate() const
+{
+    if (listOfBuildingTemplates[this->buildingType].getIsWall() && this->buildingCompleted) {
+        /* Determine which wall type to draw.
+        *  Rules:
+        *  - A wall can only be a wall piece if it connects two other wall pieces in a line.
+        *  - If no straigt line can be formed that part of the wall is a corner.
+        *  - If a third wall tile is adjecent it will be a corner piece and not a wall
+        *
+        *  Going up and down                    { x+1 , y+1 }   AND { x-1, y-1 }    Sprite: 6
+        *  Going up left or down right means    { x, y-1 }      AND { x, y+1 }      Sprite: 3
+        *  Going down left or up right means    { x+1, y }      AND { x-1, y }      Sprite: 2
+        *  Going left to right                  { x-1, y+1}     AND { x+1, y-1}     Sprite: 4
+        *
+        *  Any other combination = sprite 1
+        */
+
+        if ( //Going up and down   
+            (
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y + 1 }) &&
+                isWallPiece({ this->getLocation().x - 1, this->getLocation().y - 1 })
+                ) &&
+            !(
+
+                isWallPiece({ this->getLocation().x , this->getLocation().y - 1 }) ||
+                isWallPiece({ this->getLocation().x , this->getLocation().y + 1 }) ||
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y }) ||
+                isWallPiece({ this->getLocation().x - 1 , this->getLocation().y }) ||
+                isWallPiece({ this->getLocation().x - 1 , this->getLocation().y + 1 }) ||
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y - 1 })
+                )
+            )
+        {
+            return true;
+        }
+        else if ( //Going up left or down right
+            (
+                isWallPiece({ this->getLocation().x , this->getLocation().y - 1 }) &&
+                isWallPiece({ this->getLocation().x , this->getLocation().y + 1 })
+
+                ) &&
+            !(
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y + 1 }) ||
+                isWallPiece({ this->getLocation().x - 1, this->getLocation().y - 1 }) ||
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y }) ||
+                isWallPiece({ this->getLocation().x - 1 , this->getLocation().y }) ||
+                isWallPiece({ this->getLocation().x - 1 , this->getLocation().y + 1 }) ||
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y - 1 })
+                )
+            )
+        {
+            return true;
+        }
+        else if ( //Going down left or up right
+            (
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y }) &&
+                isWallPiece({ this->getLocation().x - 1 , this->getLocation().y })
+
+                ) &&
+            !(
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y + 1 }) ||
+                isWallPiece({ this->getLocation().x - 1, this->getLocation().y - 1 }) ||
+                isWallPiece({ this->getLocation().x , this->getLocation().y - 1 }) ||
+                isWallPiece({ this->getLocation().x , this->getLocation().y + 1 }) ||
+                isWallPiece({ this->getLocation().x - 1 , this->getLocation().y + 1 }) ||
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y - 1 })
+                )
+            )
+        {
+            return true;
+        }
+        else if ( //Going left to right
+            (
+                isWallPiece({ this->getLocation().x - 1 , this->getLocation().y + 1 }) &&
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y - 1 })
+
+                ) &&
+            !(
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y + 1 }) ||
+                isWallPiece({ this->getLocation().x - 1, this->getLocation().y - 1 }) ||
+                isWallPiece({ this->getLocation().x , this->getLocation().y - 1 }) ||
+                isWallPiece({ this->getLocation().x , this->getLocation().y + 1 }) ||
+                isWallPiece({ this->getLocation().x + 1 , this->getLocation().y }) ||
+                isWallPiece({ this->getLocation().x - 1 , this->getLocation().y })
+                )
+            )
+        {
+            return true;
+        }
+        return false;
+    }
+}
+
 cords buildings::getLocation() const
 {
     return this->startLocation;

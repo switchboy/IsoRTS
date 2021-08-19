@@ -81,6 +81,7 @@ public:
     int                         getRangedDMG() const;
     int                         getTeam() const;
     int                         getType() const;
+    bool                        canBeGate() const;
     resourceTypes               getRecievesWhichResources() const;
     std::list<cords>            getFootprintOfBuilding() const;
     std::pair<int, int>         getBuildingPoints() const;

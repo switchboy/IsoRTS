@@ -401,7 +401,8 @@ void loadBuildings()
         640,                                   //int                     bigSpriteYoffset
         true,                                  //bool                   isWall
         {                                      //                       Begin list of building buttons
-
+            {spriteTypes::spriteCancel, actionTypes::actionMakeGate},                                                   //TODO: sprite!
+            {spriteTypes::spriteLumberCamp, actionTypes::actionOpenOrCloseGate}                                         //TODO: sprite!
         }                                      //                       End list of building buttons
         });
 

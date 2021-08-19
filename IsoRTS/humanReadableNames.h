@@ -49,7 +49,9 @@ enum class actionTypes
     actionBuildBarracks,
     actionMakeSwordsman,
     actionBuildMiningCamp,
-    actionBuildWall
+    actionBuildWall,
+    actionMakeGate,
+    actionOpenOrCloseGate
 };
 
 enum class stackOrderTypes

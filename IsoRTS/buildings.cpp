@@ -232,6 +232,11 @@ void buildings::setCompleted()
     listOfPlayers[this->ownedByPlayer].addToPopulationRoom(this->supportsPopulationOf);
 }
 
+void buildings::setIsGate()
+{
+    this->isGate = true;
+}
+
 void buildings::setGateOpen(bool state)
 {
     this->gateIsOpen = state;
@@ -410,6 +415,7 @@ bool buildings::canBeGate() const
         }
         return false;
     }
+    return false;
 }
 
 cords buildings::getLocation() const

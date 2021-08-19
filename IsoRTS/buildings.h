@@ -88,6 +88,7 @@ public:
     std::vector<adjacentTile>   getDropOffTiles() const;
     std::vector<adjacentTile>   getFreeBuildingTile() const;
     void                        setCompleted();
+    void                        setIsGate();
     void                        setGateOpen(bool state);
     void                        setRallyPoint(cords goal, stackOrderTypes orderType);
 

@@ -110,6 +110,20 @@ void button::showToolTip() const
         toolTipText << "Cost: Food: " << listOfBuildingTemplates[7].getPriceOfBuilding().food << " Wood: " << listOfBuildingTemplates[7].getPriceOfBuilding().wood << " Stone: " << listOfBuildingTemplates[7].getPriceOfBuilding().stone << " Gold: " << listOfBuildingTemplates[7].getPriceOfBuilding().gold;
         toolTipDiscription << "Stone building that acts as a barrier. To place left-click a starting location then move the mouse to an end location and left-click again  ";
         break;
+    case actionTypes::actionMakeGate:
+        toolTipTitle << "Make gate";
+        toolTipDiscription << "Turns a section of straight wall into a gate. When opened all units can pass. When closed none shall pass.";
+        break;
+    case actionTypes::actionOpenOrCloseGate:
+        if (listOfBuildings[this->actorOrBuildingId].getGateIsOpen()) {
+            toolTipTitle << "Close the gate";
+            toolTipDiscription << "Thou shall not pass!";
+        }
+        else {
+            toolTipTitle << "Open the gate";
+            toolTipDiscription << "Lets everyone pass!";
+        }
+        break;
     }
 
     int longestStringLength = 0;
@@ -296,6 +310,12 @@ void button::performAction()
             gameText.addNewMessage(errortext.str(), 1);
         }
         break;
+    case actionTypes::actionMakeGate:
+        listOfBuildings[this->actorOrBuildingId].setIsGate(); // Todo decide if this should cost something
+        break;
+    case actionTypes::actionOpenOrCloseGate:
+        listOfBuildings[this->actorOrBuildingId].setGateOpen(!listOfBuildings[this->actorOrBuildingId].getGateIsOpen()); //Flip a bit!
+        break;
     }
 }
 
@@ -395,6 +415,18 @@ namespace buttons {
             break;
         case actionTypes::actionBuildWall:
             return true;
+            break;
+        case actionTypes::actionMakeGate:
+            if (listOfBuildings[unitOrBuildingId].canBeGate() && !listOfBuildings[unitOrBuildingId].getIsGate()) {
+                return true;
+            }
+            return false;
+            break;
+        case actionTypes::actionOpenOrCloseGate:
+            if (listOfBuildings[unitOrBuildingId].getIsGate()) {
+                return true;
+            }
+            return false;
             break;
         }
         return false;

@@ -114,15 +114,14 @@ void button::showToolTip() const
         toolTipTitle << "Make gate";
         toolTipDiscription << "Turns a section of straight wall into a gate. When opened all units can pass. When closed none shall pass.";
         break;
-    case actionTypes::actionOpenOrCloseGate:
-        if (listOfBuildings[this->actorOrBuildingId].getGateIsOpen()) {
-            toolTipTitle << "Close the gate";
-            toolTipDiscription << "Thou shall not pass!";
-        }
-        else {
+    case actionTypes::actionOpenGate:
             toolTipTitle << "Open the gate";
             toolTipDiscription << "Lets everyone pass!";
-        }
+        
+        break;
+    case actionTypes::actionCloseGate:
+            toolTipTitle << "Close the gate";
+            toolTipDiscription << "Thou shall not pass!";
         break;
     }
 
@@ -313,7 +312,10 @@ void button::performAction()
     case actionTypes::actionMakeGate:
         listOfBuildings[this->actorOrBuildingId].setIsGate(); // Todo decide if this should cost something
         break;
-    case actionTypes::actionOpenOrCloseGate:
+    case actionTypes::actionOpenGate:
+        listOfBuildings[this->actorOrBuildingId].setGateOpen(!listOfBuildings[this->actorOrBuildingId].getGateIsOpen()); //Flip a bit!
+        break;
+    case actionTypes::actionCloseGate:
         listOfBuildings[this->actorOrBuildingId].setGateOpen(!listOfBuildings[this->actorOrBuildingId].getGateIsOpen()); //Flip a bit!
         break;
     }
@@ -365,6 +367,15 @@ void button::drawButton() const
         xOffSet = 0;
         yOffset = 384;
         break;
+    case spriteTypes::spriteGate:
+        xOffSet = 0;
+        yOffset = 448;
+        break;
+    case spriteTypes::spriteOpenGate:
+        xOffSet = 192;
+        yOffset = 64;
+        break;
+
     }
     currentGame.spriteUIButton.setTextureRect(sf::IntRect(xOffSet, yOffset, 64, 64));
     currentGame.spriteUIButton.setPosition(static_cast<float>(this->positionX), static_cast<float>(this->positionY));
@@ -422,8 +433,14 @@ namespace buttons {
             }
             return false;
             break;
-        case actionTypes::actionOpenOrCloseGate:
-            if (listOfBuildings[unitOrBuildingId].getIsGate()) {
+        case actionTypes::actionOpenGate:
+            if (listOfBuildings[unitOrBuildingId].getIsGate() && !listOfBuildings[unitOrBuildingId].getGateIsOpen()) {
+                return true;
+            }
+            return false;
+            break;
+        case actionTypes::actionCloseGate:
+            if (listOfBuildings[unitOrBuildingId].getIsGate() && listOfBuildings[unitOrBuildingId].getGateIsOpen()) {
                 return true;
             }
             return false;

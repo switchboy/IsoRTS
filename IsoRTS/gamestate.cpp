@@ -1990,7 +1990,7 @@ void createVillagerButtons(int startX, int startY, int incrementalXOffset,  bool
         startY += incrementalXOffset;
         listOfButtons.push_back({ startX, startY, spriteTypes::spriteMiningCamp, actionTypes::actionBuildMiningCamp, 0, static_cast<int>(listOfButtons.size()), 0 });
         startX += incrementalXOffset;
-        listOfButtons.push_back({ startX, startY, spriteTypes::spriteMiningCamp, actionTypes::actionBuildWall, 0, static_cast<int>(listOfButtons.size()), 0 });
+        listOfButtons.push_back({ startX, startY, spriteTypes::spriteWall, actionTypes::actionBuildWall, 0, static_cast<int>(listOfButtons.size()), 0 });
 
         villagerButtonsAreThere = true;
     }

@@ -148,7 +148,6 @@ bool templateBuildings::getIsWall() const
     return this->isWall;
 }
 
-
 void templateBuildings::createBuildingButtons(int startX, int startY, int buildingId, int incrementalXOffset, bool& buttonsAreThere)
 {
     if (!buttonsAreThere) {
@@ -398,11 +397,12 @@ void loadBuildings()
         "textures/wall.png",                    //std::string             buildingTexture,
         {0,64},                                //cords                   origin
         "Wall",                                //std::string             realBuildingName;
-        640,                                   //int                     bigSpriteYoffset
+        768,                                   //int                     bigSpriteYoffset
         true,                                  //bool                   isWall
         {                                      //                       Begin list of building buttons
-            {spriteTypes::spriteCancel, actionTypes::actionMakeGate},                                                   //TODO: sprite!
-            {spriteTypes::spriteLumberCamp, actionTypes::actionOpenOrCloseGate}                                         //TODO: sprite!
+            {spriteTypes::spriteGate, actionTypes::actionMakeGate},                                                   
+            {spriteTypes::spriteOpenGate, actionTypes::actionOpenGate},
+            {spriteTypes::spriteGate, actionTypes::actionCloseGate}
         }                                      //                       End list of building buttons
         });
 

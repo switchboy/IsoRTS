@@ -162,7 +162,7 @@ void updateCells(int goalId, int startId, std::vector<Cells>& cellsList, bool ca
             else if (cantPassActors && !currentGame.isPassable({ i, j })) {
                 cellsList[n].obstacle = true;
             }
-            else if(!currentGame.isPassableButMightHaveActor({ i, j }))
+            else if (!currentGame.isPassableButMightHaveActor({ i, j }))
             {
                 cellsList[n].obstacle = true;
             }
@@ -181,82 +181,82 @@ void updateCells(int goalId, int startId, std::vector<Cells>& cellsList, bool ca
     }
 }
 
-void Cells::addNeighbours(const std::vector<Cells> &cellsList)
+void Cells::addNeighbours(const std::vector<Cells>& cellsList)
 {
-    if(this->position.x > 0)
+    if (this->position.x > 0)
     {
         //de cell links kan toegevoegd worden
-        if(!cellsList[this->cellId-MAP_HEIGHT].obstacle)
+        if (!cellsList[this->cellId - MAP_HEIGHT].obstacle)
         {
-            this->neighbours.push_back(this->cellId-MAP_HEIGHT);
+            this->neighbours.push_back(this->cellId - MAP_HEIGHT);
         }
     }
-    if(this->position.x < MAP_WIDTH-1)
+    if (this->position.x < MAP_WIDTH - 1)
     {
         //de cell rechts kan toegevoegd worden
-        if(!cellsList[this->cellId+MAP_HEIGHT].obstacle)
+        if (!cellsList[this->cellId + MAP_HEIGHT].obstacle)
         {
-            this->neighbours.push_back(this->cellId+MAP_HEIGHT);
+            this->neighbours.push_back(this->cellId + MAP_HEIGHT);
         }
     }
-    if(this->position.y > 0)
+    if (this->position.y > 0)
     {
         //de cell erboven kan toegevogd worden
-        if(!cellsList[this->cellId-1].obstacle)
+        if (!cellsList[this->cellId - 1].obstacle)
         {
-            this->neighbours.push_back(this->cellId-1);
+            this->neighbours.push_back(this->cellId - 1);
         }
     }
-    if(this->position.y != MAP_HEIGHT-1)
+    if (this->position.y != MAP_HEIGHT - 1)
     {
         //de cell eronder kan toegevoegd worden
-        if(!cellsList[this->cellId+1].obstacle)
+        if (!cellsList[this->cellId + 1].obstacle)
         {
-            this->neighbours.push_back(this->cellId+1);
+            this->neighbours.push_back(this->cellId + 1);
         }
     }
     //schuin gaan...
-    if(this->position.y != MAP_HEIGHT-1 && this->position.x < MAP_WIDTH-1)
+    if (this->position.y != MAP_HEIGHT - 1 && this->position.x < MAP_WIDTH - 1)
     {
         //de cell rechtsonder kan toegevoegd worden
-        if(!cellsList[this->cellId+1+MAP_HEIGHT].obstacle )
+        if (!cellsList[this->cellId + 1 + MAP_HEIGHT].obstacle)
         {
-            if(!(cellsList[this->cellId+1].obstacle && cellsList[this->cellId+MAP_HEIGHT].obstacle))
+            if (!(cellsList[this->cellId + 1].obstacle && cellsList[this->cellId + MAP_HEIGHT].obstacle))
             {
-                this->neighbours.push_back(this->cellId+1+MAP_HEIGHT);
+                this->neighbours.push_back(this->cellId + 1 + MAP_HEIGHT);
             }
         }
     }
-    if(this->position.y >0 && this->position.x < MAP_WIDTH-1)
+    if (this->position.y > 0 && this->position.x < MAP_WIDTH - 1)
     {
         //de cell rechtsboven kan toegevoegd worden
-        if(!cellsList[this->cellId-1+MAP_HEIGHT].obstacle)
+        if (!cellsList[this->cellId - 1 + MAP_HEIGHT].obstacle)
         {
-            if(!(cellsList[this->cellId-1].obstacle && cellsList[this->cellId+MAP_HEIGHT].obstacle))
+            if (!(cellsList[this->cellId - 1].obstacle && cellsList[this->cellId + MAP_HEIGHT].obstacle))
             {
-                this->neighbours.push_back(this->cellId-1+MAP_HEIGHT);
+                this->neighbours.push_back(this->cellId - 1 + MAP_HEIGHT);
             }
         }
     }
-    if(this->position.y != MAP_HEIGHT-1 && this->position.x > 0)
+    if (this->position.y != MAP_HEIGHT - 1 && this->position.x > 0)
     {
         //de cell linksonder kan toegevoegd worden
-        if(!cellsList[this->cellId+1-MAP_HEIGHT].obstacle)
+        if (!cellsList[this->cellId + 1 - MAP_HEIGHT].obstacle)
         {
-            if(!(cellsList[this->cellId+1].obstacle && cellsList[this->cellId-MAP_HEIGHT].obstacle))
+            if (!(cellsList[this->cellId + 1].obstacle && cellsList[this->cellId - MAP_HEIGHT].obstacle))
             {
-                this->neighbours.push_back(this->cellId+1-MAP_HEIGHT);
+                this->neighbours.push_back(this->cellId + 1 - MAP_HEIGHT);
             }
         }
     }
-    if(this->position.y >0 && this->position.x > 0)
+    if (this->position.y > 0 && this->position.x > 0)
     {
         //de cell rechtsboven kan toegevoegd worden
-        if(!cellsList[this->cellId-1-MAP_HEIGHT].obstacle)
+        if (!cellsList[this->cellId - 1 - MAP_HEIGHT].obstacle)
         {
-            if(!(cellsList[this->cellId-MAP_HEIGHT].obstacle && cellsList[this->cellId-1].obstacle))
+            if (!(cellsList[this->cellId - MAP_HEIGHT].obstacle && cellsList[this->cellId - 1].obstacle))
             {
-                this->neighbours.push_back(this->cellId-1-MAP_HEIGHT);
+                this->neighbours.push_back(this->cellId - 1 - MAP_HEIGHT);
             }
         }
     }
@@ -393,7 +393,8 @@ void actors::walkBackAfterAbortedCommand() {
         else {
             this->orientation = newOrientation(this->orientation, actorOrientation(this->dataOnPositionAbortedWalk.nPosition.x, this->dataOnPositionAbortedWalk.nPosition.y, this->dataOnPositionAbortedWalk.position.x, this->dataOnPositionAbortedWalk.position.y));
         }
-    } else {
+    }
+    else {
         //actor is done
         this->isWalkingToMiddleOfSquare = false;
         this->isWalkingBackXYDrawOverride.isActive = false;
@@ -434,7 +435,7 @@ void actors::update()
                             }
                         }
                     }
-                    if (!actorInListForPathfinding){ 
+                    if (!actorInListForPathfinding) {
                         this->retryWalkingOrChangeGoal();
                     }
                 }
@@ -448,7 +449,7 @@ void actors::update()
 }
 
 void actors::searchAltetnative() {
-    if (!this->routeNeedsPath){
+    if (!this->routeNeedsPath) {
         if (!this->pathFound) {
             if (this->isBuilding) {
                 this->getNewBuildingTileForSameBuilding();
@@ -574,22 +575,22 @@ void actors::setIsDoingAttack()
 
 void actors::doMeleeDamage()
 {
-    if (this->timeStartedGatheringRecource == 0.0f) 
+    if (this->timeStartedGatheringRecource == 0.0f)
     {
-        gameText.addNewMessage("We have engaged the Enemy!", 1);    
+        gameText.addNewMessage("We have engaged the Enemy!", 1);
     }
-    if (currentGame.elapsedTime - this->timeStartedGatheringRecource > this->rateOfFire) 
+    if (currentGame.elapsedTime - this->timeStartedGatheringRecource > this->rateOfFire)
     {
         this->timeStartedGatheringRecource = currentGame.elapsedTime;
         if (!currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y].empty()) {
-           if (listOfActors[currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y].front()].getTeam() != this->actorTeam) 
-           {
+            if (listOfActors[currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y].front()].getTeam() != this->actorTeam)
+            {
                 listOfActors[currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y].front()].takeDamage(this->meleeDamage, this->actorId);
-           }
+            }
         }
         else if (currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y] != -1)
         {
-            if (listOfBuildings[currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].getTeam() != this->actorTeam) 
+            if (listOfBuildings[currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].getTeam() != this->actorTeam)
             {
                 listOfBuildings[currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].takeDamage(this->meleeDamage);
             }
@@ -637,7 +638,7 @@ sf::IntRect actors::getLastIntRect() const
 
 std::string actors::nameOfActor() const
 {
-    switch(this->actorType)
+    switch (this->actorType)
     {
     case 0:
         return  "Villager";
@@ -731,7 +732,7 @@ void actors::clearRoute()
     }
 }
 
-void actors::startWalking() 
+void actors::startWalking()
 {
     this->hasMoved = true;
     this->retries = 0;
@@ -758,12 +759,12 @@ void actors::retryWalkingOrChangeGoal() {
         this->timeLastRetry = currentGame.getTime();
         if (this->retries < 30)
         {
-                this->actorGoal = this->actorCommandGoal;
-                this->routeNeedsPath = true;
-                this->pathFound = false;
-                this->realPath = false;
-                listOfActorsWhoNeedAPath.push_back(this->actorId);
-                this->retries += +1;
+            this->actorGoal = this->actorCommandGoal;
+            this->routeNeedsPath = true;
+            this->pathFound = false;
+            this->realPath = false;
+            listOfActorsWhoNeedAPath.push_back(this->actorId);
+            this->retries += +1;
         }
         else if (this->hasToUnloadResource || this->isGatheringRecources || this->isBuilding)
         {
@@ -791,19 +792,21 @@ void actors::walkToNextSquare() {
     // Deze actor heeft een doel, dit doel is nog niet bereikt en is klaar met het vorige stuk lopen!
     if (actorOrientation(this->actorCords.x, this->actorCords.y, this->route.back().position.x, this->route.back().position.y) == this->orientation)
     {
-        if ((this->isGatheringRecources || this->isMeleeAttacking)&& this->route.size() == 1){
+        if ((this->isGatheringRecources || this->isMeleeAttacking) && this->route.size() == 1) {
             //if (!this->isWalkingToUnloadingPoint) {
-                this->clearRoute();
-        } else if ((this->isGatheringRecources || this->isMeleeAttacking) && this->route.size() == 2) {
-                if (!currentGame.occupiedByActorList[this->route.back().position.x][this->route.back().position.y].empty()) {
-                    this->lastTile = true;
-                    this->retryWalkingOrChangeGoal();
-                }
-                else {
-                    this->listOfTargetsToRejectUntilSuccesfullMovement.clear();
-                    this->startWalking();
-                }
-        } else if (this->isRangedAttacking && distEuclidean(this->actorCords.x, this->actorCords.y, this->actorGoal.x, this->actorGoal.y) <= this->range)
+            this->clearRoute();
+        }
+        else if ((this->isGatheringRecources || this->isMeleeAttacking) && this->route.size() == 2) {
+            if (!currentGame.occupiedByActorList[this->route.back().position.x][this->route.back().position.y].empty()) {
+                this->lastTile = true;
+                this->retryWalkingOrChangeGoal();
+            }
+            else {
+                this->listOfTargetsToRejectUntilSuccesfullMovement.clear();
+                this->startWalking();
+            }
+        }
+        else if (this->isRangedAttacking && distEuclidean(this->actorCords.x, this->actorCords.y, this->actorGoal.x, this->actorGoal.y) <= this->range)
         {
             this->clearRoute();
         }
@@ -928,7 +931,7 @@ void actors::walkBackToOwnSquare()
     int eastWest;
     int diagonalX;
     int diagonalY;
-    if(this->ResourceBeingGatherd == resourceTypes::resourceWood)
+    if (this->ResourceBeingGatherd == resourceTypes::resourceWood)
     {
         northSouth = 22;
         eastWest = 55;
@@ -942,11 +945,11 @@ void actors::walkBackToOwnSquare()
         diagonalX = 11;
         diagonalY = 6;
     }
-    if(this->timeStartedWalkingToRecource == 0.0f)
+    if (this->timeStartedWalkingToRecource == 0.0f)
     {
         this->timeStartedWalkingToRecource = currentGame.elapsedTime;
     }
-    else if(currentGame.elapsedTime - this->timeStartedWalkingToRecource < 0.5f)
+    else if (currentGame.elapsedTime - this->timeStartedWalkingToRecource < 0.5f)
     {
         //0 N       0   degrees     = x-1  y-1
         //1 NE      45  degrees     = x    y-1
@@ -956,39 +959,39 @@ void actors::walkBackToOwnSquare()
         //5 SW      225 degrees     = x    y+1
         //6 W       270 degrees     = x-1  y+1
         //7 NW      315 degrees     = x-1  y
-        switch(this->orientation)
+        switch (this->orientation)
         {
         case 0:
             this->offSetX = 0;
-            this->offSetY = -northSouth+((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*northSouth;
+            this->offSetY = -northSouth + ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * northSouth;
             break;
         case 1:
-            this->offSetX = diagonalX-((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*diagonalX;
-            this->offSetY = -diagonalY+((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*diagonalY;
+            this->offSetX = diagonalX - ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalX;
+            this->offSetY = -diagonalY + ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalY;
             break;
         case 2:
-            this->offSetX = eastWest-((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*eastWest;
+            this->offSetX = eastWest - ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * eastWest;
             this->offSetY = 0;
             break;
         case 3:
-            this->offSetX = diagonalX-((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*diagonalX;
-            this->offSetY = diagonalY-((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*diagonalY;
+            this->offSetX = diagonalX - ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalX;
+            this->offSetY = diagonalY - ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalY;
             break;
         case 4:
             this->offSetX = 0;
-            this->offSetY = northSouth-((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*northSouth;
+            this->offSetY = northSouth - ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * northSouth;
             break;
         case 5:
-            this->offSetX = -diagonalX+((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*diagonalX;
-            this->offSetY = diagonalY-((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*diagonalY;
+            this->offSetX = -diagonalX + ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalX;
+            this->offSetY = diagonalY - ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalY;
             break;
         case 6:
-            this->offSetX = -eastWest+((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*eastWest;
+            this->offSetX = -eastWest + ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * eastWest;
             this->offSetY = 0;
             break;
         case 7:
-            this->offSetX = -diagonalX+((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*diagonalX;
-            this->offSetY = -diagonalY+((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*diagonalY;
+            this->offSetX = -diagonalX + ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalX;
+            this->offSetY = -diagonalY + ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalY;
             break;
         }
     }
@@ -1010,7 +1013,7 @@ void actors::startGatheringAnimation()
     int eastWest;
     int diagonalX;
     int diagonalY;
-    if(this->ResourceBeingGatherd == resourceTypes::resourceWood)
+    if (this->ResourceBeingGatherd == resourceTypes::resourceWood)
     {
         northSouth = 22;
         eastWest = 55;
@@ -1027,7 +1030,7 @@ void actors::startGatheringAnimation()
     this->isAtRecource = true;
     this->timeStartedWalkingToRecource = 0.0f;
     this->timeStartedGatheringRecource = currentGame.elapsedTime;
-    switch(this->orientation)
+    switch (this->orientation)
     {
     case 0:
         this->offSetX = 0;
@@ -1071,7 +1074,7 @@ void actors::animateWalkingToResource()
     int eastWest;
     int diagonalX;
     int diagonalY;
-    if(this->ResourceBeingGatherd == resourceTypes::resourceWood)
+    if (this->ResourceBeingGatherd == resourceTypes::resourceWood)
     {
         northSouth = 22;
         eastWest = 55;
@@ -1093,39 +1096,39 @@ void actors::animateWalkingToResource()
     //5 SW      225 degrees     = x    y+1
     //6 W       270 degrees     = x-1  y+1
     //7 NW      315 degrees     = x-1  y
-    switch(this->orientation)
+    switch (this->orientation)
     {
     case 0:
         this->offSetX = 0;
-        this->offSetY = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*northSouth*-1;
+        this->offSetY = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * northSouth * -1;
         break;
     case 1:
-        this->offSetX = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*diagonalX;
-        this->offSetY = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*diagonalY*-1;
+        this->offSetX = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalX;
+        this->offSetY = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalY * -1;
         break;
     case 2:
-        this->offSetX = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*eastWest;
+        this->offSetX = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * eastWest;
         this->offSetY = 0;
         break;
     case 3:
-        this->offSetX = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*diagonalX;
-        this->offSetY = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*diagonalY;
+        this->offSetX = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalX;
+        this->offSetY = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalY;
         break;
     case 4:
         this->offSetX = 0;
-        this->offSetY = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*northSouth;
+        this->offSetY = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * northSouth;
         break;
     case 5:
-        this->offSetX = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*diagonalX*-1;
-        this->offSetY = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*diagonalY;
+        this->offSetX = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalX * -1;
+        this->offSetY = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalY;
         break;
     case 6:
-        this->offSetX = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*eastWest*-1;
+        this->offSetX = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * eastWest * -1;
         this->offSetY = 0;
         break;
     case 7:
-        this->offSetX = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*diagonalX*-1;
-        this->offSetY = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f)*diagonalY*-1;
+        this->offSetX = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalX * -1;
+        this->offSetY = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalY * -1;
         break;
     }
 }
@@ -1181,7 +1184,7 @@ void actors::gatherResource()
 
 void actors::unloadAndReturnToGathering()
 {
-    switch(listOfBuildings[this->dropOffTile.buildingId].getRecievesWhichResources())
+    switch (listOfBuildings[this->dropOffTile.buildingId].getRecievesWhichResources())
     {
     case resourceTypes::resourceWood:
         //recieves only wood
@@ -1252,14 +1255,14 @@ void actors::unloadAndReturnToGathering()
         this->timeStartedWalkingToRecource = 0.0f;
         this->isFindingAlternative = true;
     }
-    
+
 }
 
 void actors::setGatheringRecource(bool flag)
 {
     this->isGatheringRecources = flag;
     this->isBuilding = false;
-    if (flag && currentGame.objectLocationList[this->actorGoal.x][this->actorGoal.y] != -1) 
+    if (flag && currentGame.objectLocationList[this->actorGoal.x][this->actorGoal.y] != -1)
     {
         this->ResourceBeingGatherd = listOfObjects[currentGame.objectLocationList[this->actorGoal.x][this->actorGoal.y]].getTypeOfResource();
         this->actionPreformedOnTile = this->actorGoal;
@@ -1355,7 +1358,7 @@ bool actors::isInitialized() const
 
 void actors::calculateRoute()
 {
-    if(this->routeNeedsPath)
+    if (this->routeNeedsPath)
     {
         this->route.clear();
         this->actorRealGoal = this->actorGoal;
@@ -1374,19 +1377,19 @@ void actors::calculateRoute()
 void actors::pathAStar()
 {
     std::vector<Cells> cellsList;
-    cellsList.reserve(MAP_HEIGHT*MAP_WIDTH);
-    int startCell = (actorCords.x*MAP_HEIGHT)+actorCords.y; //eigen positie
-    int endCell = (actorGoal.x*MAP_HEIGHT)+actorGoal.y; //doel positie
+    cellsList.reserve(MAP_HEIGHT * MAP_WIDTH);
+    int startCell = (actorCords.x * MAP_HEIGHT) + actorCords.y; //eigen positie
+    int endCell = (actorGoal.x * MAP_HEIGHT) + actorGoal.y; //doel positie
     updateCells(endCell, startCell, cellsList, this->lastTile);
-    std::list<Cells*> listToCheck;
+    std::vector<Cells*> listToCheck;
     std::list<Cells*> checkedList;
     bool endReached = false;
 
     //check of de doelcel niet 1 hokje weg is 
-    if(((actorCords.x-actorGoal.x == 0) ||(actorCords.x-actorGoal.x == -1) ||(actorCords.x-actorGoal.x == 1)) && ((actorCords.y-actorGoal.y == 0) ||(actorCords.y-actorGoal.y == -1) ||(actorCords.y-actorGoal.y == 1)))
+    if (((actorCords.x - actorGoal.x == 0) || (actorCords.x - actorGoal.x == -1) || (actorCords.x - actorGoal.x == 1)) && ((actorCords.y - actorGoal.y == 0) || (actorCords.y - actorGoal.y == -1) || (actorCords.y - actorGoal.y == 1)))
     {
         //en geen obstakel is of het hokje van de actor zelf is
-        if(!cellsList[endCell].obstacle || (actorCords.x == actorGoal.x && actorCords.y == actorGoal.y))
+        if (!cellsList[endCell].obstacle || (actorCords.x == actorGoal.x && actorCords.y == actorGoal.y))
         {
             this->pathFound = true;
             endReached = true;
@@ -1403,44 +1406,44 @@ void actors::pathAStar()
         cellsList[startCell].addNeighbours(cellsList);
         cellsList[startCell].totalCostGuess = dist(cellsList[startCell].position.x, cellsList[startCell].position.y, cellsList[endCell].position.x, cellsList[endCell].position.y);
         cellsList[startCell].visited = true;
-        cellsList[startCell].parentCellId =  -1;
+        cellsList[startCell].parentCellId = -1;
         cellsList[startCell].costToGoal = dist(cellsList[startCell].position.x, cellsList[startCell].position.y, cellsList[endCell].position.x, cellsList[endCell].position.y);
         //De startcel in de lijst van te checken cellen zetten om te kunnen beginnen
         listToCheck.push_back(&cellsList[startCell]);
     }
 
-    while(!listToCheck.empty() && startCell != endCell)
+    while (!listToCheck.empty() && startCell != endCell)
     {
         //sorteer de lijst en zet de cell met de laagste cost to goal bovenaan om het eerst te testen
-        listToCheck.sort([](const Cells* f, const Cells* s)
-        {
-            return f->totalCostGuess < s->totalCostGuess;
-        });
+        std::sort(listToCheck.begin(), listToCheck.end(), ([](const Cells* f, const Cells* s)
+            {
+                return f->totalCostGuess < s->totalCostGuess;
+            }));
 
         //Check of de te checken cell het doel is. Als dat zo is zijn we klaar
-        if((*listToCheck.front()).cellId == endCell)
+        if ((*listToCheck.front()).cellId == endCell)
         {
             listToCheck.clear();
             this->pathFound = true;
         }
-        else if(!listToCheck.empty())
+        else if (!listToCheck.empty())
         {
             //Loop door de lijst van "buurcellen van de te checken cell"
-            for (std::vector<int>::const_iterator iterator =  (*listToCheck.front()).neighbours.begin(), end =  (*listToCheck.front()).neighbours.end(); iterator != end; ++iterator)
+            for (std::vector<int>::const_iterator iterator = (*listToCheck.front()).neighbours.begin(), end = (*listToCheck.front()).neighbours.end(); iterator != end; ++iterator)
             {
                 //Kijk of deze cell eerder bezocht is
-                if(!cellsList[*iterator].visited)
+                if (!cellsList[*iterator].visited)
                 {
                     //Deze cell heeft geen parent is is dus nooit eerder gevonden! De buren moeten dus toegevoegd worden!
                     cellsList[*iterator].addNeighbours(cellsList);
                     //De cell waarvan we de neighbours onderzoeken is uiteraard tot nu toe de kortste route hiernaartoe
                     cellsList[*iterator].parentCellId = (*listToCheck.front()).cellId;
                     //Nu moeten de kosten voor de route hiernatoe uitgerekend worden (Dit zijn de kosten van naar de parent gaan +1)
-                    cellsList[*iterator].cummulativeCost = (*listToCheck.front()).cummulativeCost+1;
+                    cellsList[*iterator].cummulativeCost = (*listToCheck.front()).cummulativeCost + 1;
                     //Als laatste zetten we de cell in de lijst met cellen die gecheckt moet worden
                     listToCheck.push_back(&cellsList[*iterator]);
                     //En we schatten vanaf deze cell de kosten naar het doel
-                    cellsList[*iterator].costToGoal = dist(cellsList[*iterator].position.x,cellsList[*iterator].position.y,cellsList[endCell].position.x,cellsList[endCell].position.y);
+                    cellsList[*iterator].costToGoal = dist(cellsList[*iterator].position.x, cellsList[*iterator].position.y, cellsList[endCell].position.x, cellsList[endCell].position.y);
                     //Waardoor we dus de totale kosten kunnen schatten
                     cellsList[*iterator].totalCostGuess = cellsList[*iterator].costToGoal + cellsList[*iterator].cummulativeCost;
                     //We zijn voor nu klaar met deze tegel en laten een vlag achter dat de tegel al eens bekeken is
@@ -1450,11 +1453,11 @@ void actors::pathAStar()
                 {
                     //Deze tegel is al eerder gevonden, de buren staan dus al in de te checken cell lijst en hoeft niet opnieuw gechecked te worden
                     //We moeten wel weten of de route waarmee deze tegel nu is aangedaan niet korter is dan een eerder gevonden route
-                    if((*listToCheck.front()).cummulativeCost+1 < cellsList[*iterator].cummulativeCost)
+                    if ((*listToCheck.front()).cummulativeCost + 1 < cellsList[*iterator].cummulativeCost)
                     {
                         //Er is een kortere route naar deze cell! Pas de parent cell dus aan en geef een nieuwe cummulative Cost;
                         cellsList[*iterator].parentCellId = (*listToCheck.front()).cellId;
-                        cellsList[*iterator].cummulativeCost = (*listToCheck.front()).cummulativeCost+1;
+                        cellsList[*iterator].cummulativeCost = (*listToCheck.front()).cummulativeCost + 1;
                         //Uiteraard verranderd dit dan ook de geschatte totale kosten vanaf deze tegel
                         cellsList[*iterator].totalCostGuess = cellsList[*iterator].costToGoal + cellsList[*iterator].cummulativeCost;
                     }
@@ -1463,13 +1466,14 @@ void actors::pathAStar()
             //zet de tegel op de bezochte tegellijst
             checkedList.push_back(&cellsList[(*listToCheck.front()).cellId]);
             //en haal hem van de te bezoeken tegellijst
-            listToCheck.pop_front();
+            listToCheck.front() = std::move(listToCheck.back());
+            listToCheck.pop_back();
         }
     }
     //Alle tegels die te bereiken zijn zijn bekeken of er is een route gevonden.
     //Maak een route door de parent cells achter elkaar te zetten tot de begin cell
     this->route.clear();
-    if(this->pathFound)
+    if (this->pathFound)
     {
         //Er is een pad naar het doel gevonden! Stippel de route maar uit!
         routing(cellsList, endCell, startCell, endReached);
@@ -1640,8 +1644,8 @@ void actors::routing(std::vector<Cells>& cellsList, int endCell, int startCell, 
             //Voeg voor iedere tegel de parent toe aan de lijst (dit was de tegel met de korste weg naar deze tegel)
             this->route.push_back({ cellsList[route.back().parentCellId].position, cellsList[route.back().parentCellId].visited, cellsList[route.back().parentCellId].parentCellId });
             if (this->route.back().parentCellId == startCell) {
-                    //Als de nu volgende parentCell de tegel is waar de actor op staat zijn we klaar.
-                    endReached = true;
+                //Als de nu volgende parentCell de tegel is waar de actor op staat zijn we klaar.
+                endReached = true;
             }
             if (this->route.back().parentCellId == -1) {
                 endReached = true;
@@ -1652,7 +1656,7 @@ void actors::routing(std::vector<Cells>& cellsList, int endCell, int startCell, 
                 if (this->route.back().position.x == 0 && this->route.back().position.x == 1) {
                     //Logische parent; doe niets!
                 }
-                else if(this->route.back().position.x == 0 && this->route.back().position.x == 1) {
+                else if (this->route.back().position.x == 0 && this->route.back().position.x == 1) {
                     //Logische parent; doe niets!
                 }
                 else if (this->route.back().position.x == 1 && this->route.back().position.x == 1) {
@@ -1674,9 +1678,9 @@ void actors::routing(std::vector<Cells>& cellsList, int endCell, int startCell, 
 
 void actors::cleanUp()
 {
-    for(int i =0; i < MAP_WIDTH; i++)
+    for (int i = 0; i < MAP_WIDTH; i++)
     {
-        for(int j = 0; j < MAP_HEIGHT; j++)
+        for (int j = 0; j < MAP_HEIGHT; j++)
         {
             currentGame.occupiedByActorList[i][j].erase(std::remove(currentGame.occupiedByActorList[i][j].begin(), currentGame.occupiedByActorList[i][j].end(), this->actorId), currentGame.occupiedByActorList[i][j].end());
         }
@@ -1686,7 +1690,7 @@ void actors::cleanUp()
 
 std::pair<int, int> actors::getHealth() const
 {
-    return {this->actorHealth, this->hitPoints};
+    return { this->actorHealth, this->hitPoints };
 }
 
 int actors::getMeleeDMG() const
@@ -1709,12 +1713,12 @@ void actors::drawActor()
     int spriteXoffset = 0;
     int spriteYoffset = 0;
 
-    if(this->busyWalking || this->timeStartedWalkingToRecource > 0.0f)
+    if (this->busyWalking || this->timeStartedWalkingToRecource > 0.0f)
     {
-        if(currentGame.elapsedTime-this->timeLastOffsetChange > 0.2f)
+        if (currentGame.elapsedTime - this->timeLastOffsetChange > 0.2f)
         {
             this->spriteYOffset = this->spriteYOffset + 32;
-            if(this->spriteYOffset > 128)
+            if (this->spriteYOffset > 128)
             {
                 this->spriteYOffset = 32;
             }
@@ -1727,17 +1731,17 @@ void actors::drawActor()
             int deltaY = position.y - nPosition.y;
             float deltaTime = currentGame.elapsedTime - this->timeLastUpdate;
             float speedMultiplier = 1.f / this->timeToCrossOneTile;
-            float deltaXCompleted = deltaX * (deltaTime * speedMultiplier);  
+            float deltaXCompleted = deltaX * (deltaTime * speedMultiplier);
             float deltaYCompleted = deltaY * (deltaTime * speedMultiplier);
             position = { position.x - static_cast<int>(deltaXCompleted),  position.y - static_cast<int>(deltaYCompleted) };
         }
     }
-    else if(this->isAtRecource)
+    else if (this->isAtRecource)
     {
-        if(currentGame.elapsedTime-this->timeLastOffsetChange > 0.2f)
+        if (currentGame.elapsedTime - this->timeLastOffsetChange > 0.2f)
         {
             this->spriteYOffset = this->spriteYOffset + 32;
-            if(this->spriteYOffset > 128)
+            if (this->spriteYOffset > 128)
             {
                 this->spriteYOffset = 0;
             }
@@ -1748,7 +1752,7 @@ void actors::drawActor()
     {
         this->spriteYOffset = 0;
     }
-    switch(this->spriteYOffset)
+    switch (this->spriteYOffset)
     {
     case 0:
         spriteYoffset = 0;
@@ -1767,22 +1771,22 @@ void actors::drawActor()
         break;
     }
     int spriteOffset = 0;
-    if(this->isAtRecource)
+    if (this->isAtRecource)
     {
-        if(this->ResourceBeingGatherd == resourceTypes::resourceWood)
+        if (this->ResourceBeingGatherd == resourceTypes::resourceWood)
         {
             spriteOffset = 128;
         }
-        else if(this->ResourceBeingGatherd == resourceTypes::resourceFood || this->ResourceBeingGatherd == resourceTypes::resourceStone)
+        else if (this->ResourceBeingGatherd == resourceTypes::resourceFood || this->ResourceBeingGatherd == resourceTypes::resourceStone)
         {
             spriteOffset = 256;
         }
-        else if(this->ResourceBeingGatherd == resourceTypes::resourceGold)
+        else if (this->ResourceBeingGatherd == resourceTypes::resourceGold)
         {
             spriteOffset = 384;
         }
     }
-    switch(this->orientation)
+    switch (this->orientation)
     {
     case 0:
         spriteXoffset = 80 + spriteOffset;
@@ -1821,7 +1825,7 @@ void actors::drawActor()
     bool drawHealth = false;
 
     //determine if actor is the only actor on the tile
-    if(currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].size() > 1){
+    if (currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].size() > 1) {
         //Tile is occupied by more then one actor!
         int id = 0;
         for (auto& actorId : currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y]) {
@@ -1836,7 +1840,7 @@ void actors::drawActor()
         }
     }
 
-    if(currentGame.isInSelectedActors(this->actorId))
+    if (currentGame.isInSelectedActors(this->actorId))
     {
         currentGame.spriteUnitSelectedTile.setPosition(static_cast<float>(position.x), static_cast<float>(position.y));
         window.draw(currentGame.spriteUnitSelectedTile);
@@ -1846,11 +1850,12 @@ void actors::drawActor()
                 currentGame.listOfFlagsToDraw.push_back(order.goal);
             }
         }
-    } else if (this->actorHealth < this->hitPoints) {
+    }
+    else if (this->actorHealth < this->hitPoints) {
         drawHealth = true;
     }
 
-   
+
     //Draw the actor
     listOfActorTemplates[this->actorType].setSpritePosition(position);
     listOfActorTemplates[this->actorType].getActorSprite().setTextureRect(sf::IntRect(spriteXoffset, spriteYoffset, 16, 32));
@@ -1866,8 +1871,8 @@ void actors::drawActor()
         currentGame.healthBarBackground.setSize(sf::Vector2f(32, 3));
         currentGame.healthBarGreenBar.setFillColor(sf::Color(0, 255, 0));
         currentGame.healthBarGreenBar.setSize(sf::Vector2f((static_cast<float>(this->actorHealth) / static_cast<float>(this->hitPoints)) * 32, 3));
-        currentGame.healthBarBackground.setPosition(static_cast<float>(position.x+16), static_cast<float>(position.y-28));
-        currentGame.healthBarGreenBar.setPosition(static_cast<float>(position.x+16), static_cast<float>(position.y-28));
+        currentGame.healthBarBackground.setPosition(static_cast<float>(position.x + 16), static_cast<float>(position.y - 28));
+        currentGame.healthBarGreenBar.setPosition(static_cast<float>(position.x + 16), static_cast<float>(position.y - 28));
         window.draw(currentGame.healthBarBackground);
         window.draw(currentGame.healthBarGreenBar);
 
@@ -1876,11 +1881,11 @@ void actors::drawActor()
 
 void actors::buildBuilding()
 {
-    if(currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y] != -1)
+    if (currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y] != -1)
     {
-        if(!listOfBuildings[currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].getCompleted())
+        if (!listOfBuildings[currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].getCompleted())
         {
-            if(currentGame.elapsedTime - this->timeStartedGatheringRecource > 1)
+            if (currentGame.elapsedTime - this->timeStartedGatheringRecource > 1)
             {
                 listOfBuildings[currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].addBuildingPoint();
                 this->timeStartedGatheringRecource = currentGame.elapsedTime;
@@ -1942,7 +1947,7 @@ void actors::setIsBuildingTrue(int buildingId, cords goal)
 void actors::renderPath()
 {
     std::list<routeCell>::iterator it;
-    for(it = route.begin(); it!=route.end(); it++)
+    for (it = route.begin(); it != route.end(); it++)
     {
         currentGame.spriteSelectedTileForPath.setPosition(static_cast<float>(worldSpace(it->position).x), static_cast<float>(worldSpace(it->position).y));
         window.draw(currentGame.spriteSelectedTileForPath);

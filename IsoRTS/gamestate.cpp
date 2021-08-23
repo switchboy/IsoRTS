@@ -266,11 +266,10 @@ bool gameState::buildingIsSelected(int id) const
 
 void gameState::drawMap()
 {
-
-    int lowX = toWorldMousePosition(viewOffsetX - (mainWindowWidth / 2), static_cast<int>(viewOffsetY - ((mainWindowWidth * 0.8) / 2))).x;
-    int highX = toWorldMousePosition(viewOffsetX + (mainWindowWidth / 2), static_cast<int>(viewOffsetY + ((mainWindowWidth * 0.8) / 2))).x;
-    int lowY = toWorldMousePosition(viewOffsetX, viewOffsetY - (mainWindowWidth / 2)).y;
-    int highY = toWorldMousePosition(viewOffsetX, viewOffsetY + (mainWindowWidth / 2)).y;
+    int lowX = toWorldMousePosition(viewOffsetX - halfOfMainWindowWidth, viewOffsetY - visableHalfOfMainWindowWidth).x;
+    int highX = toWorldMousePosition(viewOffsetX + halfOfMainWindowWidth, viewOffsetY + visableHalfOfMainWindowWidth).x;
+    int lowY = toWorldMousePosition(viewOffsetX, viewOffsetY - halfOfMainWindowWidth).y;
+    int highY = toWorldMousePosition(viewOffsetX, viewOffsetY + halfOfMainWindowWidth).y;
     if (lowX < 0) { lowX = 0; }
     if (highX >= MAP_WIDTH) { highX = MAP_WIDTH; }
     if (lowY < 0) { lowY = 0; }

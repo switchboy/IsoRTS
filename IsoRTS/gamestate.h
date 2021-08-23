@@ -14,6 +14,7 @@
 
 
 
+
 struct adjacentTile
 {
     int tileId;
@@ -23,8 +24,7 @@ struct adjacentTile
     int actorId;
 };
 
-extern int mainWindowWidth;
-extern int mainWindowHeigth;
+
 extern sf::RenderWindow window;
 extern sf::View totalView;
 extern sf::View topBar;
@@ -205,6 +205,7 @@ private:
     const int totalBarLength = static_cast<int>(round(static_cast<float>(mainWindowWidth / 6.4f)));
     const int spaceBetweenFogOfWarSectorsOnXAxis = MAP_WIDTH / 4;
     const int spaceBetweenFogOfWarSectorsOnYAxis = MAP_HEIGHT / 4;
+
 
 };
 

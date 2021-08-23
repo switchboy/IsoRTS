@@ -2,8 +2,7 @@
 #define MAIN_H_INCLUDED
 #include "globalfunctions.h"
 
-int mainWindowWidth = 1920;
-int mainWindowHeigth = 1080;
+
 
 sf::RenderWindow window(sf::VideoMode(static_cast<unsigned int>(mainWindowWidth), static_cast<unsigned int>(mainWindowHeigth)), "Isometric Demo");
 sf::View totalView(sf::FloatRect(0.f, 0.f, static_cast<float>(mainWindowWidth), static_cast<float>(mainWindowHeigth)));

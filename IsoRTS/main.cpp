@@ -27,7 +27,7 @@ void routeHelper(int i)
 
 void updateActorHelper(int i)
 {
-    if(listOfActors[i].isInitialized())
+    if (listOfActors[i].isInitialized())
     {
         listOfActors[i].update();
     }
@@ -53,7 +53,7 @@ void clearOldCommandCursors()
     }
 }
 
-void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& lastProjectile){
+void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& lastProjectile) {
     for (int i = 0; i < currentGame.getPlayerCount(); i++) {
         listOfPlayers[i].clearLists();
 
@@ -89,7 +89,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
                 listOfPlayers[listOfActors[n].getTeam()].insertSwordsman(n);
             }
         }
-    }    
+    }
     if (!listOfAI.empty()) {
         for (int i = 0; i < listOfAI.size(); i++) {
             listOfAI[i].update();
@@ -102,7 +102,8 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
         }
         //update porjectile positions
         for (int i = lastProjectile; i < endProjectile; i++) {
-            auto projectileCalculations = std::async(std::launch::async, projectileHelper, i);
+            //auto projectileCalculations = std::async(std::launch::async, projectileHelper, i);
+            projectileHelper(i);
         }
         //Erase old projectiles (older then 30 sec)
         auto iter = std::find_if(listOfProjectiles.begin(), listOfProjectiles.end(),
@@ -125,8 +126,9 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
             if (endPath > static_cast<int>(listOfActorsWhoNeedAPath.size())) {
                 endPath = static_cast<int>(listOfActorsWhoNeedAPath.size());
             }
-            for (int i = lastPath; i < endPath; i++){
-                auto routing = std::async(std::launch::async, routeHelper, listOfActorsWhoNeedAPath[i]);
+            for (int i = lastPath; i < endPath; i++) {
+                //auto routing = std::async(std::launch::async, routeHelper, listOfActorsWhoNeedAPath[i]);
+                routeHelper(listOfActorsWhoNeedAPath[i]);
             }
             int after = static_cast<int>(listOfActorsWhoNeedAPath.size());
             if (endPath == listOfActorsWhoNeedAPath.size()) {
@@ -134,7 +136,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
                 listOfActorsWhoNeedAPath.clear();
             }
             else {
-               lastPath = endPath;
+                lastPath = endPath;
             }
         }
 
@@ -144,7 +146,8 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
         }
         for (int i = lastActor; i < endActor; i++)
         {
-            auto actorUpdater = std::async(std::launch::async, updateActorHelper, i);
+            //auto actorUpdater = std::async(std::launch::async, updateActorHelper, i);
+            updateActorHelper(i);
         }
         if (endActor == static_cast<int>(listOfActors.size())) {
             lastActor = 0;
@@ -162,6 +165,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
         for (int i = lastBuilding; i < endBuilding; i++)
         {
             auto buildingUpdater = std::async(std::launch::async, updateBuildingsHelper, i);
+            updateBuildingsHelper(i);
         }
         if (endBuilding == static_cast<int>(listOfBuildings.size())) {
             lastBuilding = 0;
@@ -170,22 +174,22 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
             lastBuilding = endBuilding;
         }
     }
-  
+
 }
 
 int main()
 {
     sf::Clock clockMain;
-    int lastActor =0;
-    int lastBuilding=0;
-    int lastPath=0;
-    int lastProjectile=0;
+    int lastActor = 0;
+    int lastBuilding = 0;
+    int lastPath = 0;
+    int lastProjectile = 0;
     currentGame.loadGame();
     for (int i = 0; i < currentGame.getPlayerCount() - 1; i++) {
-        simpleAI newAIPlayer(i+1, 0);
+        simpleAI newAIPlayer(i + 1, 0);
         listOfAI.push_back(newAIPlayer);
     }
-    while(window.isOpen())
+    while (window.isOpen())
     {
         sf::Time elapsedMain = clockMain.getElapsedTime();
         currentGame.elapsedTime = elapsedMain.asSeconds();

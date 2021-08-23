@@ -183,80 +183,13 @@ void updateCells(int goalId, int startId, std::vector<Cells>& cellsList, bool ca
 
 void Cells::addNeighbours(const std::vector<Cells>& cellsList)
 {
-    if (this->position.x > 0)
-    {
-        //de cell links kan toegevoegd worden
-        if (!cellsList[this->cellId - MAP_HEIGHT].obstacle)
-        {
-            this->neighbours.push_back(this->cellId - MAP_HEIGHT);
-        }
-    }
-    if (this->position.x < MAP_WIDTH - 1)
-    {
-        //de cell rechts kan toegevoegd worden
-        if (!cellsList[this->cellId + MAP_HEIGHT].obstacle)
-        {
-            this->neighbours.push_back(this->cellId + MAP_HEIGHT);
-        }
-    }
-    if (this->position.y > 0)
-    {
-        //de cell erboven kan toegevogd worden
-        if (!cellsList[this->cellId - 1].obstacle)
-        {
-            this->neighbours.push_back(this->cellId - 1);
-        }
-    }
-    if (this->position.y != MAP_HEIGHT - 1)
-    {
-        //de cell eronder kan toegevoegd worden
-        if (!cellsList[this->cellId + 1].obstacle)
-        {
-            this->neighbours.push_back(this->cellId + 1);
-        }
-    }
-    //schuin gaan...
-    if (this->position.y != MAP_HEIGHT - 1 && this->position.x < MAP_WIDTH - 1)
-    {
-        //de cell rechtsonder kan toegevoegd worden
-        if (!cellsList[this->cellId + 1 + MAP_HEIGHT].obstacle)
-        {
-            if (!(cellsList[this->cellId + 1].obstacle && cellsList[this->cellId + MAP_HEIGHT].obstacle))
-            {
-                this->neighbours.push_back(this->cellId + 1 + MAP_HEIGHT);
-            }
-        }
-    }
-    if (this->position.y > 0 && this->position.x < MAP_WIDTH - 1)
-    {
-        //de cell rechtsboven kan toegevoegd worden
-        if (!cellsList[this->cellId - 1 + MAP_HEIGHT].obstacle)
-        {
-            if (!(cellsList[this->cellId - 1].obstacle && cellsList[this->cellId + MAP_HEIGHT].obstacle))
-            {
-                this->neighbours.push_back(this->cellId - 1 + MAP_HEIGHT);
-            }
-        }
-    }
-    if (this->position.y != MAP_HEIGHT - 1 && this->position.x > 0)
-    {
-        //de cell linksonder kan toegevoegd worden
-        if (!cellsList[this->cellId + 1 - MAP_HEIGHT].obstacle)
-        {
-            if (!(cellsList[this->cellId + 1].obstacle && cellsList[this->cellId - MAP_HEIGHT].obstacle))
-            {
-                this->neighbours.push_back(this->cellId + 1 - MAP_HEIGHT);
-            }
-        }
-    }
-    if (this->position.y > 0 && this->position.x > 0)
-    {
-        //de cell rechtsboven kan toegevoegd worden
-        if (!cellsList[this->cellId - 1 - MAP_HEIGHT].obstacle)
-        {
-            if (!(cellsList[this->cellId - MAP_HEIGHT].obstacle && cellsList[this->cellId - 1].obstacle))
-            {
-                this->neighbours.push_back(this->cellId - 1 - MAP_HEIGHT);
+    for (int i = this->position.x - 1; i < this->position.x + 2; i++) {
+        for (int j = this->position.y - 1; j < this->position.y + 2; j++) {
+            if (i >= 0 && i < MAP_WIDTH && j >= 0 && j < MAP_HEIGHT && !(i == this->position.x && j == this->position.y)) {
+                if (!cellsList[(i * MAP_HEIGHT) + j].obstacle)
+                {
+                    this->neighbours.push_back((i * MAP_HEIGHT) + j);
+                }
             }
         }
     }

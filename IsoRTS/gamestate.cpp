@@ -15,11 +15,13 @@
 #include <vector>
 
 
-sf::RenderTexture minimapBuildingsTexture;
-sf::RenderTexture minimapActorsTexture;
-sf::RenderTexture minimapMistTexture;
-std::array<sf::RenderTexture, 16> minimapMistSectors;
-sf::RenderTexture minimapObjectsTexture;
+sf::VertexArray miniMapBackGroundPoints(sf::Quads, MAP_HEIGHT* MAP_WIDTH * 4);
+sf::VertexArray miniMapBuildingPoints(sf::Quads, MAP_HEIGHT* MAP_WIDTH * 4);
+sf::VertexArray miniMapActorPoints(sf::Quads, MAP_HEIGHT* MAP_WIDTH * 4);
+sf::VertexArray miniMapMistPoints(sf::Quads, MAP_HEIGHT* MAP_WIDTH * 4);
+sf::VertexArray miniMapObjectPoints(sf::Quads, MAP_HEIGHT* MAP_WIDTH * 4);
+
+
 
 bool noNewBuildings;
 
@@ -1596,6 +1598,19 @@ void gameState::interact()
         this->isPressedTab = false;
     }
 
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::F) && this->focus) {
+        if (this->isPressedShift) {
+            this->noFogOfWar = (!this->noFogOfWar);
+        }
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q) && this->focus) {
+        if (this->isPressedShift) {
+            this->useVertex = (!this->useVertex);
+        }
+    }
+
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && this->focus)
     {
         this->mouseLeftClick();
@@ -1738,7 +1753,8 @@ int gameState::getPlayerCount() const
 
 void gameState::drawMiniMapBackground(sf::RectangleShape& miniMapPixel)
 {
-    if (!this->miniMapBackGroundDrawn) {
+    if (!this->miniMapBackGroundDrawn)
+    {
         static const sf::Color colors[] =
         {
             {0, 0, 0},
@@ -1762,13 +1778,15 @@ void gameState::drawMiniMapBackground(sf::RectangleShape& miniMapPixel)
             {
                 for (int i = 0; i < MAP_WIDTH; i++)
                 {
-                    miniMapPixel.setFillColor(colors[currentGame.currentMap[i][j]]);
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
-                    minimapTexture.draw(miniMapPixel);
+                    sf::Vertex* currentMiniMapQuad = &miniMapBackGroundPoints[((i * MAP_HEIGHT) + j) * 4];
+                    //Each quad should be 20px wide and 10px high. We define them clockwise from the top left (x + 0 and y + 0)
+                    currentMiniMapQuad[0].color = colors[currentGame.currentMap[i][j]];
+                    currentMiniMapQuad[1].color = colors[currentGame.currentMap[i][j]];
+                    currentMiniMapQuad[2].color = colors[currentGame.currentMap[i][j]];
+                    currentMiniMapQuad[3].color = colors[currentGame.currentMap[i][j]];
                 }
 
             }
-            minimapTexture.display();
             minimapTextureExist = true;
         }
         this->miniMapBackGroundDrawn = true;
@@ -1779,56 +1797,62 @@ void drawMiniMapBuildings(sf::RectangleShape& miniMapPixel)
 {
     if(!noNewBuildings)
     {
-        minimapBuildingsTexture.clear(sf::Color(0,0,0,0));
         for(int j = 0; j < MAP_HEIGHT; j++)
         {
             for(int i = 0; i < MAP_WIDTH; i++ )
             {
+                sf::Vertex* currentMiniMapQuad = &miniMapBuildingPoints[((i * MAP_HEIGHT) + j) * 4];
                 if(currentGame.occupiedByBuildingList[i][j] != -1)
                 {
-                    miniMapPixel.setFillColor(teamColors[listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam()]);
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
-                    minimapBuildingsTexture.draw(miniMapPixel);
+                    
+                    //Each quad should be 20px wide and 10px high. We define them clockwise from the top left (x + 0 and y + 0)
+                    currentMiniMapQuad[0].color = teamColors[listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam()];
+                    currentMiniMapQuad[1].color = teamColors[listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam()];
+                    currentMiniMapQuad[2].color = teamColors[listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam()];
+                    currentMiniMapQuad[3].color = teamColors[listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam()];                   
+                }
+                else {
+                    //Pixel is not occupied so make it tansparant        
+                    currentMiniMapQuad[0].color = sf::Color({0,0,0,0});
+                    currentMiniMapQuad[1].color = sf::Color({ 0,0,0,0 });
+                    currentMiniMapQuad[2].color = sf::Color({ 0,0,0,0 });
+                    currentMiniMapQuad[3].color = sf::Color({ 0,0,0,0 });
                 }
             }
         }
-        minimapBuildingsTexture.display();
         noNewBuildings = true;
     }
 }
 
 void gameState::drawMiniMapActors(sf::RectangleShape& miniMapPixel)
 {
-    minimapActorsTexture.clear(sf::Color(0,0,0,0));
     for(int j = 0; j < MAP_HEIGHT; j++)
     {
         for(int i = 0; i < MAP_WIDTH; i++ )
         {
-            if (this->visability[i][j] == 2) {
-                if (!currentGame.occupiedByActorList[i][j].empty())
-                {
-                    miniMapPixel.setFillColor(teamColors[listOfActors[currentGame.occupiedByActorList[i][j].front()].getTeam()]);
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
-                    minimapActorsTexture.draw(miniMapPixel);
-                }
+            sf::Vertex* currentMiniMapQuad = &miniMapActorPoints[((i * MAP_HEIGHT) + j) * 4];
+            if (this->visability[i][j] == 2 && !currentGame.occupiedByActorList[i][j].empty()) {
+                currentMiniMapQuad[0].color = teamColors[listOfActors[currentGame.occupiedByActorList[i][j].front()].getTeam()];
+                currentMiniMapQuad[1].color = teamColors[listOfActors[currentGame.occupiedByActorList[i][j].front()].getTeam()];
+                currentMiniMapQuad[2].color = teamColors[listOfActors[currentGame.occupiedByActorList[i][j].front()].getTeam()];
+                currentMiniMapQuad[3].color = teamColors[listOfActors[currentGame.occupiedByActorList[i][j].front()].getTeam()];
+            }
+            else {
+                //Pixel is not occupied so make it tansparant
+                currentMiniMapQuad[0].color = sf::Color({ 0,0,0,0 });
+                currentMiniMapQuad[1].color = sf::Color({ 0,0,0,0 });
+                currentMiniMapQuad[2].color = sf::Color({ 0,0,0,0 });
+                currentMiniMapQuad[3].color = sf::Color({ 0,0,0,0 });
             }
         }
     }
-    minimapActorsTexture.display();
 }
 
 void gameState::drawMiniMapMist(sf::RectangleShape& miniMapPixel)
 {
     if (this->lastMistDraw + 0.2f < this->elapsedTime || !this->fogOfWarDrawnOnce) {           //make the fog of war update every 3 seconds to reduce system load
-        //Reset textures and set fill colors
-        sf::Sprite fogMap;
-        sf::RectangleShape miniMapPixelTL(sf::Vector2f(20.f, 10.f));
-        miniMapPixel.setFillColor(sf::Color(0, 0, 0));
-        miniMapPixelTL.setFillColor(sf::Color(0, 0, 0, 75));
-        minimapMistTexture.clear(sf::Color(0, 0, 0, 0));
-        minimapMistSectors.at(this->lastFogOfWarMinimapSectorUpdated).clear(sf::Color(0, 0, 0, 0));
+               
         this->lastMistDraw = this->elapsedTime;
-
         //Determine the bounderies of the sector to be drawn
         int drawStartX = 0;
         int drawStartY = 0;
@@ -1856,36 +1880,34 @@ void gameState::drawMiniMapMist(sf::RectangleShape& miniMapPixel)
         {
             for (int i = drawStartX; i < drawEndX; i++)
             {
+                sf::Vertex* currentMiniMapQuad = &miniMapMistPoints[((i * MAP_HEIGHT) + j) * 4];
+
                 if (this->visability[i][j] == 0) {              //not visible so overlay black tile
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
-                    minimapMistSectors.at(this->lastFogOfWarMinimapSectorUpdated).draw(miniMapPixel);
-                    //minimapMistTexture.draw(miniMapPixel);
+                    currentMiniMapQuad[0].color = sf::Color({ 0,0,0 });
+                    currentMiniMapQuad[1].color = sf::Color({ 0,0,0 });
+                    currentMiniMapQuad[2].color = sf::Color({ 0,0,0 });
+                    currentMiniMapQuad[3].color = sf::Color({ 0,0,0 });
                 }
                 else if (this->visability[i][j] == 1) {         //in shadow so overlay transparent tile
-                    miniMapPixelTL.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
-                    minimapMistSectors.at(this->lastFogOfWarMinimapSectorUpdated).draw(miniMapPixelTL);
-                    //minimapMistTexture.draw(miniMapPixel);
-                }                                               //if visability is 2 then that spot is visable so don't do anything
-
+                    currentMiniMapQuad[0].color = sf::Color({ 0,0,0,75 });
+                    currentMiniMapQuad[1].color = sf::Color({ 0,0,0,75 });
+                    currentMiniMapQuad[2].color = sf::Color({ 0,0,0,75 });
+                    currentMiniMapQuad[3].color = sf::Color({ 0,0,0,75 });
+                }
+                else {
+                    //visable
+                    currentMiniMapQuad[0].color = sf::Color({ 0,0,0,0 });
+                    currentMiniMapQuad[1].color = sf::Color({ 0,0,0,0 });
+                    currentMiniMapQuad[2].color = sf::Color({ 0,0,0,0 });
+                    currentMiniMapQuad[3].color = sf::Color({ 0,0,0,0 });
+                }
             }
         }
-
-        //Combine new sector of the map with the other sectors. Somehow i need to invert the Y-axis of the sprite and I am not sure why. It works normaly if I draw to miniMapMistTexture directly instead of miniMapSectors?
-        for (int i = 0; i < minimapMistSectors.size(); i++) {
-            fogMap.setTexture(minimapMistSectors.at(i).getTexture());
-            fogMap.setOrigin((20 * MAP_WIDTH)/2, (10 * MAP_HEIGHT)/2);
-            fogMap.setPosition((20 * MAP_WIDTH) / 2, (10 * MAP_HEIGHT) / 2);
-            fogMap.setScale(1.f, -1.f);
-            minimapMistTexture.draw(fogMap);
-        }
-
-        //Move the sector iterator
         this->lastFogOfWarMinimapSectorUpdated++;
         if (this->lastFogOfWarMinimapSectorUpdated > 15) {
             this->lastFogOfWarMinimapSectorUpdated = 0;
         }
     }
-    minimapMistTexture.display();
 }
 
 void gameState::drawMiniMapObjects(sf::RectangleShape& miniMapPixel)
@@ -1898,21 +1920,27 @@ void gameState::drawMiniMapObjects(sf::RectangleShape& miniMapPixel)
             {65, 65, 65}, //Stone
             {110, 90, 0} //Gold
         };
-
-        minimapObjectsTexture.clear(sf::Color(0, 0, 0, 0));
         for (int j = 0; j < MAP_HEIGHT; j++)
         {
             for (int i = 0; i < MAP_WIDTH; i++)
             {
+                sf::Vertex* currentMiniMapQuad = &miniMapObjectPoints[((i * MAP_HEIGHT) + j) * 4];
+
                 if (currentGame.objectLocationList[i][j] != -1)
                 {
-                    miniMapPixel.setFillColor(resourceColors[static_cast<int>(listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource())]);
-                    miniMapPixel.setPosition(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));
-                    minimapObjectsTexture.draw(miniMapPixel);
+                    currentMiniMapQuad[0].color = resourceColors[static_cast<int>(listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource())];
+                    currentMiniMapQuad[1].color = resourceColors[static_cast<int>(listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource())];
+                    currentMiniMapQuad[2].color = resourceColors[static_cast<int>(listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource())];
+                    currentMiniMapQuad[3].color = resourceColors[static_cast<int>(listOfObjects[currentGame.objectLocationList[i][j]].getTypeOfResource())];
+                }
+                else {
+                    currentMiniMapQuad[0].color = sf::Color({ 0,0,0,0 });
+                    currentMiniMapQuad[1].color = sf::Color({ 0,0,0,0 });
+                    currentMiniMapQuad[2].color = sf::Color({ 0,0,0,0 });
+                    currentMiniMapQuad[3].color = sf::Color({ 0,0,0,0 });
                 }
             }
         }
-        minimapObjectsTexture.display();
         this->objectsChanged = false;
     }
 }
@@ -1931,27 +1959,20 @@ void gameState::drawMiniMap()
         this->lastMiniMapRefresh = this->elapsedTime;
     }
     drawMiniMapMist(miniMapPixel);
-
+    
+    minimapTexture.clear(sf::Color(0, 0, 0, 0));;
+    minimapTexture.draw(miniMapBackGroundPoints);
+    minimapTexture.draw(miniMapBuildingPoints);
+    minimapTexture.draw(miniMapActorPoints);
+    minimapTexture.draw(miniMapObjectPoints);
+    minimapTexture.draw(miniMapMistPoints);
     miniMapBackground.setTexture(minimapTexture.getTexture());
-    miniMapBackground.setScale(this->miniMapWidth/(20*MAP_WIDTH), this->miniMapHeigth/(10*MAP_HEIGHT));
-    window.draw(miniMapBackground);  
+    miniMapBackground.setTextureRect(sf::IntRect(0, minimapTexture.getSize().y, minimapTexture.getSize().x, -static_cast<int>(minimapTexture.getSize().y)));
+    miniMapBackground.setScale((this->miniMapWidth/(20*MAP_WIDTH)), (this->miniMapHeigth/(10*MAP_HEIGHT)));  
 
-    miniMapBackground.setTexture(minimapObjectsTexture.getTexture());
-    miniMapBackground.setScale(this->miniMapWidth/(20*MAP_WIDTH), this->miniMapHeigth/(10*MAP_HEIGHT));
     window.draw(miniMapBackground);
 
-    miniMapBackground.setTexture(minimapBuildingsTexture.getTexture());
-    miniMapBackground.setScale(this->miniMapWidth/(20*MAP_WIDTH), this->miniMapHeigth/(10*MAP_HEIGHT));
-    window.draw(miniMapBackground);
 
-    miniMapBackground.setTexture(minimapActorsTexture.getTexture());
-    miniMapBackground.setScale(this->miniMapWidth / (20 * MAP_WIDTH), this->miniMapHeigth / (10 * MAP_HEIGHT));
-    window.draw(miniMapBackground);
-
-    miniMapBackground.setTexture(minimapMistTexture.getTexture());
-    miniMapBackground.setScale(this->miniMapWidth / (20 * MAP_WIDTH), this->miniMapHeigth / (10 * MAP_HEIGHT));
-    window.draw(miniMapBackground);
-  
     sf::RectangleShape viewBox(sf::Vector2f(this->viewBoxX, this->viewBoxY));
     viewBox.setOrigin(sf::Vector2f(viewBoxX/2.f, viewBoxY/2.f));
     viewBox.setFillColor(sf::Color(0,0,0,0));
@@ -2518,7 +2539,7 @@ void gameState::loadMap()
     }
     generateRandomMap(this->players,16,16,16,5,0);
     sf::RectangleShape miniMapPixel(sf::Vector2f(20.f, 10.f));
-    for (int i = 0; i < minimapMistSectors.size(); i++) {
+    for (int i = 0; i < 16; i++) {
         drawMiniMapMist(miniMapPixel);
     }
 }
@@ -2542,16 +2563,28 @@ void setViewports()
     window.setFramerateLimit(60);
 }
 
+void setQuadPosition(sf::Vertex* Quad, int i, int j) {
+    Quad[0].position = sf::Vector2f(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));                  // 0 , 0 = 0 , 0
+    Quad[1].position = sf::Vector2f(static_cast<float>(miniMapSpace({ i, j }).x) + 20.f, static_cast<float>(miniMapSpace({ i, j }).y));           // 1 , 0 = 20 , 0
+    Quad[2].position = sf::Vector2f(static_cast<float>(miniMapSpace({ i, j }).x) + 20.f, static_cast<float>(miniMapSpace({ i, j }).y) + 10.f);    // 1 , 1 = 20 , 10
+    Quad[3].position = sf::Vector2f(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y) + 10.f);           // 0 , 1 = 0 , 10
+}
+
 void createMiniMapTexture()
 {
     minimapTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
-    minimapActorsTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
-    minimapMistTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
-    for (int i = 0; i < minimapMistSectors.size(); i++) {
-        minimapMistSectors.at(i).create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
+    //set pixel positions
+    for (int j = 0; j < MAP_HEIGHT; j++)
+    {
+        for (int i = 0; i < MAP_WIDTH; i++)
+        {
+            setQuadPosition(&miniMapBackGroundPoints[((i * MAP_HEIGHT) + j) * 4], i, j);
+            setQuadPosition(&miniMapBuildingPoints[((i * MAP_HEIGHT) + j) * 4], i, j);
+            setQuadPosition(&miniMapActorPoints[((i * MAP_HEIGHT) + j) * 4], i, j);
+            setQuadPosition(&miniMapMistPoints[((i * MAP_HEIGHT) + j) * 4], i, j);
+            setQuadPosition(&miniMapObjectPoints[((i * MAP_HEIGHT) + j) * 4], i, j);
+        }
     }
-    minimapObjectsTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
-    minimapBuildingsTexture.create(20 * MAP_WIDTH, 10 * MAP_HEIGHT);
 }
 
 void gameState::setDefaultValues()

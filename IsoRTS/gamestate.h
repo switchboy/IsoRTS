@@ -34,9 +34,6 @@ extern sf::View miniMap;
 extern int viewOffsetX;
 extern int viewOffsetY;
 extern sf::RenderTexture minimapTexture;
-extern sf::RenderTexture minimapBuildingsTexture;
-extern sf::RenderTexture minimapActorsTexture;
-extern sf::RenderTexture minimapObjectsTexture;
 extern bool noNewBuildings;
 extern bool minimapTextureExist;
 extern std::list<button> listOfButtons;
@@ -143,6 +140,7 @@ public:
     bool showPaths;
 
 private:
+    bool useVertex = true;
     bool addSubstractX;
     bool addSubstractY;
     bool equalIsPressed;

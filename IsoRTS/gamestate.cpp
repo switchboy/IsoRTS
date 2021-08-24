@@ -21,9 +21,13 @@ sf::VertexArray miniMapActorPoints(sf::Quads, MAP_HEIGHT* MAP_WIDTH * 4);
 sf::VertexArray miniMapMistPoints(sf::Quads, MAP_HEIGHT* MAP_WIDTH * 4);
 sf::VertexArray miniMapObjectPoints(sf::Quads, MAP_HEIGHT* MAP_WIDTH * 4);
 
-
+sf::VertexArray worldMap(sf::Quads, MAP_HEIGHT* MAP_WIDTH * 4);
+sf::VertexArray mistMap(sf::Quads, MAP_HEIGHT* MAP_WIDTH * 4);
+sf::RenderStates worldMapStates;
 
 bool noNewBuildings;
+
+
 
 namespace
 {
@@ -39,6 +43,7 @@ namespace
         {127, 127, 127}
     };
 }
+
 
 nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId)
 {
@@ -157,65 +162,31 @@ bool gameState::isPassableButMightHaveActor(cords location) const
     }
 }
 
+void setTerrainTexturCordsForQuad(sf::Vertex* quad, int tu, int tv) {
+    quad[0].texCoords = sf::Vector2f(tu, tv);
+    quad[1].texCoords = sf::Vector2f(tu + 64, tv);
+    quad[2].texCoords = sf::Vector2f(tu + 64, tv + 128);
+    quad[3].texCoords = sf::Vector2f(tu, tv + 128);
+}
+
+void setTerrainWorldCordsForQuad(sf::Vertex* Quad, int i, int j) {
+    Quad[0].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x), static_cast<float>(worldSpace({ i, j }).y));                  // 0 , 0 = 0 , 0
+    Quad[1].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x) + 64.f, static_cast<float>(worldSpace({ i, j }).y));           // 1 , 0 = 20 , 0
+    Quad[2].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x) + 64.f, static_cast<float>(worldSpace({ i, j }).y) + 128.f);    // 1 , 1 = 20 , 10
+    Quad[3].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x), static_cast<float>(worldSpace({ i, j }).y) + 128.f);           // 0 , 1 = 0 , 10
+}
+
+
 void gameState::drawGround(int i, int j)
 {
-    switch(currentGame.currentMap[i][j])
-    {
-    case 0:
-        spriteEmptyTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        window.draw(spriteEmptyTile);
-        break;
-    case 1:
-        spriteGrassTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        window.draw(spriteGrassTile);
-        break;
-    case 2:
-        spriteSandTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        window.draw(spriteSandTile);
-        break;
-    case 3:
-        spriteSandTileNE.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        window.draw(spriteSandTileNE);
-        break;
-    case 4:
-        spriteSandTileNW.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        window.draw(spriteSandTileNW);
-        break;
-    case 5:
-        spriteSandTileSE.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        window.draw(spriteSandTileSE);
-        break;
-    case 6:
-        spriteSandTileSW.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        window.draw(spriteSandTileSW);
-        break;
-    case 7:
-        spriteWaterTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        window.draw(spriteWaterTile);
-        break;
-    case 8:
-        spriteBeachTileNE.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        window.draw(spriteBeachTileNE);
-        break;
-    case 9:
-        spriteBeachTileNW.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        window.draw(spriteBeachTileNW);
-        break;
-    case 10:
-        spriteBeachTileSE.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        window.draw(spriteBeachTileSE);
-        break;
-    case 11:
-        spriteBeachTileSW.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-        window.draw(spriteBeachTileSW);
-        break;
+    int spriteCordsX = (currentGame.currentMap[i][j] * 64)-64;
+    int spriteCordsY = 0;
+    while (spriteCordsX >= 512) {
+        spriteCordsX -= 512;
+        spriteCordsY += 128;
     }
-    if (this->showPaths) {
-        if (!isPassable({ i, j })) {
-            spriteTileObstructed.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-            window.draw(spriteTileObstructed);
-        }
-    }
+    setTerrainTexturCordsForQuad(&worldMap[((i * MAP_HEIGHT) + j) * 4], spriteCordsX, spriteCordsY);
+    setTerrainWorldCordsForQuad(&worldMap[((i * MAP_HEIGHT) + j) * 4], i, j);
 }
 
 void gameState::setIsPlacingBuilding()
@@ -266,6 +237,20 @@ bool gameState::buildingIsSelected(int id) const
     }
 }
 
+void setMistLevel(sf::Vertex* quad, sf::Color alpha) {
+    quad[0].color = alpha;
+    quad[1].color = alpha;
+    quad[2].color = alpha;
+    quad[3].color = alpha;
+}
+
+void setMistWorldCordsForQuad(sf::Vertex* Quad, int i, int j) {
+    Quad[0].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x)+32.f, static_cast<float>(worldSpace({ i, j }).y));                  // 0 , 0 = 0 , 0
+    Quad[1].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x) + 64.f, static_cast<float>(worldSpace({ i, j }).y) + 16.f);           // 1 , 0 = 20 , 0
+    Quad[2].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x) + 32.f, static_cast<float>(worldSpace({ i, j }).y) + 32.f);    // 1 , 1 = 20 , 10
+    Quad[3].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x), static_cast<float>(worldSpace({ i, j }).y)+16);           // 0 , 1 = 0 , 10
+}
+
 void gameState::drawMap()
 {
     int lowX = toWorldMousePosition(viewOffsetX - halfOfMainWindowWidth, viewOffsetY - visableHalfOfMainWindowWidth).x;
@@ -280,36 +265,43 @@ void gameState::drawMap()
     {
         for (int i = lowX; i < highX; i++)
         {
-            if (this->visability[i][j] > 0) {
                 drawGround(i, j);
-            }
-            else {
-                spriteBlackTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-                window.draw(spriteBlackTile);
-
-            }
         }
     }
+    window.draw(worldMap, worldMapStates);
     for (int j = lowY; j < highY; j++)
     {
         for (int i = lowX; i < highX; i++)
         {
+            if (this->showPaths) {
+                if (!isPassable({ i, j })) {
+                    spriteTileObstructed.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
+                    window.draw(spriteTileObstructed);
+                }
+            }
             if (this->visability[i][j] > 0) {
                 drawThingsOnTile(i, j);
             }
-           
         }
     }
     for (int j = lowY; j < highY; j++)
     {
         for (int i = lowX; i < highX; i++)
         {
-            if (this->visability[i][j] <= 1) {
-                spriteMistTile.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-                window.draw(spriteMistTile);
+            setMistWorldCordsForQuad(&mistMap[((i * MAP_HEIGHT) + j) * 4], i, j);
+            if (this->visability[i][j] == 0) {
+                setMistLevel(&mistMap[((i * MAP_HEIGHT) + j) * 4], { 0,0,0,255 });
             }
+            else if (this->visability[i][j] == 1) {
+                setMistLevel(&mistMap[((i * MAP_HEIGHT) + j) * 4], { 0,0,0,75 });
+            }
+            else {
+                setMistLevel(&mistMap[((i * MAP_HEIGHT) + j) * 4], { 0,0,0,0 });
+            }
+            
         }
     }
+    window.draw(mistMap);
 }
 
 void gameState::loadTextures()
@@ -317,6 +309,15 @@ void gameState::loadTextures()
     this->selectionRectangle.setOutlineThickness(1);
     this->selectionRectangle.setOutlineColor(sf::Color(255, 255, 255));
     this->selectionRectangle.setFillColor(sf::Color(255, 255, 255, 40));
+    if (groundTextureSheet.loadFromFile("textures/groundTextureSheet.png"))
+    {
+        worldMapStates.texture = &groundTextureSheet;
+    }
+    else
+    {
+        std::cout << "Error loading texture: groundTextureSheet.png \n" << std::endl;
+    }
+
     if (textureArrow.loadFromFile("textures/arrow.png"))
     {
         spriteArrow.setTexture(textureArrow);
@@ -423,23 +424,8 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: blackTile.png \n" << std::endl;
     }
-    if(textureGrassTile.loadFromFile("textures/grassTile.png"))
-    {
-        spriteGrassTile.setTexture(textureGrassTile);
-    }
-    else
-    {
-        std::cout << "Error loading texture: grassTile.png \n" << std::endl;
-    }
-    if(textureSandTile.loadFromFile("textures/sand.png"))
-    {
-        spriteSandTile.setTexture(textureSandTile);
-    }
-    else
-    {
-        std::cout << "Error loading texture: sand.png \n" << std::endl;
-    }
 
+    
     if (Collision::CreateTextureAndBitmask(textureMouseCord, "textures/mouseCord.png")) {
         spriteMouseCord.setTexture(textureMouseCord);
     }
@@ -447,78 +433,7 @@ void gameState::loadTextures()
         std::cout << "Error loading texture: mouseCord.png \n" << std::endl;
     }
 
-    if(textureSandTileNE.loadFromFile("textures/sandNE.png"))
-    {
-        spriteSandTileNE.setTexture(textureSandTileNE);
-    }
-    else
-    {
-        std::cout << "Error loading texture: sandNE.png \n" << std::endl;
-    }
-    if(textureSandTileNW.loadFromFile("textures/sandNW.png"))
-    {
-        spriteSandTileNW.setTexture(textureSandTileNW);
-    }
-    else
-    {
-        std::cout << "Error loading texture: sandNW.png \n" << std::endl;
-    }
-    if(textureSandTileSE.loadFromFile("textures/sandSE.png"))
-    {
-        spriteSandTileSE.setTexture(textureSandTileSE);
-    }
-    else
-    {
-        std::cout << "Error loading texture: sandSE.png \n" << std::endl;
-    }
-    if(textureSandTileSW.loadFromFile("textures/sandSW.png"))
-    {
-        spriteSandTileSW.setTexture(textureSandTileSW);
-    }
-    else
-    {
-        std::cout << "Error loading texture: sandSW.png \n" << std::endl;
-    }
-    if(textureWaterTile.loadFromFile("textures/waterTile.png"))
-    {
-        spriteWaterTile.setTexture(textureWaterTile);
-    }
-    else
-    {
-        std::cout << "Error loading texture: waterTile.png \n" << std::endl;
-    }
-    if(textureBeachTileNE.loadFromFile("textures/beachTileNE.png"))
-    {
-        spriteBeachTileNE.setTexture(textureBeachTileNE);
-    }
-    else
-    {
-        std::cout << "Error loading texture: beachTileNE.png \n" << std::endl;
-    }
-    if(textureBeachTileSW.loadFromFile("textures/beachTileSW.png"))
-    {
-        spriteBeachTileSW.setTexture(textureBeachTileSW);
-    }
-    else
-    {
-        std::cout << "Error loading texture: beachTileSW.png \n" << std::endl;
-    }
-    if(textureBeachTileNW.loadFromFile("textures/beachTileNW.png"))
-    {
-        spriteBeachTileNW.setTexture(textureBeachTileNW);
-    }
-    else
-    {
-        std::cout << "Error loading texture: beachTileNW.png \n" << std::endl;
-    }
-    if(textureBeachTileSE.loadFromFile("textures/beachTileSE.png"))
-    {
-        spriteBeachTileSE.setTexture(textureBeachTileSE);
-    }
-    else
-    {
-        std::cout << "Error loading texture: beachTileSE.png \n" << std::endl;
-    }
+    
     if(!textureCheatTile.loadFromFile("textures/cheatTile.png"))
     {
         std::cout << "Error loading texture: cheatTile.png \n" << std::endl;

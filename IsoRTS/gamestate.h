@@ -123,7 +123,7 @@ public:
     sf::Sprite  spriteSelectedTile,spriteSelectedTileForPath, spriteEmptyTile, spriteGrassTile, spriteSandTile, spriteSandTileNE, spriteSandTileNW,spriteSandTileSE,spriteSandTileSW,  spriteBigSelectedIcon, spriteCommandCursor, spriteMouseCord,  
     spriteTileObstructed, spriteBlackTile, spriteArrow, spriteFlag, spriteUIButton, spriteUnitSelectedTile, spriteMistTile, spriteWaterTile, spriteBeachTileNE, spriteBeachTileNW,spriteBeachTileSE,spriteBeachTileSW, spriteTotalBackground;
 
-    sf::Texture textureSelectedTile, textureSelectedTileForPath, textureEmptyTile, textureGrassTile, textureSandTile, textureSandTileNE, textureSandTileNW,textureSandTileSE,textureSandTileSW, textureBigSelectedIcon, textureBlackTile, textureCommandCursor, textureMouseCord,
+    sf::Texture groundTextureSheet, textureSelectedTile, textureSelectedTileForPath, textureEmptyTile, textureGrassTile, textureSandTile, textureSandTileNE, textureSandTileNW,textureSandTileSE,textureSandTileSW, textureBigSelectedIcon, textureBlackTile, textureCommandCursor, textureMouseCord,
     textureCheatTile, textureTileObstructed, textureMistTile, textureArrow, textureFlag, textureUIButton, textureUnitSelectedTile, textureWaterTile, textureBeachTileNE, textureBeachTileNW,textureBeachTileSE, textureBeachTileSW, textureTotalBackground;
 
     sf::RectangleShape selectionRectangle;

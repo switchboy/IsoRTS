@@ -309,6 +309,7 @@ void gameState::loadTextures()
     this->selectionRectangle.setOutlineThickness(1);
     this->selectionRectangle.setOutlineColor(sf::Color(255, 255, 255));
     this->selectionRectangle.setFillColor(sf::Color(255, 255, 255, 40));
+
     if (groundTextureSheet.loadFromFile("textures/groundTextureSheet.png"))
     {
         worldMapStates.texture = &groundTextureSheet;
@@ -324,9 +325,10 @@ void gameState::loadTextures()
     }
     else
     {
-        std::cout << "Error loading texture: largeIconGrid.png \n" << std::endl;
+        std::cout << "Error loading texture: arrow.png \n" << std::endl;
     }
     spriteArrow.setOrigin(spriteArrow.getLocalBounds().width/2, spriteArrow.getLocalBounds().height/2);
+
     if(textureBigSelectedIcon.loadFromFile("textures/largeIconGrid.png"))
     {
         spriteBigSelectedIcon.setTexture(textureBigSelectedIcon);
@@ -335,6 +337,7 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: largeIconGrid.png \n" << std::endl;
     }
+
     if(textureUIButton.loadFromFile("textures/icons.png"))
     {
         spriteUIButton.setTexture(textureUIButton);
@@ -343,6 +346,7 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: icons.png \n" << std::endl;
     }
+
     if(textureUnitSelectedTile.loadFromFile("textures/unitSelectedTile.png"))
     {
         spriteUnitSelectedTile.setTexture(textureUnitSelectedTile);
@@ -391,14 +395,6 @@ void gameState::loadTextures()
         std::cout << "Error loading texture: tileSelected.png \n" << std::endl;
     }
 
-    if (textureMistTile.loadFromFile("textures/mistTile.png"))
-    {
-        spriteMistTile.setTexture(textureMistTile);
-    }
-    else
-    {
-        std::cout << "Error loading texture: mistTile.png \n" << std::endl;
-    }
 
     if(textureSelectedTileForPath.loadFromFile("textures/tileSelectedForPath.png"))
     {
@@ -408,6 +404,7 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: tileSelected.png \n" << std::endl;
     }
+
     if(textureEmptyTile.loadFromFile("textures/emptyTile.png"))
     {
         spriteEmptyTile.setTexture(textureEmptyTile);
@@ -416,24 +413,8 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: emptyTile.png \n" << std::endl;
     }
-    if (textureBlackTile.loadFromFile("textures/blackTile.png"))
-    {
-        spriteBlackTile.setTexture(textureBlackTile);
-    }
-    else
-    {
-        std::cout << "Error loading texture: blackTile.png \n" << std::endl;
-    }
-
     
-    if (Collision::CreateTextureAndBitmask(textureMouseCord, "textures/mouseCord.png")) {
-        spriteMouseCord.setTexture(textureMouseCord);
-    }
-    else {
-        std::cout << "Error loading texture: mouseCord.png \n" << std::endl;
-    }
-
-    
+   
     if(!textureCheatTile.loadFromFile("textures/cheatTile.png"))
     {
         std::cout << "Error loading texture: cheatTile.png \n" << std::endl;
@@ -1376,17 +1357,17 @@ void gameState::changeTiles()
 
 void gameState::edgeScrolling() const
 {
-    if (mouseFakePosition.x < 125) {
+    if (mouseFakePosition.x < 125 && mouseFakePosition.y > static_cast<float>(mainWindowHeigth * 0.03f) && mouseFakePosition.y < static_cast<float>(mainWindowHeigth * 0.8f)) {
         viewOffsetX += -10;
     }
-    else if (mouseFakePosition.x > mainWindowWidth-125)
+    else if (mouseFakePosition.x > mainWindowWidth-125 && mouseFakePosition.y > static_cast<float>(mainWindowHeigth * 0.03f) && mouseFakePosition.y < static_cast<float>(mainWindowHeigth * 0.8f))
     {
         viewOffsetX += 10;
     }
     if (mouseFakePosition.y < static_cast<float>(mainWindowHeigth * 0.03f) + 75 && mouseFakePosition.y > static_cast<float>(mainWindowHeigth * 0.03f)) {
         viewOffsetY += -10;
     }
-    else if (mouseFakePosition.y > static_cast<float>(mainWindowHeigth * 0.77f) - 75 && mouseFakePosition.y <  static_cast<float>(mainWindowHeigth * 0.77f))
+    else if (mouseFakePosition.y > static_cast<float>(mainWindowHeigth * 0.8f) - 75 && mouseFakePosition.y <  static_cast<float>(mainWindowHeigth * 0.8f))
     {
         viewOffsetY += 10;
     }
@@ -1522,7 +1503,7 @@ void gameState::interact()
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q) && this->focus) {
         if (this->isPressedShift) {
-            this->useVertex = (!this->useVertex);
+            //this->useVertex = (!this->useVertex);
         }
     }
 
@@ -1588,11 +1569,13 @@ void gameState::drawMouseInteraction()
     }
     if(isPressedB || this->isPlacingBuilding)
     {
-        listOfBuildings[0].drawBuildingFootprint(this->buildingTypeSelected, mouseWorldPosition);
+        buildings temp;
+        temp.drawBuildingFootprint(this->buildingTypeSelected, mouseWorldPosition);
     }
     if(isPressedO)
     {
-        listOfObjects[0].drawObjectFootprint(static_cast<objectTypes>(this->objectTypeSelected), mouseWorldPosition);
+        objects temp;
+        temp.drawObjectFootprint(static_cast<objectTypes>(this->objectTypeSelected), mouseWorldPosition);
     }
 }
 
@@ -2524,8 +2507,6 @@ void gameState::setDefaultValues()
     this->objectTypeSelected = 0;
     this->showPaths = false;
     this->lastMistDraw = -1.0f;
-    listOfBuildings.resize(1);
-    listOfObjects.resize(1);
     this->players = 2;
     this->noFogOfWar = false;
 }

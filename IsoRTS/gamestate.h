@@ -120,11 +120,11 @@ public:
     sf::Font font;
     sf::Text text;
 
-    sf::Sprite  spriteSelectedTile,spriteSelectedTileForPath, spriteEmptyTile, spriteGrassTile, spriteSandTile, spriteSandTileNE, spriteSandTileNW,spriteSandTileSE,spriteSandTileSW,  spriteBigSelectedIcon, spriteCommandCursor, spriteMouseCord,  
-    spriteTileObstructed, spriteBlackTile, spriteArrow, spriteFlag, spriteUIButton, spriteUnitSelectedTile, spriteMistTile, spriteWaterTile, spriteBeachTileNE, spriteBeachTileNW,spriteBeachTileSE,spriteBeachTileSW, spriteTotalBackground;
+    sf::Sprite  spriteSelectedTile,spriteSelectedTileForPath, spriteEmptyTile,   spriteBigSelectedIcon, spriteCommandCursor, spriteMouseCord,  
+    spriteTileObstructed,  spriteArrow, spriteFlag, spriteUIButton, spriteUnitSelectedTile, spriteTotalBackground;
 
-    sf::Texture groundTextureSheet, textureSelectedTile, textureSelectedTileForPath, textureEmptyTile, textureGrassTile, textureSandTile, textureSandTileNE, textureSandTileNW,textureSandTileSE,textureSandTileSW, textureBigSelectedIcon, textureBlackTile, textureCommandCursor, textureMouseCord,
-    textureCheatTile, textureTileObstructed, textureMistTile, textureArrow, textureFlag, textureUIButton, textureUnitSelectedTile, textureWaterTile, textureBeachTileNE, textureBeachTileNW,textureBeachTileSE, textureBeachTileSW, textureTotalBackground;
+    sf::Texture groundTextureSheet, textureSelectedTile, textureSelectedTileForPath, textureEmptyTile, textureBigSelectedIcon,  textureCommandCursor, textureMouseCord,
+    textureCheatTile, textureTileObstructed,  textureArrow, textureFlag, textureUIButton, textureUnitSelectedTile, textureTotalBackground;
 
     sf::RectangleShape selectionRectangle;
     sf::RectangleShape healthBarBackground;
@@ -140,7 +140,6 @@ public:
     bool showPaths;
 
 private:
-    bool useVertex = true;
     bool addSubstractX;
     bool addSubstractY;
     bool equalIsPressed;

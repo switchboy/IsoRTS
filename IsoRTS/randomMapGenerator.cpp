@@ -285,6 +285,123 @@ namespace
 
 }
 
+void smoothSand(int x, int y) {
+	struct surroundingTiles {
+		cords cords; //Just here for sanity checking during development TODO if it works remove struct and make vector of bools instead
+		bool isGrass;
+	};
+
+	std::vector<surroundingTiles> listOfNeighbours;
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			if (i + (x - 1) >= 0 && i + (x - 1) < MAP_WIDTH && j + (x - 1) >= 0 && j + (x - 1) < MAP_HEIGHT) {
+				if (i != 1 && j != 1) {
+					if (currentGame.currentMap[i + (x - 1)][j + (x - 1)] == 1) {
+						listOfNeighbours.push_back({ {i + (x - 1),j + (x - 1)}, true });
+					}
+					else {
+						listOfNeighbours.push_back({ {i + (x - 1),j + (x - 1)}, false });
+					}
+				}
+			}
+			else {
+				listOfNeighbours.push_back({ {i + (x - 1),j + (x - 1)}, false }); //out of map bounds; so assume true
+			}
+		}
+	}
+
+	/* We have created the following square:
+	* 
+	*     0 1 2      Where		0 = N 
+	*     3   4					1 = NE
+	*     5 6 7                 2 = E
+	*							3 = NW
+	*							4 = W
+	*							5 = SW
+	*							6 = S
+	*							7 = SE
+	* 
+	* There are 16 possible tiles. We should take action when sand is bordering a grass tile
+	* 
+	*/
+
+	//surrounded by sand or water
+	if (
+		!listOfNeighbours[0].isGrass &&
+		!listOfNeighbours[1].isGrass &&
+		!listOfNeighbours[2].isGrass &&
+		!listOfNeighbours[3].isGrass &&
+		!listOfNeighbours[4].isGrass &&
+		!listOfNeighbours[5].isGrass &&
+		!listOfNeighbours[6].isGrass &&
+		!listOfNeighbours[7].isGrass
+		) {
+		currentGame.currentMap[x][y] == 33;
+	} else if( //surrounded by grass
+		listOfNeighbours[0].isGrass &&
+		listOfNeighbours[1].isGrass &&
+		listOfNeighbours[2].isGrass &&
+		listOfNeighbours[3].isGrass &&
+		listOfNeighbours[4].isGrass &&
+		listOfNeighbours[5].isGrass &&
+		listOfNeighbours[6].isGrass &&
+		listOfNeighbours[7].isGrass
+		) {
+		currentGame.currentMap[x][y] == 2;
+	} else if (//More sand north
+		(listOfNeighbours[0].isGrass &&
+			!listOfNeighbours[1].isGrass &&
+			!listOfNeighbours[2].isGrass &&
+			!listOfNeighbours[3].isGrass &&
+			!listOfNeighbours[4].isGrass &&
+			!listOfNeighbours[5].isGrass &&
+			!listOfNeighbours[6].isGrass &&
+			!listOfNeighbours[7].isGrass)
+		||
+		(listOfNeighbours[0].isGrass &&
+			listOfNeighbours[1].isGrass &&
+			!listOfNeighbours[2].isGrass &&
+			listOfNeighbours[3].isGrass &&
+			!listOfNeighbours[4].isGrass &&
+			!listOfNeighbours[5].isGrass &&
+			!listOfNeighbours[6].isGrass &&
+			!listOfNeighbours[7].isGrass) 
+		|| (!listOfNeighbours[0].isGrass &&
+			listOfNeighbours[1].isGrass &&
+			!listOfNeighbours[2].isGrass &&
+			listOfNeighbours[3].isGrass &&
+			!listOfNeighbours[4].isGrass &&
+			!listOfNeighbours[5].isGrass &&
+			!listOfNeighbours[6].isGrass &&
+			!listOfNeighbours[7].isGrass)
+
+		) {
+		currentGame.currentMap[x][y] == 25;
+	}
+	
+
+
+}
+
+void smoothWater(int i, int j) {
+
+}
+
+
+
+void smoothTerrain() {
+	for (int i = 0; i < MAP_WIDTH; i++) {
+		for (int j = 0; j < MAP_HEIGHT; j++) {
+			if (currentGame.currentMap[i][j] == 2) {
+				smoothSand(i, j);
+			}
+			else if (currentGame.currentMap[i][j] == 7) {
+				smoothWater(i, j);
+			}
+		}
+	}
+}
+
 void generateRandomMap(int players, int amountOfFoodGroups, int amountOfStoneGroups, int amountOfGoldGroups, int treeDensityLevel, int tries) {
 	bool mapGenerationSuccefull = true;
 	generateTerrain();
@@ -332,4 +449,6 @@ void generateRandomMap(int players, int amountOfFoodGroups, int amountOfStoneGro
 		tries++;
 		generateRandomMap(players, amountOfFoodGroups, amountOfStoneGroups, amountOfGoldGroups, treeDensityLevel, tries);
 	}
+
+
 }

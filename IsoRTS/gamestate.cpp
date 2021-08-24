@@ -245,10 +245,10 @@ void setMistLevel(sf::Vertex* quad, sf::Color alpha) {
 }
 
 void setMistWorldCordsForQuad(sf::Vertex* Quad, int i, int j) {
-    Quad[0].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x)+32.f, static_cast<float>(worldSpace({ i, j }).y));                  // 0 , 0 = 0 , 0
-    Quad[1].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x) + 64.f, static_cast<float>(worldSpace({ i, j }).y) + 16.f);           // 1 , 0 = 20 , 0
-    Quad[2].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x) + 32.f, static_cast<float>(worldSpace({ i, j }).y) + 32.f);    // 1 , 1 = 20 , 10
-    Quad[3].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x), static_cast<float>(worldSpace({ i, j }).y)+16);           // 0 , 1 = 0 , 10
+    Quad[0].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x) + 32.f, static_cast<float>(worldSpace({ i, j }).y));           
+    Quad[1].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x) + 64.0f, static_cast<float>(worldSpace({ i, j }).y) + 16.f);         
+    Quad[2].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x) + 32.f, static_cast<float>(worldSpace({ i, j }).y) + 32.f);    
+    Quad[3].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x), static_cast<float>(worldSpace({ i, j }).y) + 16.f);           
 }
 
 void gameState::drawMap()

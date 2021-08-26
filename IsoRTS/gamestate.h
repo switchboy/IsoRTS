@@ -132,6 +132,7 @@ public:
 
     std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> buildingLocationList;
     std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> currentMap;
+    std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> tileBitmask;
     std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> objectLocationList;
     std::array<std::array<int, MAP_HEIGHT>, MAP_WIDTH> occupiedByBuildingList;
     std::array<std::array<std::vector<int>, MAP_HEIGHT>, MAP_WIDTH> occupiedByActorList;

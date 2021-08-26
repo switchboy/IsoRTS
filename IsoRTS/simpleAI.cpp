@@ -510,7 +510,7 @@ cords simpleAI::getFreeBuildingSlot(int buildingId, cords closeToThis)
 				for (int j = 0; j < listOfBuildingTemplates[buildingId].getBuildingFootprint().amountOfYFootprint; j++)
 				{
 					if (suggestedCords.x - i >= 0 && suggestedCords.y - j >= 0) {
-						if (currentGame.occupiedByBuildingList[suggestedCords.x - i][suggestedCords.y - j] != -1 || currentGame.objectLocationList[suggestedCords.x - i][suggestedCords.y - j] != -1 || (!currentGame.occupiedByActorList[suggestedCords.x - i][suggestedCords.y - j].empty()) || currentGame.currentMap[suggestedCords.x - i][suggestedCords.y - j] >= 7|| currentGame.currentMap[suggestedCords.x - i][suggestedCords.y - j] == 0) {
+						if (currentGame.occupiedByBuildingList[suggestedCords.x - i][suggestedCords.y - j] != -1 || currentGame.objectLocationList[suggestedCords.x - i][suggestedCords.y - j] != -1 || (!currentGame.occupiedByActorList[suggestedCords.x - i][suggestedCords.y - j].empty()) || currentGame.currentMap[suggestedCords.x - i][suggestedCords.y - j] >= 3|| currentGame.currentMap[suggestedCords.x - i][suggestedCords.y - j] == 0) {
 							buildingPlacable = false;
 						}
 					}

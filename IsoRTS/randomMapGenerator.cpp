@@ -51,7 +51,7 @@ namespace
 				int depth = static_cast<int>(noisemap[y * MAP_WIDTH + x] * 3.0f);
 				switch (depth)
 				{
-				case 0: currentGame.currentMap[x][y] = 7; break;
+				case 0: currentGame.currentMap[x][y] = 3; break;
 				case 1: currentGame.currentMap[x][y] = 1; break;
 				case 2: currentGame.currentMap[x][y] = 2; break;
 				default: currentGame.currentMap[x][y] = 1; break;
@@ -288,6 +288,23 @@ namespace
 
 void smoothSand(int x, int y) { //This function is really convoluted there is probably a better way
 
+		/* We have created the following square:
+	*       x
+	*     0 1 2      Where		0 = N
+	*   y 3   4					1 = NE
+	*     5 6 7                 2 = E
+	*							3 = NW
+	*							4 = W
+	*	   0				    5 = SW
+	* y	 3	1	x				6 = S
+	*	5	 2					7 = SE
+	*    6  4
+	*     7
+	*
+	* There are 256 possible tiles. We should take action when sand is bordering a grass tile
+	* Water bordering land is handeld by the water tile to keep it simple
+	*/
+
 	std::bitset<8> tileByte;
 	int k = 0;
 	for (int i = 0; i < 3; i++) {
@@ -307,33 +324,31 @@ void smoothSand(int x, int y) { //This function is really convoluted there is pr
 			}
 		}
 	}
-
-	/* We have created the following square:
-	*       x
-	*     0 1 2      Where		0 = N 
-	*   y 3   4					1 = NE
-	*     5 6 7                 2 = E
-	*							3 = NW
-	*							4 = W
-	*	   0				    5 = SW
-	* y	 3	1	x				6 = S
-	*	5	 2					7 = SE
-	*    6  4
-	*     7
-	* 
-	* There are 48 possible tiles. (actually 2^8=256, but luckely most will look the same) We should take action when sand is bordering a grass tile
-	* Water bordering land is handeld by the water tile to keep it simple
-	*/
-
-		
-
-	
-
+	currentGame.tileBitmask[x][y] = tileByte.to_ulong();
 
 }
 
-void smoothWater(int i, int j) {
-
+void smoothWater(int x, int y) {
+	std::bitset<8> tileByte;
+	int k = 0;
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			if (i + (x - 1) >= 0 && i + (x - 1) < MAP_WIDTH && j + (x - 1) >= 0 && j + (x - 1) < MAP_HEIGHT) {
+				if (i != 1 && j != 1) {
+					if (currentGame.currentMap[i + (x - 1)][j + (x - 1)] == 1 || currentGame.currentMap[i + (x - 1)][j + (x - 1)] == 2) { //take action when borderd by grass or sand
+						tileByte[k] = 1;
+					}
+					else {
+						tileByte[k] = 0;
+					}
+				}
+			}
+			else {
+				tileByte[k] = 1;
+			}
+		}
+	}
+	currentGame.tileBitmask[x][y] = tileByte.to_ulong();
 }
 
 
@@ -344,7 +359,7 @@ void smoothTerrain() {
 			if (currentGame.currentMap[i][j] == 2) {
 				smoothSand(i, j);
 			}
-			else if (currentGame.currentMap[i][j] == 7) {
+			else if (currentGame.currentMap[i][j] == 3) {
 				smoothWater(i, j);
 			}
 		}
@@ -397,6 +412,9 @@ void generateRandomMap(int players, int amountOfFoodGroups, int amountOfStoneGro
 	if (!mapGenerationSuccefull && tries < 1024) {
 		tries++;
 		generateRandomMap(players, amountOfFoodGroups, amountOfStoneGroups, amountOfGoldGroups, treeDensityLevel, tries);
+	}
+	else {
+		smoothTerrain();
 	}
 
 

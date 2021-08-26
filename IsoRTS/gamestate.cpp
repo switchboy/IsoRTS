@@ -116,7 +116,7 @@ bool gameState::isPassable(cords location) const
         }
 
         if (
-            (this->currentMap[location.x][location.y] > 0 && this->currentMap[location.x][location.y] < 7) &&
+            (this->currentMap[location.x][location.y] > 0 && this->currentMap[location.x][location.y] < 3) &&
             this->objectLocationList[location.x][location.y] == -1 &&
             noBuildingOrGateOpen &&
             this->occupiedByActorList[location.x][location.y].empty()
@@ -145,7 +145,7 @@ bool gameState::isPassableButMightHaveActor(cords location) const
             }
         }
         if (
-            (this->currentMap[location.x][location.y] > 0 && this->currentMap[location.x][location.y] < 7) &&
+            (this->currentMap[location.x][location.y] > 0 && this->currentMap[location.x][location.y] < 3) &&
             noBuildingOrGateOpen &&
             this->objectLocationList[location.x][location.y] == -1
             )
@@ -655,7 +655,7 @@ void gameState::clickToPlaceBuilding() {
                         this->occupiedByBuildingList[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j] != -1 ||
                         this->objectLocationList[mouseWorldPosition.x - i][mouseWorldPosition.y - j] != -1 ||
                         (!this->occupiedByActorList[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j].empty()) ||
-                        this->currentMap[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j] == 7
+                        this->currentMap[this->mouseWorldPosition.x - i][this->mouseWorldPosition.y - j] == 3
                         )
                     {
                         buildingPlacable = false;
@@ -1346,7 +1346,7 @@ void gameState::changeTiles()
     for (int i = 0; i < this->rectangleCords.size(); i++)
     {
         this->currentMap[this->rectangleCords[i].x][this->rectangleCords[i].y] += +1;
-        if (this->currentMap[this->rectangleCords[i].x][this->rectangleCords[i].y] > 11)
+        if (this->currentMap[this->rectangleCords[i].x][this->rectangleCords[i].y] > 3)
         {
             this->currentMap[this->rectangleCords[i].x][this->rectangleCords[i].y] = 1;
         }
@@ -1658,15 +1658,7 @@ void gameState::drawMiniMapBackground(sf::RectangleShape& miniMapPixel)
             {0, 0, 0},
             {152, 205, 115},
             {200, 160, 80},
-            {200, 160, 80},
-            {200, 160, 80},
-            {200, 160, 80},
-            {200, 160, 80},
             {69, 164, 208},
-            {69, 164, 208},
-            {69, 164, 208},
-            {69, 164, 208},
-            {69, 164, 208}
         };
 
         if (!minimapTextureExist)
@@ -2428,6 +2420,7 @@ void gameState::loadMap()
         for(int j = 0; j < MAP_HEIGHT; j++)
         {
             this->currentMap[i][j] = 0;
+            this->tileBitmask[i][j] = 0;
             this->buildingLocationList[i][j] = -1;
             this->occupiedByBuildingList[i][j] = -1;
             this->objectLocationList[i][j] = -1;

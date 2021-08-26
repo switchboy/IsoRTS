@@ -691,7 +691,7 @@ void buildings::drawBuildingFootprint(int type, cords mouseWorld)
                         currentGame.occupiedByBuildingList[mouseWorld.x - i][mouseWorld.y - j] != -1 ||
                         currentGame.objectLocationList[mouseWorld.x - i][mouseWorld.y - j] != -1 ||
                         (!currentGame.occupiedByActorList[mouseWorld.x - i][mouseWorld.y - j].empty()) ||
-                        currentGame.currentMap[mouseWorld.x - i][mouseWorld.y - j] == 7
+                        currentGame.currentMap[mouseWorld.x - i][mouseWorld.y - j] == 3
                         )
                     {
                         currentGame.drawMousePosition(mouseWorld.x - i, mouseWorld.y - j, false);
@@ -713,7 +713,7 @@ void buildings::drawBuildingFootprint(int type, cords mouseWorld)
                     currentGame.occupiedByBuildingList[wallTile.x][wallTile.y] != -1 ||
                     currentGame.objectLocationList[wallTile.x][wallTile.y] != -1 ||
                     (!currentGame.occupiedByActorList[wallTile.x][wallTile.y].empty()) ||
-                    currentGame.currentMap[wallTile.x][wallTile.y] == 7
+                    currentGame.currentMap[wallTile.x][wallTile.y] == 3
                     ) {
                     currentGame.drawMousePosition(wallTile.x, wallTile.y, false);
                 }

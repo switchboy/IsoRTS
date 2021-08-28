@@ -179,12 +179,17 @@ void setTerrainWorldCordsForQuad(sf::Vertex* Quad, int i, int j) {
 
 void gameState::drawGround(int i, int j)
 {
-    int spriteCordsX = (currentGame.currentMap[i][j] * 64)-64;
-    int spriteCordsY = 0;
-    while (spriteCordsX >= 512) {
-        spriteCordsX -= 512;
+    int spriteCordsX = this->tileBitmask[i][j] * 64;
+    int spriteCordsY = (this->currentMap[i][j] - 1) * 512;
+    while (spriteCordsX >= 4096) {
+        spriteCordsX -= 4096;
         spriteCordsY += 128;
     }
+
+    if (spriteCordsY > 1536) {
+        std::cout << this->currentMap[i][j] << " " << this->tileBitmask[i][j];
+    }
+
     setTerrainTexturCordsForQuad(&worldMap[((i * MAP_HEIGHT) + j) * 4], spriteCordsX, spriteCordsY);
     setTerrainWorldCordsForQuad(&worldMap[((i * MAP_HEIGHT) + j) * 4], i, j);
 }

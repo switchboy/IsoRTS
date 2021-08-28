@@ -288,6 +288,7 @@ namespace
 
 void smoothSand(int x, int y) { //This function is really convoluted there is probably a better way
 
+	std::bitset<8> tileByte;
 		/* We have created the following square:
 	*       x
 	*     0 1 2      Where		0 = N
@@ -303,60 +304,89 @@ void smoothSand(int x, int y) { //This function is really convoluted there is pr
 	*
 	* There are 256 possible tiles. We should take action when sand is bordering a grass tile
 	* Water bordering land is handeld by the water tile to keep it simple
+	
 	*/
-
-	std::bitset<8> tileByte;
-	int k = 0;
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 3; j++) {
-			if (i + (x - 1) >= 0 && i + (x - 1) < MAP_WIDTH && j + (x - 1) >= 0 && j + (x - 1) < MAP_HEIGHT) {
-				if (i != 1 && j != 1) {
-					if (currentGame.currentMap[i + (x - 1)][j + (x - 1)] == 1) {
-						tileByte[k] = 1;
+	int tileByteIndex = 0;
+	for (int yOffset = y - 1; yOffset < y + 2; yOffset++) {
+		for (int xOffset = x - 1; xOffset < x + 2; xOffset++) {
+			if (!(xOffset == x && yOffset == y)) {
+				if (xOffset >= 0 && xOffset < MAP_WIDTH && yOffset >= 0 && yOffset < MAP_HEIGHT) {
+					if (currentGame.currentMap[xOffset][yOffset] == 1) {
+						tileByte[tileByteIndex] = 1;
 					}
 					else {
-						tileByte[k] = 0;
+						tileByte[tileByteIndex] = 0;
 					}
 				}
-			}
-			else {
-				tileByte[k] = 1;
+				else {
+					tileByte[tileByteIndex] = 0;
+				}
+
+				tileByteIndex++;
 			}
 		}
 	}
 	currentGame.tileBitmask[x][y] = tileByte.to_ulong();
-
 }
 
 void smoothWater(int x, int y) {
 	std::bitset<8> tileByte;
-	int k = 0;
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 3; j++) {
-			if (i + (x - 1) >= 0 && i + (x - 1) < MAP_WIDTH && j + (x - 1) >= 0 && j + (x - 1) < MAP_HEIGHT) {
-				if (i != 1 && j != 1) {
-					if (currentGame.currentMap[i + (x - 1)][j + (x - 1)] == 1 || currentGame.currentMap[i + (x - 1)][j + (x - 1)] == 2) { //take action when borderd by grass or sand
-						tileByte[k] = 1;
+	int tileByteIndex = 0;
+	for (int yOffset = y - 1; yOffset < y + 2; yOffset++) {
+		for (int xOffset = x - 1; xOffset < x + 2; xOffset++) {
+			if (!(xOffset == x && yOffset == y)) {
+				if (xOffset >= 0 && xOffset < MAP_WIDTH && yOffset >= 0 && yOffset < MAP_HEIGHT) {
+					if (currentGame.currentMap[xOffset][yOffset] == 1 || currentGame.currentMap[xOffset][yOffset] == 2) {
+						tileByte[tileByteIndex] = 1;
 					}
 					else {
-						tileByte[k] = 0;
+						tileByte[tileByteIndex] = 0;
 					}
 				}
+				else {
+					tileByte[tileByteIndex] = 0;
+				}
+
+				tileByteIndex++;
 			}
-			else {
-				tileByte[k] = 1;
+		}
+	}
+
+	currentGame.tileBitmask[x][y] = tileByte.to_ulong();
+}
+
+void createBeaches(int x, int y) {
+	std::bitset<8> tileByte;
+	int tileByteIndex = 0;
+	for (int yOffset = y - 1; yOffset < y + 2; yOffset++) {
+		for (int xOffset = x - 1; xOffset < x + 2; xOffset++) {
+			if (!(xOffset == x && yOffset == y)) {
+				if (xOffset >= 0 && xOffset < MAP_WIDTH && yOffset >= 0 && yOffset < MAP_HEIGHT) {
+					if (currentGame.currentMap[xOffset][yOffset] == 3) {
+						tileByte[tileByteIndex] = 1;
+					}
+					else {
+						tileByte[tileByteIndex] = 0;
+					}
+				}
+				else {
+					tileByte[tileByteIndex] = 0;
+				}
+
+				tileByteIndex++;
 			}
 		}
 	}
 	currentGame.tileBitmask[x][y] = tileByte.to_ulong();
 }
-
 
 
 void smoothTerrain() {
 	for (int i = 0; i < MAP_WIDTH; i++) {
 		for (int j = 0; j < MAP_HEIGHT; j++) {
-			if (currentGame.currentMap[i][j] == 2) {
+			if (currentGame.currentMap[i][j] == 1) {
+				createBeaches(i, j);
+			} else if (currentGame.currentMap[i][j] == 2) {
 				smoothSand(i, j);
 			}
 			else if (currentGame.currentMap[i][j] == 3) {

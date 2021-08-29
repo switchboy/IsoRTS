@@ -272,11 +272,6 @@ actors::actors(int type, cords location, int actorTeam, int actorId)
     this->isWalkingToMiddleOfSquare = false;
 }
 
-actors::~actors()
-{
-    //dtor
-}
-
 void actors::chaseTarget() {
     if (this->idOfTarget >= 0) {
         if (listOfActors[this->idOfTarget].isAlive()) {
@@ -1447,81 +1442,83 @@ void actors::clearCommandStack()
 
 void actors::fightOrFlight(int idOfAttacker)
 {
-    if (idOfAttacker >= 0) {
-        //This unit is being Attaked! Whut do?
+    if (!this->isMeleeAttacking && !this->isRangedAttacking) {
+        if (idOfAttacker >= 0) {
+            //This unit is being Attaked! Whut do?
 
-        //How many attacks does it take to kill me?
-        int hitsUntilDead = 0;
-        if (listOfActors[idOfAttacker].getMeleeDMG() > listOfActors[idOfAttacker].getRangedDMG()) {
-            hitsUntilDead = this->actorHealth / listOfActors[idOfAttacker].getMeleeDMG();
-        }
-        else {
-            hitsUntilDead = this->actorHealth / listOfActors[idOfAttacker].getRangedDMG();
-        }
-
-        //How many hits do I need?
-        int hitsToWin = 0;
-        if (this->meleeDamage > this->rangedDamage) {
-            hitsToWin = listOfActors[idOfAttacker].getHealth().first / this->meleeDamage;
-        }
-        else {
-            hitsToWin = listOfActors[idOfAttacker].getHealth().first / this->rangedDamage;
-        }
-
-        if (hitsToWin < hitsUntilDead) {
-            //Fight
-            this->updateGoal(listOfActors[idOfAttacker].getActorCords(), 0);
-            this->setIsDoingAttack();
-        }
-        else {
-            //Flight
-            int moveX = 0;
-            int moveY = 0;
-            if (this->actorCords.x < listOfActors[idOfAttacker].getActorCords().x) {
-                //We want to go to a lower x
-                moveX = -1;
-            }
-            else if (this->actorCords.x > listOfActors[idOfAttacker].getActorCords().x) {
-                //We want to go to a higher x
-                moveX = 1;
-            }
-            if (this->actorCords.x < listOfActors[idOfAttacker].getActorCords().y) {
-                //We want to go to a lower Y
-                moveY = -1;
-            }
-            else if (this->actorCords.x > listOfActors[idOfAttacker].getActorCords().y) {
-                //We want to go to a higher Y
-                moveY = 1;
-            }
-
-            if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y + moveY })) {
-                //Then do it!
-                this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y + moveY }, 0);
+            //How many attacks does it take to kill me?
+            int hitsUntilDead = 0;
+            if (listOfActors[idOfAttacker].getMeleeDMG() > listOfActors[idOfAttacker].getRangedDMG()) {
+                hitsUntilDead = this->actorHealth / listOfActors[idOfAttacker].getMeleeDMG();
             }
             else {
-                //try only x
-                if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y })) {
+                hitsUntilDead = this->actorHealth / listOfActors[idOfAttacker].getRangedDMG();
+            }
+
+            //How many hits do I need?
+            int hitsToWin = 0;
+            if (this->meleeDamage > this->rangedDamage) {
+                hitsToWin = listOfActors[idOfAttacker].getHealth().first / this->meleeDamage;
+            }
+            else {
+                hitsToWin = listOfActors[idOfAttacker].getHealth().first / this->rangedDamage;
+            }
+
+            if (hitsToWin < hitsUntilDead) {
+                //Fight
+                this->updateGoal(listOfActors[idOfAttacker].getActorCords(), 0);
+                this->setIsDoingAttack();
+            }
+            else {
+                //Flight
+                int moveX = 0;
+                int moveY = 0;
+                if (this->actorCords.x < listOfActors[idOfAttacker].getActorCords().x) {
+                    //We want to go to a lower x
+                    moveX = -1;
+                }
+                else if (this->actorCords.x > listOfActors[idOfAttacker].getActorCords().x) {
+                    //We want to go to a higher x
+                    moveX = 1;
+                }
+                if (this->actorCords.x < listOfActors[idOfAttacker].getActorCords().y) {
+                    //We want to go to a lower Y
+                    moveY = -1;
+                }
+                else if (this->actorCords.x > listOfActors[idOfAttacker].getActorCords().y) {
+                    //We want to go to a higher Y
+                    moveY = 1;
+                }
+
+                if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y + moveY })) {
                     //Then do it!
-                    this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y }, 0);
+                    this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y + moveY }, 0);
                 }
                 else {
-                    //try only Y
-                    if (currentGame.isPassable({ this->actorCords.x, this->actorCords.y + moveY })) {
+                    //try only x
+                    if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y })) {
                         //Then do it!
-                        this->updateGoal({ this->actorCords.x, this->actorCords.y + moveY }, 0);
+                        this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y }, 0);
                     }
                     else {
-                        //Well, not good, just two options left!
-                        if (currentGame.isPassable({ this->actorCords.x - moveX, this->actorCords.y + moveY })) {
-                            this->updateGoal({ this->actorCords.x - moveX, this->actorCords.y + moveY }, 0);
-                        }
-                        else if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y - moveY })) {
-                            this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y - moveY }, 0);
+                        //try only Y
+                        if (currentGame.isPassable({ this->actorCords.x, this->actorCords.y + moveY })) {
+                            //Then do it!
+                            this->updateGoal({ this->actorCords.x, this->actorCords.y + moveY }, 0);
                         }
                         else {
-                            //We are doomed, so fight till the last breath! Out in a blaze of glory and all of that
-                            this->updateGoal(listOfActors[idOfAttacker].getActorCords(), 0);
-                            this->setIsDoingAttack();
+                            //Well, not good, just two options left!
+                            if (currentGame.isPassable({ this->actorCords.x - moveX, this->actorCords.y + moveY })) {
+                                this->updateGoal({ this->actorCords.x - moveX, this->actorCords.y + moveY }, 0);
+                            }
+                            else if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y - moveY })) {
+                                this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y - moveY }, 0);
+                            }
+                            else {
+                                //We are doomed, so fight till the last breath! Out in a blaze of glory and all of that
+                                this->updateGoal(listOfActors[idOfAttacker].getActorCords(), 0);
+                                this->setIsDoingAttack();
+                            }
                         }
                     }
                 }

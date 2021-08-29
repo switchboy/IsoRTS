@@ -108,6 +108,7 @@ cords toWorldMousePosition(int mouseX, int mouseY)
     }
 }
 
+
 std::list<cords> bresenham(cords first, cords second) {
     std::list<cords> mapPointsCrossed;
     int S, O, End;

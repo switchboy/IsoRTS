@@ -70,7 +70,7 @@ public:
     void                        spawnProduce();
     void                        takeDamage(int amountOfDamage);
     void                        update();
-    std::vector<buildingQueue>  productionQueue;
+    std::list<buildingQueue>    productionQueue;
     int                         getBuildingId() const;
     bool                        getCompleted() const;
     bool                        getGateIsOpen() const;
@@ -91,6 +91,7 @@ public:
     void                        setIsGate();
     void                        setGateOpen(bool state);
     void                        setRallyPoint(cords goal, stackOrderTypes orderType);
+    void                        removeTask(int id);
 
 private:
     bool                        buildingCompleted;

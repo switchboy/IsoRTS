@@ -227,6 +227,7 @@ void button::performAction()
         break;
     case actionTypes::actionCancelProduction:
         //cancel production or research
+        listOfBuildings[this->actorOrBuildingId].removeTask(this->taskId);
         break;
 
     case actionTypes::actionBuildMill:

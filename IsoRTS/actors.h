@@ -85,7 +85,6 @@ class actors
 {
 public:
     actors(int type, cords location, int actorTeam, int actorId);
-    virtual ~actors();
     void animateWalkingToResource();
     void buildBuilding();
     void calculateRoute();

@@ -186,6 +186,7 @@ void gameState::drawGround(int i, int j)
         spriteCordsY += 128;
     }
 
+    //Debugging remove when done TODO
     if (spriteCordsY > 1536) {
         std::cout << this->currentMap[i][j] << " " << this->tileBitmask[i][j];
     }
@@ -1381,7 +1382,7 @@ void gameState::edgeScrolling() const
 void gameState::interact()
 {
     this->mouseFakePosition = sf::Mouse::getPosition(window);
-    this->mousePosition = window.mapPixelToCoords(mouseFakePosition);
+    this->mousePosition = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
     while (window.pollEvent(this->event))
     {
@@ -2137,11 +2138,11 @@ cords getSpriteOffSetTask(int buildingId)
     }
 }
 
-int getCardForButtonByTask(int buildingId, int taskId)
+int getCardForButtonByTask(int buildingId, buildingQueue& task)
 {
-    if (listOfBuildings[buildingId].productionQueue[taskId].isResearch)
+    if (task.isResearch)
     {
-        switch (listOfBuildings[buildingId].productionQueue[taskId].idOfUnitOrResearch)
+        switch (task.idOfUnitOrResearch)
         {
         case 0:
             return 0;
@@ -2153,7 +2154,7 @@ int getCardForButtonByTask(int buildingId, int taskId)
     }
     else
     {
-        switch (listOfBuildings[buildingId].productionQueue[taskId].idOfUnitOrResearch)
+        switch (task.idOfUnitOrResearch)
         {
         case 0:
             return 2;
@@ -2184,11 +2185,12 @@ void gameState::drawBuildingTaskToolbar(int startY)
     {
         tempXOffset = iconBarStartX + static_cast<int>(mainWindowWidth / 24.93);
         tempYOffset = iconStartY + static_cast<int>(mainWindowHeigth / 22.97);
-        for (int i = 1; i < listOfBuildings[this->buildingSelectedId].productionQueue.size(); i++)
-        {
-            button tempButton = { tempXOffset, tempYOffset, static_cast<spriteTypes>(getCardForButtonByTask(this->buildingSelectedId, i)), actionTypes::actionCancelProduction, this->buildingSelectedId, static_cast<int>(listOfButtons.size()), i };
+        int i = 0;
+        for (buildingQueue& task : listOfBuildings[this->buildingSelectedId].productionQueue) {
+            button tempButton = { tempXOffset, tempYOffset, static_cast<spriteTypes>(getCardForButtonByTask(this->buildingSelectedId, task)), actionTypes::actionCancelProduction, this->buildingSelectedId, static_cast<int>(listOfButtons.size()), i };
             listOfButtons.push_back(tempButton);
             tempXOffset += 64 + static_cast<int>(mainWindowWidth / 160);
+            i++;
         }
     }
 }

@@ -164,7 +164,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
         }
         for (int i = lastBuilding; i < endBuilding; i++)
         {
-            auto buildingUpdater = std::async(std::launch::async, updateBuildingsHelper, i);
+            //auto buildingUpdater = std::async(std::launch::async, updateBuildingsHelper, i);
             updateBuildingsHelper(i);
         }
         if (endBuilding == static_cast<int>(listOfBuildings.size())) {

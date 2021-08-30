@@ -9,7 +9,7 @@
 #include "projectile.h"
 #include "randomMapGenerator.h"
 #include <algorithm> 
-#include <future>
+//#include <future>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -805,9 +805,7 @@ void gameState::clickToPlaceActor() const
         if (this->objectLocationList[mouseWorldPosition.x][mouseWorldPosition.y] == -1 && this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] == -1 && this->occupiedByActorList[mouseWorldPosition.x][mouseWorldPosition.y].empty())
         {
             //Zet de actor neer
-            listOfActorsMutex.lock(); 
             listOfActors.push_back(actors(0, this->mouseWorldPosition, currentPlayer.getTeam(), static_cast<int>(listOfActors.size())));
-            listOfActorsMutex.unlock();
         }
     }
 }

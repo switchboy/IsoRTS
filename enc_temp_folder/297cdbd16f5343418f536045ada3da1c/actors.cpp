@@ -120,14 +120,12 @@ namespace
         {
             for (int yOffset = start.y - 1; yOffset < start.y + 2; yOffset++)
             {
-                if (xOffset >= 0 && xOffset < MAP_WIDTH && yOffset >= 0 && yOffset < MAP_HEIGHT) {
-                    if (currentGame.occupiedByBuildingList[xOffset][yOffset] != -1)
+                if (currentGame.occupiedByBuildingList[xOffset][yOffset] != -1)
+                {
+                    int i = currentGame.occupiedByBuildingList[xOffset][yOffset];
+                    if ((listOfBuildings[i].getRecievesWhichResources() == resourceGatherd || listOfBuildings[i].getRecievesWhichResources() == resourceTypes::All) && listOfBuildings[i].getTeam() == team && listOfBuildings[i].getCompleted())
                     {
-                        int i = currentGame.occupiedByBuildingList[xOffset][yOffset];
-                        if ((listOfBuildings[i].getRecievesWhichResources() == resourceGatherd || listOfBuildings[i].getRecievesWhichResources() == resourceTypes::All) && listOfBuildings[i].getTeam() == team && listOfBuildings[i].getCompleted())
-                        {
-                            return i;
-                        }
+                        return i;
                     }
                 }
             }

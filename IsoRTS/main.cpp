@@ -1,10 +1,9 @@
 #include <algorithm>
-#include <future>
+//#include <future>
 #include <iostream>
-#include <mutex>
+//#include <mutex>
 #include <SFML/Graphics.hpp>
 #include <vector>
-
 #include "actors.h"
 #include "buildings.h"
 #include "gametext.h"

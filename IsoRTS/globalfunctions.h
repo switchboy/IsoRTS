@@ -1,7 +1,7 @@
 #ifndef GLOBALFUNCTIONS_H
 #define GLOBALFUNCTIONS_H
 
-#include <mutex>
+//#include <mutex>
 #include <list>
 #include <iostream>
 #include <algorithm>
@@ -53,7 +53,7 @@ double dist(double x1, double y1, double x2, double y2);
 double distEuclidean(double x1, double y1, double x2, double y2);
 cords toWorldMousePosition(int mouseX, int mouseY);
 
-extern std::mutex listOfActorsMutex;
+
 
 
 #endif // GLOBALFUNCTIONS_H

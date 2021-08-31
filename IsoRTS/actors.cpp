@@ -182,10 +182,25 @@ Cells::Cells(cords cellPosition, int cellId, bool obstacle)
     this->parentCellId = NULL;
     this->cummulativeCost = NULL;
     this->totalCostGuess = NULL;
+    this->neighbours.reserve(8);
 }
 
 void Cells::addNeighbours(const std::vector<Cells>& cellsList)
 {
+    for (int i = -1; i < 2; i++) {
+        for (int j = -1; j < 2; j++) {
+            int tempId = this->cellId + (i * MAP_HEIGHT) + j;
+            if (tempId >= 0 && tempId < cellsList.size()) {
+                if (tempId != this->cellId) {
+                    if (!cellsList[tempId].obstacle) {
+                        this->neighbours.push_back(tempId);
+                    }
+                }
+            }
+        }
+    }
+
+    /*
     for (int i = this->position.x - 1; i < this->position.x + 2; i++) {
         for (int j = this->position.y - 1; j < this->position.y + 2; j++) {
             if (i >= 0 && i < MAP_WIDTH && j >= 0 && j < MAP_HEIGHT && !(i == this->position.x && j == this->position.y)) {
@@ -196,6 +211,7 @@ void Cells::addNeighbours(const std::vector<Cells>& cellsList)
             }
         }
     }
+    */
 }
 
 actors::actors(int type, cords location, int actorTeam, int actorId)

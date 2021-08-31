@@ -53,6 +53,7 @@ void simpleAI::buildBuilding(int buildingId, cords buildingCords)
 
 void simpleAI::moveCommandUnit(int unitId, cords targetCords)
 {
+	listOfActors[unitId].updateGoal(targetCords, 0);
 }
 
 void simpleAI::buildCommandUnit(int unitId, cords targetCords)
@@ -71,8 +72,15 @@ void simpleAI::gatherCommandUnit(int unitId, cords targetCords)
 	listOfActors[unitId].setGatheringRecource(true);
 }
 
-void simpleAI::attakCommandUnit(int unitId, cords targetCords)
+void simpleAI::attakCommandUnit(int unitId, cords targetCords, bool first)
 {
+	if (first) {
+		listOfActors[unitId].updateGoal(targetCords, 0);
+		listOfActors[unitId].setIsDoingAttack();
+	}
+	else {
+		listOfActors[unitId].stackOrder(targetCords, stackOrderTypes::stackActionAttack);
+	}
 }
 
 void simpleAI::produceCommandBuilding(int buildingId, bool isResearch, int idOfUnitOrResearch)
@@ -234,6 +242,77 @@ void simpleAI::distributeIdleVillagers() {
 	}
 }
 
+void simpleAI::orderBuildingToProduceUnitIfItHadNoTask(int buildingTypeId, int unitId) {
+	std::vector<int> listOfTownCenterIds = getBuildingIdsOfType(buildingTypeId);
+	for (int i = 0; i < listOfTownCenterIds.size(); i++) {
+		//check of er iets gemaakt wordt
+		if (!listOfBuildings[listOfTownCenterIds[i]].hasTask()) {
+			//maakt een villager als de resources er zijn
+			if (
+				listOfActorTemplates[unitId].getPriceOfActor().food <= listOfPlayers[this->playerId].getStats().amountOfFood &&
+				listOfActorTemplates[unitId].getPriceOfActor().wood <= listOfPlayers[this->playerId].getStats().amountOfWood &&
+				listOfActorTemplates[unitId].getPriceOfActor().stone <= listOfPlayers[this->playerId].getStats().amountOfStone &&
+				listOfActorTemplates[unitId].getPriceOfActor().gold <= listOfPlayers[this->playerId].getStats().amountOfGold)
+			{
+				produceCommandBuilding(listOfTownCenterIds[i], false, unitId);
+			}
+		}
+	}
+}
+
+bool simpleAI::buildDropOffPointWhen(int buildingId, resourceTypes resource, int first, int second, int third) {
+	if (getBuildingIdsOfType(buildingId).size() == 0) {
+		if (listOfPlayers[this->playerId].getTotalGathering(resource) > first) {
+			buildBuildingNearUnlessBuilding(2, listOfPlayers[this->playerId].getGatheringFood(0), 1);
+			return true;
+		}
+	}
+	else if (getBuildingIdsOfType(buildingId).size() == 1) {
+		if (listOfPlayers[this->playerId].getTotalGathering(resource) > second) {
+			buildBuildingNearUnlessBuilding(2, listOfPlayers[this->playerId].getGatheringFood(0), 1);
+			return true;
+		}
+	}
+	else if (getBuildingIdsOfType(buildingId).size() == 1) {
+		if (listOfPlayers[this->playerId].getTotalGathering(resource) > third) {
+			buildBuildingNearUnlessBuilding(2, listOfPlayers[this->playerId].getGatheringFood(0), 1);
+			return true;
+		}
+	}
+	return false;
+}
+
+void simpleAI::tryBuilding()
+{
+	if (buildDropOffPointWhen(2, resourceTypes::resourceFood, 8, 16, 32)) {
+
+	}
+	else if (buildDropOffPointWhen(3, resourceTypes::resourceWood, 8, 16, 32)) {
+
+	}
+	else if (buildDropOffPointWhen(5, resourceTypes::resourceStone, 8, 16, 32)) {
+
+	}
+	else if (buildDropOffPointWhen(6, resourceTypes::resourceGold, 8, 16, 32)) {
+	}
+	else if (listOfPlayers[this->playerId].getVillagers() >= 15 && !this->hasBuildingType(4)) {
+		this->buildBuildingNearUnlessBuilding(4, listOfPlayers[this->playerId].getVillager(0), -1);
+	}
+	else if (listOfPlayers[this->playerId].getVillagers() >= 30 && !this->hasBuildingType(4)) {
+		this->buildBuildingNearUnlessBuilding(4, listOfPlayers[this->playerId].getVillager(0), -1);
+	}
+}
+
+cords getRandomCords(cords currentCords) {
+	bool validCordsFound = false;
+	cords suggestedCords;
+	while (!validCordsFound) {
+		suggestedCords = { roll(0, MAP_WIDTH), roll(0 , MAP_HEIGHT) };
+		validCordsFound = currentGame.isPassableButMightHaveActor(suggestedCords);
+	}
+	return suggestedCords;
+}
+
 void simpleAI::sandboxScript()
 {
 	if (this->hasBuildingType(1)) {
@@ -242,62 +321,34 @@ void simpleAI::sandboxScript()
 			//Er zijn idle villagers!
 			distributeIdleVillagers();
 		}
-		//Alway expand villagers, if possible
-		if (listOfPlayers[this->playerId].getVillagers() < 60) {
-			//Check if there is population room
-			if (listOfPlayers[this->playerId].getPopulationRoom() <= 0) {
-				//We should build a house! Unless.. we are building a house of course...
-				if (listOfPlayers[this->playerId].getTotalGatheringWood() > 0) {
-					this->buildBuildingNearUnlessBuilding(0, listOfPlayers[this->playerId].getGatheringWood(0), -1);
+		else {
+			//Alway expand villagers, if possible
+			if (listOfPlayers[this->playerId].getVillagers() < 60) {
+				//Check if there is population room
+				if (listOfPlayers[this->playerId].getPopulationRoom() <= 0) {
+					//We should build a house! Unless.. we are building a house of course...
+					if (listOfPlayers[this->playerId].getTotalGatheringWood() > 0) {
+						this->buildBuildingNearUnlessBuilding(0, listOfPlayers[this->playerId].getGatheringWood(0), -1);
+					}
+					else {
+						if (listOfPlayers[this->playerId].getVillagers() > 0) {
+							this->buildBuildingNearUnlessBuilding(0, listOfPlayers[this->playerId].getVillager(0), -1);
+						}
+					}
 				}
 				else {
-					if (listOfPlayers[this->playerId].getVillagers() > 0) {
-						this->buildBuildingNearUnlessBuilding(0, listOfPlayers[this->playerId].getVillager(0), -1);
-					}
+					//Make a villager: first get the id of the town center
+					orderBuildingToProduceUnitIfItHadNoTask(1, 0);
 				}
 			}
-			else {
-				//Make a villager: first get the id of the town center
-				std::vector<int> listOfTownCenterIds = getBuildingIdsOfType(1);
-				for (int i = 0; i < listOfTownCenterIds.size(); i++) {
-					//maakt een villager als de resources er zijn
-					if (listOfActorTemplates[0].getPriceOfActor().food <= listOfPlayers[this->playerId].getStats().amountOfFood && listOfActorTemplates[0].getPriceOfActor().wood <= listOfPlayers[this->playerId].getStats().amountOfWood && listOfActorTemplates[0].getPriceOfActor().stone <= listOfPlayers[this->playerId].getStats().amountOfStone && listOfActorTemplates[0].getPriceOfActor().gold <= listOfPlayers[this->playerId].getStats().amountOfGold) {
-						produceCommandBuilding(listOfTownCenterIds[i], false, 0);
-					}
-				}
-			}
-		}
-		//build a mill near a food source when > 8 villagers are gathering food and we don't have it
-		if (listOfPlayers[this->playerId].getTotalGatheringFood() > 8 && !this->hasBuildingType(2)) {
-			buildBuildingNearUnlessBuilding(2, listOfPlayers[this->playerId].getGatheringFood(0), 1);
-		}
-		 
-		//buiild a lumbercamp near a wood source when > 8 villagers are gathering wood and we don't have it
-		if (listOfPlayers[this->playerId].getTotalGatheringWood() > 8 && !this->hasBuildingType(3)) {
-			buildBuildingNearUnlessBuilding(3, listOfPlayers[this->playerId].getGatheringWood(0), 0);
-		}
 
-		//build a mining camp near a stone source when > 2 villagers are gathering stone and we don't have it
-		if (listOfPlayers[this->playerId].getTotalGatheringStone() > 2 && !this->hasBuildingType(5)) {
-			buildBuildingNearUnlessBuilding(5, listOfPlayers[this->playerId].getGatheringStone(0), 2);
-		}
-		//build a mining camp near a gold source when > 2 villagers ar mining gold and we don't have it
-		if (listOfPlayers[this->playerId].getTotalGatheringGold() > 2 && !this->hasBuildingType(6)) {
-			buildBuildingNearUnlessBuilding(6, listOfPlayers[this->playerId].getGatheringStone(0), 3);
-		}
-		//build barraks when there are more then 15 villagers
-		if (listOfPlayers[this->playerId].getVillagers() >= 15 && !this->hasBuildingType(4)) {
-			this->buildBuildingNearUnlessBuilding(4, listOfPlayers[this->playerId].getVillager(0), -1);
-		}
-		if(this->hasBuildingType(4) &&  true && listOfPlayers[this->playerId].getTotalSwordsman() < 30){
-			std::vector<int> listOfTownCenterIds = getBuildingIdsOfType(4);
-			for (int i = 0; i < listOfTownCenterIds.size(); i++) {
-				//maakt een sworsman als er resources zijn
-				if (listOfActorTemplates[1].getPriceOfActor().food <= listOfPlayers[this->playerId].getStats().amountOfFood && listOfActorTemplates[1].getPriceOfActor().wood <= listOfPlayers[this->playerId].getStats().amountOfWood && listOfActorTemplates[1].getPriceOfActor().stone <= listOfPlayers[this->playerId].getStats().amountOfStone && listOfActorTemplates[1].getPriceOfActor().gold <= listOfPlayers[this->playerId].getStats().amountOfGold) {
-					produceCommandBuilding(listOfTownCenterIds[i], false, 1);
-				}
+			if (this->hasBuildingType(4) && true && listOfPlayers[this->playerId].getTotalSwordsman() < 30) {
+				orderBuildingToProduceUnitIfItHadNoTask(4, 1);
 			}
-		}	
+
+		}
+		
+		tryBuilding(); //Try to build something. Only build one thing per tick
 	}
 	else {
 		//De eerste taak is een TC bouwen mits voldoende resources
@@ -317,26 +368,78 @@ void simpleAI::sandboxScript()
 			//Er zijn onvoldoende resources!
 			// Heb ik voldoende hout?
 			if (listOfBuildingTemplates[1].getPriceOfBuilding().wood <= listOfPlayers[this->playerId].getStats().amountOfWood) {
-				//Probeer eerst hout te verzamelen: heb ik een lumbercamp? 
-				if (!hasBuildingType(3)) {
-					//Probeer lumber camp te bouwen
-					if (listOfBuildingTemplates[3].getPriceOfBuilding().food <= listOfPlayers[this->playerId].getStats().amountOfFood && listOfBuildingTemplates[3].getPriceOfBuilding().wood <= listOfPlayers[this->playerId].getStats().amountOfWood && listOfBuildingTemplates[3].getPriceOfBuilding().stone <= listOfPlayers[this->playerId].getStats().amountOfStone && listOfBuildingTemplates[3].getPriceOfBuilding().gold <= listOfPlayers[this->playerId].getStats().amountOfGold) {
-						int idleVillagerId = listOfPlayers[this->playerId].getIdleVillagerId(0);
-						cords idleVillagerCords = listOfActors[idleVillagerId].getActorCords();
-						cords buildingSlot = getFreeBuildingSlot(3, idleVillagerCords);
-						buildBuilding(3, buildingSlot);
-						buildCommandUnit(idleVillagerId, buildingSlot);
+				if(isBuildingThereButIncomplete(3) == -1){
+					//Probeer eerst hout te verzamelen: heb ik een lumbercamp? 
+					if (!hasBuildingType(3)) {
+						//Probeer lumber camp te bouwen
+						if (listOfBuildingTemplates[3].getPriceOfBuilding().food <= listOfPlayers[this->playerId].getStats().amountOfFood && listOfBuildingTemplates[3].getPriceOfBuilding().wood <= listOfPlayers[this->playerId].getStats().amountOfWood && listOfBuildingTemplates[3].getPriceOfBuilding().stone <= listOfPlayers[this->playerId].getStats().amountOfStone && listOfBuildingTemplates[3].getPriceOfBuilding().gold <= listOfPlayers[this->playerId].getStats().amountOfGold) {
+							int idleVillagerId = listOfPlayers[this->playerId].getIdleVillagerId(0);
+							cords idleVillagerCords = listOfActors[idleVillagerId].getActorCords();
+							cords buildingSlot = getFreeBuildingSlot(3, idleVillagerCords);
+							buildBuilding(3, buildingSlot);
+							buildCommandUnit(idleVillagerId, buildingSlot);
+						}
+						else {
+							//oh dear er is geen weg naar een towncenter meer!
+						}
+					}
+					if (listOfPlayers[this->playerId].getVillagers() > 0) {
+						//Zet alle villagers op hout!
+
+						for (int i = 0; i < listOfPlayers[this->playerId].getVillagers(); i++) {
+							cords targetCords = findResource(resourceTypes::resourceWood, listOfPlayers[this->playerId].getVillager(i));
+							//Order unit
+							if (targetCords.x != -1) {
+								gatherCommandUnit(listOfPlayers[this->playerId].getVillager(i), targetCords);;
+							}
+							else {
+								//No wood we are screwed!
+							}
+						}
+
 					}
 					else {
-						//oh dear er is geen weg naar een towncenter meer!
+						//no villagers we are screwed!
+
 					}
 				}
-				//Kan ik een idle villager op hout zetten
+				else {
+					//we are building a TC!  TODO check if villagers are asigned
 
+				}
 			}
 			else {
-
+				// We could check other resources; but we don't need to
 			}
+		}
+	}
+
+	//Explore with a swordsman for now
+	if (listOfPlayers[this->playerId].getTotalSwordsman() > 0) {
+		bool commandGiven = false;
+		int swordsmanId = 0;
+		while (!commandGiven && swordsmanId < listOfPlayers[this->playerId].getTotalSwordsman()) {
+			if (listOfActors[listOfPlayers[this->playerId].getSwordsman(swordsmanId)].isAlive()) {
+				if (listOfActors[listOfPlayers[this->playerId].getSwordsman(swordsmanId)].idle()) {
+					this->moveCommandUnit(listOfPlayers[this->playerId].getSwordsman(swordsmanId), getRandomCords(listOfActors[listOfPlayers[this->playerId].getSwordsman(swordsmanId)].getActorCords()));
+				}
+				commandGiven = true;
+			}
+			swordsmanId++;
+		}
+	}
+
+
+	if( attackWaveSent < 1) {
+		if (listOfPlayers[this->playerId].getTotalSwordsman() > 6) {
+			excecuteAttackPlan();
+			attackWaveSent++;
+		}
+	}
+	else if (attackWaveSent < 2) {
+		if (listOfPlayers[this->playerId].getTotalSwordsman() > 12) {
+			excecuteAttackPlan();
+			attackWaveSent++;
 		}
 	}
 }
@@ -345,9 +448,23 @@ struct possibleBuildTile {
 	cords startCordsOfTile;
 	cords endCordsOfTile;
 	int optimazationScore;
-
-
 };
+
+void simpleAI::excecuteAttackPlan() {
+	int playerToAttakId;
+	bool enemyFound = false;
+	while (!enemyFound) {
+		playerToAttakId = roll(0, currentGame.getPlayerCount() - 1);
+		if (playerToAttakId != this->playerId) { enemyFound = true; }
+	}
+	bool first = true;
+	for (int i = 0; i < listOfPlayers[this->playerId].getTotalSwordsman(); i++) {
+		for (int i = 0; i < listOfPlayers[playerToAttakId].getTotalUnits(); i++) {
+			attakCommandUnit(listOfPlayers[this->playerId].getSwordsman(i), listOfActors[listOfPlayers[playerToAttakId].getUnit(i)].getActorCords(), first);
+			if (first) { first = false; }
+		}
+	}
+}
 
 bool checkIfEmpty(cords tile) {
 	if (tile.x >= 0 && tile.x < MAP_WIDTH && tile.y >= 0 && tile.y < MAP_HEIGHT) {

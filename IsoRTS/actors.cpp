@@ -619,7 +619,6 @@ std::string actors::nameOfActor() const
 
 void actors::updateGoal(cords location, int waitTime)
 {
-
     //check if values are in bounds
     if (location.x >= 0 && location.x < MAP_WIDTH && location.y >= 0 && location.y < MAP_HEIGHT)
     {

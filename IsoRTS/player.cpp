@@ -179,6 +179,24 @@ int player::getGatheringGold(int id)  const
     return this->gatheringGold[id];
 }
 
+int player::getTotalGathering(resourceTypes it) const
+{
+    switch (it) {
+    case resourceTypes::resourceFood:
+        return this->getTotalGatheringFood();
+        break;
+    case resourceTypes::resourceWood:
+        return this->getTotalGatheringWood();
+        break;
+    case resourceTypes::resourceStone:
+        return this->getTotalGatheringStone();
+        break;
+    case resourceTypes::resourceGold:
+        return this->getTotalGatheringGold();
+        break;
+    }
+}
+
 int player::getTotalBuilding() const
 {
     return static_cast<int>(this->building.size());
@@ -202,6 +220,16 @@ int player::getSwordsman(int id) const
 int player::getTotalSwordsman() const
 {
     return static_cast<int>(this->listOfSwordsman.size());
+}
+
+int player::getTotalUnits() const
+{
+    return this->units.size();
+}
+
+int player::getUnit(int id) const
+{
+    return this->units[id];
 }
 
 void player::insertSwordsman(int id)
@@ -242,6 +270,11 @@ void player::insertGatheringGold(int id)
 void player::insertBuilding(int id)
 {
     this->building.push_back(id);
+}
+
+void player::insertUnit(int id)
+{
+    this->units.push_back(id);
 }
 
 int player::getPopulationRoom() const

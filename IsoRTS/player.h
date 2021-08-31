@@ -40,6 +40,7 @@ public:
     void insertGatheringStone(int id);
     void insertGatheringGold(int id);
     void insertBuilding(int id);
+    void insertUnit(int id);
     int  getPopulationRoom() const;
     int  getIdleVillagerId(int it) const;
     int  getIdleVillagers() const;
@@ -52,11 +53,14 @@ public:
     int  getGatheringFood(int id) const;
     int  getGatheringStone(int id) const;
     int  getGatheringGold(int id) const;
+    int  getTotalGathering(resourceTypes it) const;
     int  getTotalBuilding() const;
     int  getBuilder(int id) const;
     int  getVillager(int id) const;
     int  getSwordsman(int id) const;
     int  getTotalSwordsman() const;
+    int  getTotalUnits() const;
+    int  getUnit(int id) const;
     void insertSwordsman(int id);
     playerStats getStats() const;
 
@@ -79,6 +83,7 @@ private:
     std::vector<int> idleVillagersList;
     std::vector<int> listOfSwordsman;
     std::vector<int> villagersList;
+    std::vector<int> units;
 };
 
 extern player& currentPlayer;

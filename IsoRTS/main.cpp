@@ -1,7 +1,5 @@
 #include <algorithm>
-//#include <future>
 #include <iostream>
-//#include <mutex>
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include "actors.h"
@@ -16,32 +14,6 @@
 
 gameState currentGame;
 
-void routeHelper(int i)
-{
-    if (listOfActors[i].isInitialized())
-    {
-        listOfActors[i].calculateRoute();
-    }
-}
-
-void updateActorHelper(int i)
-{
-    if (listOfActors[i].isInitialized())
-    {
-        listOfActors[i].update();
-    }
-}
-
-
-void updateBuildingsHelper(int i)
-{
-    listOfBuildings[i].update();
-}
-
-void projectileHelper(int i) {
-    listOfProjectiles[i].updatePosition();
-}
-
 void clearOldCommandCursors()
 {
     if (!listOfOrderCursors.empty()) {
@@ -52,13 +24,14 @@ void clearOldCommandCursors()
     }
 }
 
-void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& lastProjectile) {
+void updateStats() {
     for (int i = 0; i < currentGame.getPlayerCount(); i++) {
         listOfPlayers[i].clearLists();
 
     }
     for (int n = 0; n < listOfActors.size(); n++) {
         if (listOfActors[n].isAlive()) {
+            listOfPlayers[listOfActors[n].getTeam()].insertUnit(n);
             if (listOfActors[n].getType() == 0) {
                 listOfPlayers[listOfActors[n].getTeam()].insertVillagerList(n);
                 if (listOfActors[n].idle()) {
@@ -89,22 +62,26 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
             }
         }
     }
+}
+
+void updateAI() {
     if (!listOfAI.empty()) {
         for (int i = 0; i < listOfAI.size(); i++) {
             listOfAI[i].update();
         }
     }
+}
+
+void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& lastProjectile) {
+
     if (!listOfProjectiles.empty()) {
         int endProjectile = lastProjectile + 100;
         if (endProjectile > listOfProjectiles.size()) {
             endProjectile = static_cast<int>(listOfProjectiles.size());
         }
-        //update porjectile positions
         for (int i = lastProjectile; i < endProjectile; i++) {
-            //auto projectileCalculations = std::async(std::launch::async, projectileHelper, i);
-            projectileHelper(i);
+            listOfProjectiles[i].updatePosition();
         }
-        //Erase old projectiles (older then 30 sec)
         auto iter = std::find_if(listOfProjectiles.begin(), listOfProjectiles.end(),
             [&](projectile& p) {return p.getTimeLastUpdate() + 30.0f < currentGame.getTime(); });
         if (iter != listOfProjectiles.end())
@@ -116,6 +93,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
             lastProjectile = endProjectile;
         }
     }
+
     if (!listOfActors.empty())
     {
         if (!listOfActorsWhoNeedAPath.empty())
@@ -126,8 +104,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
                 endPath = static_cast<int>(listOfActorsWhoNeedAPath.size());
             }
             for (int i = lastPath; i < endPath; i++) {
-                //auto routing = std::async(std::launch::async, routeHelper, listOfActorsWhoNeedAPath[i]);
-                routeHelper(listOfActorsWhoNeedAPath[i]);
+                listOfActors[listOfActorsWhoNeedAPath[i]].calculateRoute();
             }
             int after = static_cast<int>(listOfActorsWhoNeedAPath.size());
             if (endPath == listOfActorsWhoNeedAPath.size()) {
@@ -139,14 +116,13 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
             }
         }
 
-        int endActor = lastActor + 25;
+        int endActor = lastActor + 30;
         if (endActor > static_cast<int>(listOfActors.size())) {
             endActor = static_cast<int>(listOfActors.size());
         }
         for (int i = lastActor; i < endActor; i++)
         {
-            //auto actorUpdater = std::async(std::launch::async, updateActorHelper, i);
-            updateActorHelper(i);
+            listOfActors[i].update();
         }
         if (endActor == static_cast<int>(listOfActors.size())) {
             lastActor = 0;
@@ -155,6 +131,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
             lastActor = endActor;
         }
     }
+
     if (!listOfBuildings.empty())
     {
         int endBuilding = lastBuilding + 10;
@@ -163,8 +140,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
         }
         for (int i = lastBuilding; i < endBuilding; i++)
         {
-            //auto buildingUpdater = std::async(std::launch::async, updateBuildingsHelper, i);
-            updateBuildingsHelper(i);
+            listOfBuildings[i].update();
         }
         if (endBuilding == static_cast<int>(listOfBuildings.size())) {
             lastBuilding = 0;
@@ -195,6 +171,8 @@ int main()
         gameText.throwOutOldMessages();
         clearOldCommandCursors();
         currentGame.interact();
+        updateStats();
+        updateAI();
         updateGameState(lastActor, lastBuilding, lastPath, lastProjectile);
         currentGame.drawGame();
     }

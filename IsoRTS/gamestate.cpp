@@ -2216,19 +2216,23 @@ void gameState::drawBuildingToolbar(int spriteYOffset, int tempY, int offSetTone
     int startX = this->preCalcStartX;
     int startY = this->preCalcStartY;
     bool buttonsAreThere = false;
-    listOfBuildingTemplates[listOfBuildings[this->buildingSelectedId].getType()].createBuildingButtons(startX, startY, this->buildingSelectedId, this->preCalcIncrementalXOffset, buttonsAreThere);
+    if (currentPlayer.getTeam() == listOfBuildings[this->buildingSelectedId].getTeam()) {
+        listOfBuildingTemplates[listOfBuildings[this->buildingSelectedId].getType()].createBuildingButtons(startX, startY, this->buildingSelectedId, this->preCalcIncrementalXOffset, buttonsAreThere);
+    }
     drawBuildingBigSprite(this->buildingSelectedId);
     drawBuildingToolbarTitle(textStartX, textStartY);
     drawBuildingToolbarStats(textStartX, textStartY);
 
-    //Show what the building is doing ATM
-    if (!listOfBuildings[this->buildingSelectedId].getCompleted())
-    {
-        drawBuildingConstructionToolbar(startY);
-    }
-    else if (listOfBuildings[this->buildingSelectedId].hasTask())
-    {
-        drawBuildingTaskToolbar(startY);
+    if (currentPlayer.getTeam() == listOfBuildings[this->buildingSelectedId].getTeam()) {
+        //Show what the building is doing ATM
+        if (!listOfBuildings[this->buildingSelectedId].getCompleted())
+        {
+            drawBuildingConstructionToolbar(startY);
+        }
+        else if (listOfBuildings[this->buildingSelectedId].hasTask())
+        {
+            drawBuildingTaskToolbar(startY);
+        }
     }
 }
 

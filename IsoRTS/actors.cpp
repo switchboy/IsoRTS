@@ -154,33 +154,34 @@ void updateCells(int goalId, int startId, std::vector<Cells>& cellsList, bool ca
     {
         for (int j = 0; j < MAP_HEIGHT; j++)
         {
-            cellsList.push_back(Cells());
-            cellsList[n].position.x = i;
-            cellsList[n].position.y = j;
-            if (n == goalId || n == startId)
-            {
-                cellsList[n].obstacle = false;
-            }
-            else if (cantPassActors && !currentGame.isPassable({ i, j })) {
-                cellsList[n].obstacle = true;
+            bool obstacle = false;
+            if (cantPassActors) {
+                if (!currentGame.isPassable({ i, j })) {
+                    obstacle = true;
+                }
             }
             else if (!currentGame.isPassableButMightHaveActor({ i, j }))
             {
-                cellsList[n].obstacle = true;
+                obstacle = true;
             }
-            else
-            {
-                cellsList[n].obstacle = false;
-            }
-            cellsList[n].costToGoal = NULL;
-            cellsList[n].visited = false;
-            cellsList[n].parentCellId = NULL;
-            cellsList[n].cummulativeCost = NULL;
-            cellsList[n].totalCostGuess = NULL;
-            cellsList[n].cellId = n;
+            cellsList.push_back(Cells({ i, j }, n, obstacle));            
             n++;
         }
     }
+    cellsList[goalId].obstacle = false;
+    cellsList[startId].obstacle = false;
+}
+
+Cells::Cells(cords cellPosition, int cellId, bool obstacle)
+{
+    this->position = cellPosition;
+    this->cellId = cellId;
+    this->obstacle = obstacle;
+    this->costToGoal = NULL;
+    this->visited = false;
+    this->parentCellId = NULL;
+    this->cummulativeCost = NULL;
+    this->totalCostGuess = NULL;
 }
 
 void Cells::addNeighbours(const std::vector<Cells>& cellsList)
@@ -332,12 +333,30 @@ void actors::walkBackAfterAbortedCommand() {
     }
 }
 
+void actors::makeSureActorIsOnTheMap() {
+    if (this->actorCords.x >= 0 && this->actorCords.x < MAP_WIDTH && this->actorCords.y >= 0 && this->actorCords.y < MAP_HEIGHT) {
+        if (currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].empty()) {
+            currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].push_back(this->actorId);
+        }
+        else {
+            bool isOnList = false;
+            for (int& id : currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y]) {
+                if (id == this->actorId) { isOnList = true; }
+            }
+            if (!isOnList) {
+                currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].push_back(this->actorId);
+            }
+        }
+    }
+}
+
 void actors::update()
 {
     if (this->actorAlive)
     {
         if (this->isIdle) {
             doNextStackedCommand();
+            makeSureActorIsOnTheMap();
         }
         else if (this->isWalkingToMiddleOfSquare) {
             walkBackAfterAbortedCommand();

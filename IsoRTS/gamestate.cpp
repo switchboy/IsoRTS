@@ -2185,9 +2185,11 @@ void gameState::drawBuildingTaskToolbar(int startY)
         tempYOffset = iconStartY + static_cast<int>(mainWindowHeigth / 22.97);
         int i = 0;
         for (buildingQueue& task : listOfBuildings[this->buildingSelectedId].productionQueue) {
-            button tempButton = { tempXOffset, tempYOffset, static_cast<spriteTypes>(getCardForButtonByTask(this->buildingSelectedId, task)), actionTypes::actionCancelProduction, this->buildingSelectedId, static_cast<int>(listOfButtons.size()), i };
-            listOfButtons.push_back(tempButton);
-            tempXOffset += 64 + static_cast<int>(mainWindowWidth / 160);
+            if (i != 0) {//First button needs to be skipped!
+                button tempButton = { tempXOffset, tempYOffset, static_cast<spriteTypes>(getCardForButtonByTask(this->buildingSelectedId, task)), actionTypes::actionCancelProduction, this->buildingSelectedId, static_cast<int>(listOfButtons.size()), i };
+                listOfButtons.push_back(tempButton);
+                tempXOffset += 64 + static_cast<int>(mainWindowWidth / 160);
+            }
             i++;
         }
     }

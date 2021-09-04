@@ -459,8 +459,8 @@ void simpleAI::excecuteAttackPlan() {
 	}
 	bool first = true;
 	for (int i = 0; i < listOfPlayers[this->playerId].getTotalSwordsman(); i++) {
-		for (int i = 0; i < listOfPlayers[playerToAttakId].getTotalUnits(); i++) {
-			attakCommandUnit(listOfPlayers[this->playerId].getSwordsman(i), listOfActors[listOfPlayers[playerToAttakId].getUnit(0)].getActorCords(), first);
+		for (int j = 0; j < listOfPlayers[playerToAttakId].getTotalUnits(); j++) {
+			attakCommandUnit(listOfPlayers[this->playerId].getSwordsman(i), listOfActors[listOfPlayers[playerToAttakId].getUnit(j)].getActorCords(), first);
 			if (first) { first = false; }
 		}
 	}

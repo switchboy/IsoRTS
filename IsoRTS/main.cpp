@@ -57,7 +57,7 @@ void updateStats() {
                     }
                 }
             }
-            else if (listOfActors[n].getType() == 0) {
+            else if (listOfActors[n].getType() == 1) {
                 listOfPlayers[listOfActors[n].getTeam()].insertSwordsman(n);
             }
         }
@@ -160,8 +160,8 @@ int main()
     int lastPath = 0;
     int lastProjectile = 0;
     currentGame.loadGame();
-    for (int i = 0; i < currentGame.getPlayerCount() - 1; i++) {
-        simpleAI newAIPlayer(i + 1, 0);
+    for (int i = 0; i < currentGame.getPlayerCount() /* - 1*/; i++) {
+        simpleAI newAIPlayer(i /* + 1 */, 0);
         listOfAI.push_back(newAIPlayer);
     }
     while (window.isOpen())

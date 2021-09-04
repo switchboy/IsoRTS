@@ -75,10 +75,9 @@ namespace
         else
         {
             cords foundCords;
-            std::vector<Cells> cellsList;
-            cellsList.reserve(MAP_HEIGHT * MAP_WIDTH);
+            std::vector<Cells> cellsList = baseCellList;
             int startCell = (startCords.x * MAP_HEIGHT) + startCords.y;
-            updateCells(-1, -1, cellsList,true);
+            updateCells(-1, -1, cellsList, true);
             std::list<Cells*> listToCheck;
             cellsList[startCell].addNeighbours(cellsList);
             cellsList[startCell].visited = true;

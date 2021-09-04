@@ -2537,6 +2537,18 @@ void showLoadingScreen() {
     currentGame.text.setOrigin(0.0f, 0.0f);
 }
 
+void loadBaseCellList() {
+    int n = 0;
+    for (int i = 0; i < MAP_WIDTH; i++)
+    {
+        for (int j = 0; j < MAP_HEIGHT; j++)
+        {
+            baseCellList.push_back(Cells({ i, j }, n));
+            n++;
+        }
+    }
+}
+
 void gameState::loadGame()
 {
     loadFonts();
@@ -2550,6 +2562,8 @@ void gameState::loadGame()
     loadBuildings();
     loadMap();
     setTeam();
+    loadBaseCellList();
+
 }
 
 void gameState::createFogOfWar() 

@@ -460,7 +460,7 @@ void simpleAI::excecuteAttackPlan() {
 	bool first = true;
 	for (int i = 0; i < listOfPlayers[this->playerId].getTotalSwordsman(); i++) {
 		for (int i = 0; i < listOfPlayers[playerToAttakId].getTotalUnits(); i++) {
-			attakCommandUnit(listOfPlayers[this->playerId].getSwordsman(i), listOfActors[listOfPlayers[playerToAttakId].getUnit(i)].getActorCords(), first);
+			attakCommandUnit(listOfPlayers[this->playerId].getSwordsman(i), listOfActors[listOfPlayers[playerToAttakId].getUnit(0)].getActorCords(), first);
 			if (first) { first = false; }
 		}
 	}

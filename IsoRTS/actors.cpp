@@ -12,7 +12,7 @@
 
 std::vector<int> listOfActorsWhoNeedAPath;
 std::vector <actors> listOfActors;
-
+std::vector<Cells> baseCellList;
 
 namespace
 {
@@ -157,19 +157,31 @@ void updateCells(int goalId, int startId, std::vector<Cells>& cellsList, bool ca
             bool obstacle = false;
             if (cantPassActors) {
                 if (!currentGame.isPassable({ i, j })) {
-                    obstacle = true;
+                    cellsList[n].obstacle = true;
                 }
             }
             else if (!currentGame.isPassableButMightHaveActor({ i, j }))
             {
-                obstacle = true;
-            }
-            cellsList.push_back(Cells({ i, j }, n, obstacle));            
+                cellsList[n].obstacle = true;
+            }        
             n++;
         }
     }
     cellsList[goalId].obstacle = false;
     cellsList[startId].obstacle = false;
+}
+
+Cells::Cells(cords cellPosition, int cellId)
+{
+    this->position = cellPosition;
+    this->cellId = cellId;
+    this->obstacle = false;
+    this->costToGoal = NULL;
+    this->visited = false;
+    this->parentCellId = NULL;
+    this->cummulativeCost = NULL;
+    this->totalCostGuess = NULL;
+    this->neighbours.reserve(8);
 }
 
 Cells::Cells(cords cellPosition, int cellId, bool obstacle)
@@ -199,19 +211,6 @@ void Cells::addNeighbours(const std::vector<Cells>& cellsList)
             }
         }
     }
-
-    /*
-    for (int i = this->position.x - 1; i < this->position.x + 2; i++) {
-        for (int j = this->position.y - 1; j < this->position.y + 2; j++) {
-            if (i >= 0 && i < MAP_WIDTH && j >= 0 && j < MAP_HEIGHT && !(i == this->position.x && j == this->position.y)) {
-                if (!cellsList[(i * MAP_HEIGHT) + j].obstacle)
-                {
-                    this->neighbours.push_back((i * MAP_HEIGHT) + j);
-                }
-            }
-        }
-    }
-    */
 }
 
 actors::actors(int type, cords location, int actorTeam, int actorId)
@@ -1340,13 +1339,12 @@ void actors::calculateRoute()
 
 void actors::pathAStar()
 {
-    std::vector<Cells> cellsList;
-    cellsList.reserve(MAP_HEIGHT * MAP_WIDTH);
+    std::vector<Cells> cellsList = baseCellList;
     int startCell = (actorCords.x * MAP_HEIGHT) + actorCords.y; //eigen positie
     int endCell = (actorGoal.x * MAP_HEIGHT) + actorGoal.y; //doel positie
     updateCells(endCell, startCell, cellsList, this->lastTile);
     std::vector<Cells*> listToCheck;
-    std::list<Cells*> checkedList;
+    std::vector<Cells*> checkedList;
     bool endReached = false;
 
     //check of de doelcel niet 1 hokje weg is 
@@ -1378,14 +1376,28 @@ void actors::pathAStar()
 
     while (!listToCheck.empty() && startCell != endCell)
     {
-        //sorteer de lijst en zet de cell met de laagste cost to goal bovenaan om het eerst te testen
+        /*sorteer de lijst en zet de cell met de laagste cost to goal bovenaan om het eerst te testen
+        
         std::sort(listToCheck.begin(), listToCheck.end(), ([](const Cells* f, const Cells* s)
             {
                 return f->totalCostGuess < s->totalCostGuess;
             }));
 
+        */
+
+        int cellId = 0;
+        int lowestCostGuess = (*listToCheck.front()).totalCostGuess;
+        int iterator = 0;
+        for (Cells* cell : listToCheck) {
+            if (cell->totalCostGuess < lowestCostGuess) {
+                lowestCostGuess = cell->totalCostGuess;
+                cellId = iterator;
+            }
+            iterator++;
+        }
+
         //Check of de te checken cell het doel is. Als dat zo is zijn we klaar
-        if ((*listToCheck.front()).cellId == endCell)
+        if ((*listToCheck[cellId]).cellId == endCell)
         {
             listToCheck.clear();
             this->pathFound = true;
@@ -1393,7 +1405,7 @@ void actors::pathAStar()
         else if (!listToCheck.empty())
         {
             //Loop door de lijst van "buurcellen van de te checken cell"
-            for (std::vector<int>::const_iterator iterator = (*listToCheck.front()).neighbours.begin(), end = (*listToCheck.front()).neighbours.end(); iterator != end; ++iterator)
+            for (std::vector<int>::const_iterator iterator = (*listToCheck[cellId]).neighbours.begin(), end = (*listToCheck[cellId]).neighbours.end(); iterator != end; ++iterator)
             {
                 //Kijk of deze cell eerder bezocht is
                 if (!cellsList[*iterator].visited)
@@ -1401,9 +1413,9 @@ void actors::pathAStar()
                     //Deze cell heeft geen parent is is dus nooit eerder gevonden! De buren moeten dus toegevoegd worden!
                     cellsList[*iterator].addNeighbours(cellsList);
                     //De cell waarvan we de neighbours onderzoeken is uiteraard tot nu toe de kortste route hiernaartoe
-                    cellsList[*iterator].parentCellId = (*listToCheck.front()).cellId;
+                    cellsList[*iterator].parentCellId = (*listToCheck[cellId]).cellId;
                     //Nu moeten de kosten voor de route hiernatoe uitgerekend worden (Dit zijn de kosten van naar de parent gaan +1)
-                    cellsList[*iterator].cummulativeCost = (*listToCheck.front()).cummulativeCost + 1;
+                    cellsList[*iterator].cummulativeCost = (*listToCheck[cellId]).cummulativeCost + 1;
                     //Als laatste zetten we de cell in de lijst met cellen die gecheckt moet worden
                     listToCheck.push_back(&cellsList[*iterator]);
                     //En we schatten vanaf deze cell de kosten naar het doel
@@ -1417,21 +1429,20 @@ void actors::pathAStar()
                 {
                     //Deze tegel is al eerder gevonden, de buren staan dus al in de te checken cell lijst en hoeft niet opnieuw gechecked te worden
                     //We moeten wel weten of de route waarmee deze tegel nu is aangedaan niet korter is dan een eerder gevonden route
-                    if ((*listToCheck.front()).cummulativeCost + 1 < cellsList[*iterator].cummulativeCost)
+                    if ((*listToCheck[cellId]).cummulativeCost + 1 < cellsList[*iterator].cummulativeCost)
                     {
                         //Er is een kortere route naar deze cell! Pas de parent cell dus aan en geef een nieuwe cummulative Cost;
-                        cellsList[*iterator].parentCellId = (*listToCheck.front()).cellId;
-                        cellsList[*iterator].cummulativeCost = (*listToCheck.front()).cummulativeCost + 1;
+                        cellsList[*iterator].parentCellId = (*listToCheck[cellId]).cellId;
+                        cellsList[*iterator].cummulativeCost = (*listToCheck[cellId]).cummulativeCost + 1;
                         //Uiteraard verranderd dit dan ook de geschatte totale kosten vanaf deze tegel
                         cellsList[*iterator].totalCostGuess = cellsList[*iterator].costToGoal + cellsList[*iterator].cummulativeCost;
                     }
                 }
             }
             //zet de tegel op de bezochte tegellijst
-            checkedList.push_back(&cellsList[(*listToCheck.front()).cellId]);
+            checkedList.push_back(&cellsList[(*listToCheck[cellId]).cellId]);
             //en haal hem van de te bezoeken tegellijst
-            listToCheck.front() = std::move(listToCheck.back());
-            listToCheck.pop_back();
+            listToCheck.erase(std::next(listToCheck.begin(), cellId));
         }
     }
     //Alle tegels die te bereiken zijn zijn bekeken of er is een route gevonden.
@@ -1448,10 +1459,10 @@ void actors::pathAStar()
         if (!(this->isGatheringRecources || this->isBuilding)) {
             //We kunnen niet bij het doel komen en hebben geen bouw of verzamel opdracht, dan gaan we maar naar de geschatte dichtsbijzijnde cell waar we naartoe kunnen!
             if (!checkedList.empty()) {
-                checkedList.sort([](const Cells* f, const Cells* s)
+                std::sort(checkedList.begin(), checkedList.end(), ([](const Cells* f, const Cells* s)
                     {
                         return f->costToGoal < s->costToGoal;
-                    });
+                    }));
                 //Een bereikbare tegel met de laagst geschatte totale kosten staat nu vooraan in de rij van de bezochte tegels
                 this->actorGoal = cellsList[(*checkedList.front()).cellId].position;
                 if ((*checkedList.front()).parentCellId != -1) {

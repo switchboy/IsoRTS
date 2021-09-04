@@ -20,6 +20,7 @@ public:
         costToGoal = 0;
         totalCostGuess = 0;
     }
+    Cells(cords cellPosition, int cellId);
     Cells(cords cellPosition, int cellId, bool obstacle);
     cords position;
     int parentCellId, cummulativeCost, cellId, backParent;
@@ -30,6 +31,8 @@ public:
     std::vector<int> neighbours;
     void addNeighbours(const std::vector<Cells> &cellsList);
 };
+
+extern std::vector<Cells> baseCellList;
 
 struct nearestBuildingTile
 {

@@ -132,6 +132,7 @@ void player::clearLists()
     this->gatheringStone.clear();
     this->gatheringGold.clear();
     this->building.clear();
+    this->listOfSwordsman.clear();
 }
 
 int player::getVillagers() const

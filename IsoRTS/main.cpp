@@ -27,7 +27,6 @@ void clearOldCommandCursors()
 void updateStats() {
     for (int i = 0; i < currentGame.getPlayerCount(); i++) {
         listOfPlayers[i].clearLists();
-
     }
     for (int n = 0; n < listOfActors.size(); n++) {
         if (listOfActors[n].isAlive()) {

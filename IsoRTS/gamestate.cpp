@@ -186,11 +186,6 @@ void gameState::drawGround(int i, int j)
         spriteCordsY += 128;
     }
 
-    //Debugging remove when done TODO
-    if (spriteCordsY > 1536) {
-        std::cout << this->currentMap[i][j] << " " << this->tileBitmask[i][j];
-    }
-
     setTerrainTexturCordsForQuad(&worldMap[((i * MAP_HEIGHT) + j) * 4], spriteCordsX, spriteCordsY);
     setTerrainWorldCordsForQuad(&worldMap[((i * MAP_HEIGHT) + j) * 4], i, j);
 }

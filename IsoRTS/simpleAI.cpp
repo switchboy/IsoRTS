@@ -610,7 +610,6 @@ cords simpleAI::getOptimalFreeBuildingSlot(int buildingId, cords closeToVillager
 	}
 }
 
-
 cords simpleAI::getFreeBuildingSlot(int buildingId, cords closeToThis)
 {
 	//depricated function use getOptimalFreeBuildingSlot instead
@@ -647,7 +646,6 @@ cords simpleAI::getFreeBuildingSlot(int buildingId, cords closeToThis)
 		return { -1, -1 };
 	}
 }
-
 
 int simpleAI::isBuildingThereButIncomplete(int type) {
 	for (int i = 0; i < listOfBuildings.size(); i++) {

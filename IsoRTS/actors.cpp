@@ -239,7 +239,6 @@ actors::actors(int type, cords location, int actorTeam, int actorId)
     this->timeStartedGatheringRecource = 0.0f;
     this->waitForAmountOfFrames = 0;
     this->reachedUnloadingPoint = false;
-    this->hasStartedSearchingForAlternatives = false;
     this->timeLastRetry = 0.0f;
     this->actorAlive = true;
     this->actorGoal = location;
@@ -365,6 +364,360 @@ void actors::makeSureActorIsOnTheMap() {
     }
 }
 
+
+std::string boolAsText(bool it)
+{
+    std::stringstream converter;
+    converter << std::boolalpha << it;
+    return converter.str();
+}
+
+void actors::printActorDebugText()
+{
+    std::stringstream actorDeclaringString;
+    actorDeclaringString << "Showing Actor ID: " << actorId;
+    gameText.addDebugMessage(actorDeclaringString.str(), 0);
+
+    //bool actorAlive
+    if (actorAlive) {
+        std::stringstream textStream;
+        textStream << "actorAlive: " << boolAsText(actorAlive);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "actorAlive: " << boolAsText(actorAlive);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+
+    //bool isIdle
+    if (isIdle) {
+        std::stringstream textStream;
+        textStream << "isIdle: " << boolAsText(isIdle);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "isIdle: " << boolAsText(isIdle);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+
+    //bool doesRangedDamage
+    if (doesRangedDamage) {
+        std::stringstream textStream;
+        textStream << "doesRangedDamage: " << boolAsText(doesRangedDamage);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "doesRangedDamage: " << boolAsText(doesRangedDamage);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+
+    //bool commonGoal
+    if (commonGoal) {
+        std::stringstream textStream;
+        textStream << "commonGoal: " << boolAsText(commonGoal);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "commonGoal: " << boolAsText(commonGoal);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+
+    //bool goalNeedsUpdate
+    if (goalNeedsUpdate) {
+        std::stringstream textStream;
+        textStream << "goalNeedsUpdate: " << boolAsText(goalNeedsUpdate);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "goalNeedsUpdate: " << boolAsText(goalNeedsUpdate);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+
+//bool isWalkingToMiddleOfSquare
+    if (isWalkingToMiddleOfSquare) {
+        std::stringstream textStream;
+        textStream << "isWalkingToMiddleOfSquare: " << boolAsText(isWalkingToMiddleOfSquare) << " (canceld command)" ;
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "isWalkingToMiddleOfSquare: " << boolAsText(isWalkingToMiddleOfSquare);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+
+//bool isBackAtOwnSquare
+    if (isBackAtOwnSquare) {
+        std::stringstream textStream;
+        textStream << "isBackAtOwnSquare: " << boolAsText(isBackAtOwnSquare);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "isBackAtOwnSquare: " << boolAsText(isBackAtOwnSquare);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+
+//bool lastTile
+    if (lastTile) {
+        std::stringstream textStream;
+        textStream << "lastTile: " << boolAsText(lastTile);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "lastTile: " << boolAsText(lastTile);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+//bool routeNeedsPath
+    if (routeNeedsPath) {
+        std::stringstream textStream;
+        textStream << "routeNeedsPath: " << boolAsText(routeNeedsPath);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "routeNeedsPath: " << boolAsText(routeNeedsPath);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+//bool noPathPossible
+    if (noPathPossible) {
+        std::stringstream textStream;
+        textStream << "noPathPossible: " << boolAsText(noPathPossible);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "noPathPossible: " << boolAsText(noPathPossible);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+//bool pathFound
+    if (pathFound) {
+        std::stringstream textStream;
+        textStream << "pathFound: " << boolAsText(pathFound);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "pathFound: " << boolAsText(pathFound);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+//bool hasMoved
+    if (hasMoved) {
+        std::stringstream textStream;
+        textStream << "hasMoved: " << boolAsText(hasMoved);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "hasMoved: " << boolAsText(hasMoved);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+//bool busyWalking
+    if (busyWalking) {
+        std::stringstream textStream;
+        textStream << "busyWalking: " << boolAsText(busyWalking);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "busyWalking: " << boolAsText(busyWalking);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+//bool movedMoreThanHalf
+    if (busyWalking) {
+        std::stringstream textStream;
+        textStream << "busyWalking: " << boolAsText(busyWalking);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "busyWalking: " << boolAsText(busyWalking);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+//bool realPath
+    if (realPath) {
+        std::stringstream textStream;
+        textStream << "realPath: " << boolAsText(realPath);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "realPath: " << boolAsText(realPath);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+//bool isGatheringRecources
+    if (isGatheringRecources) {
+        std::stringstream textStream;
+        textStream << "isGatheringRecources: " << boolAsText(isGatheringRecources);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "isGatheringRecources: " << boolAsText(isGatheringRecources);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+//bool isAtRecource
+    if (isAtRecource) {
+        std::stringstream textStream;
+        textStream << "isAtRecource: " << boolAsText(isAtRecource);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "isAtRecource: " << boolAsText(isAtRecource);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+//bool carriesRecources
+    if (carriesRecources) {
+        std::stringstream textStream;
+        textStream << "carriesRecources: " << boolAsText(carriesRecources);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "carriesRecources: " << boolAsText(carriesRecources);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+//bool isAtCarryCapacity
+    if (isAtCarryCapacity) {
+        std::stringstream textStream;
+        textStream << "isAtCarryCapacity: " << boolAsText(isAtCarryCapacity);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "isAtCarryCapacity: " << boolAsText(isAtCarryCapacity);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+//bool hasToUnloadResource
+    if (hasToUnloadResource) {
+        std::stringstream textStream;
+        textStream << "hasToUnloadResource: " << boolAsText(hasToUnloadResource);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "hasToUnloadResource: " << boolAsText(hasToUnloadResource);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+//bool isWalkingToUnloadingPoint
+    if (isWalkingToUnloadingPoint) {
+        std::stringstream textStream;
+        textStream << "isWalkingToUnloadingPoint: " << boolAsText(isWalkingToUnloadingPoint);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "isWalkingToUnloadingPoint: " << boolAsText(isWalkingToUnloadingPoint);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+//bool reachedUnloadingPoint
+    if (reachedUnloadingPoint) {
+        std::stringstream textStream;
+        textStream << "isWalkingToUnloadingPoint: " << boolAsText(reachedUnloadingPoint);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "reachedUnloadingPoint: " << boolAsText(reachedUnloadingPoint);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+//bool hasUnloaded
+    if (hasUnloaded) {
+        std::stringstream textStream;
+        textStream << "hasUnloaded: " << boolAsText(hasUnloaded);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "hasUnloaded: " << boolAsText(hasUnloaded);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+//bool isFindingAlternative
+    if (isFindingAlternative) {
+        std::stringstream textStream;
+        textStream << "isFindingAlternative: " << boolAsText(isFindingAlternative);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "isFindingAlternative: " << boolAsText(isFindingAlternative);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+//bool isBuilding
+    if (isBuilding) {
+        std::stringstream textStream;
+        textStream << "isBuilding: " << boolAsText(isBuilding);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "isBuilding: " << boolAsText(isBuilding);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+//bool isMeleeAttacking
+    if (isMeleeAttacking) {
+        std::stringstream textStream;
+        textStream << "isMeleeAttacking: " << boolAsText(isMeleeAttacking);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "isMeleeAttacking: " << boolAsText(isMeleeAttacking);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+//bool isRangedAttacking
+    if (isRangedAttacking) {
+        std::stringstream textStream;
+        textStream << "isRangedAttacking: " << boolAsText(isRangedAttacking);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "isRangedAttacking: " << boolAsText(isRangedAttacking);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+   //current cords
+    std::stringstream textStream1;
+    textStream1 << "Current cords x: " << actorCords.x << " y: " << actorCords.y;
+    gameText.addDebugMessage(textStream1.str(), 0);
+    //currentGoal
+    textStream1.str(std::string());
+    textStream1 << "Short term goal cords x: " << actorGoal.x << " y: " << actorGoal.y;
+    gameText.addDebugMessage(textStream1.str(), 0);
+    //realGoal
+    textStream1.str(std::string());
+    textStream1 << "Long term goal cords x: " << actorRealGoal.x << " y: " << actorRealGoal.y;
+    gameText.addDebugMessage(textStream1.str(), 0);
+    //actorCommandGoal
+    textStream1.str(std::string());
+    textStream1 << "actorCommandGoal cords x: " << actorCommandGoal.x << " y: " << actorCommandGoal.y;
+    gameText.addDebugMessage(textStream1.str(), 0);
+    //actionPreformedOnTile;
+    textStream1.str(std::string());
+    textStream1 << "actionPreformedOnTile x:" << actionPreformedOnTile.x << " y: " << actionPreformedOnTile.y;
+    gameText.addDebugMessage(textStream1.str(), 0);
+    //isWalkingBackXYDrawOverride
+    if (isWalkingBackXYDrawOverride.isActive) {
+        std::stringstream textStream;
+        textStream << "isWalkingBackXYDrawOverride: " << boolAsText(isWalkingBackXYDrawOverride.isActive);
+        gameText.addDebugMessage(textStream.str(), 0);
+        textStream1.str(std::string());
+        textStream1 << "isWalkingBackXYDrawOverride x:" << isWalkingBackXYDrawOverride.newXY.x << " y: " << isWalkingBackXYDrawOverride.newXY.y;
+        gameText.addDebugMessage(textStream1.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "isWalkingBackXYDrawOverride: " << boolAsText(isWalkingBackXYDrawOverride.isActive);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
+}
+
 void actors::update()
 {
     if (this->actorAlive)
@@ -409,6 +762,9 @@ void actors::update()
                 this->searchAltetnative();
             }
         }
+    }
+    if (currentGame.isInSelectedActors(this->actorId)) {
+        printActorDebugText();
     }
 }
 

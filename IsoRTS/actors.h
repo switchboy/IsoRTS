@@ -111,6 +111,7 @@ public:
     void killActor();
     void moveActorIfWalking();
     void makeSureActorIsOnTheMap();
+    void printActorDebugText();
     void pathAStar();
     void renderPath();
     void retryWalkingOrChangeGoal();
@@ -182,7 +183,6 @@ private:
     bool isFindingAlternative;
     bool isIdle;
     bool realPath;
-    bool hasStartedSearchingForAlternatives;
     cords actorCords;
     cords actorGoal;
     cords actorRealGoal;

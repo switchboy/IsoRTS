@@ -2408,6 +2408,7 @@ void gameState::drawGame()
     drawCommandCursors();
     window.setView(totalView);
     gameText.drawMessages();
+    gameText.drawDebugMessages();
     drawToolTip();
     window.setView(worldView);
     drawPaths();

@@ -231,7 +231,7 @@ actors::actors(int type, cords location, int actorTeam, int actorId)
     this->idOfTarget = 0;
     this->isFindingAlternative = false;
     this->isRangedAttacking = false;
-    this->movedMoreThanHalf = false;
+    //this->movedMoreThanHalf = false;
     this->noPathPossible = false;
     this->realPath = false;
     this->timeLastPathTry = currentGame.getTime();
@@ -528,17 +528,6 @@ void actors::printActorDebugText()
         textStream << "busyWalking: " << boolAsText(busyWalking);
         gameText.addDebugMessage(textStream.str(), 1);
     }
-//bool movedMoreThanHalf
-    if (busyWalking) {
-        std::stringstream textStream;
-        textStream << "busyWalking: " << boolAsText(busyWalking);
-        gameText.addDebugMessage(textStream.str(), 0);
-    }
-    else {
-        std::stringstream textStream;
-        textStream << "busyWalking: " << boolAsText(busyWalking);
-        gameText.addDebugMessage(textStream.str(), 1);
-    }
 //bool realPath
     if (realPath) {
         std::stringstream textStream;
@@ -619,7 +608,7 @@ void actors::printActorDebugText()
 //bool reachedUnloadingPoint
     if (reachedUnloadingPoint) {
         std::stringstream textStream;
-        textStream << "isWalkingToUnloadingPoint: " << boolAsText(reachedUnloadingPoint);
+        textStream << "reachedUnloadingPoint: " << boolAsText(reachedUnloadingPoint);
         gameText.addDebugMessage(textStream.str(), 0);
     }
     else {
@@ -718,6 +707,26 @@ void actors::printActorDebugText()
     }
 }
 
+void actors::makeSurePathIsOnListToGetCalculated()
+{
+    //Route should have a path? Check if route still needs to be calculated
+    bool actorInListForPathfinding = false;
+    if (!listOfActorsWhoNeedAPath.empty()) {
+        for (int i = 0; i < listOfActorsWhoNeedAPath.size(); i++) {
+            if (listOfActorsWhoNeedAPath[i] == this->actorId) {
+                actorInListForPathfinding = true;
+            }
+        }
+    }
+    if (!actorInListForPathfinding) {
+        this->retryWalkingOrChangeGoal();
+    }
+
+    std::stringstream error;
+    error << "Actor with ID: " << this->actorId << " needed a path and was not on the listOfActorsWhoNeedAPath! Why?";
+    gameText.addNewMessage(error.str(), 1);
+}
+
 void actors::update()
 {
     if (this->actorAlive)
@@ -727,7 +736,7 @@ void actors::update()
             makeSureActorIsOnTheMap();
         }
         else if (this->isWalkingToMiddleOfSquare) {
-            walkBackAfterAbortedCommand();
+            walkBackAfterAbortedCommand(); //centers actor on the square again
         }
         else {
             if ((this->isMeleeAttacking || this->isRangedAttacking)) {
@@ -744,19 +753,9 @@ void actors::update()
                     this->doTaskIfNotWalking();
                 }
                 else {
-                    bool actorInListForPathfinding = false;
-                    if (!listOfActorsWhoNeedAPath.empty()) {
-                        for (int i = 0; i < listOfActorsWhoNeedAPath.size(); i++) {
-                            if (listOfActorsWhoNeedAPath[i] == this->actorId) {
-                                actorInListForPathfinding = true;
-                            }
-                        }
-                    }
-                    if (!actorInListForPathfinding) {
-                        this->retryWalkingOrChangeGoal();
-                    }
+                    this->makeSurePathIsOnListToGetCalculated();
                 }
-                this->houseKeeping();
+                this->houseKeeping(); //makes sure the actor is only occuping one tile!
             }
             else {
                 this->searchAltetnative();
@@ -1034,7 +1033,6 @@ void actors::moveActorIfWalking()
     if (this->busyWalking && (currentGame.elapsedTime - this->timeLastUpdate) > this->timeToCrossOneTile)
     {
         this->busyWalking = false;
-        this->movedMoreThanHalf = false;
         currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].erase(std::remove(currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].begin(), currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].end(), this->actorId), currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].end());
         this->actorCords = this->actorGoal;
     }

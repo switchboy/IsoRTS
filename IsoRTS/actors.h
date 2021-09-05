@@ -126,6 +126,7 @@ public:
     void takeDamage(int amountOfDamage, int idOfAttacker);
     void unloadAndReturnToGathering();
     void update();
+    void makeSurePathIsOnListToGetCalculated();
     void updateGoal(cords goal, int waitTime);
     void updateGoalPath();
     void walkBackToOwnSquare();
@@ -160,7 +161,6 @@ private:
     bool actorAlive;
     bool doesRangedDamage;
     bool busyWalking;
-    bool movedMoreThanHalf;
     bool commonGoal;
     bool isGatheringRecources;
     bool isAtRecource;

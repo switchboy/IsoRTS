@@ -119,7 +119,7 @@ cords findResource(resourceTypes kind, int unitId ) {
 	cords targetCords{ -1, -1 };
 
 	for (int i = 0; i < listOfObjects.size(); i++) {
-		if (listOfObjects[i].getTypeOfResource() == kind) {
+		if (listOfObjects[i].getTypeOfResource() == kind && listOfObjects[i].amountOfResourcesLeft() > 0 ) {
 			float tempDeltaDistance = static_cast<float>(distEuclidean(listOfActors[unitId].getActorCords().x, listOfActors[unitId].getActorCords().y, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y));
 			listOfResourceLocations.push_back({ tempDeltaDistance, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y, i, true });
 		}

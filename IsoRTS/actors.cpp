@@ -167,8 +167,10 @@ void updateCells(int goalId, int startId, std::vector<Cells>& cellsList, bool ca
             n++;
         }
     }
-    cellsList[goalId].obstacle = false;
-    cellsList[startId].obstacle = false;
+    if (goalId >= 0) {
+        cellsList[goalId].obstacle = false;
+        cellsList[startId].obstacle = false;
+    }
 }
 
 Cells::Cells(cords cellPosition, int cellId)

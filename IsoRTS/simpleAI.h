@@ -13,7 +13,7 @@ private:
 	int  attackWaveSent = 0;
 	void attakCommandUnit(int unitId, cords targetCords, bool first);
 	void buildBuilding(int buildingId, cords buildingCords);
-	void buildBuildingNearUnlessBuilding(int buildingId, int idleVillagerId, int nearResource);
+	void buildBuildingNearUnlessBuilding(int buildingId, int idleVillagerId, resourceTypes nearResource);
 	void excecuteAttackPlan();
 	void buildCommandUnit(int unitId, cords targetCords);
 	void distributeIdleVillagers();

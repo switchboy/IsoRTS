@@ -156,25 +156,25 @@ cords findResource(resourceTypes kind, int unitId ) {
 	return targetCords;
 }
 
-void simpleAI::buildBuildingNearUnlessBuilding(int buildingId, int idleVillagerId, int nearResource) {
+void simpleAI::buildBuildingNearUnlessBuilding(int buildingId, int idleVillagerId, resourceTypes nearResource) {
 	int idOfUnfinishedHousing = isBuildingThereButIncomplete(buildingId);
 	if (idOfUnfinishedHousing == -1) {
 		if (listOfBuildingTemplates[buildingId].getPriceOfBuilding().food <= listOfPlayers[this->playerId].getStats().amountOfFood && listOfBuildingTemplates[buildingId].getPriceOfBuilding().wood <= listOfPlayers[this->playerId].getStats().amountOfWood && listOfBuildingTemplates[buildingId].getPriceOfBuilding().stone <= listOfPlayers[this->playerId].getStats().amountOfStone && listOfBuildingTemplates[buildingId].getPriceOfBuilding().gold <= listOfPlayers[this->playerId].getStats().amountOfGold) {
 			cords buildingSlot = {0,0};
 			switch (nearResource) {
-			case -1:
+			case resourceTypes::None:
 				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getActorCords(), false, false, false, false);
 				break;
-			case 0:
+			case resourceTypes::resourceWood:
 				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getActorCords(), true, false, false, false);
 				break;
-			case 1:
+			case resourceTypes::resourceFood:
 				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getActorCords(), false, true, false, false);
 				break;
-			case 2:
+			case resourceTypes::resourceStone:
 				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getActorCords(), false, false, true, false);
 				break;
-			case 3:
+			case resourceTypes::resourceGold:
 				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getActorCords(), false, false, false, true);
 				break;
 			}
@@ -263,19 +263,19 @@ void simpleAI::orderBuildingToProduceUnitIfItHadNoTask(int buildingTypeId, int u
 bool simpleAI::buildDropOffPointWhen(int buildingId, resourceTypes resource, int first, int second, int third) {
 	if (getBuildingIdsOfType(buildingId).size() == 0) {
 		if (listOfPlayers[this->playerId].getTotalGathering(resource) > first) {
-			buildBuildingNearUnlessBuilding(2, listOfPlayers[this->playerId].getGatheringFood(0), 1);
+			buildBuildingNearUnlessBuilding(buildingId, listOfPlayers[this->playerId].getGatheringFood(0), resource);
 			return true;
 		}
 	}
 	else if (getBuildingIdsOfType(buildingId).size() == 1) {
 		if (listOfPlayers[this->playerId].getTotalGathering(resource) > second) {
-			buildBuildingNearUnlessBuilding(2, listOfPlayers[this->playerId].getGatheringFood(0), 1);
+			buildBuildingNearUnlessBuilding(buildingId, listOfPlayers[this->playerId].getGatheringFood(0), resource);
 			return true;
 		}
 	}
 	else if (getBuildingIdsOfType(buildingId).size() == 1) {
 		if (listOfPlayers[this->playerId].getTotalGathering(resource) > third) {
-			buildBuildingNearUnlessBuilding(2, listOfPlayers[this->playerId].getGatheringFood(0), 1);
+			buildBuildingNearUnlessBuilding(buildingId, listOfPlayers[this->playerId].getGatheringFood(0), resource);
 			return true;
 		}
 	}
@@ -296,10 +296,10 @@ void simpleAI::tryBuilding()
 	else if (buildDropOffPointWhen(6, resourceTypes::resourceGold, 8, 16, 32)) {
 	}
 	else if (listOfPlayers[this->playerId].getVillagers() >= 15 && !this->hasBuildingType(4)) {
-		this->buildBuildingNearUnlessBuilding(4, listOfPlayers[this->playerId].getVillager(0), -1);
+		this->buildBuildingNearUnlessBuilding(4, listOfPlayers[this->playerId].getVillager(0), resourceTypes::None);
 	}
 	else if (listOfPlayers[this->playerId].getVillagers() >= 30 && !this->hasBuildingType(4)) {
-		this->buildBuildingNearUnlessBuilding(4, listOfPlayers[this->playerId].getVillager(0), -1);
+		this->buildBuildingNearUnlessBuilding(4, listOfPlayers[this->playerId].getVillager(0), resourceTypes::None);
 	}
 }
 
@@ -328,11 +328,11 @@ void simpleAI::sandboxScript()
 				if (listOfPlayers[this->playerId].getPopulationRoom() <= 0) {
 					//We should build a house! Unless.. we are building a house of course...
 					if (listOfPlayers[this->playerId].getTotalGatheringWood() > 0) {
-						this->buildBuildingNearUnlessBuilding(0, listOfPlayers[this->playerId].getGatheringWood(0), -1);
+						this->buildBuildingNearUnlessBuilding(0, listOfPlayers[this->playerId].getGatheringWood(0), resourceTypes::None);
 					}
 					else {
 						if (listOfPlayers[this->playerId].getVillagers() > 0) {
-							this->buildBuildingNearUnlessBuilding(0, listOfPlayers[this->playerId].getVillager(0), -1);
+							this->buildBuildingNearUnlessBuilding(0, listOfPlayers[this->playerId].getVillager(0), resourceTypes::None);
 						}
 					}
 				}

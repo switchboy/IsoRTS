@@ -177,6 +177,9 @@ void simpleAI::buildBuildingNearUnlessBuilding(int buildingId, int idleVillagerI
 			case resourceTypes::resourceGold:
 				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getActorCords(), false, false, false, true);
 				break;
+			case resourceTypes::All:
+				buildingSlot = getOptimalFreeBuildingSlot(buildingId, listOfActors[idleVillagerId].getActorCords(), true, true, true, true);
+				break;
 			}
 			buildBuilding(buildingId, buildingSlot);
 			buildCommandUnit(idleVillagerId, buildingSlot);

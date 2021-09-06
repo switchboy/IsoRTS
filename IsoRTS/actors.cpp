@@ -727,10 +727,6 @@ void actors::makeSurePathIsOnListToGetCalculated()
     if (!actorInListForPathfinding) {
         this->retryWalkingOrChangeGoal();
     }
-
-    std::stringstream error;
-    error << "Actor with ID: " << this->actorId << " needed a path and was not on the listOfActorsWhoNeedAPath! Why?";
-    gameText.addNewMessage(error.str(), 1);
 }
 
 void actors::update()
@@ -1604,17 +1600,8 @@ void actors::setCommonGoalTrue()
 
 void actors::findNearestSimilarResource()
 {
-
-    std::stringstream error;
-    error << "Now searching alternative for actor: " << this->actorId;
-    gameText.addNewMessage(error.str(), 0);
-
     cords newResourceCords = findResource(this->ResourceBeingGatherd, this->actorId);
     if (newResourceCords.x != -1) {
-
-        error.str(std::string());
-        error << "New resource found! for actor: " << this->actorId << "@ x:" << newResourceCords.x << " y:" << newResourceCords.y;
-        gameText.addNewMessage(error.str(), 0);
         this->actorGoal = newResourceCords;
         this->actorCommandGoal = newResourceCords;
         this->actionPreformedOnTile = this->actorGoal;

@@ -1856,8 +1856,47 @@ void actors::clearCommandStack()
     this->listOfOrders.clear();
 }
 
+
 void actors::fightOrFlight(int idOfAttacker)
 {
+    auto moveOrAttackIfNotPossible = [&](cords moveAwayFrom) {
+        int moveX = 0;
+        int moveY = 0;
+        if (this->actorCords.x < moveAwayFrom.x) {
+            moveX = -1;
+        }
+        else if (this->actorCords.x > moveAwayFrom.x) {
+            moveX = 1;
+        }
+        if (this->actorCords.x < moveAwayFrom.y) {
+            moveY = -1;
+        }
+        else if (this->actorCords.x > moveAwayFrom.y) {
+            moveY = 1;
+        }
+
+        if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y + moveY })) {
+            this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y + moveY }, 0);
+        }
+        else if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y })) {
+            this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y }, 0);
+        }
+        else if (currentGame.isPassable({ this->actorCords.x, this->actorCords.y + moveY })) {
+            this->updateGoal({ this->actorCords.x, this->actorCords.y + moveY }, 0);
+        }
+        else if (currentGame.isPassable({ this->actorCords.x - moveX, this->actorCords.y + moveY })) {
+            this->updateGoal({ this->actorCords.x - moveX, this->actorCords.y + moveY }, 0);
+        }
+        else if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y - moveY })) {
+            this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y - moveY }, 0);
+        }
+        else {
+            this->updateGoal(listOfActors[idOfAttacker].getActorCords(), 0);
+            this->setIsDoingAttack(false);
+        }
+    };
+
+
     if (!this->isMeleeAttacking || !this->isRangedAttacking) {
         if (idOfAttacker >= 0) {
             int hitsUntilDead = 0;
@@ -1879,47 +1918,13 @@ void actors::fightOrFlight(int idOfAttacker)
                 this->setIsDoingAttack(false);
             }
             else {
-
-                int moveX = 0;
-                int moveY = 0;
-
-                if (this->actorCords.x < listOfActors[idOfAttacker].getActorCords().x) {
-                    moveX = -1;
-                }
-                else if (this->actorCords.x > listOfActors[idOfAttacker].getActorCords().x) {
-                    moveX = 1;
-                }
-                if (this->actorCords.x < listOfActors[idOfAttacker].getActorCords().y) {
-                    moveY = -1;
-                }
-                else if (this->actorCords.x > listOfActors[idOfAttacker].getActorCords().y) {
-                    moveY = 1;
-                }
-
-                if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y + moveY })) {
-                    this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y + moveY }, 0);
-                }
-                else if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y })) {
-                    this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y }, 0);
-                }
-                else if (currentGame.isPassable({ this->actorCords.x, this->actorCords.y + moveY })) {
-                    this->updateGoal({ this->actorCords.x, this->actorCords.y + moveY }, 0);
-                }
-                else if (currentGame.isPassable({ this->actorCords.x - moveX, this->actorCords.y + moveY })) {
-                    this->updateGoal({ this->actorCords.x - moveX, this->actorCords.y + moveY }, 0);
-                }
-                else if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y - moveY })) {
-                    this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y - moveY }, 0);
-                }
-                else {
-                    this->updateGoal(listOfActors[idOfAttacker].getActorCords(), 0);
-                    this->setIsDoingAttack(false);
-                }
-                   
+                moveOrAttackIfNotPossible(listOfActors[idOfAttacker].getActorCords());
             }
         }
+        else {
+            moveOrAttackIfNotPossible(listOfBuildings[-idOfAttacker].getLocation());
+        }
     }
-
 }
 
 void actors::doNextStackedCommand()

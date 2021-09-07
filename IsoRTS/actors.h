@@ -92,7 +92,7 @@ public:
     void animateWalkingToResource();
     void buildBuilding();
     void calculateRoute();
-    void chaseTarget();
+    bool chaseTarget();
     void cleanUp();
     void clearCommandStack();
     void clearRoute();
@@ -153,7 +153,7 @@ public:
     std::string getResources() const;
 
     void setIsBuildingTrue(int buildingId, cords goal);
-    void setIsDoingAttack();
+    void setIsDoingAttack(bool chasing);
 
 private:
     bool isWalkingToMiddleOfSquare;

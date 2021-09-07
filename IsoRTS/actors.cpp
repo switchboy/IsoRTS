@@ -295,20 +295,24 @@ actors::actors(int type, cords location, int actorTeam, int actorId)
     this->isWalkingToMiddleOfSquare = false;
 }
 
-void actors::chaseTarget() {
+bool actors::chaseTarget() {
     if (this->idOfTarget >= 0) {
         if (listOfActors[this->idOfTarget].isAlive()) {
             if (listOfActors[this->idOfTarget].getGoal().x != listOfActors[this->idOfTarget].getActorCords().x || listOfActors[this->idOfTarget].getGoal().y != listOfActors[this->idOfTarget].getActorCords().y) {
-                //target will move
-                //check if this move is allready been caught
                 if (!(this->actionPreformedOnTile.x == listOfActors[this->idOfTarget].getGoal().x && this->actionPreformedOnTile.y == listOfActors[this->idOfTarget].getGoal().y)) {
-                    //update goal
                     this->updateGoal(listOfActors[this->idOfTarget].getGoal(), 0);
-                    this->setIsDoingAttack();
+                    this->setIsDoingAttack(true);
+                    std::cout << "- Changing target location" << std::endl;
                 }
+                return true;
+            }
+            else {
+                std::cout << "- Target still locked!" << std::endl;
+                return false;
             }
         }
         else {
+            std::cout << "- Stopping attack!" << std::endl;
             this->isMeleeAttacking = false;
             this->isRangedAttacking = false;
             this->clearRoute();
@@ -316,6 +320,7 @@ void actors::chaseTarget() {
             this->realPath = false;
             this->routeNeedsPath = false;
             this->isIdle = true;
+            return false;
         }
     }
     else if (-currentGame.occupiedByBuildingList[this->actorGoal.x][this->actorGoal.y] != this->idOfTarget) {
@@ -741,9 +746,6 @@ void actors::update()
             walkBackAfterAbortedCommand(); //centers actor on the square again
         }
         else {
-            if ((this->isMeleeAttacking || this->isRangedAttacking)) {
-                this->chaseTarget();
-            }
             if (!this->isFindingAlternative) {
                 if (this->goalNeedsUpdate)
                 {
@@ -824,15 +826,20 @@ void actors::getNewBuildingTileForSameBuilding() {
 
 void actors::doTaskIfNotWalking()
 {
+    bool chasing = false;
     if (!this->busyWalking) {
+        if (this->isMeleeAttacking || this->isRangedAttacking) {
+            std::cout << "check if needed to chase!" << std::endl;
+            chasing = this->chaseTarget();
+        }
         if (this->pathFound && !this->route.empty())
         {
             this->walkToNextSquare();
         }
-        else if (this->isMeleeAttacking) {
+        else if (this->isMeleeAttacking && !chasing) {
             this->doMeleeDamage();
         }
-        else if (this->isRangedAttacking) {
+        else if (this->isRangedAttacking && !chasing) {
             this->shootProjectile();
         }
         else if (this->isGatheringRecources && (!this->routeNeedsPath) && this->route.empty())
@@ -844,7 +851,9 @@ void actors::doTaskIfNotWalking()
             this->handleBuilding();
         }
         else {
-            this->isIdle = true;
+            if (!chasing) {
+                this->isIdle = true;
+            }
         }
     }
 }
@@ -878,20 +887,27 @@ cords actors::getActorCords() const
     return this->actorCords;
 }
 
-void actors::setIsDoingAttack()
+void actors::setIsDoingAttack(bool chasing)
 {
-    if (this->doesRangedDamage) {
-        this->isRangedAttacking = true;
-    }
-    else {
-        this->isMeleeAttacking = true;
-    }
+    this->isRangedAttacking = this->doesRangedDamage;
+    this->isMeleeAttacking  = !this->doesRangedDamage;
     this->actionPreformedOnTile = this->actorGoal;
-    if (!currentGame.occupiedByActorList[this->actorGoal.x][this->actorGoal.y].empty()) {
-        this->idOfTarget = currentGame.occupiedByActorList[this->actorGoal.x][this->actorGoal.y].front();
-    }
-    else if (currentGame.occupiedByBuildingList[this->actorGoal.x][this->actorGoal.y] != -1) {
-        this->idOfTarget = -currentGame.occupiedByBuildingList[this->actorGoal.x][this->actorGoal.y];
+    if (!chasing) {
+        if (!currentGame.occupiedByActorList[this->actorGoal.x][this->actorGoal.y].empty()) {
+            this->idOfTarget = currentGame.occupiedByActorList[this->actorGoal.x][this->actorGoal.y].front();
+        }
+        else if (currentGame.occupiedByBuildingList[this->actorGoal.x][this->actorGoal.y] != -1) {
+            this->idOfTarget = -currentGame.occupiedByBuildingList[this->actorGoal.x][this->actorGoal.y];
+        }
+        else {
+            std::cout << "Stopping attack" << std::endl;
+            this->isMeleeAttacking = false;
+            this->isRangedAttacking = false;
+            this->isIdle = true;
+            this->clearRoute();
+            this->routeNeedsPath = false;
+            this->actorGoal = this->actorCords;
+        }
     }
 }
 
@@ -919,6 +935,7 @@ void actors::doMeleeDamage()
         }
         else {
             this->isMeleeAttacking = false;
+            this->timeStartedGatheringRecource == 0.0f;
         }
     }
 }
@@ -1841,89 +1858,68 @@ void actors::clearCommandStack()
 
 void actors::fightOrFlight(int idOfAttacker)
 {
-    if (!this->isMeleeAttacking && !this->isRangedAttacking) {
+    if (!this->isMeleeAttacking || !this->isRangedAttacking) {
         if (idOfAttacker >= 0) {
-            //This unit is being Attaked! Whut do?
-
-            //How many attacks does it take to kill me?
             int hitsUntilDead = 0;
+            int hitsToWin = 0;
             if (listOfActors[idOfAttacker].getMeleeDMG() > listOfActors[idOfAttacker].getRangedDMG()) {
                 hitsUntilDead = this->actorHealth / listOfActors[idOfAttacker].getMeleeDMG();
             }
             else {
                 hitsUntilDead = this->actorHealth / listOfActors[idOfAttacker].getRangedDMG();
             }
-
-            //How many hits do I need?
-            int hitsToWin = 0;
             if (this->meleeDamage > this->rangedDamage) {
                 hitsToWin = listOfActors[idOfAttacker].getHealth().first / this->meleeDamage;
             }
             else {
                 hitsToWin = listOfActors[idOfAttacker].getHealth().first / this->rangedDamage;
             }
-
             if (hitsToWin < hitsUntilDead) {
-                //Fight
                 this->updateGoal(listOfActors[idOfAttacker].getActorCords(), 0);
-                this->setIsDoingAttack();
+                this->setIsDoingAttack(false);
             }
             else {
-                //Flight
+
                 int moveX = 0;
                 int moveY = 0;
+
                 if (this->actorCords.x < listOfActors[idOfAttacker].getActorCords().x) {
-                    //We want to go to a lower x
                     moveX = -1;
                 }
                 else if (this->actorCords.x > listOfActors[idOfAttacker].getActorCords().x) {
-                    //We want to go to a higher x
                     moveX = 1;
                 }
                 if (this->actorCords.x < listOfActors[idOfAttacker].getActorCords().y) {
-                    //We want to go to a lower Y
                     moveY = -1;
                 }
                 else if (this->actorCords.x > listOfActors[idOfAttacker].getActorCords().y) {
-                    //We want to go to a higher Y
                     moveY = 1;
                 }
 
                 if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y + moveY })) {
-                    //Then do it!
                     this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y + moveY }, 0);
                 }
-                else {
-                    //try only x
-                    if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y })) {
-                        //Then do it!
-                        this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y }, 0);
-                    }
-                    else {
-                        //try only Y
-                        if (currentGame.isPassable({ this->actorCords.x, this->actorCords.y + moveY })) {
-                            //Then do it!
-                            this->updateGoal({ this->actorCords.x, this->actorCords.y + moveY }, 0);
-                        }
-                        else {
-                            //Well, not good, just two options left!
-                            if (currentGame.isPassable({ this->actorCords.x - moveX, this->actorCords.y + moveY })) {
-                                this->updateGoal({ this->actorCords.x - moveX, this->actorCords.y + moveY }, 0);
-                            }
-                            else if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y - moveY })) {
-                                this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y - moveY }, 0);
-                            }
-                            else {
-                                //We are doomed, so fight till the last breath! Out in a blaze of glory and all of that
-                                this->updateGoal(listOfActors[idOfAttacker].getActorCords(), 0);
-                                this->setIsDoingAttack();
-                            }
-                        }
-                    }
+                else if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y })) {
+                    this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y }, 0);
                 }
+                else if (currentGame.isPassable({ this->actorCords.x, this->actorCords.y + moveY })) {
+                    this->updateGoal({ this->actorCords.x, this->actorCords.y + moveY }, 0);
+                }
+                else if (currentGame.isPassable({ this->actorCords.x - moveX, this->actorCords.y + moveY })) {
+                    this->updateGoal({ this->actorCords.x - moveX, this->actorCords.y + moveY }, 0);
+                }
+                else if (currentGame.isPassable({ this->actorCords.x + moveX, this->actorCords.y - moveY })) {
+                    this->updateGoal({ this->actorCords.x + moveX, this->actorCords.y - moveY }, 0);
+                }
+                else {
+                    this->updateGoal(listOfActors[idOfAttacker].getActorCords(), 0);
+                    this->setIsDoingAttack(false);
+                }
+                   
             }
         }
     }
+
 }
 
 void actors::doNextStackedCommand()
@@ -1950,7 +1946,7 @@ void actors::doNextStackedCommand()
             break;
         case stackOrderTypes::stackActionAttack:
             this->updateGoal(this->listOfOrders.front().goal, 0);
-            this->setIsDoingAttack();
+            this->setIsDoingAttack(false);
             break;
         }
         listOfOrders.pop_front();

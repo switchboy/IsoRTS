@@ -76,7 +76,7 @@ void simpleAI::attakCommandUnit(int unitId, cords targetCords, bool first)
 {
 	if (first) {
 		listOfActors[unitId].updateGoal(targetCords, 0);
-		listOfActors[unitId].setIsDoingAttack();
+		listOfActors[unitId].setIsDoingAttack(false);
 	}
 	else {
 		listOfActors[unitId].stackOrder(targetCords, stackOrderTypes::stackActionAttack);

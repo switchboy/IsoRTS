@@ -1195,7 +1195,7 @@ bool gameState::clickToAttack() const {
                     listOfActors[this->selectedUnits[i]].clearCommandStack();
                     listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition, i / 5);
                     listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
-                    listOfActors[this->selectedUnits[i]].setIsDoingAttack();
+                    listOfActors[this->selectedUnits[i]].setIsDoingAttack(false);
                 }
                 actionDone = true;
             }
@@ -1210,7 +1210,7 @@ bool gameState::clickToAttack() const {
                 else {
                     listOfActors[this->selectedUnits[i]].clearCommandStack();
                     listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition, 0);
-                    listOfActors[this->selectedUnits[i]].setIsDoingAttack();
+                    listOfActors[this->selectedUnits[i]].setIsDoingAttack(false);
                 }
                 actionDone = true;
             }

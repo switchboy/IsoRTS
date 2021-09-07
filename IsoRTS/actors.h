@@ -114,10 +114,12 @@ public:
     void printActorDebugText();
     void pathAStar();
     void renderPath();
+    void selectAndAttackNextTarget();
     void retryWalkingOrChangeGoal();
     void routing(std::vector<Cells>& cellsList, int endCell, int startCell, bool endReached);
     void searchAltetnative();
     void setCommonGoalTrue();
+    void setDoAttackMoveTrue();
     void setGatheringRecource(bool flag);
     void shootProjectile();
     void stackOrder(cords Goal, stackOrderTypes orderType);
@@ -183,6 +185,7 @@ private:
     bool isFindingAlternative;
     bool isIdle;
     bool realPath;
+    bool wasAttackMove;
     cords actorCords;
     cords actorGoal;
     cords actorRealGoal;

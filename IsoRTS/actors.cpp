@@ -235,7 +235,6 @@ actors::actors(int type, cords location, int actorTeam, int actorId)
     this->idOfTarget = 0;
     this->isFindingAlternative = false;
     this->isRangedAttacking = false;
-    //this->movedMoreThanHalf = false;
     this->noPathPossible = false;
     this->realPath = false;
     this->timeLastPathTry = currentGame.getTime();
@@ -300,19 +299,26 @@ bool actors::chaseTarget() {
         if (listOfActors[this->idOfTarget].isAlive()) {
             if (listOfActors[this->idOfTarget].getGoal().x != listOfActors[this->idOfTarget].getActorCords().x || listOfActors[this->idOfTarget].getGoal().y != listOfActors[this->idOfTarget].getActorCords().y) {
                 if (!(this->actionPreformedOnTile.x == listOfActors[this->idOfTarget].getGoal().x && this->actionPreformedOnTile.y == listOfActors[this->idOfTarget].getGoal().y)) {
-                    this->updateGoal(listOfActors[this->idOfTarget].getGoal(), 0);
-                    this->setIsDoingAttack(true);
-                    std::cout << "- Changing target location" << std::endl;
+                    if (this->wasAttackMove) {
+                        this->updateGoal(listOfActors[this->idOfTarget].getGoal(), 0);
+                        this->setIsDoingAttack(true);
+                        this->wasAttackMove = true;
+                    }
+                    else {
+                        this->updateGoal(listOfActors[this->idOfTarget].getGoal(), 0);
+                        this->setIsDoingAttack(true);
+                    }
                 }
                 return true;
             }
             else {
-                std::cout << "- Target still locked!" << std::endl;
                 return false;
             }
         }
-        else {
-            std::cout << "- Stopping attack!" << std::endl;
+        else if (this->wasAttackMove) {
+            this->selectAndAttackNextTarget();
+            return true;
+        } else {
             this->isMeleeAttacking = false;
             this->isRangedAttacking = false;
             this->clearRoute();
@@ -324,15 +330,24 @@ bool actors::chaseTarget() {
         }
     }
     else if (-currentGame.occupiedByBuildingList[this->actorGoal.x][this->actorGoal.y] != this->idOfTarget) {
-        //Building destroyed!
-        this->isMeleeAttacking = false;
-        this->isRangedAttacking = false;
-        this->clearRoute();
-        this->pathFound = false;
-        this->realPath = false;
-        this->routeNeedsPath = false;
-        this->isIdle = true;
+
+        if (this->wasAttackMove) {
+            this->selectAndAttackNextTarget();
+            return true;
+        }
+        else {
+            //Building destroyed!
+            this->isMeleeAttacking = false;
+            this->isRangedAttacking = false;
+            this->clearRoute();
+            this->pathFound = false;
+            this->realPath = false;
+            this->routeNeedsPath = false;
+            this->isIdle = true;
+            return false;
+        }
     }
+    return false;
 }
 
 void actors::walkBackAfterAbortedCommand() {
@@ -829,7 +844,7 @@ void actors::doTaskIfNotWalking()
     bool chasing = false;
     if (!this->busyWalking) {
         if (this->isMeleeAttacking || this->isRangedAttacking) {
-            std::cout << "check if needed to chase!" << std::endl;
+            std::cout << "chase checking!";
             chasing = this->chaseTarget();
         }
         if (this->pathFound && !this->route.empty())
@@ -854,8 +869,42 @@ void actors::doTaskIfNotWalking()
             if (!chasing) {
                 this->isIdle = true;
             }
+            else if (this->wasAttackMove) {
+                this->selectAndAttackNextTarget();
+            }
         }
     }
+}
+
+
+void actors::selectAndAttackNextTarget() {
+    
+    struct foundActors {
+        int id;
+        double distance;
+    };
+
+    std::vector<foundActors> potentialTargets;
+    for (actors& actor : listOfActors) {
+        if (actor.getTeam() != this->actorTeam) {
+            potentialTargets.push_back({ actor.getActorId() , distEuclidean(this->actorCords.x, this->actorCords.y, actor.getActorCords().x, actor.getActorCords().y) });
+        }
+    }
+    
+    int idOfTarget = -1;
+    double distanceToTarget = 0;
+    for (foundActors& target : potentialTargets) {
+        if (target.distance < distanceToTarget || distanceToTarget == 0) {
+            idOfTarget = target.id;
+            distanceToTarget = target.distance;
+        }
+    }
+
+    this->updateGoal(listOfActors[idOfTarget].getActorCords(), 0);
+    this->setIsDoingAttack(false);
+    this->wasAttackMove = true;
+
+
 }
 
 void actors::shootProjectile()
@@ -933,7 +982,9 @@ void actors::doMeleeDamage()
                 listOfBuildings[currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].takeDamage(this->meleeDamage);
             }
         }
-        else {
+        else if(this->wasAttackMove) {
+            this->selectAndAttackNextTarget();
+        } else  {
             this->isMeleeAttacking = false;
             this->timeStartedGatheringRecource == 0.0f;
         }
@@ -1027,6 +1078,7 @@ void actors::updateGoal(cords location, int waitTime)
         this->isFindingAlternative = false;
         this->isIdle = false;
         this->lastTile = false;
+        this->wasAttackMove = false;
     }
 }
 
@@ -1613,6 +1665,11 @@ void actors::setGatheringRecource(bool flag)
 void actors::setCommonGoalTrue()
 {
     this->commonGoal = true;
+}
+
+void actors::setDoAttackMoveTrue()
+{
+    this->wasAttackMove = true;
 }
 
 void actors::findNearestSimilarResource()

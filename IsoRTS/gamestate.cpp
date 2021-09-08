@@ -2001,7 +2001,7 @@ void gameState::drawActorToolbar(int spriteYOffset, int tempY, int offSetTonextC
     int startY = this->preCalcStartY;
     for (int i = 0; i < this->selectedUnits.size(); i++)
     {
-        if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+        if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
         {
             createVillagerButtons(startX, startY, this->preCalcIncrementalXOffset, villagerButtonsAreThere);
         }

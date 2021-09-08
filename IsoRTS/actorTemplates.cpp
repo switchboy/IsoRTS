@@ -1,6 +1,7 @@
 #include "actorTemplates.h"
 
-actorTemplates::actorTemplates(actorNames actorId, bool doesRangedDamage, float timeBetweenShots, float timeToCrossOneTile, int hitPoints, int meleeDamage, int projectileType, int range, int rangedDamage, int rateOfFire, int splashDamage, cords textureRect, actorOrBuildingPrice priceOfActor, std::string actorTexture, std::string realActorName, cords spriteOrigin, int bigSpriteYOffset)
+actorTemplates::actorTemplates(actorNames actorId, bool doesRangedDamage, float timeBetweenShots, float timeToCrossOneTile, int hitPoints, int meleeDamage, int projectileType, int range, int rangedDamage,
+    int rateOfFire, int splashDamage, cords textureRect, actorOrBuildingPrice priceOfActor, std::string actorTexture, std::string realActorName, cords spriteOrigin, int bigSpriteYOffset, std::vector<actorButtonVariables> actorButtons)
 {
     this->actorId = actorId;
     this->doesRangedDamage = doesRangedDamage;
@@ -18,6 +19,7 @@ actorTemplates::actorTemplates(actorNames actorId, bool doesRangedDamage, float 
     this->priceOfActor = priceOfActor;
     this->realActorName = realActorName;
     this->bigSpriteYOffset = bigSpriteYOffset;
+    this->actorButtons = actorButtons;
 
     if (!Collision::CreateTextureAndBitmask(this->actorTexture, actorTexture))
     {
@@ -110,6 +112,17 @@ std::string actorTemplates::getRealActorName() const
     return this->realActorName;
 }
 
+std::list<actorButtonVariables> actorTemplates::getActorButtonsOfMenu(int menu)
+{
+    std::list<actorButtonVariables> tempButtonList;
+    for (actorButtonVariables& actorButton : actorButtons) {
+        if (actorButton.subMenu == menu) {
+            tempButtonList.push_back(actorButton);
+        }
+    }
+    return tempButtonList;
+}
+
 void actorTemplates::setActorTexture()
 {
     this->actorSprite.setTexture(this->actorTexture);
@@ -141,8 +154,24 @@ void loadActors()
         { 50, 0, 0, 0, 25 },                //actorOrBuildingPrice    priceOfActor, (food, wood, stone, gold, production points)
         "textures/testVillagerSprite.png",  //std::string             actorTexture,
         "Villager",                         //std::string             realActorName
-        {-24, 12 },                          //cords                   spriteOrigin
-        0
+        {-24, 12 },                         //cords                   spriteOrigin
+        0,                                  //int                     bigSpriteYOffset
+        {                                   //std::vector<actorButtonVariables> actorButtons
+            //0
+            {spriteTypes::spriteCivilBuilding, actionTypes::actionShowCivilBuildings, 0},
+            {spriteTypes::spriteMilitairyBuilding, actionTypes::actionShowMilitairyBuildings, 0},
+            //1
+            {spriteTypes::spriteTownCenter, actionTypes::actionBuildTownCenter, 1},
+            {spriteTypes::spriteHouse, actionTypes::actionBuildHouse, 1},
+            {spriteTypes::spriteMill, actionTypes::actionBuildMill, 1},
+            {spriteTypes::spriteLumberCamp, actionTypes::actionBuildLumberCamp, 1},
+            {spriteTypes::spriteMiningCamp, actionTypes::actionBuildMiningCamp, 1},
+            {spriteTypes::spriteGoBack, actionTypes::actionShowBack, 1},
+            //2
+            {spriteTypes::spriteBarracks, actionTypes::actionBuildBarracks, 2},
+            {spriteTypes::spriteWall, actionTypes::actionBuildWall, 2},
+            {spriteTypes::spriteGoBack, actionTypes::actionShowBack, 2},
+        }
     });
 
     //priceOfActor.push_back({ 60,0,0,20,25 });  Swordsman
@@ -162,8 +191,11 @@ void loadActors()
         { 50, 0, 0, 0, 25 },                //actorOrBuildingPrice    priceOfActor, (food, wood, stone, gold, production points)
         "textures/swordsman.png",           //std::string             actorTexture,
         "Swordsman",                        //std::string             realActorName
-        {-24, 12},                           //cords                   spriteOrigin
-        128
+        {-24, 12},                          //cords                   spriteOrigin
+        128,                                //bigSpriteYOffset
+        {                                   //std::vector<actorButtonVariables> actorButtons
+
+        }
     });
 
     for (int i = 0; i < listOfActorTemplates.size(); i++) {

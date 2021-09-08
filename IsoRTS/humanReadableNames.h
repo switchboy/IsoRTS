@@ -35,7 +35,10 @@ enum class spriteTypes
     spriteMiningCamp,
     spriteWall,
     spriteGate,
-    spriteOpenGate
+    spriteOpenGate,
+    spriteCivilBuilding,
+    spriteMilitairyBuilding,
+    spriteGoBack
 };
 
 enum class actionTypes
@@ -54,7 +57,10 @@ enum class actionTypes
     actionBuildWall,
     actionMakeGate,
     actionOpenGate,
-    actionCloseGate
+    actionCloseGate,
+    actionShowCivilBuildings,
+    actionShowMilitairyBuildings,
+    actionShowBack
 };
 
 enum class stackOrderTypes

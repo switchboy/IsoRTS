@@ -195,6 +195,11 @@ void gameState::setIsPlacingBuilding()
     this->isPlacingBuilding = true;
 }
 
+void gameState::setToolbarSubMenu(int subMenu)
+{
+    this->showToolbarSubMenu = subMenu;
+}
+
 void gameState::drawThingsOnTile(int i, int j)
 {
     if(this->buildingLocationList[i][j] != -1)
@@ -822,9 +827,6 @@ void gameState::clickToSelectObjectOrBuilding()
             if (Collision::singlePixelTest(listOfBuildingTemplates[building.getType()].getBuildingSprite(), mousePosition, 128)) {
                 this->buildingSelectedId = building.getBuildingId();
             }
-
-
-
             /*/if (Collision::PixelPerfectTest(listOfBuildingTemplates[building.getType()].getBuildingSprite(), this->spriteMouseCord, 128)) {
                 this->buildingSelectedId = building.getBuildingId();
             }
@@ -837,6 +839,7 @@ void gameState::clickToSelectObjectOrBuilding()
         int highestTop = 0;
         for (const objects& object : listOfObjects) {
             listOfObjectTemplates[static_cast<uint32_t>(object.getType())].setPosition(worldSpace(object.getLocation()));
+
             //using a pixel cord
             if (Collision::singlePixelTest(listOfObjectTemplates[static_cast<uint32_t>(object.getType())].getSprite(), mousePosition, 128)) {
                 this->objectSelectedId = object.getObjectId();
@@ -915,6 +918,7 @@ void gameState::mouseLeftClick()
             }
             else
             {
+                this->setToolbarSubMenu(0);
                 clickToSelect();
             }
         }
@@ -1876,30 +1880,31 @@ void gameState::drawMiniMap()
 
 
 
-void createVillagerButtons(int startX, int startY, int incrementalXOffset,  bool& villagerButtonsAreThere)
+void gameState::createVillagerButtons(int startX, int startY, int incrementalXOffset,  bool& villagerButtonsAreThere)
 {
     if (!villagerButtonsAreThere) {
+
         int startXOr = startX;
-
-        listOfButtons.push_back({ startX, startY, spriteTypes::spriteTownCenter, actionTypes::actionBuildTownCenter, 0, static_cast<int>(listOfButtons.size()), 0 });
-        startX += incrementalXOffset;
-
-        listOfButtons.push_back({ startX, startY, spriteTypes::spriteHouse, actionTypes::actionBuildHouse, 0, static_cast<int>(listOfButtons.size()), 0 });
-        startX += incrementalXOffset;
-
-        listOfButtons.push_back({ startX, startY, spriteTypes::spriteMill, actionTypes::actionBuildMill, 0, static_cast<int>(listOfButtons.size()), 0 });
-        startX += incrementalXOffset;
-
-        listOfButtons.push_back({ startX, startY, spriteTypes::spriteLumberCamp, actionTypes::actionBuildLumberCamp, 0, static_cast<int>(listOfButtons.size()), 0 });
-        startX += incrementalXOffset;
-
-        listOfButtons.push_back({ startX, startY, spriteTypes::spriteBarracks, actionTypes::actionBuildBarracks, 0, static_cast<int>(listOfButtons.size()), 0 });
-      
-        startX = startXOr;
-        startY += incrementalXOffset;
-        listOfButtons.push_back({ startX, startY, spriteTypes::spriteMiningCamp, actionTypes::actionBuildMiningCamp, 0, static_cast<int>(listOfButtons.size()), 0 });
-        startX += incrementalXOffset;
-        listOfButtons.push_back({ startX, startY, spriteTypes::spriteWall, actionTypes::actionBuildWall, 0, static_cast<int>(listOfButtons.size()), 0 });
+        int buttonCounter = 0;
+        std::list<actorButtonVariables> listOfActorButtons = listOfActorTemplates[listOfActors[this->selectedUnits[0]].getType()].getActorButtonsOfMenu(this->showToolbarSubMenu);
+        for (actorButtonVariables currentButton : listOfActorButtons) {
+            buttonCounter++;
+            if (buttonCounter <= 5) {
+                if (buttons::requirementForButtonIsMet(currentButton.action, this->selectedUnits[0], listOfActors[this->selectedUnits[0]].getTeam())) {
+                    listOfButtons.push_back({ startX, startY, currentButton.sprite, currentButton.action, this->selectedUnits[0], static_cast<int>(listOfButtons.size()), 0 });
+                }
+                startX += incrementalXOffset;
+            }
+            else {
+                buttonCounter = 1;
+                startX = startXOr;
+                startY += incrementalXOffset;
+                if (buttons::requirementForButtonIsMet(currentButton.action, this->selectedUnits[0], listOfActors[this->selectedUnits[0]].getTeam())) {
+                    listOfButtons.push_back({ startX, startY, currentButton.sprite, currentButton.action, this->selectedUnits[0], static_cast<int>(listOfButtons.size()), 0 });
+                }
+                startX += incrementalXOffset;
+            }
+        }
 
         villagerButtonsAreThere = true;
     }

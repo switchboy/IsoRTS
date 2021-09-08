@@ -3,6 +3,7 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 #include "collision.h"
+#include "humanReadableNames.h"
 
 
 enum class actorNames : uint32_t {
@@ -10,51 +11,59 @@ enum class actorNames : uint32_t {
     swordsman
 };
 
+struct actorButtonVariables {
+    spriteTypes sprite;
+    actionTypes action;
+    int subMenu;
+};
+
 class actorTemplates
 {
 public:
     actorTemplates(
-        actorNames              actorId,
-        bool                    doesRangedDamage,
-        float                   timeBetweenShots,
-        float                   timeToCrossOneTile,
-        int                     hitPoints,
-        int                     meleeDamage,
-        int                     projectileType,
-        int                     range,
-        int                     rangedDamage,
-        int                     rateOfFire,
-        int                     splashDamage,
-        cords                   textureRect,
-        actorOrBuildingPrice    priceOfActor,
-        std::string             actorTexture,
-        std::string             realActorName,
-        cords                   spriteOrigin,
-        int                     bigSpriteYOffset
+        actorNames                          actorId,
+        bool                                doesRangedDamage,
+        float                               timeBetweenShots,
+        float                               timeToCrossOneTile,
+        int                                 hitPoints,
+        int                                 meleeDamage,
+        int                                 projectileType,
+        int                                 range,
+        int                                 rangedDamage,
+        int                                 rateOfFire,
+        int                                 splashDamage,
+        cords                               textureRect,
+        actorOrBuildingPrice                priceOfActor,
+        std::string                         actorTexture,
+        std::string                         realActorName,
+        cords                               spriteOrigin,
+        int                                 bigSpriteYOffset,
+        std::vector<actorButtonVariables>   actorButtons
     );
 
     //getters
-    actorNames              getActorId() const;
-    int                     getBigSpriteYOffset() const;
-    bool                    getDoesRangedDamage() const;
-    float                   getTimeBetweenShots() const;
-    float                   getTimeToCrossOneTile() const;
-    int                     getHitPoints() const;
-    int                     getMeleeDamage() const;
-    int                     getProjectileType() const;
-    int                     getRange() const;
-    int                     getRangedDamage() const;
-    int                     getRateOfFire() const;
-    int                     getSplashDamage() const;
-    cords                   getTextureRect() const;
-    actorOrBuildingPrice    getPriceOfActor() const;
-    sf::Sprite&             getActorSprite();
-    sf::Texture             getActorTexture();
-    std::string             getRealActorName() const;
+    actorNames                      getActorId() const;
+    int                             getBigSpriteYOffset() const;
+    bool                            getDoesRangedDamage() const;
+    float                           getTimeBetweenShots() const;
+    float                           getTimeToCrossOneTile() const;
+    int                             getHitPoints() const;
+    int                             getMeleeDamage() const;
+    int                             getProjectileType() const;
+    int                             getRange() const;
+    int                             getRangedDamage() const;
+    int                             getRateOfFire() const;
+    int                             getSplashDamage() const;
+    cords                           getTextureRect() const;
+    actorOrBuildingPrice            getPriceOfActor() const;
+    sf::Sprite&                     getActorSprite();
+    sf::Texture                     getActorTexture();
+    std::string                     getRealActorName() const;
+    std::list<actorButtonVariables> getActorButtonsOfMenu(int menu);
 
     //setters
-    void                    setActorTexture();
-    void                    setSpritePosition(cords position);
+    void                            setActorTexture();
+    void                            setSpritePosition(cords position);
 
 
 private:
@@ -76,6 +85,7 @@ private:
     sf::Sprite              actorSprite;
     sf::Texture             actorTexture;
     std::string             realActorName;
+    std::vector<actorButtonVariables>   actorButtons;
 };
 
 

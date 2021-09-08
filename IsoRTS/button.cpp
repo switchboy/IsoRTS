@@ -123,6 +123,18 @@ void button::showToolTip() const
             toolTipTitle << "Close the gate";
             toolTipDiscription << "Thou shall not pass!";
         break;
+    case actionTypes::actionShowCivilBuildings:
+        toolTipTitle << "Show civil buildings";
+        toolTipDiscription << "Overview of buildings to improve your civilasation";
+        break;
+    case actionTypes::actionShowMilitairyBuildings:
+        toolTipTitle << "Show militairy buildings";
+        toolTipDiscription << "Overview of militairy buildings to expand and defend your civilasation";
+        break;
+    case actionTypes::actionShowBack:
+        toolTipTitle << "Go back";
+        toolTipDiscription << "Turns the toolbar back one page";
+        break;
     }
 
     int longestStringLength = 0;
@@ -319,6 +331,15 @@ void button::performAction()
     case actionTypes::actionCloseGate:
         listOfBuildings[this->actorOrBuildingId].setGateOpen(!listOfBuildings[this->actorOrBuildingId].getGateIsOpen()); //Flip a bit!
         break;
+    case actionTypes::actionShowCivilBuildings:
+        currentGame.setToolbarSubMenu(1);
+        break;
+    case actionTypes::actionShowMilitairyBuildings:
+        currentGame.setToolbarSubMenu(2);
+        break;
+    case actionTypes::actionShowBack:
+        currentGame.setToolbarSubMenu(0);
+        break;
     }
 }
 
@@ -375,6 +396,18 @@ void button::drawButton() const
     case spriteTypes::spriteOpenGate:
         xOffSet = 192;
         yOffset = 64;
+        break;
+    case spriteTypes::spriteCivilBuilding:
+        xOffSet = 192;
+        yOffset = 128;
+        break;
+    case spriteTypes::spriteMilitairyBuilding:
+        xOffSet = 192;
+        yOffset = 192;
+        break;
+    case spriteTypes::spriteGoBack:
+        xOffSet = 192;
+        yOffset = 256;
         break;
 
     }
@@ -445,6 +478,15 @@ namespace buttons {
                 return true;
             }
             return false;
+            break;
+        case actionTypes::actionShowBack:
+            return true;
+            break;
+        case actionTypes::actionShowCivilBuildings:
+            return true;
+            break;
+        case actionTypes::actionShowMilitairyBuildings:
+            return true;
             break;
         }
         return false;

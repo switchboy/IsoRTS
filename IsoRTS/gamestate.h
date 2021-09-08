@@ -64,6 +64,7 @@ public:
     void clickToSelectObjectOrBuilding();
     void clickUIButton() const;
     void createFogOfWar();
+    void createVillagerButtons(int startX, int startY, int incrementalXOffset, bool& villagerButtonsAreThere);
     void drawActorBigSprite(int actorId);
     void drawActorStats(int actorId, int textStartX, int textStartY);
     void drawActorTitle(int actorId, int textStartX, int textStartY);
@@ -112,6 +113,7 @@ public:
     void setBuildingType(int id);
     void setDefaultValues();
     void setIsPlacingBuilding();
+    void setToolbarSubMenu(int subMenu);
     std::list<cords> listOfFlagsToDraw;
     float elapsedTime;
     int buildingSelectedId;
@@ -179,6 +181,7 @@ private:
     int startLocation[2];
     int startMouseCords[2];
     int toolBarWidth;
+    int showToolbarSubMenu = 0;
     cords firstWallClick = { -1,-1 };
     cords mouseWorldPosition;
     sf::Event event;

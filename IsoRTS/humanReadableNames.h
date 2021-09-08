@@ -38,7 +38,8 @@ enum class spriteTypes
     spriteOpenGate,
     spriteCivilBuilding,
     spriteMilitairyBuilding,
-    spriteGoBack
+    spriteGoBack,
+    spriteAttackMove
 };
 
 enum class actionTypes
@@ -60,7 +61,8 @@ enum class actionTypes
     actionCloseGate,
     actionShowCivilBuildings,
     actionShowMilitairyBuildings,
-    actionShowBack
+    actionShowBack,
+    actionAttackMove
 };
 
 enum class stackOrderTypes

@@ -195,6 +195,11 @@ void gameState::setIsPlacingBuilding()
     this->isPlacingBuilding = true;
 }
 
+void gameState::setAttackMove()
+{
+    this->attackMove = true;
+}
+
 void gameState::setToolbarSubMenu(int subMenu)
 {
     this->showToolbarSubMenu = subMenu;
@@ -324,6 +329,17 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: groundTextureSheet.png \n" << std::endl;
     }
+
+    if (textureMousePointer.loadFromFile("textures/mouseHints.png"))
+    {
+        spriteMousePointer.setTexture(textureMousePointer);
+        spriteMousePointer.setTextureRect(sf::IntRect(0, 0, 32, 32));
+    }
+    else
+    {
+        std::cout << "Error loading texture: mouseHints.png \n" << std::endl;
+    }
+
 
     if (textureArrow.loadFromFile("textures/arrow.png"))
     {
@@ -916,7 +932,24 @@ void gameState::mouseLeftClick()
             {
                 clickToPlaceActor();
             }
-            else
+            else if (attackMove) {
+                if (this->isPassable(this->mouseWorldPosition))
+                {
+                    if (clickToMove({ 0,0 }, false)) 
+                    {
+                        for (int i = 0; i < this->selectedUnits.size(); i++)
+                        {
+                            if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+                            {
+                                listOfActors[this->selectedUnits[i]].setIsDoingAttack(true);
+                                listOfActors[this->selectedUnits[i]].setDoAttackMoveTrue();
+                            }
+                        }
+                        listOfOrderCursors.push_back(orderCursor(this->mousePosition));
+                        this->attackMove = false;
+                    }
+                }
+            }
             {
                 this->setToolbarSubMenu(0);
                 clickToSelect();
@@ -1341,6 +1374,7 @@ void gameState::mouseRightClick()
         else if (this->buildingSelectedId != -1) {
             this->orderRallyPoint();
         }
+        this->attackMove = false;
     }
 }
 
@@ -2394,6 +2428,83 @@ void drawRallyPoints(){
     }
 }
 
+void gameState::drawMouse() {
+    if (mouseFakePosition.y > visableWorldHeight) {
+        window.setView(totalView);
+    }
+
+    spriteMousePointer.setTextureRect(sf::IntRect(0, 0, 32, 32));
+    if (!selectedUnits.empty()){
+        bool villagerInSelection = false;
+        bool cursorChanged = false;
+        for (int& unitId : selectedUnits) {
+            if (listOfActors[unitId].getType() == 0) {
+                villagerInSelection = true;
+            }
+        }
+
+        if (listOfBuildings.size() > 0) {
+            for (const buildings& building : listOfBuildings) {
+                listOfBuildingTemplates[building.getType()].setSpritePosition(worldSpace(building.getLocation()));
+                if (Collision::singlePixelTest(listOfBuildingTemplates[building.getType()].getBuildingSprite(), mousePosition, 128)) {
+                    //Mouse cursor for building either attack, build/repair or nothing
+                    if (building.getTeam() == currentPlayer.getTeam()) {
+                        if (villagerInSelection) {
+                            spriteMousePointer.setTextureRect(sf::IntRect(160, 0, 32, 32));
+                        }
+                    }
+                    else {
+                        spriteMousePointer.setTextureRect(sf::IntRect(32, 0, 32, 32));
+                    }
+                    cursorChanged = true;
+                }
+            }
+        }
+
+        if (listOfObjects.size() > 0 && !cursorChanged && villagerInSelection) {
+            for (const objects& object : listOfObjects) {
+                listOfObjectTemplates[static_cast<uint32_t>(object.getType())].setPosition(worldSpace(object.getLocation()));
+                if (Collision::singlePixelTest(listOfObjectTemplates[static_cast<uint32_t>(object.getType())].getSprite(), mousePosition, 128)) {
+                    switch (object.getTypeOfResource()) {
+                    case resourceTypes::resourceFood:
+                        spriteMousePointer.setTextureRect(sf::IntRect(128, 0, 32, 32));
+                        break;
+                    case resourceTypes::resourceWood:
+                        spriteMousePointer.setTextureRect(sf::IntRect(64, 0, 32, 32));
+                        break;
+                    case resourceTypes::resourceStone:
+                        spriteMousePointer.setTextureRect(sf::IntRect(96, 0, 32, 32));
+                        break;
+                    case resourceTypes::resourceGold:
+                        spriteMousePointer.setTextureRect(sf::IntRect(96, 0, 32, 32));
+                        break;
+
+                    }
+                }
+            }
+        }
+
+        if (listOfActors.size() > 0 && !cursorChanged){
+            for (const actors& actor : listOfActors) {
+                listOfActorTemplates[actor.getType()].setSpritePosition(worldSpace(actor.getActorCords()));
+                if (Collision::singlePixelTest(listOfActorTemplates[actor.getType()].getActorSprite(), mousePosition, 128)) {
+                    if (actor.getTeam() != currentPlayer.getTeam()) {
+                        spriteMousePointer.setTextureRect(sf::IntRect(32, 0, 32, 32));
+                    }
+                }
+            }
+        }
+    }
+
+    if (attackMove) {
+        spriteMousePointer.setTextureRect(sf::IntRect(192, 0, 32, 32));
+    }
+
+    spriteMousePointer.setPosition(mousePosition);
+    window.draw(spriteMousePointer);
+
+}
+
 void gameState::drawGame()
 {
     window.clear(sf::Color(0, 0, 0));
@@ -2417,6 +2528,7 @@ void gameState::drawGame()
     drawToolTip();
     window.setView(worldView);
     drawPaths();
+    drawMouse();
     window.display();
 }
 

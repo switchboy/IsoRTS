@@ -153,6 +153,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
 
 int main()
 {
+    window.setMouseCursorVisible(false);
     sf::Clock clockMain;
     int lastActor = 0;
     int lastBuilding = 0;

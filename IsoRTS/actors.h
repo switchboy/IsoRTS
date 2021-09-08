@@ -147,6 +147,7 @@ public:
     int getType() const;
     sf::IntRect getLastIntRect() const;
     cords getGoal() const;
+    cords getEndGoal();
     resourceTypes getResourceGathered() const;
     cords getActorCords() const;
     const std::list<cords>& getRejectedTargetsList() const;
@@ -214,6 +215,7 @@ private:
     int projectileType;
     int waitForAmountOfFrames;
     int rateOfFire;
+    float lastChaseTime = 0.f;
     float timePassedSinceChangingOffset;
     float timeStartedGatheringRecource;
     float timeLastOffsetChange;

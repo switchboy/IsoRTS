@@ -340,6 +340,9 @@ void button::performAction()
     case actionTypes::actionShowBack:
         currentGame.setToolbarSubMenu(0);
         break;
+    case actionTypes::actionAttackMove:
+        currentGame.setAttackMove();
+        break;
     }
 }
 
@@ -409,7 +412,10 @@ void button::drawButton() const
         xOffSet = 192;
         yOffset = 256;
         break;
-
+    case spriteTypes::spriteAttackMove:
+        xOffSet = 192;
+        yOffset = 320;
+        break;
     }
     currentGame.spriteUIButton.setTextureRect(sf::IntRect(xOffSet, yOffset, 64, 64));
     currentGame.spriteUIButton.setPosition(static_cast<float>(this->positionX), static_cast<float>(this->positionY));
@@ -488,6 +494,8 @@ namespace buttons {
         case actionTypes::actionShowMilitairyBuildings:
             return true;
             break;
+        case actionTypes::actionAttackMove:
+            return true;
         }
         return false;
     }

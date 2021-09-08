@@ -79,6 +79,7 @@ public:
     void drawGame();
     void drawGround(int i, int j);
     void drawMap();
+    void drawMouse();
     void drawMiniMap();
     void drawMiniMapActors(sf::RectangleShape& miniMapPixel);
     void drawMiniMapBackground(sf::RectangleShape& miniMapPixel);
@@ -113,6 +114,7 @@ public:
     void setBuildingType(int id);
     void setDefaultValues();
     void setIsPlacingBuilding();
+    void setAttackMove();
     void setToolbarSubMenu(int subMenu);
     std::list<cords> listOfFlagsToDraw;
     float elapsedTime;
@@ -123,10 +125,10 @@ public:
     sf::Text text;
 
     sf::Sprite  spriteSelectedTile,spriteSelectedTileForPath, spriteEmptyTile,   spriteBigSelectedIcon, spriteCommandCursor, spriteMouseCord,  
-    spriteTileObstructed,  spriteArrow, spriteFlag, spriteUIButton, spriteUnitSelectedTile, spriteTotalBackground;
+    spriteTileObstructed,  spriteArrow, spriteFlag, spriteUIButton, spriteUnitSelectedTile, spriteTotalBackground, spriteMousePointer;
 
     sf::Texture groundTextureSheet, textureSelectedTile, textureSelectedTileForPath, textureEmptyTile, textureBigSelectedIcon,  textureCommandCursor, textureMouseCord,
-    textureCheatTile, textureTileObstructed,  textureArrow, textureFlag, textureUIButton, textureUnitSelectedTile, textureTotalBackground;
+    textureCheatTile, textureTileObstructed,  textureArrow, textureFlag, textureUIButton, textureUnitSelectedTile, textureTotalBackground, textureMousePointer;
 
     sf::RectangleShape selectionRectangle;
     sf::RectangleShape healthBarBackground;
@@ -153,6 +155,7 @@ private:
     bool isPressedA;
     bool isPressedB;
     bool isPressedO;
+    bool attackMove;
     bool isPressedS;
     bool isPressedShift;
     bool isPressedTab;

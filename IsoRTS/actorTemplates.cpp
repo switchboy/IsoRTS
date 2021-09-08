@@ -160,6 +160,7 @@ void loadActors()
             //0
             {spriteTypes::spriteCivilBuilding, actionTypes::actionShowCivilBuildings, 0},
             {spriteTypes::spriteMilitairyBuilding, actionTypes::actionShowMilitairyBuildings, 0},
+            {spriteTypes::spriteAttackMove, actionTypes::actionAttackMove, 0},
             //1
             {spriteTypes::spriteTownCenter, actionTypes::actionBuildTownCenter, 1},
             {spriteTypes::spriteHouse, actionTypes::actionBuildHouse, 1},
@@ -194,7 +195,7 @@ void loadActors()
         {-24, 12},                          //cords                   spriteOrigin
         128,                                //bigSpriteYOffset
         {                                   //std::vector<actorButtonVariables> actorButtons
-
+            {spriteTypes::spriteAttackMove, actionTypes::actionAttackMove, 0},
         }
     });
 

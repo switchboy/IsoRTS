@@ -298,15 +298,18 @@ bool actors::chaseTarget() {
     if (this->idOfTarget >= 0) {
         if (listOfActors[this->idOfTarget].isAlive()) {
             if (listOfActors[this->idOfTarget].getGoal().x != listOfActors[this->idOfTarget].getActorCords().x || listOfActors[this->idOfTarget].getGoal().y != listOfActors[this->idOfTarget].getActorCords().y) {
-                if (!(this->actionPreformedOnTile.x == listOfActors[this->idOfTarget].getGoal().x && this->actionPreformedOnTile.y == listOfActors[this->idOfTarget].getGoal().y)) {
-                    if (this->wasAttackMove) {
-                        this->updateGoal(listOfActors[this->idOfTarget].getGoal(), 0);
-                        this->setIsDoingAttack(true);
-                        this->wasAttackMove = true;
-                    }
-                    else {
-                        this->updateGoal(listOfActors[this->idOfTarget].getGoal(), 0);
-                        this->setIsDoingAttack(true);
+                if(this->lastChaseTime + 0.5f < currentGame.getTime()){
+                    this->lastChaseTime = currentGame.getTime();
+                    if (this->actionPreformedOnTile.x != listOfActors[this->idOfTarget].getGoal().x || this->actionPreformedOnTile.y != listOfActors[this->idOfTarget].getGoal().y) {
+                        if (this->wasAttackMove) {
+                            this->updateGoal(listOfActors[this->idOfTarget].getGoal(), 0);
+                            this->setIsDoingAttack(true);
+                            this->wasAttackMove = true;
+                        }
+                        else {
+                            this->updateGoal(listOfActors[this->idOfTarget].getGoal(), 0);
+                            this->setIsDoingAttack(true);
+                        }
                     }
                 }
                 return true;
@@ -697,6 +700,16 @@ void actors::printActorDebugText()
         textStream << "isRangedAttacking: " << boolAsText(isRangedAttacking);
         gameText.addDebugMessage(textStream.str(), 1);
     }
+    if (wasAttackMove) {
+        std::stringstream textStream;
+        textStream << "wasAttackMove: " << boolAsText(wasAttackMove);
+        gameText.addDebugMessage(textStream.str(), 0);
+    }
+    else {
+        std::stringstream textStream;
+        textStream << "wasAttackMove: " << boolAsText(wasAttackMove);
+        gameText.addDebugMessage(textStream.str(), 1);
+    }
    //current cords
     std::stringstream textStream1;
     textStream1 << "Current cords x: " << actorCords.x << " y: " << actorCords.y;
@@ -844,7 +857,6 @@ void actors::doTaskIfNotWalking()
     bool chasing = false;
     if (!this->busyWalking) {
         if (this->isMeleeAttacking || this->isRangedAttacking) {
-            std::cout << "chase checking!";
             chasing = this->chaseTarget();
         }
         if (this->pathFound && !this->route.empty())
@@ -2309,7 +2321,27 @@ bool actors::getIsBuilding() const
 
 cords actors::getGoal() const
 {
-    return { this->actorGoal.x, this->actorGoal.y };
+    return this->actorGoal;
+}
+
+cords actors::getEndGoal()
+{
+    if (!this->isGatheringRecources) {
+        return { this->actorRealGoal.x, this->actorRealGoal.y };
+    }
+    else if(!route.empty()){
+        if (route.size() > 1) {
+            std::list<routeCell>::iterator secondCell = std::next(route.begin());
+            return secondCell->position;
+        }
+        else {
+            return route.front().position;
+        }
+    }
+    else {
+        return this->actorGoal;
+    }
+
 }
 
 int actors::getBuildingId() const

@@ -135,6 +135,7 @@ public:
     void walkToNextSquare();
     void walkBackAfterAbortedCommand();
     bool getIsBuilding() const;
+    bool hasRoute();
     bool idle() const;
     bool isAlive() const;
     bool isGathering() const;

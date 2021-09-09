@@ -297,22 +297,28 @@ actors::actors(int type, cords location, int actorTeam, int actorId)
 bool actors::chaseTarget() {
     if (this->idOfTarget >= 0) {
         if (listOfActors[this->idOfTarget].isAlive()) {
-            if (listOfActors[this->idOfTarget].getGoal().x != listOfActors[this->idOfTarget].getActorCords().x || listOfActors[this->idOfTarget].getGoal().y != listOfActors[this->idOfTarget].getActorCords().y) {
-                if(this->lastChaseTime + 0.5f < currentGame.getTime()){
-                    this->lastChaseTime = currentGame.getTime();
-                    if (this->actionPreformedOnTile.x != listOfActors[this->idOfTarget].getGoal().x || this->actionPreformedOnTile.y != listOfActors[this->idOfTarget].getGoal().y) {
-                        if (this->wasAttackMove) {
-                            this->updateGoal(listOfActors[this->idOfTarget].getGoal(), 0);
-                            this->setIsDoingAttack(true);
-                            this->wasAttackMove = true;
-                        }
-                        else {
-                            this->updateGoal(listOfActors[this->idOfTarget].getGoal(), 0);
-                            this->setIsDoingAttack(true);
+            if (listOfActors[this->idOfTarget].getGoal().x != listOfActors[this->idOfTarget].getActorCords().x || listOfActors[this->idOfTarget].getGoal().y != listOfActors[this->idOfTarget].getActorCords().y && listOfActors[this->idOfTarget].hasRoute()) {
+                if (!(listOfActors[this->idOfTarget].getGoal().x == this->actorCords.x && listOfActors[this->idOfTarget].getGoal().y == this->actorCords.y)) {
+                    if (this->lastChaseTime + 0.5f < currentGame.getTime()) {
+                        this->lastChaseTime = currentGame.getTime();
+                        if (this->actionPreformedOnTile.x != listOfActors[this->idOfTarget].getGoal().x || this->actionPreformedOnTile.y != listOfActors[this->idOfTarget].getGoal().y) {
+                            if (this->wasAttackMove) {
+                                this->updateGoal(listOfActors[this->idOfTarget].getGoal(), 0);
+                                this->setIsDoingAttack(true);
+                                this->wasAttackMove = true;
+                            }
+                            else {
+                                this->updateGoal(listOfActors[this->idOfTarget].getGoal(), 0);
+                                this->setIsDoingAttack(true);
+                            }
                         }
                     }
+                    return true;
                 }
-                return true;
+                else {
+                    //The actor is fighting back! So no action is required
+                    return false;
+                }
             }
             else {
                 return false;
@@ -1966,7 +1972,7 @@ void actors::fightOrFlight(int idOfAttacker)
     };
 
 
-    if (!this->isMeleeAttacking || !this->isRangedAttacking) {
+    if (!this->isMeleeAttacking && !this->isRangedAttacking) {
         if (idOfAttacker >= 0) {
             int hitsUntilDead = 0;
             int hitsToWin = 0;
@@ -2317,6 +2323,11 @@ bool actors::isGathering() const
 bool actors::getIsBuilding() const
 {
     return this->isBuilding;
+}
+
+bool actors::hasRoute()
+{
+    return !this->route.empty();
 }
 
 cords actors::getGoal() const

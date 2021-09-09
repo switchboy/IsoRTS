@@ -114,7 +114,7 @@ public:
     void printActorDebugText();
     void pathAStar();
     void renderPath();
-    void selectAndAttackNextTarget();
+    void selectAndAttackNextTarget(int range);
     void retryWalkingOrChangeGoal();
     void routing(std::vector<Cells>& cellsList, int endCell, int startCell, bool endReached);
     void searchAltetnative();

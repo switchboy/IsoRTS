@@ -325,7 +325,7 @@ bool actors::chaseTarget() {
             }
         }
         else if (this->wasAttackMove) {
-            this->selectAndAttackNextTarget();
+            this->selectAndAttackNextTarget(30);
             return true;
         } else {
             this->isMeleeAttacking = false;
@@ -341,7 +341,7 @@ bool actors::chaseTarget() {
     else if (-currentGame.occupiedByBuildingList[this->actorGoal.x][this->actorGoal.y] != this->idOfTarget) {
 
         if (this->wasAttackMove) {
-            this->selectAndAttackNextTarget();
+            this->selectAndAttackNextTarget(30);
             return true;
         }
         else {
@@ -888,14 +888,17 @@ void actors::doTaskIfNotWalking()
                 this->isIdle = true;
             }
             else if (this->wasAttackMove) {
-                this->selectAndAttackNextTarget();
+                this->selectAndAttackNextTarget(30);
             }
+        }
+        if (!this->isMeleeAttacking && !this->isRangedAttacking) {
+            selectAndAttackNextTarget(3);
         }
     }
 }
 
 
-void actors::selectAndAttackNextTarget() {
+void actors::selectAndAttackNextTarget(int range) {
     
     struct foundActors {
         int id;
@@ -918,11 +921,14 @@ void actors::selectAndAttackNextTarget() {
         }
     }
 
-    this->updateGoal(listOfActors[idOfTarget].getActorCords(), 0);
-    this->setIsDoingAttack(false);
-    this->wasAttackMove = true;
+    if (distanceToTarget < range) {
+        bool attackMove = this->wasAttackMove;
+        this->updateGoal(listOfActors[idOfTarget].getActorCords(), 0);
+        this->setIsDoingAttack(false);
+        this->wasAttackMove = attackMove;
+    }
 
-
+    this->wasAttackMove = false;
 }
 
 void actors::shootProjectile()
@@ -1001,7 +1007,7 @@ void actors::doMeleeDamage()
             }
         }
         else if(this->wasAttackMove) {
-            this->selectAndAttackNextTarget();
+            this->selectAndAttackNextTarget(30);
         } else  {
             this->isMeleeAttacking = false;
             this->timeStartedGatheringRecource == 0.0f;

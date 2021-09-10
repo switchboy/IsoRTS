@@ -1,7 +1,7 @@
 # isoRTS
 isomorphic RTS
+<img src=https://gamesdust.nl/uploads/bfa9a55700aeaabf5088ac089b495eec.png>
 
-<img src=https://user-images.githubusercontent.com/16579757/128768337-17b38c06-759e-46d1-a263-4dfee538ca70.png>
 
 The project goals that have been reached:
 - Create a custom game engine based upon an isomorphic projection.
@@ -39,3 +39,6 @@ Attainable project goals for the near future:
 
 Aim for the moon project goal:
 - Working netcode to play against friends!
+
+
+<img src=https://user-images.githubusercontent.com/16579757/128768337-17b38c06-759e-46d1-a263-4dfee538ca70.png>

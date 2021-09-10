@@ -1262,17 +1262,49 @@ void gameState::clickToGiveCommand()
     this->lastIandJ[0] = 0;
     this->lastIandJ[1] = 0;
     bool actionPreformed = false;
-    if (this->isPassable(this->mouseWorldPosition))
+
+    cords actionPosition = this->mouseWorldPosition;
+
+    if (listOfBuildings.size() > 0) {
+        for (const buildings& building : listOfBuildings) {
+            listOfBuildingTemplates[building.getType()].setSpritePosition(worldSpace(building.getLocation()));
+            if (Collision::singlePixelTest(listOfBuildingTemplates[building.getType()].getBuildingSprite(), mousePosition, 128)) {
+                actionPosition = building.getLocation();
+            }
+        }
+    }
+
+    if (listOfObjects.size() > 0) {
+        for (const objects& object : listOfObjects) {
+            listOfObjectTemplates[static_cast<uint32_t>(object.getType())].setPosition(worldSpace(object.getLocation()));
+            if (Collision::singlePixelTest(listOfObjectTemplates[static_cast<uint32_t>(object.getType())].getSprite(), mousePosition, 128)) {
+                actionPosition = object.getLocation();
+            }
+        }
+    }
+
+    if (listOfActors.size() > 0 ) {
+        for (const actors& actor : listOfActors) {
+            listOfActorTemplates[actor.getType()].setSpritePosition(worldSpace(actor.getActorCords()));
+            if (Collision::singlePixelTest(listOfActorTemplates[actor.getType()].getActorSprite(), mousePosition, 128)) {
+                actionPosition = actor.getActorCords();
+            }
+        }
+    }
+
+    this->mouseWorldPosition = actionPosition;
+
+    if (this->isPassable(actionPosition))
     {
         actionPreformed = clickToMove({ 0,0 }, false);
     }
-    else if (this->objectLocationList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1)
+    else if (this->objectLocationList[actionPosition.x][actionPosition.y] != -1)
     {
         actionPreformed = clickToGatherResource();
     }
-    else if (this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1)
+    else if (this->occupiedByBuildingList[actionPosition.x][actionPosition.y] != -1)
     {
-        if (listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getTeam() == currentPlayer.getTeam()) 
+        if (listOfBuildings[this->occupiedByBuildingList[actionPosition.x][actionPosition.y]].getTeam() == currentPlayer.getTeam())
         {
             actionPreformed = clickToBuildOrRepairBuilding();
         }
@@ -1282,8 +1314,8 @@ void gameState::clickToGiveCommand()
         }
         
     }
-    else if (!this->occupiedByActorList[this->mouseWorldPosition.x][this->mouseWorldPosition.y].empty()) {
-        if (listOfActors[this->occupiedByActorList[this->mouseWorldPosition.x][this->mouseWorldPosition.y].front()].getTeam() != currentPlayer.getTeam()) 
+    else if (!this->occupiedByActorList[actionPosition.x][actionPosition.y].empty()) {
+        if (listOfActors[this->occupiedByActorList[actionPosition.x][actionPosition.y].front()].getTeam() != currentPlayer.getTeam())
         {
             clickToAttack();
         }

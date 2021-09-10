@@ -2433,6 +2433,9 @@ void gameState::drawPaths()
         {
             listOfActors[i].renderPath();
         }
+        for (int& id : selectedUnits) {
+            listOfActors[id].printActorDebugText();
+        }
     }
 }
 
@@ -2461,7 +2464,7 @@ void drawRallyPoints(){
 }
 
 void gameState::drawMouse() {
-    if (mouseFakePosition.y > visableWorldHeight) {
+    if (mouseFakePosition.y > visableWorldHeight || mouseFakePosition.y < toolbarHeight) {
         window.setView(totalView);
     }
 
@@ -2531,6 +2534,9 @@ void gameState::drawMouse() {
     if (attackMove) {
         spriteMousePointer.setTextureRect(sf::IntRect(192, 0, 32, 32));
     }
+    if (this->isPlacingBuilding) {
+        spriteMousePointer.setTextureRect(sf::IntRect(160, 0, 32, 32));
+    }
 
     spriteMousePointer.setPosition(mousePosition);
     window.draw(spriteMousePointer);
@@ -2556,10 +2562,12 @@ void gameState::drawGame()
     drawCommandCursors();
     window.setView(totalView);
     gameText.drawMessages();
-    gameText.drawDebugMessages();
     drawToolTip();
     window.setView(worldView);
     drawPaths();
+    window.setView(totalView);
+    gameText.drawDebugMessages();
+    window.setView(worldView);
     drawMouse();
     window.display();
 }

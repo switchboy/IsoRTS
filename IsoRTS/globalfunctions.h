@@ -14,7 +14,8 @@ const int mainWindowWidth = 1920;
 const int mainWindowHeigth = 1080;
 const int halfOfMainWindowWidth = mainWindowWidth / 2;
 const int halfOfMainWindowHeigth = mainWindowHeigth / 2;
-const int visableWorldHeight = (mainWindowHeigth * 0.77);
+const int visableWorldHeight = mainWindowHeigth * 0.77;
+const int toolbarHeight = mainWindowHeigth * 0.03;
 const int visableHalfOfMainWindowWidth = static_cast<int>((mainWindowWidth * 0.8) / 2);
 
 extern int mapOffsetX;

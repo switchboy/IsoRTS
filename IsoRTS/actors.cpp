@@ -800,9 +800,6 @@ void actors::update()
             }
         }
     }
-    if (currentGame.isInSelectedActors(this->actorId)) {
-        printActorDebugText();
-    }
 }
 
 void actors::searchAltetnative() {

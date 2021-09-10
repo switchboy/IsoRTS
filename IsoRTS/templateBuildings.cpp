@@ -215,8 +215,8 @@ void loadBuildings()
         true,                       //bool                    recievesGold,
         true,                       //bool                    recievesFood,
         buildingNames::towncenter,  //buildingNames           idOfBuilding,
-        5000,                       //int                     hitPointsTotal,
-        10,                         //int                     amountOfRangedDamage,
+        2400,                       //int                     hitPointsTotal,
+        5,                          //int                     amountOfRangedDamage,
         4,                          //int                     range,
         150,                        //int                     buildingPointsNeeded,
         5,                          //int                     supportsPopulationOf,
@@ -227,7 +227,7 @@ void loadBuildings()
         {256,256},                  //cords                   buildingSprite,
         "textures/townCenter.png",  //std::string             buildingTexture,
         {96,224},                   //cords                   origin
-         "Towncenter",               //std::string             realBuildingName;
+         "Towncenter",              //std::string            realBuildingName;
          0,                         //int                     bigSpriteYoffset
         false,                       //bool                   isWall
         {                            //                       Begin list of building buttons

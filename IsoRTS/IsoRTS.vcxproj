@@ -36,6 +36,7 @@
     <ClInclude Include="randomMapGenerator.h" />
     <ClInclude Include="humanReadableNames.h" />
     <ClInclude Include="simpleAI.h" />
+    <ClInclude Include="splashScreen.h" />
     <ClInclude Include="templateBuildings.h" />
     <ClInclude Include="tooltip.h" />
   </ItemGroup>
@@ -56,6 +57,7 @@
     <ClCompile Include="projectile.cpp" />
     <ClCompile Include="randomMapGenerator.cpp" />
     <ClCompile Include="simpleAI.cpp" />
+    <ClCompile Include="splashScreen.cpp" />
     <ClCompile Include="templateBuildings.cpp" />
     <ClCompile Include="tooltip.cpp" />
   </ItemGroup>

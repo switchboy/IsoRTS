@@ -11,6 +11,7 @@
 #include "player.h"
 #include "projectile.h"
 #include "simpleAI.h"
+#include "splashScreen.h"
 
 gameState currentGame;
 
@@ -151,9 +152,14 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
 
 }
 
+
+
 int main()
 {
+    
     window.setMouseCursorVisible(false);
+    loadSplashScreen();
+    splashScreen();
     sf::Clock clockMain;
     int lastActor = 0;
     int lastBuilding = 0;

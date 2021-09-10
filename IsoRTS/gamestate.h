@@ -37,6 +37,8 @@ extern sf::RenderTexture minimapTexture;
 extern bool noNewBuildings;
 extern bool minimapTextureExist;
 extern std::list<button> listOfButtons;
+extern sf::Texture splashScreenTexture;
+extern sf::Sprite splashScreenSprite;
 
 class gameState
 {
@@ -212,6 +214,8 @@ private:
 
 
 };
+
+
 
 extern gameState currentGame;
 

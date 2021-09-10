@@ -204,3 +204,13 @@ std::list<cords> bresenham(cords first, cords second) {
     }
     return mapPointsCrossed;
 }
+
+void setViewports()
+{
+    totalView.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 1.f));
+    worldView.setViewport(sf::FloatRect(0.f, 0.03f, 1.f, 0.77f));
+    topBar.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 0.03f));
+    toolBar.setViewport(sf::FloatRect(0.f, 0.8f, 1.f, 0.2f));
+    miniMap.setViewport(sf::FloatRect(0.8f, 0.8f, 0.2f, 0.2f));
+    window.setFramerateLimit(60);
+}

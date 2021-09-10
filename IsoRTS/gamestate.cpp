@@ -27,7 +27,8 @@ sf::RenderStates worldMapStates;
 
 bool noNewBuildings;
 
-
+sf::Texture splashScreenTexture;
+sf::Sprite splashScreenSprite;
 
 namespace
 {
@@ -2608,15 +2609,7 @@ void gameState::loadFonts()
     this->text.setFont(this->font);
 }
 
-void setViewports()
-{
-    totalView.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 1.f));
-    worldView.setViewport(sf::FloatRect(0.f, 0.03f, 1.f, 0.77f));
-    topBar.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 0.03f));
-    toolBar.setViewport(sf::FloatRect(0.f, 0.8f, 1.f, 0.2f));
-    miniMap.setViewport(sf::FloatRect(0.8f, 0.8f, 0.2f, 0.2f));
-    window.setFramerateLimit(60);
-}
+
 
 void setQuadPosition(sf::Vertex* Quad, int i, int j) {
     Quad[0].position = sf::Vector2f(static_cast<float>(miniMapSpace({ i, j }).x), static_cast<float>(miniMapSpace({ i, j }).y));                  // 0 , 0 = 0 , 0
@@ -2676,6 +2669,8 @@ void setTeam() {
 }
 
 void showLoadingScreen() {
+
+    splashScreenSprite.setColor(sf::Color(40, 40, 40));
     currentGame.text.setCharacterSize(64);
     currentGame.text.setOutlineColor(sf::Color::White);
     currentGame.text.setOutlineThickness(1.f);
@@ -2685,6 +2680,7 @@ void showLoadingScreen() {
     currentGame.text.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
     currentGame.text.setPosition(static_cast<float>(mainWindowWidth/2), static_cast<float>(mainWindowHeigth/2));
     window.clear();
+    window.draw(splashScreenSprite);
     window.draw(currentGame.text);
     window.display();
     currentGame.text.setOrigin(0.0f, 0.0f);
@@ -2704,8 +2700,6 @@ void loadBaseCellList() {
 
 void gameState::loadGame()
 {
-    loadFonts();
-    setViewports();
     showLoadingScreen();
     createMiniMapTexture();
     loadTextures();
@@ -2716,7 +2710,6 @@ void gameState::loadGame()
     loadMap();
     setTeam();
     loadBaseCellList();
-
 }
 
 void gameState::createFogOfWar() 

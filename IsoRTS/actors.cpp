@@ -1007,7 +1007,7 @@ void actors::doMeleeDamage()
             this->selectAndAttackNextTarget(30);
         } else  {
             this->isMeleeAttacking = false;
-            this->timeStartedGatheringRecource == 0.0f;
+            this->timeStartedGatheringRecource = 0.0f;
         }
     }
 }
@@ -1066,17 +1066,22 @@ std::string actors::nameOfActor() const
 void actors::updateGoal(cords location, int waitTime)
 {
     //check if values are in bounds
-    if (location.x >= 0 && location.x < MAP_WIDTH && location.y >= 0 && location.y < MAP_HEIGHT)
+    if (location.x >= 0 && location.x < MAP_WIDTH && location.y >= 0 && location.y < MAP_HEIGHT &&
+        !(location.x == this->actorCommandGoal.x && location.y == this->actorCommandGoal.y)) //no second update after double click
     {
         if (this->busyWalking) {
-            this->isWalkingToMiddleOfSquare = true;
-            this->dataOnPositionAbortedWalk = {
-                currentGame.getTime() - this->timeLastUpdate,
-                currentGame.getTime(),
-                worldSpace({ this->actorCords.x,this->actorCords.y }),
-                worldSpace({ this->actorGoal.x, this->actorGoal.y }),
-                1.f / this->timeToCrossOneTile
-            };
+            if (!(this->actorGoal.x == this->actorCommandGoal.x && this->actorGoal.y == this->actorCommandGoal.y) ||
+                route.empty()) 
+            {
+                this->isWalkingToMiddleOfSquare = true;
+                this->dataOnPositionAbortedWalk = {
+                    currentGame.getTime() - this->timeLastUpdate,
+                    currentGame.getTime(),
+                    worldSpace({ this->actorCords.x,this->actorCords.y }),
+                    worldSpace({ this->actorGoal.x, this->actorGoal.y }),
+                    1.f / this->timeToCrossOneTile
+                };
+            }
         }
         if (this->buildingId != -1)
         {

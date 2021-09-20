@@ -9,7 +9,6 @@
 #include "projectile.h"
 #include "randomMapGenerator.h"
 #include <algorithm> 
-//#include <future>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -442,6 +441,7 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: cheatTile.png \n" << std::endl;
     }
+    cheatTile = currentGame.textureCheatTile.copyToImage();
 
     if (this->textureFlag.loadFromFile("textures/flag.png"))
     {

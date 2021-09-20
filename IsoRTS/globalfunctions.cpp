@@ -1,6 +1,8 @@
 #include "globalfunctions.h"
 #include "gamestate.h"
 
+sf::Image cheatTile;
+
 bool sortCord(const cords& lhs, const cords& rhs)
 {
     return (lhs.x < rhs.x) || (lhs.y < rhs.y);
@@ -74,13 +76,16 @@ double distEuclidean(double x1, double y1, double x2, double y2)
 
 cords toWorldMousePosition(int mouseX, int mouseY)
 {
-    if (!(mouseX < 0 || mouseY < 0))
-    {
-        auto cheatTile = currentGame.textureCheatTile.copyToImage();
         int cellX = mouseX / 64;
         int cellY = mouseY / 32;
         int offSetX = mouseX % 64;
+        if (offSetX < 0) {
+            offSetX = 64 + offSetX;
+        }
         int offSetY = mouseY % 32;
+        if (offSetY < 0) {
+            offSetY = 32 + offSetY;
+        }
         int worldX = (cellY - mapOffsetY) + (cellX - mapOffsetX);
         int worldY = (cellY - mapOffsetY) - (cellX - mapOffsetX);
         auto color = cheatTile.getPixel(offSetX, offSetY);
@@ -101,11 +106,7 @@ cords toWorldMousePosition(int mouseX, int mouseY)
             worldX += +1;
         }
         return { worldX, worldY };
-    }
-    else
-    {
-        return { 0,0 };
-    }
+
 }
 
 

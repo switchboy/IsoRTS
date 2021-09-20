@@ -12,9 +12,6 @@
 #include "actorTemplates.h"
 #include "collision.h"
 
-
-
-
 struct adjacentTile
 {
     int tileId;

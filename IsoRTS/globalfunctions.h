@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <vector>
 #include <random>
+#include"SFML/Graphics.hpp"
 
 const int MAP_WIDTH = 256;
 const int MAP_HEIGHT = 256;
@@ -56,6 +57,6 @@ double distEuclidean(double x1, double y1, double x2, double y2);
 cords toWorldMousePosition(int mouseX, int mouseY);
 void setViewports();
 
-
+extern sf::Image cheatTile;
 
 #endif // GLOBALFUNCTIONS_H

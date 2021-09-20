@@ -882,14 +882,11 @@ void gameState::clickToSelectObjectOrBuilding()
 
 void gameState::clickToSelect()
 {
-    if (!(this->mouseWorldPosition.x >= MAP_WIDTH || this->mouseWorldPosition.x < 0 || this->mouseWorldPosition.y >= MAP_HEIGHT || this->mouseWorldPosition.y < 0))
-    {
-        this->startLocation[0] = this->mouseWorldPosition.x;
-        this->startLocation[1] = this->mouseWorldPosition.y;
-        this->startMouseCords[0] = static_cast<int>(this->mousePosition.x);
-        this->startMouseCords[1] = static_cast<int>(this->mousePosition.y);
-        clickToSelectObjectOrBuilding();
-    }
+    this->startLocation[0] = this->mouseWorldPosition.x;
+    this->startLocation[1] = this->mouseWorldPosition.y;
+    this->startMouseCords[0] = static_cast<int>(this->mousePosition.x);
+    this->startMouseCords[1] = static_cast<int>(this->mousePosition.y);
+    clickToSelectObjectOrBuilding();
 }
 
 void gameState::drawMouseBox() {

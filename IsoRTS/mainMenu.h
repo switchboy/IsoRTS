@@ -20,7 +20,9 @@ enum menuItemNames
 	sevenAIPlayers,
 	showCredits,
 	showTechTree,
-	exitGame
+	rootMenu,
+	exitGame,
+	nothingSelected
 };
 
 struct menuItem {
@@ -42,6 +44,16 @@ public:
 		{
 			std::cout << "Error loading texture: mouseHints.png \n" << std::endl;
 		}
+
+		if (menuButtonTexture.loadFromFile("textures/menuButton.png"))
+		{
+			menuButtonSprite.setTexture(menuButtonTexture);
+			menuButtonSprite.setTextureRect(sf::IntRect(0, 0, 900, 130));
+		}
+		else
+		{
+			std::cout << "Error loading texture: menuButton.png \n" << std::endl;
+		}
 	};
 	void addMenuItem(menuItemNames id, std::string name, int menuLevel);
 	void displayMenu();
@@ -54,9 +66,11 @@ private:
 	std::vector<menuItem> menuItems;
 	int menuLevel;
 	sf::Vector2f mousePosition;
-	sf::Sprite spriteMousePointer;
-	sf::Texture textureMousePointer;
+	sf::Sprite spriteMousePointer, menuButtonSprite;
+	sf::Texture textureMousePointer, menuButtonTexture;
 	bool focus;
+	bool mouseLeftPressed = false;
+	menuItemNames itemSelected = nothingSelected;
 };
 
 extern void createMainMenuItems(menu& mainMenu);

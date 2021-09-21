@@ -155,6 +155,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
 
 void createAndShowMainMenu() {
     menu mainMenu;
+    createMainMenuItems(mainMenu);
     while (mainMenu.getMenuLevel() >= 0 && window.isOpen()) {
         mainMenu.interactMenu();
         mainMenu.displayMenu();

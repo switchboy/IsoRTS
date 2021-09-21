@@ -36,10 +36,13 @@ void splashScreen()
 	sf::Time lastRefresh = splashTime.getElapsedTime();
 	bool displayText = false;
 
-	while (!keypressed) {
+	while (!keypressed && window.isOpen()) {
 		while (window.pollEvent(currentEvent))
 		{
 			switch (currentEvent.type) {
+			case sf::Event::Closed:
+				window.close();
+				break;
 			case sf::Event::KeyPressed:
 				keypressed = true;
 				break;

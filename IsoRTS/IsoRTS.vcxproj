@@ -28,6 +28,7 @@
     <ClInclude Include="gametext.h" />
     <ClInclude Include="globalfunctions.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="mainMenu.h" />
     <ClInclude Include="objects.h" />
     <ClInclude Include="objectTemplates.h" />
     <ClInclude Include="orderCursor.h" />
@@ -50,6 +51,7 @@
     <ClCompile Include="gametext.cpp" />
     <ClCompile Include="globalfunctions.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mainMenu.cpp" />
     <ClCompile Include="objects.cpp" />
     <ClCompile Include="objectTemplates.cpp" />
     <ClCompile Include="orderCursor.cpp" />

@@ -215,3 +215,5 @@ void setViewports()
     miniMap.setViewport(sf::FloatRect(0.8f, 0.8f, 0.2f, 0.2f));
     window.setFramerateLimit(60);
 }
+
+int AIPlayers;

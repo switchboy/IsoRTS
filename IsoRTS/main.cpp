@@ -12,6 +12,7 @@
 #include "projectile.h"
 #include "simpleAI.h"
 #include "splashScreen.h"
+#include "mainMenu.h"
 
 gameState currentGame;
 
@@ -152,14 +153,21 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
 
 }
 
+void createAndShowMainMenu() {
+    menu mainMenu;
+    while (mainMenu.getMenuLevel() >= 0 && window.isOpen()) {
+        mainMenu.interactMenu();
+        mainMenu.displayMenu();
+    }
+}
 
 
 int main()
 {
-    
     window.setMouseCursorVisible(false);
     loadSplashScreen();
     splashScreen();
+    createAndShowMainMenu();
     sf::Clock clockMain;
     int lastActor = 0;
     int lastBuilding = 0;

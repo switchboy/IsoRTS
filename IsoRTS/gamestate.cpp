@@ -2654,7 +2654,7 @@ void gameState::setDefaultValues()
     this->objectTypeSelected = 0;
     this->showPaths = false;
     this->lastMistDraw = -1.0f;
-    this->players = 2;
+    this->players = 1 + AIPlayers;
     this->noFogOfWar = false;
 }
 

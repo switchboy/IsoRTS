@@ -1,7 +1,6 @@
 #ifndef GLOBALFUNCTIONS_H
 #define GLOBALFUNCTIONS_H
 
-//#include <mutex>
 #include <list>
 #include <iostream>
 #include <algorithm>
@@ -21,6 +20,7 @@ const int visableHalfOfMainWindowWidth = static_cast<int>((mainWindowWidth * 0.8
 
 extern int mapOffsetX;
 extern int mapOffsetY;
+extern int AIPlayers;
 
 struct cords {
     int x;

@@ -51,7 +51,6 @@ void menu::displayMenu()
 					menuButtonSprite.setTextureRect(sf::IntRect(0, 260, 900, 130));
 				}
 				else {
-					//hover 
 					menuButtonSprite.setTextureRect(sf::IntRect(0, 130, 900, 130));
 				}
 				tItemSelected = item.id;
@@ -76,7 +75,6 @@ void menu::displayMenu()
 					menuButtonSprite.setTextureRect(sf::IntRect(0, 650, 450, 130));
 				}
 				else {
-					//hover 
 					menuButtonSprite.setTextureRect(sf::IntRect(0, 520, 450, 130));
 				}
 				tItemSelected = item.id;

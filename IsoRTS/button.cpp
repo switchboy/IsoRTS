@@ -135,6 +135,10 @@ void button::showToolTip() const
         toolTipTitle << "Go back";
         toolTipDiscription << "Turns the toolbar back one page";
         break;
+    case actionTypes::actionAttackMove:
+        toolTipTitle << "Attack move";
+        toolTipDiscription << "Attack any enemy unit within range from selected site";
+        break;
     }
 
     int longestStringLength = 0;

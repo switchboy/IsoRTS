@@ -12,6 +12,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include "commandSync.h"
 
 
 sf::VertexArray miniMapBackGroundPoints(sf::Quads, MAP_HEIGHT* MAP_WIDTH * 4);
@@ -687,44 +688,30 @@ void gameState::clickToPlaceBuilding() {
             }
             if (buildingPlacable)
             {
-                //Zet het gebouw neer
-                buildings newBuilding(this->buildingTypeSelected, this->mouseWorldPosition, static_cast<int>(listOfBuildings.size()), currentPlayer.getTeam());
-                listOfBuildings.push_back(newBuilding);
-                if (this->isPlacingBuilding)
-                {
-                    currentPlayer.substractResources(resourceTypes::resourceWood, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().wood);
-                    currentPlayer.substractResources(resourceTypes::resourceFood, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().food);
-                    currentPlayer.substractResources(resourceTypes::resourceStone, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().stone);
-                    currentPlayer.substractResources(resourceTypes::resourceGold, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().gold);
-                    for (int i = 0; i < this->selectedUnits.size(); i++)
+                //command naar lijst voor het bouwen van een gebouw
+                gameDirector.addCommand(
                     {
-                        nearestBuildingTile tempTile = findNearestBuildingTile(this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y], this->selectedUnits[i]);
-                        if (tempTile.isSet)
-                        {
-                            if (this->selectedUnits.size() > 1)
-                            {
-                                if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
-                                {
-                                    listOfActors[this->selectedUnits[i]].updateGoal(tempTile.location, i / 5);
-                                    listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
-                                    listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
-                                }
-                            }
-                            else
-                            {
-                                if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
-                                {
-                                    listOfActors[this->selectedUnits[i]].updateGoal(tempTile.location, i / 5);
-                                    listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
-                                }
-                            }
-                            if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
-                            {
-                                listOfActors[this->selectedUnits[i]].setIsBuildingTrue(listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getBuildingId(), tempTile.actionLocation);
-                            }
-                        }
+                        this->elapsedTime,
+                        currentPlayer.getTeam(),
+                        this->buildingTypeSelected,
+                        true,
+                        false,
+                        this->mouseWorldPosition,
+                        worldObject::none,
+                        stackOrderTypes::none,
+                        actionTypes::none
+                    }
+                );
+
+
+                for (int i = 0; i < this->selectedUnits.size(); i++)
+                {
+                    if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+                    {
+                        // build command
                     }
                 }
+
                 this->isPlacingBuilding = false;
                 this->mousePressOutofWorld = true;
             }
@@ -1971,6 +1958,72 @@ void gameState::createVillagerButtons(int startX, int startY, int incrementalXOf
         }
 
         villagerButtonsAreThere = true;
+    }
+}
+
+void gameState::commandExcecutor(std::vector<command> commandsToBeExcecuted)
+{
+    for (command& c : commandsToBeExcecuted) {
+
+        if (c.placingBuilding) {
+            buildings newBuilding(c.subjectId, c.commandCords, static_cast<int>(listOfBuildings.size()), c.playerId);
+            listOfBuildings.push_back(newBuilding);
+            listOfPlayers[c.playerId].substractResources(resourceTypes::resourceWood,   listOfBuildingTemplates[c.subjectId].getPriceOfBuilding().wood);
+            listOfPlayers[c.playerId].substractResources(resourceTypes::resourceFood,   listOfBuildingTemplates[c.subjectId].getPriceOfBuilding().food);
+            listOfPlayers[c.playerId].substractResources(resourceTypes::resourceStone,  listOfBuildingTemplates[c.subjectId].getPriceOfBuilding().stone);
+            listOfPlayers[c.playerId].substractResources(resourceTypes::resourceGold,   listOfBuildingTemplates[c.subjectId].getPriceOfBuilding().gold);
+        }
+        else {
+            switch (c.subjectType) {
+            case worldObject::actor:
+                if (c.actionToPerform == actionTypes::actionAttackMove) {
+
+                }
+                else {
+                    switch (c.orderType) {
+                    case stackOrderTypes::stackActionAttack:
+
+                        break;
+                    case stackOrderTypes::stackActionBuild:
+
+                        break;
+                    case stackOrderTypes::stackActionGather:
+
+                        break;
+                    case stackOrderTypes::stackActionMove:
+
+                        break;
+                    }
+                }
+                break;
+            case worldObject::building:
+                switch (c.actionToPerform) {
+                case actionTypes::actionCancelBuilding:
+
+                    break;
+                case actionTypes::actionCancelProduction:
+
+                    break;
+                case actionTypes::actionMakeGate:
+
+                    break;
+                case actionTypes::actionOpenGate:
+
+                    break;
+                case actionTypes::actionCloseGate:
+
+                    break;
+                case actionTypes::actionMakeSwordsman:
+
+                    break;
+                case actionTypes::actionMakeVillager:
+
+                    break;
+                }
+            case worldObject::object:
+                break;
+            }
+        }
     }
 }
 

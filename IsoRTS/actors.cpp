@@ -229,7 +229,7 @@ actors::actors(int type, cords location, int actorTeam, int actorId)
     this->isIdle = true;
     this->actorCommandGoal = { 0,0 };
     this->actorRealGoal = { 0, 0 };
-    this->buildingId = 0;
+    this->buildingId = -1;
     this->commonGoal = false;
     this->currentFrame = 0;
     this->idOfTarget = 0;
@@ -918,7 +918,7 @@ void actors::selectAndAttackNextTarget(int range) {
         }
     }
 
-    if (distanceToTarget < range) {
+    if (distanceToTarget < range && idOfTarget != -1) {
         bool attackMove = this->wasAttackMove;
         this->updateGoal(listOfActors[idOfTarget].getActorCords(), 0);
         this->setIsDoingAttack(false);

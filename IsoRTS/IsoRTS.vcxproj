@@ -24,6 +24,7 @@
     <ClInclude Include="buildings.h" />
     <ClInclude Include="button.h" />
     <ClInclude Include="collision.h" />
+    <ClInclude Include="commandSync.h" />
     <ClInclude Include="gamestate.h" />
     <ClInclude Include="gametext.h" />
     <ClInclude Include="globalfunctions.h" />
@@ -47,6 +48,7 @@
     <ClCompile Include="buildings.cpp" />
     <ClCompile Include="button.cpp" />
     <ClCompile Include="collision.cpp" />
+    <ClCompile Include="commandSync.cpp" />
     <ClCompile Include="gamestate.cpp" />
     <ClCompile Include="gametext.cpp" />
     <ClCompile Include="globalfunctions.cpp" />

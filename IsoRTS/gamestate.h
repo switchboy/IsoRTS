@@ -64,6 +64,7 @@ public:
     void clickUIButton() const;
     void createFogOfWar();
     void createVillagerButtons(int startX, int startY, int incrementalXOffset, bool& villagerButtonsAreThere);
+    void commandExcecutor(std::vector<command> commandsToBeExcecuted);
     void drawActorBigSprite(int actorId);
     void drawActorStats(int actorId, int textStartX, int textStartY);
     void drawActorTitle(int actorId, int textStartX, int textStartY);

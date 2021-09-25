@@ -708,7 +708,19 @@ void gameState::clickToPlaceBuilding() {
                 {
                     if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
                     {
-                        // build command
+                        gameDirector.addCommand(
+                            {
+                                this->elapsedTime + 0.00001f, //this makes sure the command is excecuted after the place building command
+                                currentPlayer.getTeam(),
+                                this->selectedUnits[i],
+                                false,
+                                false,
+                                this->mouseWorldPosition,
+                                worldObject::actor,
+                                stackOrderTypes::stackActionBuild,
+                                actionTypes::none
+                            }
+                        );
                     }
                 }
 
@@ -920,19 +932,27 @@ void gameState::mouseLeftClick()
             else if (attackMove) {
                 if (this->isPassable(this->mouseWorldPosition))
                 {
-                    if (clickToMove({ 0,0 }, false)) 
+                    for (int i = 0; i < this->selectedUnits.size(); i++)
                     {
-                        for (int i = 0; i < this->selectedUnits.size(); i++)
+                        if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
                         {
-                            if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
-                            {
-                                listOfActors[this->selectedUnits[i]].setIsDoingAttack(true);
-                                listOfActors[this->selectedUnits[i]].setDoAttackMoveTrue();
-                            }
+                            gameDirector.addCommand(
+                                {
+                                    this->elapsedTime,
+                                    currentPlayer.getTeam(),
+                                    this->selectedUnits[i],
+                                    false,
+                                    this->isPressedShift,
+                                    this->mouseWorldPosition,
+                                    worldObject::actor,
+                                    stackOrderTypes::none,
+                                    actionTypes::actionAttackMove
+                                }
+                            );
                         }
-                        listOfOrderCursors.push_back(orderCursor(this->mousePosition));
-                        this->attackMove = false;
                     }
+                    listOfOrderCursors.push_back(orderCursor(this->mousePosition));
+                    this->attackMove = false;
                 }
             }
             {
@@ -1034,14 +1054,19 @@ bool gameState::clickToMove(cords pos, bool minimap) const
                 else {
                     tempCords = currentGame.getNextCord(this->mouseWorldPosition);
                 }
-                if (this->isPressedShift) {
-                    listOfActors[this->selectedUnits[i]].stackOrder({ tempCords.x, tempCords.y }, stackOrderTypes::stackActionMove);
-                }
-                else {
-                    listOfActors[this->selectedUnits[i]].clearCommandStack();
-                    listOfActors[this->selectedUnits[i]].updateGoal(tempCords, i / 5);
-                    listOfActors[this->selectedUnits[i]].setCommonGoalTrue();//might be depricated
-                }
+                gameDirector.addCommand(
+                    {
+                        this->elapsedTime,
+                        currentPlayer.getTeam(),
+                        this->selectedUnits[i],
+                        false,
+                        this->isPressedShift,
+                        tempCords,
+                        worldObject::actor,
+                        stackOrderTypes::stackActionMove,
+                        actionTypes::none
+                    }
+                );
                 actionDone = true;
             }
         }
@@ -1049,32 +1074,30 @@ bool gameState::clickToMove(cords pos, bool minimap) const
         {
             if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
             {
+                cords tempcords = { 0,0 };
                 if (minimap) {
                     if ((pos.x <= MAP_WIDTH && pos.y <= MAP_HEIGHT)) {
-                        if (this->isPressedShift) {
-                            listOfActors[this->selectedUnits[i]].stackOrder(pos, stackOrderTypes::stackActionMove);
-                        }
-                        else {
-                            listOfActors[this->selectedUnits[i]].clearCommandStack();
-                            listOfActors[this->selectedUnits[i]].updateGoal(pos, 0);
-                        }
+                        tempcords = pos;
                     }
                 }
                 else {
-                    if (this->isPressedShift) {
-                        listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionMove);
-                    }
-                    else {
-                        listOfActors[this->selectedUnits[i]].clearCommandStack();
-                        listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition, 0);
-                    }
-                    actionDone = true;
+                    tempcords = this->mouseWorldPosition;
                 }
+                gameDirector.addCommand(
+                    {
+                        this->elapsedTime,
+                        currentPlayer.getTeam(),
+                        this->selectedUnits[i],
+                        false,
+                        this->isPressedShift,
+                        tempcords,
+                        worldObject::actor,
+                        stackOrderTypes::stackActionMove,
+                        actionTypes::none
+                    }
+                );
+                actionDone = true;
             }
-        }
-        if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
-        {
-            listOfActors[this->selectedUnits[i]].setGatheringRecource(false);
         }
     }
     return actionDone;
@@ -1085,40 +1108,22 @@ bool gameState::clickToGatherResource() const
     bool actionDone = false;
     for (int i = 0; i < this->selectedUnits.size(); i++)
     {
-        if (this->selectedUnits.size() > 1)
-        {
-            if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
-            {
-                if (this->isPressedShift) {
-                    listOfActors[this->selectedUnits[i]].stackOrder(this->mouseWorldPosition, stackOrderTypes::stackActionGather);
-                }
-                else {
-                    listOfActors[this->selectedUnits[i]].clearCommandStack();
-                    listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition, i / 5);
-                    listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
-                }
-                actionDone = true;
-            }
-        }
-        else
-        {
-            if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
-            {
-                if (this->isPressedShift) {
-                    listOfActors[this->selectedUnits[i]].stackOrder(this->mouseWorldPosition, stackOrderTypes::stackActionGather);
-                }
-                else {
-                    listOfActors[this->selectedUnits[i]].clearCommandStack();
-                    listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition, 0);
-                }
-                actionDone = true;
-            }
-        }
         if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
         {
-            if (!this->isPressedShift) {
-                listOfActors[this->selectedUnits[i]].setGatheringRecource(true);
-            }
+            gameDirector.addCommand(
+                {
+                    this->elapsedTime,
+                    currentPlayer.getTeam(),
+                    this->selectedUnits[i],
+                    false,
+                    this->isPressedShift,
+                    this->mouseWorldPosition,
+                    worldObject::actor,
+                    stackOrderTypes::stackActionGather,
+                    actionTypes::none
+                }
+            );
+            actionDone = true;
         }
     }
     return actionDone;
@@ -1131,47 +1136,48 @@ bool gameState::clickToBuildOrRepairBuilding() const
     {
         for (int i = 0; i < this->selectedUnits.size(); i++)
         {
-            nearestBuildingTile tempTile = findNearestBuildingTile(this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y], this->selectedUnits[i]);
-            if (tempTile.isSet)
+            if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
             {
-                if (this->selectedUnits.size() > 1)
-                {
-                    if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+                gameDirector.addCommand(
                     {
-                        if (this->isPressedShift) {
-                            listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionBuild);
-                        }
-                        else {
-                            listOfActors[this->selectedUnits[i]].clearCommandStack();
-                            listOfActors[this->selectedUnits[i]].updateGoal(tempTile.location, i / 5);
-                            listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
-                            listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
-                        }
-                        actionDone = true;
+                        this->elapsedTime,
+                        currentPlayer.getTeam(),
+                        this->selectedUnits[i],
+                        false,
+                        this->isPressedShift,
+                        this->mouseWorldPosition,
+                        worldObject::actor,
+                        stackOrderTypes::stackActionBuild,
+                        actionTypes::none
                     }
-                }
-                else
-                {
-                    if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
-                    {
-                        if (this->isPressedShift) {
-                            listOfActors[this->selectedUnits[i]].stackOrder({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionBuild);
-                        }
-                        else {
-                            listOfActors[this->selectedUnits[i]].clearCommandStack();
-                            listOfActors[this->selectedUnits[i]].updateGoal(tempTile.location, i / 5);
-                            listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].claimFreeBuiildingTile(tempTile.buildingId, listOfActors[this->selectedUnits[i]].getActorId());
-                            actionDone = true;
-                        }
-                    }
-                }
-                if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
-                {
-                    if (!this->isPressedShift) {
-                        listOfActors[this->selectedUnits[i]].setIsBuildingTrue(listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getBuildingId(), tempTile.actionLocation);
-                    }
-                }
+                );
+                actionDone = true;
             }
+        }
+    }
+    return actionDone;
+}
+
+bool gameState::clickToAttack() const {
+    bool actionDone = false;
+    for (int i = 0; i < this->selectedUnits.size(); i++)
+    {
+        if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+        {
+            gameDirector.addCommand(
+                {
+                    this->elapsedTime,
+                    currentPlayer.getTeam(),
+                    this->selectedUnits[i],
+                    false,
+                    this->isPressedShift,
+                    this->mouseWorldPosition,
+                    worldObject::actor,
+                    stackOrderTypes::stackActionAttack,
+                    actionTypes::none
+                }
+            );
+            actionDone = true;
         }
     }
     return actionDone;
@@ -1202,44 +1208,7 @@ void testfunctiuon(int testVar)
     }
 }
 
-bool gameState::clickToAttack() const {
-    bool actionDone = false;
-    for (int i = 0; i < this->selectedUnits.size(); i++)
-    {
-        if (this->selectedUnits.size() > 1)
-        {
-            if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
-            {
-                if (this->isPressedShift) {
-                    listOfActors[this->selectedUnits[i]].stackOrder(this->mouseWorldPosition, stackOrderTypes::stackActionAttack);
-                }
-                else {
-                    listOfActors[this->selectedUnits[i]].clearCommandStack();
-                    listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition, i / 5);
-                    listOfActors[this->selectedUnits[i]].setCommonGoalTrue();
-                    listOfActors[this->selectedUnits[i]].setIsDoingAttack(false);
-                }
-                actionDone = true;
-            }
-        }
-        else
-        {
-            if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
-            {
-                if (this->isPressedShift) {
-                    listOfActors[this->selectedUnits[i]].stackOrder(this->mouseWorldPosition, stackOrderTypes::stackActionAttack);
-                }
-                else {
-                    listOfActors[this->selectedUnits[i]].clearCommandStack();
-                    listOfActors[this->selectedUnits[i]].updateGoal(this->mouseWorldPosition, 0);
-                    listOfActors[this->selectedUnits[i]].setIsDoingAttack(false);
-                }
-                actionDone = true;
-            }
-        }
-    }
-    return actionDone;
-}
+
 
 void gameState::clickToGiveCommand()
 {
@@ -1977,47 +1946,88 @@ void gameState::commandExcecutor(std::vector<command> commandsToBeExcecuted)
             switch (c.subjectType) {
             case worldObject::actor:
                 if (c.actionToPerform == actionTypes::actionAttackMove) {
-
+                    listOfActors[c.subjectId].updateGoal(c.commandCords, 0);
+                    listOfActors[c.subjectId].setIsDoingAttack(true);
+                    listOfActors[c.subjectId].setDoAttackMoveTrue();
                 }
                 else {
                     switch (c.orderType) {
                     case stackOrderTypes::stackActionAttack:
-
+                        if (c.isStackedCommand) {
+                            listOfActors[c.subjectId].stackOrder(c.commandCords, stackOrderTypes::stackActionAttack);
+                        }
+                        else {
+                            listOfActors[c.subjectId].clearCommandStack();
+                            listOfActors[c.subjectId].updateGoal(c.commandCords, 0);
+                            listOfActors[c.subjectId].setIsDoingAttack(false);
+                        }
                         break;
                     case stackOrderTypes::stackActionBuild:
+                        if (currentGame.occupiedByBuildingList[c.commandCords.x][c.commandCords.y] != -1) {
+                            if (!c.isStackedCommand) {
+                                nearestBuildingTile tempTile = findNearestBuildingTile(currentGame.occupiedByBuildingList[c.commandCords.x][c.commandCords.y], c.subjectId);
+                                if (tempTile.isSet) {
 
+                                    listOfActors[c.subjectId].clearCommandStack();
+                                    listOfActors[c.subjectId].updateGoal(tempTile.location, 0);
+                                    listOfBuildings[currentGame.occupiedByBuildingList[c.commandCords.x][c.commandCords.y]].claimFreeBuiildingTile(tempTile.buildingId, c.subjectId);
+                                    listOfActors[c.subjectId].setIsBuildingTrue(listOfBuildings[currentGame.occupiedByBuildingList[c.commandCords.x][c.commandCords.y]].getBuildingId(), tempTile.actionLocation);
+                                }
+                            } else {
+                                    listOfActors[c.subjectId].stackOrder(c.commandCords, stackOrderTypes::stackActionBuild);
+                            }
+                        }
                         break;
                     case stackOrderTypes::stackActionGather:
-
+                        if (c.isStackedCommand) {
+                            listOfActors[c.subjectId].stackOrder(c.commandCords, stackOrderTypes::stackActionGather);
+                        }
+                        else {
+                            listOfActors[c.subjectId].clearCommandStack();
+                            listOfActors[c.subjectId].updateGoal(c.commandCords, 0);
+                            listOfActors[c.subjectId].setCommonGoalTrue();
+                            listOfActors[c.subjectId].setGatheringRecource(true);
+                        }
                         break;
                     case stackOrderTypes::stackActionMove:
-
-                        break;
+                        if (!c.isStackedCommand) {
+                            listOfActors[c.subjectId].clearCommandStack();
+                            listOfActors[c.subjectId].updateGoal(c.commandCords, 0);
+                            listOfActors[c.subjectId].setGatheringRecource(false);
+                            break;
+                        }
+                        else {
+                            listOfActors[c.subjectId].stackOrder(c.commandCords, stackOrderTypes::stackActionMove);
+                        }
                     }
                 }
                 break;
             case worldObject::building:
                 switch (c.actionToPerform) {
                 case actionTypes::actionCancelBuilding:
-
+                    listOfPlayers[c.playerId].addResources(resourceTypes::resourceFood, listOfBuildingTemplates[listOfBuildings[c.subjectId].getType()].getPriceOfBuilding().food / 2);
+                    listOfPlayers[c.playerId].addResources(resourceTypes::resourceWood, listOfBuildingTemplates[listOfBuildings[c.subjectId].getType()].getPriceOfBuilding().wood / 2);
+                    listOfPlayers[c.playerId].addResources(resourceTypes::resourceStone, listOfBuildingTemplates[listOfBuildings[c.subjectId].getType()].getPriceOfBuilding().stone / 2);
+                    listOfPlayers[c.playerId].addResources(resourceTypes::resourceGold, listOfBuildingTemplates[listOfBuildings[c.subjectId].getType()].getPriceOfBuilding().gold / 2);
+                    listOfBuildings[c.subjectId].removeBuilding();
                     break;
                 case actionTypes::actionCancelProduction:
-
+                    listOfBuildings[c.subjectId].removeTask(c.commandCords.x);
                     break;
                 case actionTypes::actionMakeGate:
-
+                    listOfBuildings[c.subjectId].setIsGate();
                     break;
                 case actionTypes::actionOpenGate:
-
+                    listOfBuildings[c.subjectId].setGateOpen(!listOfBuildings[c.subjectId].getGateIsOpen()); //Flip a bit!
                     break;
                 case actionTypes::actionCloseGate:
-
+                    listOfBuildings[c.subjectId].setGateOpen(!listOfBuildings[c.subjectId].getGateIsOpen()); //Flip a bit!
                     break;
                 case actionTypes::actionMakeSwordsman:
-
+                    listOfBuildings[c.subjectId].getTask(false, 1);
                     break;
                 case actionTypes::actionMakeVillager:
-
+                    listOfBuildings[c.subjectId].getTask(false, 0);
                     break;
                 }
             case worldObject::object:

@@ -13,6 +13,7 @@
 #include "simpleAI.h"
 #include "splashScreen.h"
 #include "mainMenu.h"
+#include "commandSync.h"
 
 gameState currentGame;
 
@@ -163,6 +164,7 @@ void createAndShowMainMenu() {
 }
 
 
+
 int main()
 {
     window.setMouseCursorVisible(false);
@@ -174,6 +176,7 @@ int main()
     int lastBuilding = 0;
     int lastPath = 0;
     int lastProjectile = 0;
+    float nextCommandWindow = 0.2;
     currentGame.loadGame();
     for (int i = 0; i < currentGame.getPlayerCount() - 1; i++) {
         simpleAI newAIPlayer(i  + 1, 0);
@@ -188,6 +191,10 @@ int main()
         currentGame.interact();
         updateStats();
         updateAI();
+        if (currentGame.elapsedTime > nextCommandWindow) {
+            currentGame.commandExcecutor(gameDirector.getNextCommandsToExcecute(nextCommandWindow - 0.2));
+            nextCommandWindow += 0.2;
+        }
         updateGameState(lastActor, lastBuilding, lastPath, lastProjectile);
         currentGame.drawGame();
     }

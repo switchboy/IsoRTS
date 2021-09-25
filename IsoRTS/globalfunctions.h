@@ -7,6 +7,7 @@
 #include <vector>
 #include <random>
 #include"SFML/Graphics.hpp"
+#include "humanReadableNames.h"
 
 const int MAP_WIDTH = 256;
 const int MAP_HEIGHT = 256;
@@ -41,6 +42,19 @@ struct actorOrBuildingPrice
     int gold;
     int productionPoints;
 };
+
+struct command {
+    float timeCommandGiven;
+    int playerId;
+    int subjectId;
+    bool placingBuilding;
+    bool isStackedCommand;
+    cords commandCords;
+    worldObject subjectType;
+    stackOrderTypes orderType;
+    actionTypes actionToPerform;
+};
+
 
 cords toWorldMousePosition(int mouseX, int mouseY);
 int roll(int min, int max);

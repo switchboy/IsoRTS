@@ -62,7 +62,8 @@ enum class actionTypes
     actionShowCivilBuildings,
     actionShowMilitairyBuildings,
     actionShowBack,
-    actionAttackMove
+    actionAttackMove,
+    none
 };
 
 enum class stackOrderTypes
@@ -70,7 +71,17 @@ enum class stackOrderTypes
     stackActionMove,
     stackActionGather,
     stackActionBuild,
-    stackActionAttack
+    stackActionAttack,
+    none
 };
+
+enum class worldObject {
+    actor,
+    object,
+    building,
+    none
+};
+
+
 
 #endif HUMANREADABLENAMES_H

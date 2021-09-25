@@ -6,6 +6,7 @@
 #include "button.h"
 #include "gametext.h"
 #include "player.h"
+#include "commandSync.h"
 
 std::list<button> listOfButtons;
 
@@ -224,7 +225,19 @@ void button::performAction()
         //create villager
         if(listOfActorTemplates[0].getPriceOfActor().food <= currentPlayer.getStats().amountOfFood && listOfActorTemplates[0].getPriceOfActor().wood <= currentPlayer.getStats().amountOfWood && listOfActorTemplates[0].getPriceOfActor().stone <= currentPlayer.getStats().amountOfStone && listOfActorTemplates[0].getPriceOfActor().gold <= currentPlayer.getStats().amountOfGold)
         {
-            listOfBuildings[this->actorOrBuildingId].getTask(false, 0);
+            gameDirector.addCommand(
+                {
+                    currentGame.elapsedTime,
+                    currentPlayer.getTeam(),
+                    this->actorOrBuildingId,
+                    false,
+                    false,
+                    {0,0},
+                    worldObject::building,
+                    stackOrderTypes::none,
+                    actionTypes::actionMakeVillager
+                }
+            );
         }
         else
         {
@@ -235,15 +248,35 @@ void button::performAction()
         break;
     case actionTypes::actionCancelBuilding:
         //cancel building
-        currentPlayer.addResources(resourceTypes::resourceFood, listOfBuildingTemplates[listOfBuildings[this->actorOrBuildingId].getType()].getPriceOfBuilding().food/2 );
-        currentPlayer.addResources(resourceTypes::resourceWood, listOfBuildingTemplates[listOfBuildings[this->actorOrBuildingId].getType()].getPriceOfBuilding().wood/2 );
-        currentPlayer.addResources(resourceTypes::resourceStone, listOfBuildingTemplates[listOfBuildings[this->actorOrBuildingId].getType()].getPriceOfBuilding().stone/2 );
-        currentPlayer.addResources(resourceTypes::resourceGold, listOfBuildingTemplates[listOfBuildings[this->actorOrBuildingId].getType()].getPriceOfBuilding().gold/2 );
-        listOfBuildings[this->actorOrBuildingId].removeBuilding();
+        gameDirector.addCommand(
+            {
+                currentGame.elapsedTime,
+                currentPlayer.getTeam(),
+                this->actorOrBuildingId,
+                false,
+                false,
+                {0,0},
+                worldObject::building,
+                stackOrderTypes::none,
+                actionTypes::actionCancelBuilding
+            }
+        );
         break;
     case actionTypes::actionCancelProduction:
         //cancel production or research
-        listOfBuildings[this->actorOrBuildingId].removeTask(this->taskId);
+        gameDirector.addCommand(
+            {
+                currentGame.elapsedTime,
+                currentPlayer.getTeam(),
+                this->actorOrBuildingId,
+                false,
+                false,
+                {this->taskId,0},
+                worldObject::building,
+                stackOrderTypes::none,
+                actionTypes::actionCancelBuilding
+            }
+        );
         break;
 
     case actionTypes::actionBuildMill:
@@ -291,7 +324,19 @@ void button::performAction()
         //create a swordman
         if (listOfActorTemplates[1].getPriceOfActor().food <= currentPlayer.getStats().amountOfFood && listOfActorTemplates[1].getPriceOfActor().wood <= currentPlayer.getStats().amountOfWood && listOfActorTemplates[1].getPriceOfActor().stone <= currentPlayer.getStats().amountOfStone && listOfActorTemplates[1].getPriceOfActor().gold <= currentPlayer.getStats().amountOfGold)
         {
-            listOfBuildings[this->actorOrBuildingId].getTask(false, 1);
+            gameDirector.addCommand(
+                {
+                    currentGame.elapsedTime,
+                    currentPlayer.getTeam(),
+                    this->actorOrBuildingId,
+                    false,
+                    false,
+                    {0,0},
+                    worldObject::building,
+                    stackOrderTypes::none,
+                    actionTypes::actionMakeSwordsman
+                }
+            );
         }
         else
         {
@@ -327,13 +372,50 @@ void button::performAction()
         }
         break;
     case actionTypes::actionMakeGate:
-        listOfBuildings[this->actorOrBuildingId].setIsGate(); // Todo decide if this should cost something
+        // Todo decide if this should cost something
+        gameDirector.addCommand(
+            {
+                currentGame.elapsedTime,
+                currentPlayer.getTeam(),
+                this->actorOrBuildingId,
+                false,
+                false,
+                {0,0},
+                worldObject::building,
+                stackOrderTypes::none,
+                actionTypes::actionMakeGate
+            }
+        );
         break;
     case actionTypes::actionOpenGate:
-        listOfBuildings[this->actorOrBuildingId].setGateOpen(!listOfBuildings[this->actorOrBuildingId].getGateIsOpen()); //Flip a bit!
+        gameDirector.addCommand(
+            {
+                currentGame.elapsedTime,
+                currentPlayer.getTeam(),
+                this->actorOrBuildingId,
+                false,
+                false,
+                {0,0},
+                worldObject::building,
+                stackOrderTypes::none,
+                actionTypes::actionOpenGate
+            }
+        );
         break;
     case actionTypes::actionCloseGate:
-        listOfBuildings[this->actorOrBuildingId].setGateOpen(!listOfBuildings[this->actorOrBuildingId].getGateIsOpen()); //Flip a bit!
+        gameDirector.addCommand(
+            {
+                currentGame.elapsedTime,
+                currentPlayer.getTeam(),
+                this->actorOrBuildingId,
+                false,
+                false,
+                {0,0},
+                worldObject::building,
+                stackOrderTypes::none,
+                actionTypes::actionCloseGate
+            }
+        );
         break;
     case actionTypes::actionShowCivilBuildings:
         currentGame.setToolbarSubMenu(1);

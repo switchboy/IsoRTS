@@ -753,18 +753,42 @@ void gameState::clickToPlaceBuilding() {
                         ) {
                         //place the building
                         for (cords& thisCord : mapPointsCrossed) {
-                            buildings newBuilding(this->buildingTypeSelected, thisCord, static_cast<int>(listOfBuildings.size()), currentPlayer.getTeam());
-                            listOfBuildings.push_back(newBuilding);
+
+                            gameDirector.addCommand(
+                                {
+                                    this->elapsedTime,
+                                    currentPlayer.getTeam(),
+                                    this->buildingTypeSelected,
+                                    true,
+                                    false,
+                                    thisCord,
+                                    worldObject::none,
+                                    stackOrderTypes::none,
+                                    actionTypes::none
+                                }
+                            );
                             if (this->isPlacingBuilding) //Check to see if building is placed from the debugging hotkeys or map builder
                             {
-                                currentPlayer.substractResources(resourceTypes::resourceWood, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().wood);
-                                currentPlayer.substractResources(resourceTypes::resourceFood, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().food);
-                                currentPlayer.substractResources(resourceTypes::resourceStone, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().stone);
-                                currentPlayer.substractResources(resourceTypes::resourceGold, listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().gold);
                                 for (int i = 0; i < this->selectedUnits.size(); i++)
                                 {
-                                    listOfActors[this->selectedUnits[i]].stackOrder(thisCord, stackOrderTypes::stackActionBuild);
+                                    if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+                                    {
+                                        gameDirector.addCommand(
+                                            {
+                                                this->elapsedTime + 0.00001f, //this makes sure the command is excecuted after the place building command
+                                                currentPlayer.getTeam(),
+                                                this->selectedUnits[i],
+                                                false,
+                                                true,
+                                                thisCord,
+                                                worldObject::actor,
+                                                stackOrderTypes::stackActionBuild,
+                                                actionTypes::none
+                                            }
+                                        );
+                                    }
                                 }
+
                             }
                         }
                         this->isPlacingBuilding = false;
@@ -970,68 +994,70 @@ void gameState::mouseLeftClick()
 
 void gameState::getDefinitiveSelection()
 {
-    if (this->mousePressedLeft && !(mouseFakePosition.y > mainWindowHeigth * 0.8f))
-    {
-        this->selectedUnits.clear();
-        sf::IntRect selection;
+    if (!this->isPlacingBuilding) {
+        if (this->mousePressedLeft && !(mouseFakePosition.y > mainWindowHeigth * 0.8f))
+        {
+            this->selectedUnits.clear();
+            sf::IntRect selection;
 
-        if (listOfActors.size() > 0) {
-            if (!(this->startLocation[0] == this->mouseWorldPosition.x && this->startLocation[1] == this->mouseWorldPosition.y)) {
-                //there is a selection box find all actors in this box! (we will use old style intRect collision detection)
-                selection = static_cast<sf::IntRect>(this->selectionRectangle.getGlobalBounds());
-                for (const actors& actor : listOfActors) {
-                    sf::IntRect result;
-                    if (selection.intersects(actor.getLastIntRect(), result)) {
-                        selectedUnits.push_back({ actor.getActorId() });
+            if (listOfActors.size() > 0) {
+                if (!(this->startLocation[0] == this->mouseWorldPosition.x && this->startLocation[1] == this->mouseWorldPosition.y)) {
+                    //there is a selection box find all actors in this box! (we will use old style intRect collision detection)
+                    selection = static_cast<sf::IntRect>(this->selectionRectangle.getGlobalBounds());
+                    for (const actors& actor : listOfActors) {
+                        sf::IntRect result;
+                        if (selection.intersects(actor.getLastIntRect(), result)) {
+                            selectedUnits.push_back({ actor.getActorId() });
+                        }
+                    }
+                }
+                else {
+                    //One coordinate was clicked find actor there we will be pixel perfect!
+
+                    //using a pixel cord
+                    //this->spriteMouseCord.setPosition(mousePosition.x, mousePosition.y);
+
+                    for (const actors& actor : listOfActors) {
+                        listOfActorTemplates[actor.getType()].setSpritePosition(worldSpace(actor.getActorCords()));
+                        if (Collision::singlePixelTest(listOfActorTemplates[actor.getType()].getActorSprite(), mousePosition, 128)) {
+                            selectedUnits.push_back({ actor.getActorId() });
+                        }
+
+                        /* using a mouse sprite which was buggy
+                        if (Collision::PixelPerfectTest(listOfActorTemplates[actor.getType()].getActorSprite(), this->spriteMouseCord, 128)) {
+                            selectedUnits.push_back({ actor.getActorId() });
+                        }
+                        */
                     }
                 }
             }
-            else {
-                //One coordinate was clicked find actor there we will be pixel perfect!
 
-                //using a pixel cord
-                //this->spriteMouseCord.setPosition(mousePosition.x, mousePosition.y);
-                
-                for (const actors& actor : listOfActors) {
-                    listOfActorTemplates[actor.getType()].setSpritePosition(worldSpace(actor.getActorCords()));
-                    if (Collision::singlePixelTest(listOfActorTemplates[actor.getType()].getActorSprite(), mousePosition, 128)) {
-                        selectedUnits.push_back({ actor.getActorId() });
-                    }
+            if (selectedUnits.size() > 1) {
+                //Haal duplicaten eruit
+                sort(selectedUnits.begin(), selectedUnits.end());
+                selectedUnits.erase(unique(selectedUnits.begin(), selectedUnits.end()), selectedUnits.end());
 
-                    /* using a mouse sprite which was buggy
-                    if (Collision::PixelPerfectTest(listOfActorTemplates[actor.getType()].getActorSprite(), this->spriteMouseCord, 128)) {
-                        selectedUnits.push_back({ actor.getActorId() });
-                    }
-                    */
-                }
+                //Haal id's eruit die niet in de actor list zitten
+                selectedUnits.erase(std::remove_if(
+                    selectedUnits.begin(), selectedUnits.end(),
+                    [&](const int id) -> bool {
+                        {return (id < 0 || id > listOfActors.size()); }
+                    }),
+                    selectedUnits.end());
+
+                //haal id's eruit die niet 
+                selectedUnits.erase(std::remove_if(selectedUnits.begin(),
+                    selectedUnits.end(),
+                    [&](const int id) -> bool
+                    {
+                        return listOfActors[id].getTeam() != currentPlayer.getTeam();
+                    }),
+                    selectedUnits.end());
             }
-        }
-
-        if (selectedUnits.size() > 1) {
-            //Haal duplicaten eruit
-            sort(selectedUnits.begin(), selectedUnits.end());
-            selectedUnits.erase(unique(selectedUnits.begin(), selectedUnits.end()), selectedUnits.end());
-
-            //Haal id's eruit die niet in de actor list zitten
-            selectedUnits.erase(std::remove_if(
-                selectedUnits.begin(), selectedUnits.end(),
-                [&](const int id) -> bool {
-                    {return (id < 0 || id > listOfActors.size()); }
-                }),
-                selectedUnits.end());
-
-            //haal id's eruit die niet 
-            selectedUnits.erase(std::remove_if(selectedUnits.begin(),
-                selectedUnits.end(),
-                [&](const int id) -> bool
-                {
-                    return listOfActors[id].getTeam() != currentPlayer.getTeam();
-                }),
-                selectedUnits.end());
-        }
-        if (!this->selectedUnits.empty()) {
-            this->objectSelectedId = -1;
-            this->buildingSelectedId = -1;
+            if (!this->selectedUnits.empty()) {
+                this->objectSelectedId = -1;
+                this->buildingSelectedId = -1;
+            }
         }
     }
 }
@@ -2029,6 +2055,15 @@ void gameState::commandExcecutor(std::vector<command> commandsToBeExcecuted)
                 case actionTypes::actionMakeVillager:
                     listOfBuildings[c.subjectId].getTask(false, 0);
                     break;
+                case actionTypes::none:
+                    if (c.isStackedCommand) {
+                        if (c.commandCords.y == 0) {
+                            listOfBuildings[c.subjectId].getTask(false, c.commandCords.x);
+                        }
+                        else {
+                            listOfBuildings[c.subjectId].getTask(true, c.commandCords.x);
+                        }
+                    }
                 }
             case worldObject::object:
                 break;

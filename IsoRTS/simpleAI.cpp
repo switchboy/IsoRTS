@@ -4,6 +4,7 @@
 #include "objects.h"
 #include "player.h"
 #include "simpleAI.h"
+#include "commandSync.h"
 
 std::vector<simpleAI> listOfAI;
 
@@ -43,49 +44,123 @@ void simpleAI::update()
 
 void simpleAI::buildBuilding(int buildingId, cords buildingCords)
 {
-	buildings newBuilding(buildingId, buildingCords, static_cast<int>(listOfBuildings.size()), this->playerId);
-	listOfBuildings.push_back(newBuilding);
-	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceWood, listOfBuildingTemplates[buildingId].getPriceOfBuilding().wood);
-	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceFood, listOfBuildingTemplates[buildingId].getPriceOfBuilding().food);
-	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceStone, listOfBuildingTemplates[buildingId].getPriceOfBuilding().stone);
-	listOfPlayers[this->playerId].substractResources(resourceTypes::resourceGold, listOfBuildingTemplates[buildingId].getPriceOfBuilding().gold);
+	gameDirector.addCommand(
+		{
+			currentGame.elapsedTime,
+			this->playerId,
+			buildingId,
+			true,
+			false,
+			buildingCords,
+			worldObject::none,
+			stackOrderTypes::none,
+			actionTypes::none
+		}
+	);
 }
 
 void simpleAI::moveCommandUnit(int unitId, cords targetCords)
 {
-	listOfActors[unitId].updateGoal(targetCords, 0);
+	gameDirector.addCommand(
+		{
+			currentGame.elapsedTime,
+			this->playerId,
+			unitId,
+			false,
+			false,
+			targetCords,
+			worldObject::actor,
+			stackOrderTypes::stackActionMove,
+			actionTypes::none
+		}
+	);
 }
 
 void simpleAI::buildCommandUnit(int unitId, cords targetCords)
 {
-	nearestBuildingTile tempTile = findNearestBuildingTile(currentGame.occupiedByBuildingList[targetCords.x][targetCords.y], unitId);
-	if (tempTile.isSet) {
-		listOfActors[unitId].updateGoal(tempTile.location, 0);
-		listOfBuildings[currentGame.occupiedByBuildingList[targetCords.x][targetCords.y]].claimFreeBuiildingTile(tempTile.buildingId, unitId);
-		listOfActors[unitId].setIsBuildingTrue(listOfBuildings[currentGame.occupiedByBuildingList[targetCords.x][targetCords.y]].getBuildingId(), tempTile.actionLocation);
-	}
+	gameDirector.addCommand(
+		{
+			currentGame.elapsedTime + 0.00001f, //this makes sure the command is excecuted after the place building command
+			this->playerId,
+			unitId,
+			false,
+			false,
+			targetCords,
+			worldObject::actor,
+			stackOrderTypes::stackActionBuild,
+			actionTypes::none
+		}
+	);
 }
 
 void simpleAI::gatherCommandUnit(int unitId, cords targetCords)
 {
-	listOfActors[unitId].updateGoal(targetCords, 0);
-	listOfActors[unitId].setGatheringRecource(true);
+	gameDirector.addCommand(
+		{
+			currentGame.elapsedTime,
+			this->playerId,
+			unitId,
+			false,
+			false,
+			targetCords,
+			worldObject::actor,
+			stackOrderTypes::stackActionGather,
+			actionTypes::none
+		}
+	);
 }
 
 void simpleAI::attakCommandUnit(int unitId, cords targetCords, bool first)
 {
 	if (first) {
-		listOfActors[unitId].updateGoal(targetCords, 0);
-		listOfActors[unitId].setIsDoingAttack(false);
+		gameDirector.addCommand(
+			{
+				currentGame.elapsedTime,
+				this->playerId,
+				unitId,
+				false,
+				false,
+				targetCords,
+				worldObject::actor,
+				stackOrderTypes::stackActionAttack,
+				actionTypes::none
+			}
+		);
 	}
 	else {
-		listOfActors[unitId].stackOrder(targetCords, stackOrderTypes::stackActionAttack);
+		gameDirector.addCommand(
+			{
+				currentGame.elapsedTime,
+				this->playerId,
+				unitId,
+				false,
+				true,
+				targetCords,
+				worldObject::actor,
+				stackOrderTypes::stackActionMove,
+				actionTypes::none
+			}
+		);
 	}
 }
 
 void simpleAI::produceCommandBuilding(int buildingId, bool isResearch, int idOfUnitOrResearch)
 {
-	listOfBuildings[buildingId].getTask(isResearch, idOfUnitOrResearch);
+	int research = 0;
+	if (isResearch) { research = 1; }
+	gameDirector.addCommand(
+		{
+			currentGame.elapsedTime,
+			this->playerId,
+			buildingId,
+			false,
+			true,
+			{idOfUnitOrResearch, research},
+			worldObject::building,
+			stackOrderTypes::none,
+			actionTypes::none
+		}
+	);
 }
 
 

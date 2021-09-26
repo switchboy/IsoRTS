@@ -158,6 +158,8 @@ void menu::preformMenuAction(menuItemNames itemClicked)
 	case newGame:
 		this->setMenuLevel(1);
 		break;
+	case loadGame:
+		break;
 	case multiplayerGame:
 		break;
 	case sandBoxGame:
@@ -198,7 +200,6 @@ void menu::preformMenuAction(menuItemNames itemClicked)
 	case rootMenu:
 		this->setMenuLevel(0);
 		break;
-		break;
 	case showCredits:
 		break;
 	case showTechTree:
@@ -212,7 +213,7 @@ void menu::preformMenuAction(menuItemNames itemClicked)
 void createMainMenuItems(menu& mainMenu)
 {
 	mainMenu.addMenuItem(newGame,			"New Game",				0);
-	mainMenu.addMenuItem(newGame,			"Load Saved Game",		0);
+	mainMenu.addMenuItem(loadGame,			"Load Saved Game",		0);
 	mainMenu.addMenuItem(multiplayerGame,	"Multiplayer Game",		0);
 	mainMenu.addMenuItem(sandBoxGame,		"Sandbox Game",			1);
 	mainMenu.addMenuItem(skirmishGame,		"Skirmish Game",		1);

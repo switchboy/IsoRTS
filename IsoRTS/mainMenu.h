@@ -8,6 +8,7 @@
 enum menuItemNames
 {
 	newGame,
+	loadGame,
 	multiplayerGame,
 	sandBoxGame,
 	skirmishGame,

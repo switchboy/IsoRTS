@@ -70,8 +70,9 @@ public:
     void                        spawnProduce();
     void                        takeDamage(int amountOfDamage);
     void                        update();
-    std::list<buildingQueue>    productionQueue;
+    
     int                         getBuildingId() const;
+    bool                        getExists() const;
     bool                        getCompleted() const;
     bool                        getGateIsOpen() const;
     bool                        getIsGate() const;
@@ -80,6 +81,7 @@ public:
     int                         getTeam() const;
     int                         getType() const;
     bool                        canBeGate() const;
+    std::list<buildingQueue>    getProductionQueue() const;
     resourceTypes               getRecievesWhichResources() const;
     std::list<cords>            getFootprintOfBuilding() const;
     std::pair<int, int>         getBuildingPoints() const;
@@ -94,6 +96,7 @@ public:
     void                        removeTask(int id);
 
 private:
+    std::list<buildingQueue>    productionQueue;
     bool                        buildingCompleted;
     bool                        gateIsOpen = false;
     bool                        canDoRangedDamage;

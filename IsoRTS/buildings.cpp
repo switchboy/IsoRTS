@@ -417,6 +417,11 @@ bool buildings::canBeGate() const
     return false;
 }
 
+std::list<buildingQueue> buildings::getProductionQueue() const
+{
+    return this->productionQueue;
+}
+
 cords buildings::getLocation() const
 {
     return this->startLocation;
@@ -425,6 +430,11 @@ cords buildings::getLocation() const
 int buildings::getBuildingId() const
 {
     return this->buildingId;
+}
+
+bool buildings::getExists() const
+{
+    return this->exists;
 }
 
 resourceTypes buildings::getRecievesWhichResources() const
@@ -747,11 +757,19 @@ void buildings::getTask(bool isResearch, int idOfUnitOrResearch)
     if(this->productionQueue.size() < 5 )
     {
         if (!isResearch) {
-            this->productionQueue.push_back({isResearch, idOfUnitOrResearch, 0, listOfActorTemplates[idOfUnitOrResearch].getPriceOfActor().productionPoints, 0});
-            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceFood, listOfActorTemplates[idOfUnitOrResearch].getPriceOfActor().food);
-            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceWood, listOfActorTemplates[idOfUnitOrResearch].getPriceOfActor().wood);
-            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceStone, listOfActorTemplates[idOfUnitOrResearch].getPriceOfActor().stone);
-            listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceGold, listOfActorTemplates[idOfUnitOrResearch].getPriceOfActor().gold);
+            if (
+                listOfActorTemplates[idOfUnitOrResearch].getPriceOfActor().food <= listOfPlayers[this->ownedByPlayer].getStats().amountOfFood &&
+                listOfActorTemplates[idOfUnitOrResearch].getPriceOfActor().wood <= listOfPlayers[this->ownedByPlayer].getStats().amountOfWood &&
+                listOfActorTemplates[idOfUnitOrResearch].getPriceOfActor().stone <= listOfPlayers[this->ownedByPlayer].getStats().amountOfStone &&
+                listOfActorTemplates[idOfUnitOrResearch].getPriceOfActor().gold <= listOfPlayers[this->ownedByPlayer].getStats().amountOfGold
+                )
+            {
+                this->productionQueue.push_back({ isResearch, idOfUnitOrResearch, 0, listOfActorTemplates[idOfUnitOrResearch].getPriceOfActor().productionPoints, 0 });
+                listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceFood, listOfActorTemplates[idOfUnitOrResearch].getPriceOfActor().food);
+                listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceWood, listOfActorTemplates[idOfUnitOrResearch].getPriceOfActor().wood);
+                listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceStone, listOfActorTemplates[idOfUnitOrResearch].getPriceOfActor().stone);
+                listOfPlayers[ownedByPlayer].substractResources(resourceTypes::resourceGold, listOfActorTemplates[idOfUnitOrResearch].getPriceOfActor().gold);
+            }
         }
     }
     else

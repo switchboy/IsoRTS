@@ -1961,12 +1961,22 @@ void gameState::commandExcecutor(std::vector<command> commandsToBeExcecuted)
     for (command& c : commandsToBeExcecuted) {
 
         if (c.placingBuilding) {
-            buildings newBuilding(c.subjectId, c.commandCords, static_cast<int>(listOfBuildings.size()), c.playerId);
-            listOfBuildings.push_back(newBuilding);
-            listOfPlayers[c.playerId].substractResources(resourceTypes::resourceWood,   listOfBuildingTemplates[c.subjectId].getPriceOfBuilding().wood);
-            listOfPlayers[c.playerId].substractResources(resourceTypes::resourceFood,   listOfBuildingTemplates[c.subjectId].getPriceOfBuilding().food);
-            listOfPlayers[c.playerId].substractResources(resourceTypes::resourceStone,  listOfBuildingTemplates[c.subjectId].getPriceOfBuilding().stone);
-            listOfPlayers[c.playerId].substractResources(resourceTypes::resourceGold,   listOfBuildingTemplates[c.subjectId].getPriceOfBuilding().gold);
+            if (
+                (
+                    listOfBuildingTemplates[c.subjectId].getPriceOfBuilding().food <= listOfPlayers[c.playerId].getStats().amountOfFood &&
+                    listOfBuildingTemplates[c.subjectId].getPriceOfBuilding().wood <= listOfPlayers[c.playerId].getStats().amountOfWood &&
+                    listOfBuildingTemplates[c.subjectId].getPriceOfBuilding().stone <= listOfPlayers[c.playerId].getStats().amountOfStone &&
+                    listOfBuildingTemplates[c.subjectId].getPriceOfBuilding().gold <= listOfPlayers[c.playerId].getStats().amountOfGold
+                ) ||
+                !isPlacingBuilding
+                ) {
+                buildings newBuilding(c.subjectId, c.commandCords, static_cast<int>(listOfBuildings.size()), c.playerId);
+                listOfBuildings.push_back(newBuilding);
+                listOfPlayers[c.playerId].substractResources(resourceTypes::resourceWood, listOfBuildingTemplates[c.subjectId].getPriceOfBuilding().wood);
+                listOfPlayers[c.playerId].substractResources(resourceTypes::resourceFood, listOfBuildingTemplates[c.subjectId].getPriceOfBuilding().food);
+                listOfPlayers[c.playerId].substractResources(resourceTypes::resourceStone, listOfBuildingTemplates[c.subjectId].getPriceOfBuilding().stone);
+                listOfPlayers[c.playerId].substractResources(resourceTypes::resourceGold, listOfBuildingTemplates[c.subjectId].getPriceOfBuilding().gold);
+            }
         }
         else {
             switch (c.subjectType) {
@@ -2031,11 +2041,13 @@ void gameState::commandExcecutor(std::vector<command> commandsToBeExcecuted)
             case worldObject::building:
                 switch (c.actionToPerform) {
                 case actionTypes::actionCancelBuilding:
-                    listOfPlayers[c.playerId].addResources(resourceTypes::resourceFood, listOfBuildingTemplates[listOfBuildings[c.subjectId].getType()].getPriceOfBuilding().food / 2);
-                    listOfPlayers[c.playerId].addResources(resourceTypes::resourceWood, listOfBuildingTemplates[listOfBuildings[c.subjectId].getType()].getPriceOfBuilding().wood / 2);
-                    listOfPlayers[c.playerId].addResources(resourceTypes::resourceStone, listOfBuildingTemplates[listOfBuildings[c.subjectId].getType()].getPriceOfBuilding().stone / 2);
-                    listOfPlayers[c.playerId].addResources(resourceTypes::resourceGold, listOfBuildingTemplates[listOfBuildings[c.subjectId].getType()].getPriceOfBuilding().gold / 2);
-                    listOfBuildings[c.subjectId].removeBuilding();
+                    if (listOfBuildings[c.subjectId].getExists()) {
+                        listOfPlayers[c.playerId].addResources(resourceTypes::resourceFood, listOfBuildingTemplates[listOfBuildings[c.subjectId].getType()].getPriceOfBuilding().food / 2);
+                        listOfPlayers[c.playerId].addResources(resourceTypes::resourceWood, listOfBuildingTemplates[listOfBuildings[c.subjectId].getType()].getPriceOfBuilding().wood / 2);
+                        listOfPlayers[c.playerId].addResources(resourceTypes::resourceStone, listOfBuildingTemplates[listOfBuildings[c.subjectId].getType()].getPriceOfBuilding().stone / 2);
+                        listOfPlayers[c.playerId].addResources(resourceTypes::resourceGold, listOfBuildingTemplates[listOfBuildings[c.subjectId].getType()].getPriceOfBuilding().gold / 2);
+                        listOfBuildings[c.subjectId].removeBuilding();
+                    }
                     break;
                 case actionTypes::actionCancelProduction:
                     listOfBuildings[c.subjectId].removeTask(c.commandCords.x);
@@ -2245,9 +2257,9 @@ void gameState::drawProgressBar(float pointsGained, float pointsRequired, int to
 
 std::string getBuildingIsProducingName(int buildingId)
 {
-    if (listOfBuildings[buildingId].productionQueue.front().isResearch)
+    if (listOfBuildings[buildingId].getProductionQueue().front().isResearch)
     {
-        switch (listOfBuildings[buildingId].productionQueue.front().idOfUnitOrResearch)
+        switch (listOfBuildings[buildingId].getProductionQueue().front().idOfUnitOrResearch)
         {
         case 0:
             return "placeholder name";
@@ -2258,7 +2270,7 @@ std::string getBuildingIsProducingName(int buildingId)
     }
     else
     {
-        switch (listOfBuildings[buildingId].productionQueue.front().idOfUnitOrResearch)
+        switch (listOfBuildings[buildingId].getProductionQueue().front().idOfUnitOrResearch)
         {
         case 0:
             return "Villager";
@@ -2272,9 +2284,9 @@ std::string getBuildingIsProducingName(int buildingId)
 
 cords getSpriteOffSetTask(int buildingId)
 {
-    if (listOfBuildings[buildingId].productionQueue.front().isResearch)
+    if (listOfBuildings[buildingId].getProductionQueue().front().isResearch)
     {
-        switch (listOfBuildings[buildingId].productionQueue.front().idOfUnitOrResearch)
+        switch (listOfBuildings[buildingId].getProductionQueue().front().idOfUnitOrResearch)
         {
         case 0:
             return { 64, 0 };//placeholder change to icon of research 
@@ -2285,7 +2297,7 @@ cords getSpriteOffSetTask(int buildingId)
     }
     else
     {
-        switch (listOfBuildings[buildingId].productionQueue.front().idOfUnitOrResearch)
+        switch (listOfBuildings[buildingId].getProductionQueue().front().idOfUnitOrResearch)
         {
         case 0:
             return { 64, 0 };
@@ -2329,10 +2341,10 @@ int getCardForButtonByTask(int buildingId, buildingQueue& task)
 
 void gameState::drawBuildingTaskToolbar(int startY)
 {
-    float percentageCompleted = static_cast<float>(static_cast<float>(listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsGained) / static_cast<float>(listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsNeeded)) * 100;
+    float percentageCompleted = static_cast<float>(static_cast<float>(listOfBuildings[this->buildingSelectedId].getProductionQueue().front().productionPointsGained) / static_cast<float>(listOfBuildings[this->buildingSelectedId].getProductionQueue().front().productionPointsNeeded)) * 100;
     int tempXOffset = 0;
     int tempYOffset = 0;
-    drawProgressBar(static_cast<float>(listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsGained), static_cast<float>(listOfBuildings[this->buildingSelectedId].productionQueue.front().productionPointsNeeded), totalBarLength, startBarX, startBarY);
+    drawProgressBar(static_cast<float>(listOfBuildings[this->buildingSelectedId].getProductionQueue().front().productionPointsGained), static_cast<float>(listOfBuildings[this->buildingSelectedId].getProductionQueue().front().productionPointsNeeded), totalBarLength, startBarX, startBarY);
     text.setString("Producing: " + getBuildingIsProducingName(this->buildingSelectedId) + " " + std::to_string(static_cast<int>(percentageCompleted)) + "%...");
     text.setPosition(static_cast<float>(startBarX), static_cast<float>(iconStartY));
     window.draw(text);
@@ -2341,12 +2353,12 @@ void gameState::drawBuildingTaskToolbar(int startY)
     window.draw(this->spriteUIButton);
     button cancelTask = { static_cast<int>(startBarX + totalBarLength + static_cast<int>(mainWindowWidth / 174.54)), iconStartY, spriteTypes::spriteCancel, actionTypes::actionCancelProduction, this->buildingSelectedId, static_cast<int>(listOfButtons.size()), 0 };
     listOfButtons.push_back(cancelTask);
-    if (listOfBuildings[this->buildingSelectedId].productionQueue.size() > 1)
+    if (listOfBuildings[this->buildingSelectedId].getProductionQueue().size() > 1)
     {
         tempXOffset = iconBarStartX + static_cast<int>(mainWindowWidth / 24.93);
         tempYOffset = iconStartY + static_cast<int>(mainWindowHeigth / 22.97);
         int i = 0;
-        for (buildingQueue& task : listOfBuildings[this->buildingSelectedId].productionQueue) {
+        for (buildingQueue& task : listOfBuildings[this->buildingSelectedId].getProductionQueue()) {
             if (i != 0) {//First button needs to be skipped!
                 button tempButton = { tempXOffset, tempYOffset, static_cast<spriteTypes>(getCardForButtonByTask(this->buildingSelectedId, task)), actionTypes::actionCancelProduction, this->buildingSelectedId, static_cast<int>(listOfButtons.size()), i };
                 listOfButtons.push_back(tempButton);

@@ -46,7 +46,7 @@ void splashScreen()
 			case sf::Event::KeyPressed:
 				keypressed = true;
 				break;
-			case sf::Event::MouseButtonPressed:
+			case sf::Event::MouseButtonReleased:
 				keypressed = true;
 			}
 		}

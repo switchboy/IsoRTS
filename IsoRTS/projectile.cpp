@@ -60,12 +60,12 @@ void projectile::updatePosition()
 {
 	if (!reachedTarget) {
 		//speed is in pixels per second
-		if (this->timeFired + 0.016 < currentGame.getTime()) {
+		if (this->timeFired + 0.1 < currentGame.getTime()) { //simulation runs at 10 frames per second
 			this->timeFired = currentGame.getTime();
-			this->X -= this->deltaX/60.f;
-			this->Y -= this->deltaY/60.f;
+			this->X -= this->deltaX / 10.f;
+			this->Y -= this->deltaY / 10.f;
 			this->Z -= this->deltaZ;
-			this->projectileRotation = giveAngleOfSpriteInDGR(this->deltaX, this->deltaY + (this->deltaZ*60));
+			this->projectileRotation = giveAngleOfSpriteInDGR(this->deltaX, this->deltaY + (this->deltaZ * 60));
 			this->deltaZ -= 0.096f;
 			if (this->Z >= 0.0f) {
 				doDamage();
@@ -76,10 +76,31 @@ void projectile::updatePosition()
 	}
 }
 
-void projectile::drawProjectile() const
+void projectile::interprolatePositionForDrawCall() {
+	if (this->lastSimulationUpdate > this->lastInterprolationUpdate) {
+		this->interProlateX = this->X;
+		this->interProlateY = this->Y;
+		this->interProlateZ = this->Z;
+		this->lastInterprolation = this->timeFired;
+		this->interProlateDeltaZ = this->deltaZ;
+	}
+	if (this->interProlateZ < 0.0f) {
+		if (this->lastInterprolation + 0.016 < currentGame.getTime()) { //Window updates 60 frames per second
+			this->timeFired = currentGame.getTime();
+			this->interProlateX -= this->deltaX / 60.f;
+			this->interProlateY -= this->deltaY / 60.f;
+			this->interProlateZ -= this->deltaZ;
+			this->projectileRotation = giveAngleOfSpriteInDGR(this->deltaX, this->deltaY + (this->deltaZ * 60));
+			this->interProlateDeltaZ -= 0.096f;
+		}
+	}
+}
+
+void projectile::drawProjectile()
 {
+	interprolatePositionForDrawCall();
 	currentGame.spriteArrow.setRotation(this->projectileRotation);
-	currentGame.spriteArrow.setPosition(this->X, this->Y + this->Z);
+	currentGame.spriteArrow.setPosition(this->interProlateX, this->interProlateY + this->interProlateZ);
 	window.draw(currentGame.spriteArrow);
 }
 

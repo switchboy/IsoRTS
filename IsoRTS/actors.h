@@ -177,6 +177,7 @@ private:
     bool pathFound;
     bool goalNeedsUpdate;
     bool isBackAtOwnSquare;
+    int walkingToResource = 0;
     bool noPathPossible;
     bool routeNeedsPath;
     bool initialized;

@@ -1,4 +1,5 @@
 #include "commandSync.h"
+#include "player.h"
 
 commandSync::commandSync()
 {
@@ -8,6 +9,10 @@ commandSync::commandSync()
 void commandSync::addCommand(command givenCommand)
 {
 	listOfCommands.push_back(givenCommand);
+	if (givenCommand.playerId == currentPlayer.getTeam()) {
+		//send command to network stack TO DO!
+
+	}
 }
 
 std::vector<command> commandSync::getNextCommandsToExcecute(float nextCommandWindow)

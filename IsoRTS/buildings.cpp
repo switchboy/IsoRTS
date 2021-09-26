@@ -168,7 +168,7 @@ std::vector<adjacentTile> buildings::getFreeBuildingTile() const
     std::vector<adjacentTile> tileList;
     for(int i = 0; i < this->adjacentTiles.size(); i++)
     {
-        if(!this->adjacentTiles[i].occupied && this->adjacentTiles[i].actorId == -1)
+        if(!this->adjacentTiles[i].occupied && this->adjacentTiles[i].actorId == -1 && this->exists)
         {
             if(currentGame.isPassable(this->adjacentTiles[i].tileCords))
             {

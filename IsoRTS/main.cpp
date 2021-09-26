@@ -77,7 +77,7 @@ void updateAI() {
 void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& lastProjectile) {
 
     if (!listOfProjectiles.empty()) {
-        int endProjectile = lastProjectile + 100;
+        int endProjectile = lastProjectile + 200;
         if (endProjectile > listOfProjectiles.size()) {
             endProjectile = static_cast<int>(listOfProjectiles.size());
         }
@@ -118,7 +118,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
             }
         }
 
-        int endActor = lastActor + 30;
+        int endActor = lastActor + 200;
         if (endActor > static_cast<int>(listOfActors.size())) {
             endActor = static_cast<int>(listOfActors.size());
         }
@@ -136,7 +136,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
 
     if (!listOfBuildings.empty())
     {
-        int endBuilding = lastBuilding + 10;
+        int endBuilding = lastBuilding + 200;
         if (endBuilding > static_cast<int>(listOfBuildings.size())) {
             endBuilding = static_cast<int>(listOfBuildings.size());
         }
@@ -163,8 +163,6 @@ void createAndShowMainMenu() {
     }
 }
 
-
-
 int main()
 {
     window.setMouseCursorVisible(false);
@@ -176,7 +174,9 @@ int main()
     int lastBuilding = 0;
     int lastPath = 0;
     int lastProjectile = 0;
-    float nextCommandWindow = 0.2;
+    float nextCommandWindow = 0.2f;
+    float nextUpdateTick = 0.1f;
+    float nextAITick = 0.5f;
     currentGame.loadGame();
     for (int i = 0; i < currentGame.getPlayerCount() - 1; i++) {
         simpleAI newAIPlayer(i  + 1, 0);
@@ -189,14 +189,20 @@ int main()
         gameText.throwOutOldMessages();
         clearOldCommandCursors();
         currentGame.interact();
-        updateStats();
-        updateAI();
-        if (currentGame.elapsedTime > nextCommandWindow) {
+        if (currentGame.elapsedTime > nextAITick) { //AI updates every half second
+            updateAI();
+            nextAITick = currentGame.elapsedTime + 0.50;
+        }
+        if (currentGame.elapsedTime > nextCommandWindow) { //Every 200ms commands are excecuted
             currentGame.commandExcecutor(gameDirector.getNextCommandsToExcecute(nextCommandWindow - 0.2));
             nextCommandWindow += 0.2;
         }
-        updateGameState(lastActor, lastBuilding, lastPath, lastProjectile);
-        currentGame.drawGame();
+        if (currentGame.elapsedTime > nextUpdateTick) { //make the simulation update @ 10FPS
+            updateStats();
+            updateGameState(lastActor, lastBuilding, lastPath, lastProjectile);
+            nextUpdateTick = currentGame.elapsedTime + 0.1;
+        }
+        currentGame.drawGame(); //gamedrawing happens @60 FPS
     }
     return 0;
 }

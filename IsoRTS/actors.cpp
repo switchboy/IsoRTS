@@ -1764,7 +1764,9 @@ void actors::findNearestDropOffPoint()
             if (!this->realPath && !listOfDropOffLocations.empty())
             {
                 this->updateGoal(listOfDropOffLocations.front().actionLocation, 0);
-                listOfBuildings[this->buildingId].removeActorFromBuildingTile(this->actorId);
+                if (this->buildingId != -1) {
+                    listOfBuildings[this->buildingId].removeActorFromBuildingTile(this->actorId);
+                }
                 this->buildingId = listOfDropOffLocations.front().buildingId;
                 listOfBuildings[this->buildingId].claimFreeBuiildingTile(listOfDropOffLocations.front().tileId, this->actorId);
                 listOfDropOffLocations.pop_front();

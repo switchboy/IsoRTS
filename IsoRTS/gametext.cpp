@@ -80,7 +80,7 @@ void gametext::throwOutOldMessages()
     {
         if(!this->listOfMessages.empty())
         {
-            if((this->listOfMessages.front().timeAdded+30) < currentGame.getTime())
+            if((this->listOfMessages.front().timeAdded+30000) < currentGame.getTime())
             {
                 this->listOfMessages.pop_front();
             }

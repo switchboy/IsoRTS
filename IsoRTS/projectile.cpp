@@ -60,7 +60,7 @@ void projectile::updatePosition()
 {
 	if (!reachedTarget) {
 		//speed is in pixels per second
-		if (this->timeFired + 0.1 < currentGame.getTime()) { //simulation runs at 10 frames per second
+		if (this->timeFired + 100 < currentGame.getTime()) { //simulation runs at 10 frames per second
 			this->timeFired = currentGame.getTime();
 			this->X -= this->deltaX / 10.f;
 			this->Y -= this->deltaY / 10.f;
@@ -85,7 +85,7 @@ void projectile::interprolatePositionForDrawCall() {
 		this->interProlateDeltaZ = this->deltaZ;
 	}
 	if (this->interProlateZ < 0.0f) {
-		if (this->lastInterprolation + 0.016 < currentGame.getTime()) { //Window updates 60 frames per second
+		if (this->lastInterprolation + 16 < currentGame.getTime()) { //Window updates 60 frames per second
 			this->timeFired = currentGame.getTime();
 			this->interProlateX -= this->deltaX / 60.f;
 			this->interProlateY -= this->deltaY / 60.f;

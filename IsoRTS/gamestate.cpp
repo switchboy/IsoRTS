@@ -691,7 +691,7 @@ void gameState::clickToPlaceBuilding() {
                 //command naar lijst voor het bouwen van een gebouw
                 gameDirector.addCommand(
                     {
-                        this->elapsedTime,
+                        this->elapsedTimeMS,
                         currentPlayer.getTeam(),
                         this->buildingTypeSelected,
                         true,
@@ -710,7 +710,7 @@ void gameState::clickToPlaceBuilding() {
                     {
                         gameDirector.addCommand(
                             {
-                                this->elapsedTime + 0.00001f, //this makes sure the command is excecuted after the place building command
+                                this->elapsedTimeMS + 1, //this makes sure the command is excecuted after the place building command
                                 currentPlayer.getTeam(),
                                 this->selectedUnits[i],
                                 false,
@@ -756,7 +756,7 @@ void gameState::clickToPlaceBuilding() {
 
                             gameDirector.addCommand(
                                 {
-                                    this->elapsedTime,
+                                    this->elapsedTimeMS,
                                     currentPlayer.getTeam(),
                                     this->buildingTypeSelected,
                                     true,
@@ -775,7 +775,7 @@ void gameState::clickToPlaceBuilding() {
                                     {
                                         gameDirector.addCommand(
                                             {
-                                                this->elapsedTime + 0.00001f, //this makes sure the command is excecuted after the place building command
+                                                this->elapsedTimeMS + 1, //this makes sure the command is excecuted after the place building command
                                                 currentPlayer.getTeam(),
                                                 this->selectedUnits[i],
                                                 false,
@@ -962,7 +962,7 @@ void gameState::mouseLeftClick()
                         {
                             gameDirector.addCommand(
                                 {
-                                    this->elapsedTime,
+                                    this->elapsedTimeMS,
                                     currentPlayer.getTeam(),
                                     this->selectedUnits[i],
                                     false,
@@ -1082,7 +1082,7 @@ bool gameState::clickToMove(cords pos, bool minimap) const
                 }
                 gameDirector.addCommand(
                     {
-                        this->elapsedTime,
+                        this->elapsedTimeMS,
                         currentPlayer.getTeam(),
                         this->selectedUnits[i],
                         false,
@@ -1111,7 +1111,7 @@ bool gameState::clickToMove(cords pos, bool minimap) const
                 }
                 gameDirector.addCommand(
                     {
-                        this->elapsedTime,
+                        this->elapsedTimeMS,
                         currentPlayer.getTeam(),
                         this->selectedUnits[i],
                         false,
@@ -1138,7 +1138,7 @@ bool gameState::clickToGatherResource() const
         {
             gameDirector.addCommand(
                 {
-                    this->elapsedTime,
+                    this->elapsedTimeMS,
                     currentPlayer.getTeam(),
                     this->selectedUnits[i],
                     false,
@@ -1166,7 +1166,7 @@ bool gameState::clickToBuildOrRepairBuilding() const
             {
                 gameDirector.addCommand(
                     {
-                        this->elapsedTime,
+                        this->elapsedTimeMS,
                         currentPlayer.getTeam(),
                         this->selectedUnits[i],
                         false,
@@ -1192,7 +1192,7 @@ bool gameState::clickToAttack() const {
         {
             gameDirector.addCommand(
                 {
-                    this->elapsedTime,
+                    this->elapsedTimeMS,
                     currentPlayer.getTeam(),
                     this->selectedUnits[i],
                     false,
@@ -1789,9 +1789,9 @@ void gameState::drawMiniMapActors(sf::RectangleShape& miniMapPixel)
 
 void gameState::drawMiniMapMist(sf::RectangleShape& miniMapPixel)
 {
-    if (this->lastMistDraw + 0.2f < this->elapsedTime || !this->fogOfWarDrawnOnce) {           //make the fog of war update every 3 seconds to reduce system load
+    if (this->lastMistDraw + 200 < this->elapsedTimeMS || !this->fogOfWarDrawnOnce) {           //make the fog of war update every 3 seconds to reduce system load
                
-        this->lastMistDraw = this->elapsedTime;
+        this->lastMistDraw = this->elapsedTimeMS;
         //Determine the bounderies of the sector to be drawn
         int drawStartX = 0;
         int drawStartY = 0;
@@ -1890,12 +1890,12 @@ void gameState::drawMiniMap()
     sf::RectangleShape miniMapPixel(sf::Vector2f(20.f,10.f));
     sf::Sprite miniMapBackground;
 
-    if (this->lastMiniMapRefresh + 1 < this->elapsedTime) {
+    if (this->lastMiniMapRefresh + 1000 < this->elapsedTimeMS) {
         drawMiniMapBackground(miniMapPixel);
         drawMiniMapObjects(miniMapPixel);
         drawMiniMapBuildings(miniMapPixel);
         drawMiniMapActors(miniMapPixel);
-        this->lastMiniMapRefresh = this->elapsedTime;
+        this->lastMiniMapRefresh = this->elapsedTimeMS;
     }
     drawMiniMapMist(miniMapPixel);
     
@@ -2477,7 +2477,7 @@ void gameState::drawTopBar()
     window.setView(topBar);
     playerStats tempStats = currentPlayer.getStats();
     std::stringstream resourcesText;
-    int seconds = static_cast<int>(currentGame.elapsedTime); //Tijd in seconden
+    int seconds = currentGame.elapsedTimeMS/1000; //Tijd in seconden
     int minutes = 0;
     int hours = 0;
     if (seconds >= 60) {
@@ -2680,9 +2680,9 @@ void gameState::drawGame()
     window.display();
 }
 
-float gameState::getTime() const
+int gameState::getTime() const
 {
-    return this->elapsedTime;
+    return this->elapsedTimeMS;
 }
 
 void gameState::loadMap()
@@ -2821,7 +2821,7 @@ void gameState::loadGame()
 
 void gameState::createFogOfWar() 
 {
-    if (lastFogOfWarUpdated + 0.5f < this->elapsedTime) {
+    if (lastFogOfWarUpdated + 500 < this->elapsedTimeMS) {
         if (!noFogOfWar) {
             for (int i = 0; i <MAP_WIDTH; i++) {
                 for (int j = 0; j < MAP_WIDTH; j++) {
@@ -2863,6 +2863,6 @@ void gameState::createFogOfWar()
                 }
             }
         }
-        lastFogOfWarUpdated = this->elapsedTime;
+        lastFogOfWarUpdated = this->elapsedTimeMS;
     }
 }

@@ -6,10 +6,10 @@ class projectile
 {
 public:
 	projectile(int projectileStartX, int projectileStartY, int projectileTargetX, int projectileTargetY, int projectileType, int damageOnImpact, int splashDamageOnImpact, int firedBy);
-	void doDamage() const;
+	void doDamage() const;//not detemenistic yet!
 	void doSplashDamage();
 	void drawProjectile();
-	void updatePosition();
+	void updatePosition();//not detemenistic yet!
 	void interprolatePositionForDrawCall();
 
 	float getTimeLastUpdate() const;
@@ -18,16 +18,17 @@ private:
 	cords projectilePosition;
 	cords projectileTarget;
 
-	float timeFired;
-	float lastSimulationUpdate;
-	float lastInterprolationUpdate;
-	float lastInterprolation;
+	int timeFired;
+	int lastSimulationUpdate;
+	int lastInterprolationUpdate;
+	int lastInterprolation;
 
 	int   projectileType;
 	int   damageOnImpact;
 	int   splashDamageOnImpact;
 	int   firedBy;
 
+	//not detemenistic yet!
 	float X;
 	float Y;
 	float Z;

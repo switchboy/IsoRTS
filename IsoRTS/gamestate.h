@@ -109,7 +109,7 @@ public:
     void setObjectsHaveChanged();
     cords getFirstWallClick() const;
     cords getNextCord(cords pos);
-    float getTime() const;
+    int   getTime() const;
     int   getPlayerCount() const;
     void setBuildingType(int id);
     void setDefaultValues();
@@ -117,9 +117,9 @@ public:
     void setAttackMove();
     void setToolbarSubMenu(int subMenu);
     std::list<cords> listOfFlagsToDraw;
-    float elapsedTime;
+    float elapsedTimeMS;
     int buildingSelectedId;
-    int objectSelectedId;
+    int objectSelectedId; 
 
     sf::Font font;
     sf::Text text;
@@ -166,9 +166,9 @@ private:
     bool noFogOfWar;
     bool objectsChanged = true;
     bool roundDone;
-    float lastFogOfWarUpdated = -0.75f;
-    float lastMistDraw = -0.5f;
-    float lastMiniMapRefresh = -1.0f;
+    int lastFogOfWarUpdated = -750;
+    int lastMistDraw = -500;
+    int lastMiniMapRefresh = -1000;
     float miniMapHeigth;
     float miniMapWidth;
     float topBarHeigth;

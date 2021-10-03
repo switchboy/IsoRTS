@@ -268,7 +268,7 @@ buildings::buildings(int type, cords startLocation, int buildingId, int team)
     this->ownedByPlayer = team;
     this->buildingCompleted = false;
     this->exists = true;
-    this->lastShotFired = 0.0f;
+    this->lastShotFired = 0;
     this->rallyPoint = { {0,0}, stackOrderTypes::stackActionMove, false }; //set dummy values for the rally point
     this->lastFrameUpdate = currentGame.getTime();
     this->hasDisplayedError = false;
@@ -483,7 +483,7 @@ void buildings::drawBuilding(int i, int j, int type, bool typeOverride)
             if (this->amountOfAnimationSprites > 0)
             {
                 offsetY = this->offSetYStore;
-                if (this->lastFrameUpdate + 0.2 < currentGame.getTime()) {
+                if (this->lastFrameUpdate + 200 < currentGame.getTime()) {
                     this->lastFrameUpdate = currentGame.getTime();
                     offsetY++;
                 }
@@ -838,7 +838,7 @@ void buildings::spawnProduce()
 void::buildings::doProduction()
 {
     if (!this->productionQueue.empty()) {
-        if (this->productionQueue.front().lastTimeUpdate + 1 < currentGame.elapsedTime)
+        if (this->productionQueue.front().lastTimeUpdate + 1000 < currentGame.elapsedTimeMS)
         {
             if (this->productionQueue.front().productionPointsGained >= this->productionQueue.front().productionPointsNeeded)
             {
@@ -855,7 +855,7 @@ void::buildings::doProduction()
             else
             {
                 this->productionQueue.front().productionPointsGained += 1;
-                this->productionQueue.front().lastTimeUpdate = currentGame.elapsedTime;
+                this->productionQueue.front().lastTimeUpdate = currentGame.elapsedTimeMS;
                 this->hasDisplayedError = false;
             }
         }
@@ -864,7 +864,7 @@ void::buildings::doProduction()
 
 void buildings::checkOnEnemyAndShoot()
 {
-    if (lastShotFired + 2.f < currentGame.getTime()) {
+    if (lastShotFired + 2000 < currentGame.getTime()) {
         lastShotFired = currentGame.getTime();
         std::list<cords> buidlingFootprint = this->getFootprintOfBuilding();
         for (const cords& footprintTile : buidlingFootprint) {

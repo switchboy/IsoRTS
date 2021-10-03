@@ -46,7 +46,7 @@ void simpleAI::buildBuilding(int buildingId, cords buildingCords)
 {
 	gameDirector.addCommand(
 		{
-			currentGame.elapsedTime,
+			currentGame.elapsedTimeMS,
 			this->playerId,
 			buildingId,
 			true,
@@ -63,7 +63,7 @@ void simpleAI::moveCommandUnit(int unitId, cords targetCords)
 {
 	gameDirector.addCommand(
 		{
-			currentGame.elapsedTime,
+			currentGame.elapsedTimeMS,
 			this->playerId,
 			unitId,
 			false,
@@ -80,7 +80,7 @@ void simpleAI::buildCommandUnit(int unitId, cords targetCords)
 {
 	gameDirector.addCommand(
 		{
-			currentGame.elapsedTime + 0.00001f, //this makes sure the command is excecuted after the place building command
+			currentGame.elapsedTimeMS + 1, //this makes sure the command is excecuted after the place building command
 			this->playerId,
 			unitId,
 			false,
@@ -97,7 +97,7 @@ void simpleAI::gatherCommandUnit(int unitId, cords targetCords)
 {
 	gameDirector.addCommand(
 		{
-			currentGame.elapsedTime,
+			currentGame.elapsedTimeMS,
 			this->playerId,
 			unitId,
 			false,
@@ -115,7 +115,7 @@ void simpleAI::attakCommandUnit(int unitId, cords targetCords, bool first)
 	if (first) {
 		gameDirector.addCommand(
 			{
-				currentGame.elapsedTime,
+				currentGame.elapsedTimeMS,
 				this->playerId,
 				unitId,
 				false,
@@ -130,7 +130,7 @@ void simpleAI::attakCommandUnit(int unitId, cords targetCords, bool first)
 	else {
 		gameDirector.addCommand(
 			{
-				currentGame.elapsedTime,
+				currentGame.elapsedTimeMS,
 				this->playerId,
 				unitId,
 				false,
@@ -150,7 +150,7 @@ void simpleAI::produceCommandBuilding(int buildingId, bool isResearch, int idOfU
 	if (isResearch) { research = 1; }
 	gameDirector.addCommand(
 		{
-			currentGame.elapsedTime,
+			currentGame.elapsedTimeMS,
 			this->playerId,
 			buildingId,
 			false,

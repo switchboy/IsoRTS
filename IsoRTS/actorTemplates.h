@@ -23,8 +23,8 @@ public:
     actorTemplates(
         actorNames                          actorId,
         bool                                doesRangedDamage,
-        float                               timeBetweenShots,
-        float                               timeToCrossOneTile,
+        int                               timeBetweenShots,
+        int                               timeToCrossOneTile,
         int                                 hitPoints,
         int                                 meleeDamage,
         int                                 projectileType,
@@ -45,8 +45,8 @@ public:
     actorNames                      getActorId() const;
     int                             getBigSpriteYOffset() const;
     bool                            getDoesRangedDamage() const;
-    float                           getTimeBetweenShots() const;
-    float                           getTimeToCrossOneTile() const;
+    int                             getTimeBetweenShots() const;
+    int                             getTimeToCrossOneTile() const;
     int                             getHitPoints() const;
     int                             getMeleeDamage() const;
     int                             getProjectileType() const;
@@ -70,8 +70,8 @@ private:
     actorNames              actorId;
     int                     bigSpriteYOffset;
     bool                    doesRangedDamage;
-    float                   timeBetweenShots;
-    float                   timeToCrossOneTile;
+    int                   timeBetweenShots;
+    int                   timeToCrossOneTile;
     int                     hitPoints;
     int                     meleeDamage;
     int                     projectileType;

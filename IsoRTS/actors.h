@@ -67,17 +67,17 @@ struct orderStack
 };
 
 struct unfinischedWalking {
-    float timePassedSinceChangingOffset;
-    float timeWalkingBackStarted;
+    int timePassedSinceChangingOffset;
+    int timeWalkingBackStarted;
     cords position;
     cords nPosition;
-    float speedMultiplier;
+    int speedMultiplier;
 
     //calculations
     int startDeltaX = position.x - nPosition.x;
     int startDeltaY = position.y - nPosition.y;
-    float deltaXCompleted = startDeltaX * (this->timePassedSinceChangingOffset * this->speedMultiplier);
-    float deltaYCompleted = startDeltaY * (this->timePassedSinceChangingOffset * this->speedMultiplier);
+    float deltaXCompleted = static_cast<float>(startDeltaX) * ((static_cast<float>(this->timePassedSinceChangingOffset) / 1000.f ) * (static_cast<float>(this->speedMultiplier) / 1000.f));
+    float deltaYCompleted = static_cast<float>(startDeltaY) * ((static_cast<float>(this->timePassedSinceChangingOffset) / 1000.f ) * (static_cast<float>(this->speedMultiplier) / 1000.f));
 };
 
 struct drawXYOverride {
@@ -217,19 +217,22 @@ private:
     int projectileType;
     int waitForAmountOfFrames;
     int rateOfFire;
-    float lastChaseTime = 0.f;
-    float timePassedSinceChangingOffset;
-    float timeStartedGatheringRecource;
-    float timeLastOffsetChange;
-    float timeLastUpdate;
-    float timeLastPathTry;
-    float timeStartedWalkingToRecource;
-    float timeLastAttempt;
     float offSetX;
     float offSetY;
-    float timeBetweenShots;
-    float timeLastRetry;
-    float timeToCrossOneTile;
+
+
+    int lastChaseTime = 0;
+    int timePassedSinceChangingOffset;
+    int timeStartedGatheringRecource;
+    int timeLastOffsetChange;
+    int timeLastUpdate;
+    int timeLastPathTry;
+    int timeStartedWalkingToRecource;
+    int timeLastAttempt;
+
+    int timeBetweenShots;
+    int timeLastRetry;
+    int timeToCrossOneTile;
     drawXYOverride isWalkingBackXYDrawOverride;
     unfinischedWalking dataOnPositionAbortedWalk;
     nearestBuildingTile dropOffTile;

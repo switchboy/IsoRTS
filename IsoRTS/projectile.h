@@ -27,18 +27,18 @@ private:
 	int   firedBy;
 
 	//not detemenistic yet!
-	float X;
-	float Y;
-	float Z;
+	int X;
+	int Y;
+	int Z;
 
-	float interProlateX;
-	float interProlateY;
-	float interProlateZ;
-	float interProlateDeltaZ;
+	int interProlateX;
+	int interProlateY;
+	int interProlateZ;
+	int interProlateDeltaZ;
 
-	float deltaX;
-	float deltaY;
-	float deltaZ;
+	int deltaX;
+	int deltaY;
+	int deltaZ;
 
 	float projectileRotation;
 	bool  reachedTarget;

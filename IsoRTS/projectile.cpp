@@ -66,7 +66,7 @@ void projectile::updatePosition()
 			this->Y -= this->deltaY / 10.f;
 			this->Z -= this->deltaZ;
 			this->projectileRotation = giveAngleOfSpriteInDGR(this->deltaX, this->deltaY + (this->deltaZ * 60));
-			this->deltaZ -= 0.096f;
+			this->deltaZ -= 0.576f;
 			if (this->Z >= 0.0f) {
 				doDamage();
 				doSplashDamage();
@@ -77,22 +77,23 @@ void projectile::updatePosition()
 }
 
 void projectile::interprolatePositionForDrawCall() {
-	if (this->lastSimulationUpdate > this->lastInterprolationUpdate) {
+	if (this->timeFired > this->lastInterprolation) {
 		this->interProlateX = this->X;
 		this->interProlateY = this->Y;
 		this->interProlateZ = this->Z;
 		this->lastInterprolation = this->timeFired;
 		this->interProlateDeltaZ = this->deltaZ;
 	}
-	if (this->interProlateZ < 0.0f) {
-		if (this->lastInterprolation + 16 < currentGame.getTime()) { //Window updates 60 frames per second
-			this->timeFired = currentGame.getTime();
+	
+	if (this->lastInterprolation + 16 < currentGame.getTime()) { //Window updates 60 frames per second
+		this->lastInterprolation = currentGame.getTime();
+		if (this->Z <= 0.0f) {
 			this->interProlateX -= this->deltaX / 60.f;
 			this->interProlateY -= this->deltaY / 60.f;
 			this->interProlateZ -= this->deltaZ;
-			this->projectileRotation = giveAngleOfSpriteInDGR(this->deltaX, this->deltaY + (this->deltaZ * 60));
 			this->interProlateDeltaZ -= 0.096f;
 		}
+		this->projectileRotation = giveAngleOfSpriteInDGR(this->deltaX, this->deltaY + (this->deltaZ * 60));
 	}
 }
 

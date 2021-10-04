@@ -19,9 +19,7 @@ private:
 	cords projectileTarget;
 
 	int timeFired;
-	int lastSimulationUpdate;
-	int lastInterprolationUpdate;
-	int lastInterprolation;
+	int lastInterprolation = 0;
 
 	int   projectileType;
 	int   damageOnImpact;

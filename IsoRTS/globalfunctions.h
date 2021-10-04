@@ -44,7 +44,7 @@ struct actorOrBuildingPrice
 };
 
 struct command {
-    float timeCommandGiven;
+    int timeCommandGiven;
     int playerId;
     int subjectId;
     bool placingBuilding;

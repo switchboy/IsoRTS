@@ -227,7 +227,7 @@ void button::performAction()
         {
             gameDirector.addCommand(
                 {
-                    currentGame.elapsedTime,
+                    currentGame.elapsedTimeMS,
                     currentPlayer.getTeam(),
                     this->actorOrBuildingId,
                     false,
@@ -250,7 +250,7 @@ void button::performAction()
         //cancel building
         gameDirector.addCommand(
             {
-                currentGame.elapsedTime,
+                currentGame.elapsedTimeMS,
                 currentPlayer.getTeam(),
                 this->actorOrBuildingId,
                 false,
@@ -266,7 +266,7 @@ void button::performAction()
         //cancel production or research
         gameDirector.addCommand(
             {
-                currentGame.elapsedTime,
+                currentGame.elapsedTimeMS,
                 currentPlayer.getTeam(),
                 this->actorOrBuildingId,
                 false,
@@ -326,7 +326,7 @@ void button::performAction()
         {
             gameDirector.addCommand(
                 {
-                    currentGame.elapsedTime,
+                    currentGame.elapsedTimeMS,
                     currentPlayer.getTeam(),
                     this->actorOrBuildingId,
                     false,
@@ -375,7 +375,7 @@ void button::performAction()
         // Todo decide if this should cost something
         gameDirector.addCommand(
             {
-                currentGame.elapsedTime,
+                currentGame.elapsedTimeMS,
                 currentPlayer.getTeam(),
                 this->actorOrBuildingId,
                 false,
@@ -390,7 +390,7 @@ void button::performAction()
     case actionTypes::actionOpenGate:
         gameDirector.addCommand(
             {
-                currentGame.elapsedTime,
+                currentGame.elapsedTimeMS,
                 currentPlayer.getTeam(),
                 this->actorOrBuildingId,
                 false,
@@ -405,7 +405,7 @@ void button::performAction()
     case actionTypes::actionCloseGate:
         gameDirector.addCommand(
             {
-                currentGame.elapsedTime,
+                currentGame.elapsedTimeMS,
                 currentPlayer.getTeam(),
                 this->actorOrBuildingId,
                 false,

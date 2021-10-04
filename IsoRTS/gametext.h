@@ -7,7 +7,7 @@ struct gameMessage
 {
     std::string message;
     int color;
-    float timeAdded;
+    int timeAdded;
 };
 
 class gametext

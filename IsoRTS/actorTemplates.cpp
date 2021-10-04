@@ -1,6 +1,6 @@
 #include "actorTemplates.h"
 
-actorTemplates::actorTemplates(actorNames actorId, bool doesRangedDamage, float timeBetweenShots, float timeToCrossOneTile, int hitPoints, int meleeDamage, int projectileType, int range, int rangedDamage,
+actorTemplates::actorTemplates(actorNames actorId, bool doesRangedDamage, int timeBetweenShots, int timeToCrossOneTile, int hitPoints, int meleeDamage, int projectileType, int range, int rangedDamage,
     int rateOfFire, int splashDamage, cords textureRect, actorOrBuildingPrice priceOfActor, std::string actorTexture, std::string realActorName, cords spriteOrigin, int bigSpriteYOffset, std::vector<actorButtonVariables> actorButtons)
 {
     this->actorId = actorId;
@@ -42,12 +42,12 @@ bool actorTemplates::getDoesRangedDamage() const
     return this->doesRangedDamage;
 }
 
-float actorTemplates::getTimeBetweenShots() const
+int actorTemplates::getTimeBetweenShots() const
 {
     return this->timeBetweenShots;
 }
 
-float actorTemplates::getTimeToCrossOneTile() const
+int actorTemplates::getTimeToCrossOneTile() const
 {
     return this->timeToCrossOneTile;
 }
@@ -141,8 +141,8 @@ void loadActors()
     listOfActorTemplates.push_back({
         actorNames::villager,                           //actorNames              actorId,
         false,                              //bool                    doesRangedDamage,
-        2.0f,                               //float                   timeBetweenShots,
-        1.0f,                               //float                   timeToCrossOneTile,
+        2000,                               //int                   timeBetweenShots,
+        1000,                               //int                  timeToCrossOneTile,
         25,                                 //int                     hitPoints,
         3,                                  //int                     meleeDamage,
         0,                                  //int                     projectileType,
@@ -179,8 +179,8 @@ void loadActors()
     listOfActorTemplates.push_back({
         actorNames::swordsman,                           //actorNames              actorId,
         false,                              //bool                    doesRangedDamage,
-        2.0f,                               //float                   timeBetweenShots,
-        0.8f,                               //float                   timeToCrossOneTile,
+        2000,                               //int                   timeBetweenShots,
+        800,                               //int                 timeToCrossOneTile,
         60,                                 //int                     hitPoints,
         12,                                  //int                    meleeDamage,
         0,                                  //int                     projectileType,

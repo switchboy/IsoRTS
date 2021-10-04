@@ -299,7 +299,7 @@ bool actors::chaseTarget() {
         if (listOfActors[this->idOfTarget].isAlive()) {
             if (listOfActors[this->idOfTarget].getGoal().x != listOfActors[this->idOfTarget].getActorCords().x || listOfActors[this->idOfTarget].getGoal().y != listOfActors[this->idOfTarget].getActorCords().y && listOfActors[this->idOfTarget].hasRoute()) {
                 if (!(listOfActors[this->idOfTarget].getGoal().x == this->actorCords.x && listOfActors[this->idOfTarget].getGoal().y == this->actorCords.y)) {
-                    if (this->lastChaseTime + 0.5f < currentGame.getTime()) {
+                    if (this->lastChaseTime + 500 < currentGame.getTime()) {
                         this->lastChaseTime = currentGame.getTime();
                         if (this->actionPreformedOnTile.x != listOfActors[this->idOfTarget].getGoal().x || this->actionPreformedOnTile.y != listOfActors[this->idOfTarget].getGoal().y) {
                             if (this->wasAttackMove) {
@@ -360,12 +360,13 @@ bool actors::chaseTarget() {
 }
 
 void actors::walkBackAfterAbortedCommand() {
-    float timeSinceWalkingBackStarted = currentGame.getTime() - this->dataOnPositionAbortedWalk.timeWalkingBackStarted;
+    //Broken! TODO
+    int timeSinceWalkingBackStarted = currentGame.getTime() - this->dataOnPositionAbortedWalk.timeWalkingBackStarted;
     if (this->dataOnPositionAbortedWalk.timePassedSinceChangingOffset > timeSinceWalkingBackStarted) {
         //actor is still walking back so calculate new XY after putting him in the right orientation
         if (actorOrientation(this->dataOnPositionAbortedWalk.nPosition.x, this->dataOnPositionAbortedWalk.nPosition.y, this->dataOnPositionAbortedWalk.position.x, this->dataOnPositionAbortedWalk.position.y) == this->orientation) {
-            float deltaXCompleted = this->dataOnPositionAbortedWalk.startDeltaX * ((this->dataOnPositionAbortedWalk.timePassedSinceChangingOffset - timeSinceWalkingBackStarted) * this->dataOnPositionAbortedWalk.speedMultiplier);
-            float deltaYCompleted = this->dataOnPositionAbortedWalk.startDeltaY * ((this->dataOnPositionAbortedWalk.timePassedSinceChangingOffset - timeSinceWalkingBackStarted) * this->dataOnPositionAbortedWalk.speedMultiplier);
+            float deltaXCompleted = this->dataOnPositionAbortedWalk.startDeltaX * (((this->dataOnPositionAbortedWalk.timePassedSinceChangingOffset - timeSinceWalkingBackStarted) / 1000) * (this->dataOnPositionAbortedWalk.speedMultiplier/1000));
+            float deltaYCompleted = this->dataOnPositionAbortedWalk.startDeltaY * (((this->dataOnPositionAbortedWalk.timePassedSinceChangingOffset - timeSinceWalkingBackStarted) / 1000) * (this->dataOnPositionAbortedWalk.speedMultiplier/1000));
             this->isWalkingBackXYDrawOverride.isActive = true;
             this->isWalkingBackXYDrawOverride.newXY = { this->dataOnPositionAbortedWalk.position.x - static_cast<int>(deltaXCompleted),  this->dataOnPositionAbortedWalk.position.y - static_cast<int>(deltaYCompleted) };
             this->busyWalking = true;
@@ -987,9 +988,9 @@ void actors::doMeleeDamage()
     {
         gameText.addNewMessage("We have engaged the Enemy!", 1);
     }
-    if (currentGame.elapsedTime - this->timeStartedGatheringRecource > this->rateOfFire)
+    if (currentGame.elapsedTimeMS - this->timeStartedGatheringRecource > this->rateOfFire)
     {
-        this->timeStartedGatheringRecource = currentGame.elapsedTime;
+        this->timeStartedGatheringRecource = currentGame.elapsedTimeMS;
         if (!currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y].empty()) {
             if (listOfActors[currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y].front()].getTeam() != this->actorTeam)
             {
@@ -1071,16 +1072,23 @@ void actors::updateGoal(cords location, int waitTime)
     {
         if (this->busyWalking) {
             if (!(this->actorGoal.x == this->actorCommandGoal.x && this->actorGoal.y == this->actorCommandGoal.y) ||
-                route.empty()) 
+                route.empty())
             {
-                this->isWalkingToMiddleOfSquare = true;
-                this->dataOnPositionAbortedWalk = {
-                    currentGame.getTime() - this->timeLastUpdate,
-                    currentGame.getTime(),
-                    worldSpace({ this->actorCords.x,this->actorCords.y }),
-                    worldSpace({ this->actorGoal.x, this->actorGoal.y }),
-                    1.f / this->timeToCrossOneTile
-                };
+                if (
+                    (this->actorCords.x - this->actorGoal.x == 1 || this->actorCords.x - this->actorGoal.x == 0 || this->actorCords.x - this->actorGoal.x == -1) &&
+                    (this->actorCords.y - this->actorGoal.y == 1 || this->actorCords.y - this->actorGoal.y == 0 || this->actorCords.y - this->actorGoal.y == -1)
+                    ) 
+                {
+                    this->isWalkingToMiddleOfSquare = true;
+                    //Broken!! to do!
+                    this->dataOnPositionAbortedWalk = {
+                        currentGame.getTime() - this->timeLastUpdate,
+                        currentGame.getTime(),
+                        worldSpace({ this->actorCords.x,this->actorCords.y }),
+                        worldSpace({ this->actorGoal.x, this->actorGoal.y }),
+                        this->timeToCrossOneTile
+                    };
+                }
             }
         }
         if (this->buildingId != -1)
@@ -1129,7 +1137,7 @@ void actors::updateGoalPath()
 
 void actors::moveActorIfWalking()
 {
-    if (this->busyWalking && (currentGame.elapsedTime - this->timeLastUpdate) > this->timeToCrossOneTile)
+    if (this->busyWalking && (currentGame.elapsedTimeMS - this->timeLastUpdate) > this->timeToCrossOneTile)
     {
         this->busyWalking = false;
         currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].erase(std::remove(currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].begin(), currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].end(), this->actorId), currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].end());
@@ -1153,7 +1161,7 @@ void actors::startWalking()
     this->hasMoved = true;
     this->retries = 0;
     this->busyWalking = true;
-    this->timeLastUpdate = currentGame.elapsedTime;
+    this->timeLastUpdate = currentGame.elapsedTimeMS;
     this->actorGoal = this->route.back().position;
 
     currentGame.occupiedByActorList[this->route.back().position.x][this->route.back().position.y].push_back(this->actorId);
@@ -1171,7 +1179,7 @@ void actors::startWalking()
 }
 
 void actors::retryWalkingOrChangeGoal() {
-    if (this->timeLastRetry + 0.5 < currentGame.getTime()) {
+    if (this->timeLastRetry + 500 < currentGame.getTime()) {
         this->timeLastRetry = currentGame.getTime();
         if (this->retries < 30)
         {
@@ -1258,11 +1266,11 @@ void actors::handleResourceGathering()
     {
         if (!this->isBackAtOwnSquare)
         {
-            if (this->timeStartedWalkingToRecource == 0.0f)
+            if (this->timeStartedWalkingToRecource == 0)
             {
-                this->timeStartedWalkingToRecource = currentGame.elapsedTime;
+                this->timeStartedWalkingToRecource = currentGame.elapsedTimeMS;
             }
-            else if (currentGame.elapsedTime - this->timeStartedWalkingToRecource < 0.5f)
+            else if (currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource < 500)
             {
                 this->walkingToResource = 2;
             }
@@ -1271,8 +1279,8 @@ void actors::handleResourceGathering()
                 this->isBackAtOwnSquare = true;
                 this->isAtRecource = false;
                 this->isBuilding = false;
-                this->timeStartedWalkingToRecource = 0.0f;
-                this->timeStartedGatheringRecource = currentGame.elapsedTime;
+                this->timeStartedWalkingToRecource = 0;
+                this->timeStartedGatheringRecource = currentGame.elapsedTimeMS;
                 this->offSetX = 0;
                 this->offSetY = 0;
             }
@@ -1301,11 +1309,11 @@ void actors::handleResourceGathering()
             {
                 this->gatherResource();
             }
-            else if (this->timeStartedWalkingToRecource == 0.0f)
+            else if (this->timeStartedWalkingToRecource == 0)
             {
-                this->timeStartedWalkingToRecource = currentGame.elapsedTime;
+                this->timeStartedWalkingToRecource = currentGame.elapsedTimeMS;
             }
-            else if (currentGame.elapsedTime - this->timeStartedWalkingToRecource < 0.5f)
+            else if (currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource < 500)
             {
                 this->walkingToResource = 1;
             }
@@ -1327,11 +1335,11 @@ void actors::handleBuilding()
             {
                 this->buildBuilding();
             }
-            else if (this->timeStartedWalkingToRecource == 0.0f)
+            else if (this->timeStartedWalkingToRecource == 0)
             {
-                this->timeStartedWalkingToRecource = currentGame.elapsedTime;
+                this->timeStartedWalkingToRecource = currentGame.elapsedTimeMS;
             }
-            else if (currentGame.elapsedTime - this->timeStartedWalkingToRecource < 0.5f)
+            else if (currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource < 500)
             {
                 this->walkingToResource = 1;
             }
@@ -1392,35 +1400,35 @@ void actors::walkBackToOwnSquare()
     {
     case 0:
         this->offSetX = 0;
-        this->offSetY = -northSouth + ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * northSouth;
+        this->offSetY = -northSouth + ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * northSouth;
         break;
     case 1:
-        this->offSetX = diagonalX - ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalX;
-        this->offSetY = -diagonalY + ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalY;
+        this->offSetX = diagonalX - ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalX;
+        this->offSetY = -diagonalY + ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalY;
         break;
     case 2:
-        this->offSetX = eastWest - ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * eastWest;
+        this->offSetX = eastWest - ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * eastWest;
         this->offSetY = 0;
         break;
     case 3:
-        this->offSetX = diagonalX - ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalX;
-        this->offSetY = diagonalY - ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalY;
+        this->offSetX = diagonalX - ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalX;
+        this->offSetY = diagonalY - ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalY;
         break;
     case 4:
         this->offSetX = 0;
-        this->offSetY = northSouth - ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * northSouth;
+        this->offSetY = northSouth - ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * northSouth;
         break;
     case 5:
-        this->offSetX = -diagonalX + ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalX;
-        this->offSetY = diagonalY - ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalY;
+        this->offSetX = -diagonalX + ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalX;
+        this->offSetY = diagonalY - ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalY;
         break;
     case 6:
-        this->offSetX = -eastWest + ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * eastWest;
+        this->offSetX = -eastWest + ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * eastWest;
         this->offSetY = 0;
         break;
     case 7:
-        this->offSetX = -diagonalX + ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalX;
-        this->offSetY = -diagonalY + ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalY;
+        this->offSetX = -diagonalX + ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalX;
+        this->offSetY = -diagonalY + ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalY;
         break;
     }
 }
@@ -1446,8 +1454,8 @@ void actors::startGatheringAnimation()
         diagonalY = 6;
     }
     this->isAtRecource = true;
-    this->timeStartedWalkingToRecource = 0.0f;
-    this->timeStartedGatheringRecource = currentGame.elapsedTime;
+    this->timeStartedWalkingToRecource = 0;
+    this->timeStartedGatheringRecource = currentGame.elapsedTimeMS;
     switch (this->orientation)
     {
     case 0:
@@ -1518,35 +1526,35 @@ void actors::animateWalkingToResource()
     {
     case 0:
         this->offSetX = 0;
-        this->offSetY = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * northSouth * -1;
+        this->offSetY = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * northSouth * -1;
         break;
     case 1:
-        this->offSetX = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalX;
-        this->offSetY = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalY * -1;
+        this->offSetX = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalX;
+        this->offSetY = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalY * -1;
         break;
     case 2:
-        this->offSetX = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * eastWest;
+        this->offSetX = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * eastWest;
         this->offSetY = 0;
         break;
     case 3:
-        this->offSetX = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalX;
-        this->offSetY = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalY;
+        this->offSetX = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalX;
+        this->offSetY = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalY;
         break;
     case 4:
         this->offSetX = 0;
-        this->offSetY = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * northSouth;
+        this->offSetY = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * northSouth;
         break;
     case 5:
-        this->offSetX = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalX * -1;
-        this->offSetY = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalY;
+        this->offSetX = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalX * -1;
+        this->offSetY = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalY;
         break;
     case 6:
-        this->offSetX = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * eastWest * -1;
+        this->offSetX = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * eastWest * -1;
         this->offSetY = 0;
         break;
     case 7:
-        this->offSetX = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalX * -1;
-        this->offSetY = ((currentGame.elapsedTime - this->timeStartedWalkingToRecource) / 0.5f) * diagonalY * -1;
+        this->offSetX = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalX * -1;
+        this->offSetY = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalY * -1;
         break;
     }
 }
@@ -1556,7 +1564,7 @@ void actors::gatherResource()
     if (isReallyNextToResource(this->actorCords.x, this->actorCords.y, this->actionPreformedOnTile.x, this->actionPreformedOnTile.y)) {
         if (currentGame.objectLocationList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y] != -1)
         {
-            if (currentGame.elapsedTime - this->timeStartedGatheringRecource > 2)
+            if (currentGame.elapsedTimeMS - this->timeStartedGatheringRecource > 2000)
             {
                 switch (this->ResourceBeingGatherd)
                 {
@@ -1581,7 +1589,7 @@ void actors::gatherResource()
                     this->isAtRecource = false;
                     this->realPath = false;
                 }
-                this->timeStartedGatheringRecource = currentGame.elapsedTime;
+                this->timeStartedGatheringRecource = currentGame.elapsedTimeMS;
             }
         }
         else
@@ -1795,7 +1803,7 @@ void actors::calculateRoute()
         this->routeNeedsPath = false;
         this->pathAStar();
         if (!this->realPath && this->pathFound) {
-            this->timeLastPathTry = currentGame.elapsedTime;
+            this->timeLastPathTry = currentGame.elapsedTimeMS;
         }
     }
     else {
@@ -2142,23 +2150,23 @@ void actors::drawActor()
        break;
     }
 
-    if (this->busyWalking || this->timeStartedWalkingToRecource > 0.0f)
+    if (this->busyWalking || this->timeStartedWalkingToRecource > 0)
     {
-        if (currentGame.elapsedTime - this->timeLastOffsetChange > 0.2f)
+        if (currentGame.elapsedTimeMS - this->timeLastOffsetChange > 200)
         {
             this->spriteYOffset = this->spriteYOffset + 32;
             if (this->spriteYOffset > 128)
             {
                 this->spriteYOffset = 32;
             }
-            this->timeLastOffsetChange = currentGame.elapsedTime;
+            this->timeLastOffsetChange = currentGame.elapsedTimeMS;
         }
         if (this->busyWalking)
         {
             cords nPosition = worldSpace({ x, y });
             int deltaX = position.x - nPosition.x;
             int deltaY = position.y - nPosition.y;
-            float deltaTime = currentGame.elapsedTime - this->timeLastUpdate;
+            float deltaTime = currentGame.elapsedTimeMS - this->timeLastUpdate;
             float speedMultiplier = 1.f / this->timeToCrossOneTile;
             float deltaXCompleted = deltaX * (deltaTime * speedMultiplier);
             float deltaYCompleted = deltaY * (deltaTime * speedMultiplier);
@@ -2167,14 +2175,14 @@ void actors::drawActor()
     }
     else if (this->isAtRecource)
     {
-        if (currentGame.elapsedTime - this->timeLastOffsetChange > 0.2f)
+        if (currentGame.elapsedTimeMS - this->timeLastOffsetChange > 200)
         {
             this->spriteYOffset = this->spriteYOffset + 32;
             if (this->spriteYOffset > 128)
             {
                 this->spriteYOffset = 0;
             }
-            this->timeLastOffsetChange = currentGame.elapsedTime;
+            this->timeLastOffsetChange = currentGame.elapsedTimeMS;
         }
     }
     else
@@ -2314,15 +2322,15 @@ void actors::buildBuilding()
     {
         if (!listOfBuildings[currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].getCompleted())
         {
-            if (currentGame.elapsedTime - this->timeStartedGatheringRecource > 1)
+            if (currentGame.elapsedTimeMS - this->timeStartedGatheringRecource > 1000)
             {
                 listOfBuildings[currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].addBuildingPoint();
-                this->timeStartedGatheringRecource = currentGame.elapsedTime;
+                this->timeStartedGatheringRecource = currentGame.elapsedTimeMS;
             }
         }
         else
         {
-            if (currentGame.elapsedTime - this->timeStartedWalkingToRecource < 0.5f)
+            if (currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource < 500)
             {
                 this->walkingToResource = 2;
             }
@@ -2331,8 +2339,8 @@ void actors::buildBuilding()
                 this->isBackAtOwnSquare = true;
                 this->isAtRecource = false;
                 this->isBuilding = false;
-                this->timeStartedWalkingToRecource = 0.0f;
-                this->timeStartedGatheringRecource = currentGame.elapsedTime;
+                this->timeStartedWalkingToRecource = 0;
+                this->timeStartedGatheringRecource = currentGame.elapsedTimeMS;
                 this->offSetX = 0;
                 this->offSetY = 0;
             }
@@ -2342,7 +2350,7 @@ void actors::buildBuilding()
     else
     {
         //het gebouw is er niet meer
-        if (currentGame.elapsedTime - this->timeStartedWalkingToRecource < 0.5f)
+        if (currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource < 500)
         {
             this->walkingToResource = 2;
         }
@@ -2352,7 +2360,7 @@ void actors::buildBuilding()
             this->isAtRecource = false;
             this->isBuilding = false;
             this->timeStartedWalkingToRecource = 0.0f;
-            this->timeStartedGatheringRecource = currentGame.elapsedTime;
+            this->timeStartedGatheringRecource = currentGame.elapsedTimeMS;
             this->offSetX = 0;
             this->offSetY = 0;
         }

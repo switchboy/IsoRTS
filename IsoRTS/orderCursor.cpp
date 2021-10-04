@@ -13,7 +13,7 @@ orderCursor::orderCursor(const sf::Vector2f& clickCords)
 
 void orderCursor::drawCursor()
 {
-	if (this->timeLastFrameUpdate + 0.1 < currentGame.getTime())
+	if (this->timeLastFrameUpdate + 100 < currentGame.getTime())
 	{
 		this->timeLastFrameUpdate = currentGame.getTime();
 		this->xOffSet += 1;

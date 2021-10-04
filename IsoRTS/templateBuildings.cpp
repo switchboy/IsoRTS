@@ -255,8 +255,8 @@ void loadBuildings()
         {192,192},                  //cords                   buildingSprite,
         "textures/mill.png",        //std::string             buildingTexture,
         {64,160},                   //cords                   origin
-         "Mill",                     //std::string             realBuildingName;
-         384,                         //int                     bigSpriteYoffset
+         "Mill",                     //std::string            realBuildingName;
+         384,                         //int                   bigSpriteYoffset
         false,                       //bool                   isWall
         {                            //                       Begin list of building buttons
 

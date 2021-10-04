@@ -13,7 +13,7 @@ struct buildingQueue
     int idOfUnitOrResearch;
     int productionPointsGained;
     int productionPointsNeeded;
-    float lastTimeUpdate;
+    int lastTimeUpdate;
 };
 
 struct orderContainer {
@@ -35,9 +35,9 @@ public:
         this->ownedByPlayer = -1;
         this->buildingCompleted = false;
         this->exists = true;
-        this->lastShotFired = 0.0f;
+        this->lastShotFired = 0;
         this->rallyPoint = { {0,0}, stackOrderTypes::stackActionMove, false }; //set dummy values for the rally point
-        this->lastFrameUpdate = 0.0f;
+        this->lastFrameUpdate = 0;
         hitPointsTotal = 0;
         hitPointsLeft = 0;
         canDoRangedDamage = false;
@@ -107,8 +107,8 @@ private:
     bool                        recievesStone;
     bool                        recievesWood;
     bool                        isGate = false;
-    float                       lastFrameUpdate;
-    float                       lastShotFired;
+    int                         lastFrameUpdate;
+    int                         lastShotFired;
     int                         amountOfAnimationSprites;
     int                         amountOfRangedDamage;
     int                         buildingId;

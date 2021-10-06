@@ -131,6 +131,7 @@ public:
 	void interact();
 	void detectMouseOvers(sf::Vector2i& mousePosition);
 	void drawConnectionSetupScreen();
+	bool connectedSuccesfully() const;
 
 private:
 	sf::Texture splashScreenTexture, textureMousePointer;
@@ -139,6 +140,7 @@ private:
 	sf::Font font;
 	sf::Text ipAdressText, portNumberText, playerNameText, ipAdressLabel, portNumberLabel, playerNameLabel, hostLabel, joinLabel, errorText;
 	bool connectionEstablished = false;
+	bool backToMain = false;
 	textBoxSelected currentTextBoxSelected = textBoxSelected::None;
 	std::string ipAdressString, portNumberString, playerNameString;
 	std::vector<errorMessage> errorMessages;

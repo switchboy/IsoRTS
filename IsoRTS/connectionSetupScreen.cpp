@@ -4,7 +4,7 @@
 
 void connectionSetupScreen::showConnectionSetupScreen()
 {
-	while (!this->connectionEstablished) {
+	while (!this->connectionEstablished && !this->backToMain) {
 		this->interact();
 		this->drawConnectionSetupScreen();
 	}
@@ -29,7 +29,7 @@ void connectionSetupScreen::interact()
 
 		case sf::Event::KeyPressed:
 			if (event.key.code == sf::Keyboard::Escape || event.Closed) {
-				window.close();
+				this->backToMain = true;
 			}
 			else if (event.key.code == sf::Keyboard::Return) {
 
@@ -239,4 +239,9 @@ void connectionSetupScreen::drawConnectionSetupScreen()
 	window.draw(this->spriteMousePointer);
 
 	window.display();
+}
+
+bool connectionSetupScreen::connectedSuccesfully() const
+{
+	return this->connectionEstablished;
 }

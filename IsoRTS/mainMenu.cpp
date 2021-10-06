@@ -159,8 +159,10 @@ void doNetworking()
 {
 	connectionSetupScreen connectionSetup;
 	connectionSetup.showConnectionSetupScreen();
-	lobbyWindow lobby;
-	lobby.showLobby();
+	if (connectionSetup.connectedSuccesfully()) {
+		lobbyWindow lobby;
+		lobby.showLobby();
+	}
 }
 
 void menu::preformMenuAction(menuItemNames itemClicked)

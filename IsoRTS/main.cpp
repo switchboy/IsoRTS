@@ -14,6 +14,11 @@
 #include "splashScreen.h"
 #include "mainMenu.h"
 #include "commandSync.h"
+#include <SFML/Network.hpp>
+#include <string>
+#include "lobby.h"
+#include "connection.h"
+#include "connectionSetupScreen.h"
 
 gameState currentGame;
 
@@ -163,6 +168,8 @@ void createAndShowMainMenu() {
     }
 }
 
+
+
 int main()
 {
     window.setMouseCursorVisible(false);
@@ -207,3 +214,8 @@ int main()
     }
     return 0;
 }
+
+
+
+
+

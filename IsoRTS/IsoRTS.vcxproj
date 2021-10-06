@@ -25,9 +25,12 @@
     <ClInclude Include="button.h" />
     <ClInclude Include="collision.h" />
     <ClInclude Include="commandSync.h" />
+    <ClInclude Include="connection.h" />
+    <ClInclude Include="connectionSetupScreen.h" />
     <ClInclude Include="gamestate.h" />
     <ClInclude Include="gametext.h" />
     <ClInclude Include="globalfunctions.h" />
+    <ClInclude Include="lobby.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="mainMenu.h" />
     <ClInclude Include="objects.h" />
@@ -37,6 +40,7 @@
     <ClInclude Include="projectile.h" />
     <ClInclude Include="randomMapGenerator.h" />
     <ClInclude Include="humanReadableNames.h" />
+    <ClInclude Include="server.h" />
     <ClInclude Include="simpleAI.h" />
     <ClInclude Include="splashScreen.h" />
     <ClInclude Include="templateBuildings.h" />
@@ -49,9 +53,12 @@
     <ClCompile Include="button.cpp" />
     <ClCompile Include="collision.cpp" />
     <ClCompile Include="commandSync.cpp" />
+    <ClCompile Include="connection.cpp" />
+    <ClCompile Include="connectionSetupScreen.cpp" />
     <ClCompile Include="gamestate.cpp" />
     <ClCompile Include="gametext.cpp" />
     <ClCompile Include="globalfunctions.cpp" />
+    <ClCompile Include="lobby.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainMenu.cpp" />
     <ClCompile Include="objects.cpp" />
@@ -60,6 +67,7 @@
     <ClCompile Include="player.cpp" />
     <ClCompile Include="projectile.cpp" />
     <ClCompile Include="randomMapGenerator.cpp" />
+    <ClCompile Include="server.cpp" />
     <ClCompile Include="simpleAI.cpp" />
     <ClCompile Include="splashScreen.cpp" />
     <ClCompile Include="templateBuildings.cpp" />

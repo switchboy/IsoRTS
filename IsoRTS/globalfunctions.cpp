@@ -217,3 +217,9 @@ void setViewports()
 }
 
 int AIPlayers;
+
+sf::Thread serverThread(&server);
+
+namespace networkStuff {
+    int port;
+}

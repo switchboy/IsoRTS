@@ -2,6 +2,9 @@
 #include "globalfunctions.h"
 #include <SFML/Graphics.hpp>
 #include "gamestate.h"
+#include "lobby.h"
+#include "connection.h"
+#include "connectionSetupScreen.h"
 
 void menu::addMenuItem(menuItemNames id, std::string name, int menuLevel)
 {
@@ -152,6 +155,14 @@ void menu::setMenuLevel(int level)
 	this->menuLevel = level;
 }
 
+void doNetworking()
+{
+	connectionSetupScreen connectionSetup;
+	connectionSetup.showConnectionSetupScreen();
+	lobbyWindow lobby;
+	lobby.showLobby();
+}
+
 void menu::preformMenuAction(menuItemNames itemClicked)
 {
 	switch (itemClicked) {
@@ -161,6 +172,7 @@ void menu::preformMenuAction(menuItemNames itemClicked)
 	case loadGame:
 		break;
 	case multiplayerGame:
+		doNetworking();
 		break;
 	case sandBoxGame:
 		AIPlayers = 0;

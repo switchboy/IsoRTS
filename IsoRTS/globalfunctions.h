@@ -8,6 +8,10 @@
 #include <random>
 #include"SFML/Graphics.hpp"
 #include "humanReadableNames.h"
+#include <SFML/Network.hpp>
+#include <iostream>
+#include <string>
+#include "server.h"
 
 const int MAP_WIDTH = 256;
 const int MAP_HEIGHT = 256;
@@ -70,6 +74,47 @@ double dist(double x1, double y1, double x2, double y2);
 double distEuclidean(double x1, double y1, double x2, double y2);
 cords toWorldMousePosition(int mouseX, int mouseY);
 void setViewports();
+
+enum dataType {
+	Text,
+	UserList,
+	MessageStatus,
+	Ping,
+	playerReady
+};
+
+const sf::Color networkTeamColors[] =
+{
+	{0, 0, 255},
+	{0, 255, 0},
+	{255, 0, 0},
+	{255, 255, 0},
+	{0, 255, 255},
+	{255, 0, 255},
+	{255, 127, 0},
+	{127, 127, 127}
+};
+
+struct connectedPlayers {
+	sf::TcpSocket* playerSocket;
+	std::string name;
+	sf::IpAddress remoteIp;
+	sf::Int32 lastPing;
+	sf::Int32 lastPingPacketSend;
+	bool isReady;
+};
+
+struct playersClient {
+	std::string name;
+	sf::Int32 lastPing;
+	bool isReady;
+};
+
+extern sf::Thread serverThread;
+namespace networkStuff {
+	extern int port;
+}
+
 
 extern sf::Image cheatTile;
 

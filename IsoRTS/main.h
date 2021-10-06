@@ -23,7 +23,4 @@ bool minimapTextureExist = false;
 
 
 
-
-
-
 #endif // MAIN_H_INCLUDED

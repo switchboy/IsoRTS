@@ -254,7 +254,7 @@ actors::actors(int type, cords location, int actorTeam, int actorId)
     this->amountOfWood = 0;
     this->timeLastAttempt = 1.0f;
     this->timeLastOffsetChange = 0.0f;
-    this->timeStartedWalkingToRecource = 0.0f;
+    this->timeStartedWalkingToRecource = 0;
     this->goalNeedsUpdate = false;
     this->routeNeedsPath = false;
     this->isBuilding = false;
@@ -1269,6 +1269,7 @@ void actors::handleResourceGathering()
             if (this->timeStartedWalkingToRecource == 0)
             {
                 this->timeStartedWalkingToRecource = currentGame.elapsedTimeMS;
+                this->walkingToResource = 2;
             }
             else if (currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource < 500)
             {
@@ -1370,16 +1371,16 @@ void actors::houseKeeping()
 
 void actors::walkBackToOwnSquare()
 {
-    int northSouth;
-    int eastWest;
-    int diagonalX;
-    int diagonalY;
+    float northSouth;
+    float eastWest;
+    float diagonalX;
+    float diagonalY;
     if (this->ResourceBeingGatherd == resourceTypes::resourceWood)
     {
-        northSouth = 22;
-        eastWest = 55;
-        diagonalX = 21;
-        diagonalY = 12;
+        northSouth = 22.f;
+        eastWest = 55.f;
+        diagonalX = 21.f;
+        diagonalY = 12.f;
     }
     else
     {
@@ -1400,35 +1401,35 @@ void actors::walkBackToOwnSquare()
     {
     case 0:
         this->offSetX = 0;
-        this->offSetY = -northSouth + ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * northSouth;
+        this->offSetY = -northSouth + ((static_cast<float>( currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * northSouth;
         break;
     case 1:
-        this->offSetX = diagonalX - ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalX;
-        this->offSetY = -diagonalY + ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalY;
+        this->offSetX = diagonalX - ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * diagonalX;
+        this->offSetY = -diagonalY + ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * diagonalY;
         break;
     case 2:
-        this->offSetX = eastWest - ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * eastWest;
+        this->offSetX = eastWest - ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * eastWest;
         this->offSetY = 0;
         break;
     case 3:
-        this->offSetX = diagonalX - ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalX;
-        this->offSetY = diagonalY - ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalY;
+        this->offSetX = diagonalX - ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * diagonalX;
+        this->offSetY = diagonalY - ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * diagonalY;
         break;
     case 4:
         this->offSetX = 0;
-        this->offSetY = northSouth - ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * northSouth;
+        this->offSetY = northSouth - ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * northSouth;
         break;
     case 5:
-        this->offSetX = -diagonalX + ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalX;
-        this->offSetY = diagonalY - ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalY;
+        this->offSetX = -diagonalX + ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * diagonalX;
+        this->offSetY = diagonalY - ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * diagonalY;
         break;
     case 6:
-        this->offSetX = -eastWest + ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * eastWest;
+        this->offSetX = -eastWest + ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * eastWest;
         this->offSetY = 0;
         break;
     case 7:
-        this->offSetX = -diagonalX + ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalX;
-        this->offSetY = -diagonalY + ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalY;
+        this->offSetX = -diagonalX + ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * diagonalX;
+        this->offSetY = -diagonalY + ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * diagonalY;
         break;
     }
 }
@@ -1496,10 +1497,10 @@ void actors::startGatheringAnimation()
 
 void actors::animateWalkingToResource()
 {
-    int northSouth;
-    int eastWest;
-    int diagonalX;
-    int diagonalY;
+    float northSouth;
+    float eastWest;
+    float diagonalX;
+    float diagonalY;
     if (this->ResourceBeingGatherd == resourceTypes::resourceWood)
     {
         northSouth = 22;
@@ -1526,35 +1527,35 @@ void actors::animateWalkingToResource()
     {
     case 0:
         this->offSetX = 0;
-        this->offSetY = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * northSouth * -1;
+        this->offSetY = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * northSouth * -1.f;
         break;
     case 1:
-        this->offSetX = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalX;
-        this->offSetY = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalY * -1;
+        this->offSetX = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * diagonalX;
+        this->offSetY = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * diagonalY * -1.f;
         break;
     case 2:
-        this->offSetX = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * eastWest;
+        this->offSetX = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * eastWest;
         this->offSetY = 0;
         break;
     case 3:
-        this->offSetX = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalX;
-        this->offSetY = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalY;
+        this->offSetX = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * diagonalX;
+        this->offSetY = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * diagonalY;
         break;
     case 4:
         this->offSetX = 0;
-        this->offSetY = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * northSouth;
+        this->offSetY = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * northSouth;
         break;
     case 5:
-        this->offSetX = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalX * -1;
-        this->offSetY = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalY;
+        this->offSetX = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * diagonalX * -1.f;
+        this->offSetY = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * diagonalY;
         break;
     case 6:
-        this->offSetX = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * eastWest * -1;
+        this->offSetX = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * eastWest * -1.f;
         this->offSetY = 0;
         break;
     case 7:
-        this->offSetX = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalX * -1;
-        this->offSetY = ((currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource) / 500) * diagonalY * -1;
+        this->offSetX = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * diagonalX * -1.f;
+        this->offSetY = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeStartedWalkingToRecource)) / 500.f) * diagonalY * -1.f;
         break;
     }
 }
@@ -1586,6 +1587,7 @@ void actors::gatherResource()
                 if ((this->amountOfFood == 10) || (this->amountOfWood == 10) || (this->amountOfStone == 10) || (this->amountOfGold == 10))
                 {
                     this->hasToUnloadResource = true;
+                    this->isBackAtOwnSquare = false;
                     this->isAtRecource = false;
                     this->realPath = false;
                 }
@@ -2330,7 +2332,11 @@ void actors::buildBuilding()
         }
         else
         {
-            if (currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource < 500)
+            if (this->timeStartedWalkingToRecource == 0) {
+                this->timeStartedWalkingToRecource = currentGame.elapsedTimeMS;
+                this->walkingToResource = 2;
+                this->isBackAtOwnSquare = false;
+            } else if (currentGame.elapsedTimeMS - this->timeStartedWalkingToRecource < 500)
             {
                 this->walkingToResource = 2;
             }

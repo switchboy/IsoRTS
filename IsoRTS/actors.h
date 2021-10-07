@@ -90,6 +90,7 @@ class actors
 public:
     actors(int type, cords location, int actorTeam, int actorId);
     void animateWalkingToResource();
+    void anitmateWalkingBackAfterAbortedCommand();
     void buildBuilding();
     void calculateRoute();
     bool chaseTarget();

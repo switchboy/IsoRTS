@@ -359,24 +359,25 @@ bool actors::chaseTarget() {
     return false;
 }
 
+void actors::anitmateWalkingBackAfterAbortedCommand() {
+    int timeSinceWalkingBackStarted = currentGame.getTime() - this->dataOnPositionAbortedWalk.timeWalkingBackStarted;
+    float deltaXCompleted = static_cast<float>(this->dataOnPositionAbortedWalk.startDeltaX) * (
+        ((static_cast<float>(this->dataOnPositionAbortedWalk.timePassedSinceChangingOffset) - static_cast<float>(timeSinceWalkingBackStarted)) / 1000.f) * (static_cast<float>(this->dataOnPositionAbortedWalk.speedMultiplier) / 1000.f)
+        );
+    float deltaYCompleted = static_cast<float>(this->dataOnPositionAbortedWalk.startDeltaY) * (
+        ((static_cast<float>(this->dataOnPositionAbortedWalk.timePassedSinceChangingOffset) - static_cast<float>(timeSinceWalkingBackStarted)) / 1000.f) * (static_cast<float>(this->dataOnPositionAbortedWalk.speedMultiplier) / 1000.f)
+        );
+    this->isWalkingBackXYDrawOverride.newXY = { this->dataOnPositionAbortedWalk.position.x - static_cast<int>(deltaXCompleted),  this->dataOnPositionAbortedWalk.position.y - static_cast<int>(deltaYCompleted) };
+}
+
+
 void actors::walkBackAfterAbortedCommand() {
-    //Broken! TODO
     int timeSinceWalkingBackStarted = currentGame.getTime() - this->dataOnPositionAbortedWalk.timeWalkingBackStarted;
     if (this->dataOnPositionAbortedWalk.timePassedSinceChangingOffset > timeSinceWalkingBackStarted) {
-        //actor is still walking back so calculate new XY after putting him in the right orientation
-        if (actorOrientation(this->dataOnPositionAbortedWalk.nPosition.x, this->dataOnPositionAbortedWalk.nPosition.y, this->dataOnPositionAbortedWalk.position.x, this->dataOnPositionAbortedWalk.position.y) == this->orientation) {
-            float deltaXCompleted = this->dataOnPositionAbortedWalk.startDeltaX * (((this->dataOnPositionAbortedWalk.timePassedSinceChangingOffset - timeSinceWalkingBackStarted) / 1000) * (this->dataOnPositionAbortedWalk.speedMultiplier/1000));
-            float deltaYCompleted = this->dataOnPositionAbortedWalk.startDeltaY * (((this->dataOnPositionAbortedWalk.timePassedSinceChangingOffset - timeSinceWalkingBackStarted) / 1000) * (this->dataOnPositionAbortedWalk.speedMultiplier/1000));
-            this->isWalkingBackXYDrawOverride.isActive = true;
-            this->isWalkingBackXYDrawOverride.newXY = { this->dataOnPositionAbortedWalk.position.x - static_cast<int>(deltaXCompleted),  this->dataOnPositionAbortedWalk.position.y - static_cast<int>(deltaYCompleted) };
-            this->busyWalking = true;
-        }
-        else {
-            this->orientation = newOrientation(this->orientation, actorOrientation(this->dataOnPositionAbortedWalk.nPosition.x, this->dataOnPositionAbortedWalk.nPosition.y, this->dataOnPositionAbortedWalk.position.x, this->dataOnPositionAbortedWalk.position.y));
-        }
+        this->orientation = newOrientation(this->orientation, actorOrientation(this->dataOnPositionAbortedWalk.nPosition.x, this->dataOnPositionAbortedWalk.nPosition.y, this->dataOnPositionAbortedWalk.position.x, this->dataOnPositionAbortedWalk.position.y));
+        this->isWalkingBackXYDrawOverride.isActive = true;
     }
     else {
-        //actor is done
         this->isWalkingToMiddleOfSquare = false;
         this->isWalkingBackXYDrawOverride.isActive = false;
         this->busyWalking = false;
@@ -1066,7 +1067,6 @@ std::string actors::nameOfActor() const
 
 void actors::updateGoal(cords location, int waitTime)
 {
-    //check if values are in bounds
     if (location.x >= 0 && location.x < MAP_WIDTH && location.y >= 0 && location.y < MAP_HEIGHT &&
         !(location.x == this->actorCommandGoal.x && location.y == this->actorCommandGoal.y)) //no second update after double click
     {
@@ -1080,7 +1080,6 @@ void actors::updateGoal(cords location, int waitTime)
                     ) 
                 {
                     this->isWalkingToMiddleOfSquare = true;
-                    //Broken!! to do!
                     this->dataOnPositionAbortedWalk = {
                         currentGame.getTime() - this->timeLastUpdate,
                         currentGame.getTime(),
@@ -2258,6 +2257,7 @@ void actors::drawActor()
     position = { position.x + static_cast<int>(this->offSetX), position.y + static_cast<int>(this->offSetY) };
 
     if (this->isWalkingBackXYDrawOverride.isActive) {
+        anitmateWalkingBackAfterAbortedCommand();
         position = this->isWalkingBackXYDrawOverride.newXY;
     }
 

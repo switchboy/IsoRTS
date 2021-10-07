@@ -239,10 +239,10 @@ actors::actors(int type, cords location, int actorTeam, int actorId)
     this->realPath = false;
     this->timeLastPathTry = currentGame.getTime();
     this->timeLastUpdate = currentGame.getTime();
-    this->timeStartedGatheringRecource = 0.0f;
+    this->timeStartedGatheringRecource = 0;
     this->waitForAmountOfFrames = 0;
     this->reachedUnloadingPoint = false;
-    this->timeLastRetry = 0.0f;
+    this->timeLastRetry = 0;
     this->actorAlive = true;
     this->actorGoal = location;
     this->orientation = 0;
@@ -252,9 +252,10 @@ actors::actors(int type, cords location, int actorTeam, int actorId)
     this->amountOfGold = 0;
     this->amountOfStone = 0;
     this->amountOfWood = 0;
-    this->timeLastAttempt = 1.0f;
-    this->timeLastOffsetChange = 0.0f;
+    this->timeLastAttempt = 1;
+    this->timeLastOffsetChange = 0;
     this->timeStartedWalkingToRecource = 0;
+    this->wasAttackMove = false;
     this->goalNeedsUpdate = false;
     this->routeNeedsPath = false;
     this->isBuilding = false;
@@ -278,7 +279,7 @@ actors::actors(int type, cords location, int actorTeam, int actorId)
     this->isWalkingToUnloadingPoint = false;
     this->isMeleeAttacking = false;
     this->lastTile = false;
-    this->timePassedSinceChangingOffset = 0.0f;
+    this->timePassedSinceChangingOffset = 0;
     this->actorHealth = listOfActorTemplates[type].getHitPoints();
     this->hitPoints = listOfActorTemplates[type].getHitPoints();
     this->meleeDamage = listOfActorTemplates[type].getMeleeDamage();
@@ -1009,7 +1010,7 @@ void actors::doMeleeDamage()
             this->selectAndAttackNextTarget(30);
         } else  {
             this->isMeleeAttacking = false;
-            this->timeStartedGatheringRecource = 0.0f;
+            this->timeStartedGatheringRecource = 0;
         }
     }
 }
@@ -1107,7 +1108,7 @@ void actors::updateGoal(cords location, int waitTime)
         this->isMeleeAttacking = false;
         this->offSetX = 0.0f;
         this->offSetY = 0.0f;
-        this->timeStartedGatheringRecource = 0.0f;
+        this->timeStartedGatheringRecource = 0;
         this->isFindingAlternative = false;
         this->isIdle = false;
         this->lastTile = false;
@@ -1658,7 +1659,7 @@ void actors::unloadAndReturnToGathering()
             this->carriesRecources = false;
             this->isAtRecource = false;
             this->hasToUnloadResource = false;
-            this->timeStartedWalkingToRecource = 0.0f;
+            this->timeStartedWalkingToRecource = 0;
         }
         else
         {
@@ -1670,7 +1671,7 @@ void actors::unloadAndReturnToGathering()
             this->carriesRecources = false;
             this->isAtRecource = false;
             this->hasToUnloadResource = false;
-            this->timeStartedWalkingToRecource = 0.0f;
+            this->timeStartedWalkingToRecource = 0;
             this->isFindingAlternative = true;
         }
     }
@@ -1683,7 +1684,7 @@ void actors::unloadAndReturnToGathering()
         this->carriesRecources = false;
         this->isAtRecource = false;
         this->hasToUnloadResource = false;
-        this->timeStartedWalkingToRecource = 0.0f;
+        this->timeStartedWalkingToRecource = 0;
         this->isFindingAlternative = true;
     }
 
@@ -2167,7 +2168,7 @@ void actors::drawActor()
             cords nPosition = worldSpace({ x, y });
             int deltaX = position.x - nPosition.x;
             int deltaY = position.y - nPosition.y;
-            float deltaTime = currentGame.elapsedTimeMS - this->timeLastUpdate;
+            float deltaTime = static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(this->timeLastUpdate);
             float speedMultiplier = 1.f / this->timeToCrossOneTile;
             float deltaXCompleted = deltaX * (deltaTime * speedMultiplier);
             float deltaYCompleted = deltaY * (deltaTime * speedMultiplier);
@@ -2365,7 +2366,7 @@ void actors::buildBuilding()
             this->isBackAtOwnSquare = true;
             this->isAtRecource = false;
             this->isBuilding = false;
-            this->timeStartedWalkingToRecource = 0.0f;
+            this->timeStartedWalkingToRecource = 0;
             this->timeStartedGatheringRecource = currentGame.elapsedTimeMS;
             this->offSetX = 0;
             this->offSetY = 0;

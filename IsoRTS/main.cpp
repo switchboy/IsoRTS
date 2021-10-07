@@ -181,9 +181,9 @@ int main()
     int lastBuilding = 0;
     int lastPath = 0;
     int lastProjectile = 0;
-    float nextCommandWindow = 200;
-    float nextUpdateTick = 100;
-    float nextAITick = 500;
+    int nextCommandWindow = 200;
+    int nextUpdateTick = 100;
+    int nextAITick = 500;
     currentGame.loadGame();
     for (int i = 0; i < currentGame.getPlayerCount() - 1; i++) {
         simpleAI newAIPlayer(i  + 1, 0);

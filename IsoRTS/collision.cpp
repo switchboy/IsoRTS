@@ -86,8 +86,8 @@ namespace Collision
 			sf::Uint8* mask2 = Bitmasks.GetMask(Object2.getTexture());
 
 			// Loop through our pixels
-			for (int i = Intersection.left; i < Intersection.left + Intersection.width; i++) {
-				for (int j = Intersection.top; j < Intersection.top + Intersection.height; j++) {
+			for (float i = Intersection.left; i < Intersection.left + Intersection.width; i++) {
+				for (float j = Intersection.top; j < Intersection.top + Intersection.height; j++) {
 
 					sf::Vector2f o1v = Object1.getInverseTransform().transformPoint(i, j);
 					sf::Vector2f o2v = Object2.getInverseTransform().transformPoint(i, j);
@@ -152,9 +152,9 @@ namespace Collision
 			sf::Transform trans = Object.getTransform();
 			sf::IntRect local = Object.getTextureRect();
 			Points[0] = trans.transformPoint(0.f, 0.f);
-			Points[1] = trans.transformPoint(local.width, 0.f);
-			Points[2] = trans.transformPoint(local.width, local.height);
-			Points[3] = trans.transformPoint(0.f, local.height);
+			Points[1] = trans.transformPoint(static_cast<float>(local.width), 0.f);
+			Points[2] = trans.transformPoint(static_cast<float>(local.width), static_cast<float>(local.height));
+			Points[3] = trans.transformPoint(0.f, static_cast<float>(local.height));
 		}
 
 		sf::Vector2f Points[4];

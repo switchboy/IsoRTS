@@ -195,6 +195,9 @@ int player::getTotalGathering(resourceTypes it) const
     case resourceTypes::resourceGold:
         return this->getTotalGatheringGold();
         break;
+    default:
+        return 0;
+        break;
     }
 }
 
@@ -225,7 +228,7 @@ int player::getTotalSwordsman() const
 
 int player::getTotalUnits() const
 {
-    return this->units.size();
+    return static_cast<int>(this->units.size());
 }
 
 int player::getUnit(int id) const

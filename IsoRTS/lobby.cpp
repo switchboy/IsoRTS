@@ -23,7 +23,7 @@ void lobbyWindow::drawLobby() {
 	window.draw(playerPingText);
 	int playerCounter = 0;
 	for (playersClient& player : playerList) {
-		readyIcon.setPosition(52, 8 + 68 + (20 * playerCounter));
+		readyIcon.setPosition(52.f, 8.f + 68.f + (20.f * static_cast<float>(playerCounter)));
 		if (player.isReady) {
 			readyIcon.setFillColor(sf::Color::Green);
 		}
@@ -35,13 +35,13 @@ void lobbyWindow::drawLobby() {
 		playerWindowText.setFillColor(networkTeamColors[playerCounter]);
 		playerWindowText.setOutlineColor(sf::Color::Black);
 		playerWindowText.setOutlineThickness(2);
-		playerWindowText.setPosition(72, 68 + (20 * playerCounter));
+		playerWindowText.setPosition(72.f, static_cast<float>(68 + (20 * playerCounter)));
 		window.draw(playerWindowText);
 		sf::Text playerPingText(std::to_string(player.lastPing) + " ms", font, 20);
 		playerPingText.setFillColor(networkTeamColors[playerCounter]);
 		playerPingText.setOutlineColor(sf::Color::Black);
 		playerPingText.setOutlineThickness(2);
-		playerPingText.setPosition(1136, 68 + (20 * playerCounter));
+		playerPingText.setPosition(1136.f, static_cast<float>(68 + (20 * playerCounter)));
 		window.draw(playerPingText);
 		playerCounter++;
 		if (connectionLost) {
@@ -49,7 +49,7 @@ void lobbyWindow::drawLobby() {
 			drawText.setFillColor(sf::Color::Red);
 			drawText.setOutlineColor(sf::Color::Black);
 			drawText.setOutlineThickness(2);
-			drawText.setPosition(3, textLine);
+			drawText.setPosition(3.f, static_cast<float>(textLine));
 			window.draw(drawText);
 		}
 	}
@@ -58,7 +58,7 @@ void lobbyWindow::drawLobby() {
 	for (sf::Text chatLine : chat) {
 		if (chat.size() < 25 || chat.size() - lineCounter - lineOffSetByScrolling < 25) {
 			if (textLine < 25) {
-				chatLine.setPosition(48, (textLine * 20) + 490);
+				chatLine.setPosition(48.f, static_cast<float>((textLine * 20) + 490));
 				chatLine.setOutlineColor(sf::Color::Black);
 				chatLine.setOutlineThickness(2);
 				window.draw(chatLine);
@@ -88,7 +88,7 @@ void lobbyWindow::drawLobby() {
 		float percentageOfScollMovement = static_cast<float>(lineOffSetByScrolling) / (static_cast<float>(chat.size()) - 25.f);
 		float yOffsetScrollbar = static_cast<float>(maxScrollPosition) - (percentageOfScollMovement * static_cast<float>(scrollSpace));
 		if (yOffsetScrollbar < minScrollPosition) {
-			yOffsetScrollbar = minScrollPosition;
+			yOffsetScrollbar = static_cast<float>(minScrollPosition);
 		}
 		scrollBar.setPosition(1218, floor(yOffsetScrollbar));
 		window.draw(scrollBar);
@@ -109,16 +109,16 @@ int lobbyWindow::moveScrollBar(sf::Vector2i& mousePosition)
 		int newPosition = mousePosition.y - 12;
 		if (newPosition < minScrollPosition) {
 			newPosition = minScrollPosition;
-			lineOffSetByScrolling = chat.size() - 24;
+			lineOffSetByScrolling = static_cast<int>(chat.size()) - 24;
 		}
 		else if (newPosition > maxScrollPosition) {
 			newPosition = maxScrollPosition;
 			lineOffSetByScrolling = 0;
 		}
 		else {
-			scrollBar.setPosition(scrollBar.getPosition().x, newPosition);
+			scrollBar.setPosition(scrollBar.getPosition().x, static_cast<float>( newPosition));
 			float line = (static_cast<float>(chat.size()) - 25.f) * (static_cast<float>(newPosition) - static_cast<float>(minScrollPosition)) / (static_cast<float>(maxScrollPosition) - static_cast<float>(minScrollPosition));
-			lineOffSetByScrolling = chat.size() - 24 - line;
+			lineOffSetByScrolling = static_cast<int>(chat.size()) - 24 - static_cast<int>(line);
 		}
 	}
 	return lineOffSetByScrolling;
@@ -189,7 +189,7 @@ void lobbyWindow::interact(sf::TcpSocket& socket) {
 				if (chat.size() >= 25) {
 					lineOffSetByScrolling++;
 					if (lineOffSetByScrolling > chat.size() - 25) {
-						lineOffSetByScrolling = chat.size() - 24;
+						lineOffSetByScrolling = static_cast<int>(chat.size()) - 24;
 					}
 				}
 			}if (event.key.code == sf::Keyboard::Down) {
@@ -223,7 +223,7 @@ void lobbyWindow::interact(sf::TcpSocket& socket) {
 					if (chat.size() >= 25) {
 						lineOffSetByScrolling++;
 						if (lineOffSetByScrolling > chat.size() - 25) {
-							lineOffSetByScrolling = chat.size() - 24;
+							lineOffSetByScrolling = static_cast<int>(chat.size()) - 24;
 						}
 					}
 				}
@@ -258,7 +258,7 @@ void lobbyWindow::interact(sf::TcpSocket& socket) {
 				if (event.mouseWheel.delta > 0) {
 					lineOffSetByScrolling++;
 					if (lineOffSetByScrolling > chat.size() - 25) {
-						lineOffSetByScrolling = chat.size() - 24;
+						lineOffSetByScrolling = static_cast<int>(chat.size()) - 24;
 					}
 				}
 				else {

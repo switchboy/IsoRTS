@@ -12,7 +12,7 @@ public:
 	void updatePosition();//not detemenistic yet!
 	void interprolatePositionForDrawCall();
 
-	float getTimeLastUpdate() const;
+	int getTimeLastUpdate() const;
 
 private:
 	cords projectilePosition;
@@ -31,10 +31,10 @@ private:
 	int Y;
 	int Z;
 
-	int interProlateX;
-	int interProlateY;
-	int interProlateZ;
-	int interProlateDeltaZ;
+	int interProlateX = 0;
+	int interProlateY = 0;
+	int interProlateZ = 0;
+	int interProlateDeltaZ = 0;
 
 	int deltaX;
 	int deltaY;

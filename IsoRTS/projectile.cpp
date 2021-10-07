@@ -42,7 +42,7 @@ projectile::projectile(int projectileStartX, int projectileStartY, int projectil
 	this->projectileTarget = { projectileTargetX, projectileTargetY };
 	this->projectilePosition = {projectileStartX, projectileStartY};
 	this->splashDamageOnImpact = splashDamageOnImpact;
-	int travelTimeInSeconds = distEuclidean(projectileStartX * 32000, projectileStartY * 32000, projectileTargetX * 32000, projectileTargetY * 32000) / 128; //32 pixel/s
+	int travelTimeInSeconds = static_cast<int>(distEuclidean(projectileStartX * 32000, projectileStartY * 32000, projectileTargetX * 32000, projectileTargetY * 32000) / (int)128); //32 pixel/s
 	this->deltaX = ((this->X - (worldSpace(this->projectileTarget).x*1000))*1000) / travelTimeInSeconds;
 	this->deltaY = ((this->Y - (worldSpace(this->projectileTarget).y*1000))*1000) / travelTimeInSeconds;
 	this->deltaZ = travelTimeInSeconds*3;
@@ -53,7 +53,7 @@ projectile::projectile(int projectileStartX, int projectileStartY, int projectil
 	this->X += 32000;
 }
 
-float projectile::getTimeLastUpdate() const {
+int projectile::getTimeLastUpdate() const {
 	return this->timeFired;
 }
 
@@ -66,7 +66,7 @@ void projectile::updatePosition()
 			this->X -= this->deltaX / 10;
 			this->Y -= this->deltaY / 10;
 			this->Z -= this->deltaZ;
-			this->projectileRotation = giveAngleOfSpriteInDGR(this->deltaX, this->deltaY + (this->deltaZ * 60));
+			this->projectileRotation = giveAngleOfSpriteInDGR(static_cast<float>(this->deltaX), static_cast<float>(this->deltaY + (this->deltaZ * 60)));
 			this->deltaZ -= 576;
 			if (this->Z >= 0) {
 				doDamage();
@@ -94,7 +94,7 @@ void projectile::interprolatePositionForDrawCall() {
 			this->interProlateZ -= this->deltaZ;
 			this->interProlateDeltaZ -= 96;
 		}
-		this->projectileRotation = giveAngleOfSpriteInDGR(this->deltaX, this->deltaY + (this->interProlateDeltaZ  * 60) );
+		this->projectileRotation = giveAngleOfSpriteInDGR(static_cast<float>(this->deltaX), static_cast<float>(this->deltaY + (this->interProlateDeltaZ  * 60)));
 	}
 }
 
@@ -102,7 +102,7 @@ void projectile::drawProjectile()
 {
 	interprolatePositionForDrawCall();
 	currentGame.spriteArrow.setRotation(this->projectileRotation);
-	currentGame.spriteArrow.setPosition(this->interProlateX/1000, (this->interProlateY/1000) + (this->interProlateZ/1000));
+	currentGame.spriteArrow.setPosition(static_cast<float>(this->interProlateX)/1000.f, (static_cast<float>(this->interProlateY)/1000.f) + (static_cast<float>(this->interProlateZ)/1000.f));
 	window.draw(currentGame.spriteArrow);
 }
 

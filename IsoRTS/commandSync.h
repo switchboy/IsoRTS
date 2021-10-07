@@ -9,7 +9,7 @@ class commandSync
 public:
 	commandSync();
 	void addCommand(command givenCommand);
-	std::vector <command> getNextCommandsToExcecute(float gameTime);
+	std::vector <command> getNextCommandsToExcecute(int gameTime);
 	std::vector <command> getAllCommandsGiven();
 
 private:

@@ -15,7 +15,7 @@ void commandSync::addCommand(command givenCommand)
 	}
 }
 
-std::vector<command> commandSync::getNextCommandsToExcecute(float nextCommandWindow)
+std::vector<command> commandSync::getNextCommandsToExcecute(int nextCommandWindow)
 {
 	std::vector<command> commandsToBeExcecuted;
 

@@ -36,11 +36,11 @@ void menu::displayMenu()
 	int spaceBetween;
 	if (!tempMenuItemList.empty()) {
 		if (tempMenuItemList.size() > 6) {
-			spaceBetween = (1080 - (padding * 2) - (65 * tempMenuItemList.size())) / tempMenuItemList.size();
+			spaceBetween = static_cast<int>((1080 - (padding * 2) - (65 * tempMenuItemList.size())) / tempMenuItemList.size());
 			startX = (1920 / 2) - 475;
 		}
 		else {
-			spaceBetween = (1080 - (padding * 2) - (130 * tempMenuItemList.size())) / tempMenuItemList.size();
+			spaceBetween = static_cast<int>((1080 - (padding * 2) - (130 * tempMenuItemList.size())) / tempMenuItemList.size());
 		}
 	}
 	else {

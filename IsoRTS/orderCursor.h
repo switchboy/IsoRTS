@@ -11,7 +11,7 @@ public:
 
 private:
 	sf::Vector2f locationOfClick;
-	float timeLastFrameUpdate;
+	int timeLastFrameUpdate;
 	bool finished;
 	int xOffSet;
 };

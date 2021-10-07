@@ -164,10 +164,10 @@ bool gameState::isPassableButMightHaveActor(cords location) const
 }
 
 void setTerrainTexturCordsForQuad(sf::Vertex* quad, int tu, int tv) {
-    quad[0].texCoords = sf::Vector2f(tu, tv);
-    quad[1].texCoords = sf::Vector2f(tu + 64, tv);
-    quad[2].texCoords = sf::Vector2f(tu + 64, tv + 128);
-    quad[3].texCoords = sf::Vector2f(tu, tv + 128);
+    quad[0].texCoords = sf::Vector2f(static_cast<float>(tu), static_cast<float>(tv));
+    quad[1].texCoords = sf::Vector2f(static_cast<float>(tu) + 64.f, static_cast<float>(tv));
+    quad[2].texCoords = sf::Vector2f(static_cast<float>(tu) + 64.f, static_cast<float>(tv) + 128.f);
+    quad[3].texCoords = sf::Vector2f(static_cast<float>(tu), static_cast<float>(tv) + 128.f);
 }
 
 void setTerrainWorldCordsForQuad(sf::Vertex* Quad, int i, int j) {
@@ -2763,7 +2763,7 @@ void gameState::setDefaultValues()
     this->buildingTypeSelected = 0;
     this->objectTypeSelected = 0;
     this->showPaths = false;
-    this->lastMistDraw = -1.0f;
+    this->lastMistDraw = -1;
     this->players = 1 + AIPlayers;
     this->noFogOfWar = false;
 }

@@ -2824,11 +2824,57 @@ void gameState::loadGame()
     if (currentConnection.isConnected() && multiplayerPlayerId != 0) {
         bool startStateRecieved = false;
         bool mapRecieved = false;
+        bool actorBlobRecieved = false;
         int amountOfActors;
         int amountOfBuildings;
         int amountOfObjects;
         while (!startStateRecieved) {
-            
+            sf::Packet recievePacket;
+            sf::Socket::Status statusOfSocket = currentConnection.getTcpSocket()->receive(recievePacket);
+            if (statusOfSocket == sf::Socket::Disconnected) {
+                //complain
+            }
+            else if (statusOfSocket == sf::Socket::Done) {
+                sf::Uint8 recievedHeader;
+                recievePacket >> recievedHeader;
+                switch (recievedHeader) {
+
+                case dataType::mapObjectBlob:
+                {
+                    int mapWidth, mapHeight;
+                    recievePacket >> mapWidth;
+                    recievePacket >> mapHeight;
+                    for (int i = 0; i < mapWidth; i++) {
+                        for (int j = 0; j < mapHeight; j++) {
+                            recievePacket >> currentMap[i][j];
+                        }
+                    }
+                    recievePacket >> amountOfActors;
+                    recievePacket >> amountOfBuildings;
+                    recievePacket >> amountOfObjects;
+                    mapRecieved = true;
+                }
+                break;
+
+                case dataType::actorsBlob:
+                    for (int i = 0; i < amountOfActors; i++) {
+                        int x;
+                        int y;
+                        int team;
+                        int type;
+                        recievePacket >> x;
+                        recievePacket >> y;
+                        recievePacket >> team;
+                        recievePacket >> type;
+                        listOfActors.push_back(actors(type, {x, y}, team, static_cast<int>(listOfActors.size())));
+                    }
+                    actorBlobRecieved = true;
+                }
+                break;
+
+
+
+            }
         }
         return;
     }

@@ -2825,9 +2825,9 @@ void gameState::loadGame()
         bool startStateRecieved = false;
         bool mapRecieved = false;
         bool actorBlobRecieved = false;
-        int amountOfActors;
-        int amountOfBuildings;
-        int amountOfObjects;
+        bool buildingsBlobRecieved = false;
+        bool objectsBlobRecieved = false;
+        bool playerBlobRecieved = false;
         while (!startStateRecieved) {
             sf::Packet recievePacket;
             sf::Socket::Status statusOfSocket = currentConnection.getTcpSocket()->receive(recievePacket);
@@ -2849,14 +2849,13 @@ void gameState::loadGame()
                             recievePacket >> currentMap[i][j];
                         }
                     }
-                    recievePacket >> amountOfActors;
-                    recievePacket >> amountOfBuildings;
-                    recievePacket >> amountOfObjects;
                     mapRecieved = true;
                 }
                 break;
 
                 case dataType::actorsBlob:
+                    size_t amountOfActors;
+                    recievePacket >> amountOfActors;
                     for (int i = 0; i < amountOfActors; i++) {
                         int x;
                         int y;
@@ -2866,14 +2865,64 @@ void gameState::loadGame()
                         recievePacket >> y;
                         recievePacket >> team;
                         recievePacket >> type;
-                        listOfActors.push_back(actors(type, {x, y}, team, static_cast<int>(listOfActors.size())));
+                        listOfActors.push_back(actors(type, { x, y }, team, static_cast<int>(listOfActors.size())));
                     }
                     actorBlobRecieved = true;
+
+                    break;
+
+                case dataType::buildingsBlob:
+                    size_t amountOfBuildings;
+                    recievePacket >> amountOfBuildings;
+                    for (int i = 0; i < amountOfBuildings; i++) {
+                        int x;
+                        int y;
+                        int team;
+                        int type;
+                        recievePacket >> x;
+                        recievePacket >> y;
+                        recievePacket >> team;
+                        recievePacket >> type;
+                        listOfBuildings.push_back(buildings(type, { x,y }, static_cast<int>(listOfBuildings.size()), team));
+                    }
+                    buildingsBlobRecieved = true;
+                    break;
+
+                case dataType::objectsBlob:
+                    size_t amountOfObjects;
+                    recievePacket >> amountOfObjects;
+                    for (int i = 0; i < amountOfObjects; i++) {
+                        int x;
+                        int y;
+                        int type;
+                        recievePacket >> x;
+                        recievePacket >> y;
+                        recievePacket >> type;
+                        listOfObjects.push_back(objects(static_cast<objectTypes>(type), { x,y }, static_cast<int>(listOfBuildings.size())));
+                    }
+                    objectsBlobRecieved = true;
+                    break;
+                
+                case dataType::playersBlob:
+                    for (int i = 0; i < 8; i++) {
+                        int food;
+                        int wood;
+                        int stone;
+                        int gold;
+                        bool defeated;
+                        recievePacket >> food;
+                        recievePacket >> wood;
+                        recievePacket >> stone;
+                        recievePacket >> gold;
+                        recievePacket >> defeated;
+                        listOfPlayers[i].syncPlayer(food, wood, stone, gold, defeated);
+                    }
+                    playerBlobRecieved = true;
+                    break;
                 }
-                break;
-
-
-
+            }
+            if (mapRecieved && actorBlobRecieved && buildingsBlobRecieved && objectsBlobRecieved && playerBlobRecieved) {
+                startStateRecieved = true;
             }
         }
         return;
@@ -2881,26 +2930,13 @@ void gameState::loadGame()
     loadMap();
     loadBaseCellList();
     if (currentConnection.isConnected()) {
-        //sent map, with data on amount of actors, buildings and objects
-        sf::Packet mapDataPacket;
-        sf::Uint8 mapDataHeader = dataType::mapObjectBlob;
-        mapDataPacket << mapObjectBlob;
-        mapDataPacket << MAP_WIDTH;
-        mapDataPacket << MAP_HEIGHT;
-        for (int i = 0; i < MAP_WIDTH; i++) {
-            for (int j = 0; j < MAP_HEIGHT; j++) {
-                mapDataPacket << currentMap[i][j];
-            }
-        }
-        mapDataPacket << listOfActors.size();
-        mapDataPacket << listOfBuildings.size();
-        mapDataPacket << listOfObjects.size();
-        currentConnection.getTcpSocket()->send(mapDataPacket);
-
         //send data to recreate actors;
         sf::Packet actorDataPacket;
         sf::Uint8 actorDataHeader = dataType::actorsBlob;
         actorDataPacket << actorDataHeader;
+        size_t amountOfActors = listOfActors.size();
+        actorDataPacket << amountOfActors;
+
         for (actors& a : listOfActors) {
             int x = a.getActorCords().x;
             int y = a.getActorCords().y;
@@ -2914,6 +2950,9 @@ void gameState::loadGame()
         sf::Packet buildingDataPacket;
         sf::Uint8 buildingDataHeader = dataType::buildingsBlob;
         buildingDataPacket << buildingDataHeader;
+        size_t amountOfBuildings = listOfBuildings.size();
+        buildingDataPacket << amountOfBuildings;
+
         for (buildings& a : listOfBuildings) {
             int x = a.getLocation().x;
             int y = a.getLocation().y;
@@ -2927,6 +2966,8 @@ void gameState::loadGame()
         sf::Packet objectDataPacket;
         sf::Uint8 objectDataHeader = dataType::objectsBlob;
         objectDataPacket << objectDataHeader;
+        size_t amountOfObjects = listOfObjects.size();
+        objectDataPacket << amountOfObjects;
         for (objects& a : listOfObjects) {
             int x = a.getLocation().x;
             int y = a.getLocation().y;
@@ -2948,6 +2989,20 @@ void gameState::loadGame()
             playerDataPacket << food << wood << stone << gold << defeated;
         }
         currentConnection.getTcpSocket()->send(playerDataPacket);
+
+
+        //sent map, with data on amount of actors, buildings and objects
+        sf::Packet mapDataPacket;
+        sf::Uint8 mapDataHeader = dataType::mapObjectBlob;
+        mapDataPacket << mapDataHeader;
+        mapDataPacket << MAP_WIDTH;
+        mapDataPacket << MAP_HEIGHT;
+        for (int i = 0; i < MAP_WIDTH; i++) {
+            for (int j = 0; j < MAP_HEIGHT; j++) {
+                mapDataPacket << currentMap[i][j];
+            }
+        }
+        currentConnection.getTcpSocket()->send(mapDataPacket);
     }
 }
 

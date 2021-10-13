@@ -28,6 +28,7 @@ public:
     void setTeamToNeutral(int team);
     void setTeamToAlly(int team);
     void setTeamToEnemy(int team);
+    void syncPlayer(int food, int wood, int stone, int gold, bool isDefeated);
     int  getFriendOrFoo(int team);
     int  getTeam() const;
     void setTeam(int team);

@@ -433,13 +433,15 @@ void simpleAI::sandboxScript()
 		if (listOfBuildingTemplates[1].getPriceOfBuilding().food <= listOfPlayers[this->playerId].getStats().amountOfFood && listOfBuildingTemplates[1].getPriceOfBuilding().wood <= listOfPlayers[this->playerId].getStats().amountOfWood && listOfBuildingTemplates[1].getPriceOfBuilding().stone <= listOfPlayers[this->playerId].getStats().amountOfStone && listOfBuildingTemplates[1].getPriceOfBuilding().gold <= listOfPlayers[this->playerId].getStats().amountOfGold) {
 			//zoek een vrije plek bij de villagers om een TC te bouwen
 			int idleVillagerId = listOfPlayers[this->playerId].getIdleVillagerId(0);
-			cords idleVillagerCords = listOfActors[idleVillagerId].getActorCords();
-			//cords buildingSlot = getFreeBuildingSlot(1, idleVillagerCords);
-			cords buildingSlot = this->getOptimalFreeBuildingSlot(1, idleVillagerCords, true, true, true, true);
-			buildBuilding(1, buildingSlot);
-			for (int i = 0; i < listOfPlayers[this->playerId].getIdleVillagers(); i++) {
-				int vilId = listOfPlayers[this->playerId].getIdleVillagerId(i);
-				buildCommandUnit(vilId, buildingSlot);
+			if (idleVillagerId >= 0) {
+				cords idleVillagerCords = listOfActors[idleVillagerId].getActorCords();
+				//cords buildingSlot = getFreeBuildingSlot(1, idleVillagerCords);
+				cords buildingSlot = this->getOptimalFreeBuildingSlot(1, idleVillagerCords, true, true, true, true);
+				buildBuilding(1, buildingSlot);
+				for (int i = 0; i < listOfPlayers[this->playerId].getIdleVillagers(); i++) {
+					int vilId = listOfPlayers[this->playerId].getIdleVillagerId(i);
+					buildCommandUnit(vilId, buildingSlot);
+				}
 			}
 		}
 		else {

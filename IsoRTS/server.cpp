@@ -136,6 +136,7 @@ void server() {
 								break;
 
 							case dataType::playerReady:
+							{
 								packet >> clients[i].isReady;
 								sf::Uint8 header = dataType::playerReady;
 								sendPacket << header;
@@ -146,6 +147,54 @@ void server() {
 									clients[j].playerSocket->send(sendPacket);
 								}
 								break;
+							}
+							case dataType::mapObjectBlob:
+							{
+								sf::Uint8 header = dataType::mapObjectBlob;
+								sendPacket << header << packet;
+								for (int j = 0; j < clients.size(); j++) {
+									clients[j].playerSocket->send(packet);
+								}
+								break;
+							}
+							case dataType::actorsBlob:
+							{
+								//sf::Uint8 header = dataType::actorsBlob;
+								//sendPacket << header << packet;
+								for (int j = 0; j < clients.size(); j++) {
+									clients[j].playerSocket->send(packet);
+								}
+								break;
+							}
+							case dataType::buildingsBlob:
+							{
+								//sf::Uint8 header = dataType::buildingsBlob;
+								//sendPacket << header << packet;
+								for (int j = 0; j < clients.size(); j++) {
+									clients[j].playerSocket->send(packet);
+								}
+								break;
+							}
+
+							case dataType::objectsBlob:
+							{
+								//sf::Uint8 header = dataType::objectsBlob;
+								//sendPacket << header << packet;
+								for (int j = 0; j < clients.size(); j++) {
+									clients[j].playerSocket->send(packet);
+								}
+								break;
+							}
+							case dataType::playersBlob:
+							{
+								//sf::Uint8 header = dataType::playersBlob;
+								//sendPacket << header << packet;
+								for (int j = 0; j < clients.size(); j++) {
+									clients[j].playerSocket->send(packet);
+								}
+								break;
+							}
+
 							}
 						}
 						else if (clients[i].playerSocket->receive(packet) == sf::Socket::Disconnected) {

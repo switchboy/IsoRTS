@@ -185,10 +185,14 @@ int main()
     int nextUpdateTick = 100;
     int nextAITick = 500;
     currentGame.loadGame();
+
+    //Borked for MP!
     for (int i = 0; i < currentGame.getPlayerCount() - 1; i++) {
         simpleAI newAIPlayer(i  + 1, 0);
         listOfAI.push_back(newAIPlayer);
     }
+
+
     while (window.isOpen())
     {
         sf::Time elapsedMain = clockMain.getElapsedTime();

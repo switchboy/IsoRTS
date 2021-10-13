@@ -107,6 +107,15 @@ void player::setTeamToEnemy(int team)
 
 }
 
+void player::syncPlayer(int food, int wood, int stone, int gold, bool isDefeated)
+{
+    this->amountOfFood = food;
+    this->amountOfWood = wood;
+    this->amountOfStone = stone;
+    this->amountOfGold = gold;
+    this->isDefeated = isDefeated;
+}
+
 int player::getFriendOrFoo(int team)
 {
     //tbd

@@ -1737,30 +1737,32 @@ void drawMiniMapBuildings(sf::RectangleShape& miniMapPixel)
 {
     if(!noNewBuildings)
     {
-        for(int j = 0; j < MAP_HEIGHT; j++)
-        {
-            for(int i = 0; i < MAP_WIDTH; i++ )
+        if (!listOfBuildings.empty()) {
+            for (int j = 0; j < MAP_HEIGHT; j++)
             {
-                sf::Vertex* currentMiniMapQuad = &miniMapBuildingPoints[((i * MAP_HEIGHT) + j) * 4];
-                if(currentGame.occupiedByBuildingList[i][j] != -1)
+                for (int i = 0; i < MAP_WIDTH; i++)
                 {
-                    
-                    //Each quad should be 20px wide and 10px high. We define them clockwise from the top left (x + 0 and y + 0)
-                    currentMiniMapQuad[0].color = teamColors[listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam()];
-                    currentMiniMapQuad[1].color = teamColors[listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam()];
-                    currentMiniMapQuad[2].color = teamColors[listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam()];
-                    currentMiniMapQuad[3].color = teamColors[listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam()];                   
-                }
-                else {
-                    //Pixel is not occupied so make it tansparant        
-                    currentMiniMapQuad[0].color = sf::Color({0,0,0,0});
-                    currentMiniMapQuad[1].color = sf::Color({ 0,0,0,0 });
-                    currentMiniMapQuad[2].color = sf::Color({ 0,0,0,0 });
-                    currentMiniMapQuad[3].color = sf::Color({ 0,0,0,0 });
+                    sf::Vertex* currentMiniMapQuad = &miniMapBuildingPoints[((i * MAP_HEIGHT) + j) * 4];
+                    if (currentGame.occupiedByBuildingList[i][j] != -1)
+                    {
+
+                        //Each quad should be 20px wide and 10px high. We define them clockwise from the top left (x + 0 and y + 0)
+                        currentMiniMapQuad[0].color = teamColors[listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam()];
+                        currentMiniMapQuad[1].color = teamColors[listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam()];
+                        currentMiniMapQuad[2].color = teamColors[listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam()];
+                        currentMiniMapQuad[3].color = teamColors[listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam()];
+                    }
+                    else {
+                        //Pixel is not occupied so make it tansparant        
+                        currentMiniMapQuad[0].color = sf::Color({ 0,0,0,0 });
+                        currentMiniMapQuad[1].color = sf::Color({ 0,0,0,0 });
+                        currentMiniMapQuad[2].color = sf::Color({ 0,0,0,0 });
+                        currentMiniMapQuad[3].color = sf::Color({ 0,0,0,0 });
+                    }
                 }
             }
+            noNewBuildings = true;
         }
-        noNewBuildings = true;
     }
 }
 
@@ -2822,6 +2824,20 @@ void gameState::loadGame()
     loadBuildings();
     setTeam();
     if (currentConnection.isConnected() && multiplayerPlayerId != 0) {
+        for (int i = 0; i < MAP_WIDTH; i++)
+        {
+            for (int j = 0; j < MAP_HEIGHT; j++)
+            {
+                this->currentMap[i][j] = 0;
+                this->tileBitmask[i][j] = 0;
+                this->buildingLocationList[i][j] = -1;
+                this->occupiedByBuildingList[i][j] = -1;
+                this->objectLocationList[i][j] = -1;
+                this->occupiedByActorList[i][j].clear();
+                this->visability[i][j] = 0;
+            }
+        }
+
         bool startStateRecieved = false;
         bool mapRecieved = false;
         bool actorBlobRecieved = false;
@@ -2898,7 +2914,7 @@ void gameState::loadGame()
                         recievePacket >> x;
                         recievePacket >> y;
                         recievePacket >> type;
-                        listOfObjects.push_back(objects(static_cast<objectTypes>(type), { x,y }, static_cast<int>(listOfBuildings.size())));
+                        listOfObjects.push_back(objects(static_cast<objectTypes>(type), { x,y }, static_cast<int>(listOfObjects.size())));
                     }
                     objectsBlobRecieved = true;
                     break;
@@ -2925,6 +2941,12 @@ void gameState::loadGame()
                 startStateRecieved = true;
             }
         }
+
+        sf::RectangleShape miniMapPixel(sf::Vector2f(20.f, 10.f));
+        for (int i = 0; i < 16; i++) {
+            drawMiniMapMist(miniMapPixel);
+        }
+        loadBaseCellList();
         return;
     }
     loadMap();

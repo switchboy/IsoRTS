@@ -109,8 +109,8 @@ public:
     void setObjectsHaveChanged();
     cords getFirstWallClick() const;
     cords getNextCord(cords pos);
-    int   getTime() const;
-    int   getPlayerCount() const;
+    int  getTime() const;
+    int  getPlayerCount() const;
     void setBuildingType(int id);
     void setDefaultValues();
     void setIsPlacingBuilding();

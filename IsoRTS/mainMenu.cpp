@@ -155,13 +155,21 @@ void menu::setMenuLevel(int level)
 	this->menuLevel = level;
 }
 
-void doNetworking()
+
+
+void menu::doNetworking()
 {
 	connectionSetupScreen connectionSetup;
 	connectionSetup.showConnectionSetupScreen();
 	if (connectionSetup.connectedSuccesfully()) {
 		lobbyWindow lobby;
-		lobby.showLobby();
+		if (!lobby.showLobby()) {
+			currentConnection.disconnect();
+			serverThread.terminate();
+			return;
+		}
+		multiplayerPlayerId = lobby.getUserId();
+		this->menuLevel = -1;
 	}
 }
 

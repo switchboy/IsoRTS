@@ -27,6 +27,11 @@ void connectionSetupScreen::interact()
 	while (window.pollEvent(event)) {
 		switch (event.type) {
 
+		case sf::Event::Closed:
+			this->backToMain = true;
+			window.close();
+			break;
+
 		case sf::Event::KeyPressed:
 			if (event.key.code == sf::Keyboard::Escape || event.Closed) {
 				this->backToMain = true;
@@ -65,6 +70,12 @@ void connectionSetupScreen::interact()
 							std::string ipString = "127.0.0.1";
 							sf::IpAddress ip = sf::IpAddress(ipString);
 							this->connectionEstablished = currentConnection.connect(ip, std::stoi(portNumberString), playerNameString);
+
+							//somehow this fixes the server so ping and countdown work...
+							currentConnection.disconnect();
+							this->connectionEstablished = currentConnection.connect(ip, std::stoi(portNumberString), playerNameString);
+							//
+
 							if (!connectionEstablished) {
 								errorMessages.push_back({ currentTime.asMilliseconds(), "Can't connect to myself, this could be due to a firewall or inability to open the specified port!" });
 							}

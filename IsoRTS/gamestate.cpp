@@ -13,6 +13,7 @@
 #include <sstream>
 #include <vector>
 #include "commandSync.h"
+#include "connection.h"
 
 
 sf::VertexArray miniMapBackGroundPoints(sf::Quads, MAP_HEIGHT* MAP_WIDTH * 4);
@@ -2764,7 +2765,12 @@ void gameState::setDefaultValues()
     this->objectTypeSelected = 0;
     this->showPaths = false;
     this->lastMistDraw = -1;
-    this->players = 1 + AIPlayers;
+    if (multiplayerPlayers != 0) {
+        this->players = multiplayerPlayers;
+    }
+    else {
+        this->players = 1 + AIPlayers;
+    }
     this->noFogOfWar = false;
 }
 
@@ -2814,9 +2820,89 @@ void gameState::loadGame()
     loadObjects();
     setDefaultValues();
     loadBuildings();
-    loadMap();
     setTeam();
+    if (currentConnection.isConnected() && multiplayerPlayerId != 0) {
+        bool startStateRecieved = false;
+        bool mapRecieved = false;
+        int amountOfActors;
+        int amountOfBuildings;
+        int amountOfObjects;
+        while (!startStateRecieved) {
+            
+        }
+        return;
+    }
+    loadMap();
     loadBaseCellList();
+    if (currentConnection.isConnected()) {
+        //sent map, with data on amount of actors, buildings and objects
+        sf::Packet mapDataPacket;
+        sf::Uint8 mapDataHeader = dataType::mapObjectBlob;
+        mapDataPacket << mapObjectBlob;
+        mapDataPacket << MAP_WIDTH;
+        mapDataPacket << MAP_HEIGHT;
+        for (int i = 0; i < MAP_WIDTH; i++) {
+            for (int j = 0; j < MAP_HEIGHT; j++) {
+                mapDataPacket << currentMap[i][j];
+            }
+        }
+        mapDataPacket << listOfActors.size();
+        mapDataPacket << listOfBuildings.size();
+        mapDataPacket << listOfObjects.size();
+        currentConnection.getTcpSocket()->send(mapDataPacket);
+
+        //send data to recreate actors;
+        sf::Packet actorDataPacket;
+        sf::Uint8 actorDataHeader = dataType::actorsBlob;
+        actorDataPacket << actorDataHeader;
+        for (actors& a : listOfActors) {
+            int x = a.getActorCords().x;
+            int y = a.getActorCords().y;
+            int team = a.getTeam();
+            int type = a.getType();
+            actorDataPacket << x << y << team << type;
+        }
+        currentConnection.getTcpSocket()->send(actorDataPacket);
+
+        //send data to recreate buildings
+        sf::Packet buildingDataPacket;
+        sf::Uint8 buildingDataHeader = dataType::buildingsBlob;
+        buildingDataPacket << buildingDataHeader;
+        for (buildings& a : listOfBuildings) {
+            int x = a.getLocation().x;
+            int y = a.getLocation().y;
+            int team = a.getTeam();
+            int type = a.getType();
+            buildingDataPacket << x << y << team << type;
+        }
+        currentConnection.getTcpSocket()->send(buildingDataPacket);
+
+        //send data to recreate objects
+        sf::Packet objectDataPacket;
+        sf::Uint8 objectDataHeader = dataType::objectsBlob;
+        objectDataPacket << objectDataHeader;
+        for (objects& a : listOfObjects) {
+            int x = a.getLocation().x;
+            int y = a.getLocation().y;
+            int type = static_cast<int>(a.getType());
+            objectDataPacket << x << y << type;
+        }
+        currentConnection.getTcpSocket()->send(objectDataPacket);
+
+        //send data to recreate players
+        sf::Packet playerDataPacket;
+        sf::Uint8 playerDataHeader = dataType::playersBlob;
+        playerDataPacket << playerDataHeader;
+        for (player& a : listOfPlayers) {
+            int food = a.getStats().amountOfFood;
+            int wood = a.getStats().amountOfWood;
+            int stone = a.getStats().amountOfStone;
+            int gold = a.getStats().amountOfGold;
+            bool defeated = a.isPlayerDefeated();
+            playerDataPacket << food << wood << stone << gold << defeated;
+        }
+        currentConnection.getTcpSocket()->send(playerDataPacket);
+    }
 }
 
 void gameState::createFogOfWar() 

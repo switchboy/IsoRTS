@@ -8,6 +8,8 @@ public:
 	bool connect(sf::IpAddress hostIp, int remotePort, std::string playerName);
 	sf::TcpSocket*	getTcpSocket();
 	bool reconnect();
+	void disconnect();
+	bool isConnected();
 	std::string getPlayerName();
 
 private:
@@ -15,6 +17,7 @@ private:
 	std::string		playerName;
 	sf::IpAddress	hostIp;
 	int				remotePort = 0;
+	bool			connected;
 
 };
 

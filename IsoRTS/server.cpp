@@ -11,6 +11,9 @@ void server() {
 	sf::Time serverTime = clock.getElapsedTime();
 	sf::Int32 lastPingSent = 0;
 	sf::Packet pingPacket;
+	int lastReadyCheck = 0;
+	int countdown = 0;
+	bool gameStarted = false;
 	sf::Uint8 pingPacketHeader = dataType::Ping;
 	pingPacket << pingPacketHeader;
 
@@ -69,7 +72,13 @@ void server() {
 						for (connectedPlayers& client : clients) {
 							userListPacket << client.name;
 						}
+						int userId = 0;
 						for (connectedPlayers& client : clients) {
+							sf::Packet userIdPacket;
+							sf::Uint8 userIdPacketHeader = dataType::giveUserId;
+							userIdPacket << userIdPacketHeader << userId;
+							client.playerSocket->send(userIdPacket);
+							userId++;
 							client.playerSocket->send(userListPacket);
 						}
 					}
@@ -161,7 +170,13 @@ void server() {
 					for (connectedPlayers& client : clients) {
 						userListPacket << client.name;
 					}
+					int userId = 0;
 					for (connectedPlayers& client : clients) {
+						sf::Packet userIdPacket;
+						sf::Uint8 userIdPacketHeader = dataType::giveUserId;
+						userIdPacket << userIdPacketHeader << userId;
+						client.playerSocket->send(userIdPacket);
+						userId++;
 						client.playerSocket->send(userListPacket);
 					}
 					sf::Packet sendPacket;
@@ -188,6 +203,45 @@ void server() {
 						clients[j].lastPingPacketSend = serverTime.asMilliseconds();
 					}
 					lastPingSent = serverTime.asMilliseconds();
+				}
+
+				if (!gameStarted) {
+					if (lastReadyCheck + 1000 < serverTime.asMilliseconds()) {
+						if (clients.size() > 1) {
+							bool allReady = true;
+							for (connectedPlayers& player : clients) {
+								if (!player.isReady) {
+									allReady = false;
+									break;
+								}
+							}
+							if (allReady) {
+								if (countdown < 5) {
+									std::string countdownText = "This game will start in " + std::to_string(5 - countdown) + " seconds!";
+									sf::Packet countdownPacket;
+									int i = -1;
+									sf::Uint8 header = dataType::Text;
+									countdownPacket << header << i << countdownText;
+									for (connectedPlayers& client : clients) {
+										client.playerSocket->send(countdownPacket);
+									}
+									countdown++;
+								}
+								else {
+									sf::Packet startGamePacket;
+									sf::Uint8 header = dataType::startGame;
+									startGamePacket << header;
+									for (connectedPlayers& client : clients) {
+										client.playerSocket->send(startGamePacket);
+									}
+								}
+							}
+							else {
+								countdown = 0;
+							}
+						}
+						lastReadyCheck = serverTime.asMilliseconds();
+					}
 				}
 			}
 		}

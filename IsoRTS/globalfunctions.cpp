@@ -218,6 +218,10 @@ void setViewports()
 
 int AIPlayers;
 
+int multiplayerPlayerId = 0;
+int multiplayerPlayers = 0;
+
+
 sf::Thread serverThread(&server);
 
 namespace networkStuff {

@@ -174,9 +174,14 @@ void lobbyWindow::interact(sf::TcpSocket& socket) {
 	while (window.pollEvent(event)) {
 		switch (event.type) {
 
+		case sf::Event::Closed:
+			this->done = true;
+			window.close();
+			break;
+
 		case sf::Event::KeyPressed:
 			if (event.key.code == sf::Keyboard::Escape || event.Closed) {
-				window.close();
+				this->done = true;
 			}
 			else if (event.key.code == sf::Keyboard::Return && textAreaSelected) {
 				sf::Packet textPacket;
@@ -348,6 +353,7 @@ void lobbyWindow::pollConnectionAndGetUpdate(sf::TcpSocket& socket) {
 				recievePacket >> tempString;
 				playerList.push_back({ tempString, 0 });
 			}
+			multiplayerPlayers = numberOfUsers;
 			break;
 		case dataType::Ping:
 			socket.send(pingPacket);
@@ -359,6 +365,14 @@ void lobbyWindow::pollConnectionAndGetUpdate(sf::TcpSocket& socket) {
 			for (playersClient& player : playerList) {
 				recievePacket >> player.isReady;
 			}
+			break;
+		case dataType::startGame:
+			this->done = true;
+			this->startGame = true;
+			break;
+		case dataType::giveUserId:
+			recievePacket >> this->userId;
+			break;
 		}
 	}
 }
@@ -373,11 +387,17 @@ bool lobbyWindow::isDone() const
 	return this->done;
 }
 
-void lobbyWindow::showLobby()
+bool lobbyWindow::showLobby()
 {
 	while (!this->isDone()) {
 		this->interact(*currentConnection.getTcpSocket());
 		this->pollConnectionAndGetUpdate(*currentConnection.getTcpSocket());
 		this->drawLobby();
 	}
+	return startGame;
+}
+
+int lobbyWindow::getUserId()
+{
+	return this->userId;
 }

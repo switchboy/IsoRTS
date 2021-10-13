@@ -22,6 +22,7 @@ bool connection::connect(sf::IpAddress hostIp, int remotePort, std::string playe
 			return false;
 		}
 		this->tcpSocket.setBlocking(false);
+		connected = true;
 		return true;
 	}
 	else {
@@ -58,6 +59,20 @@ bool connection::reconnect()
 	else {
 		return false;
 	}
+}
+
+void connection::disconnect()
+{
+	this->tcpSocket.disconnect();
+	this->hostIp = "0.0.0.0";
+	this->remotePort = 0;
+	this->playerName = "";
+	this->connected = false;
+}
+
+bool connection::isConnected()
+{
+	return this->connected;
 }
 
 std::string connection::getPlayerName()

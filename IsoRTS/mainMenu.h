@@ -62,6 +62,7 @@ public:
 	int getMenuLevel();
 	void setMenuLevel(int level);
 	void preformMenuAction(menuItemNames itemClicked);
+	void doNetworking();
 
 private:
 	std::vector<menuItem> menuItems;

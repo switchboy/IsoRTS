@@ -74,13 +74,27 @@ double dist(double x1, double y1, double x2, double y2);
 double distEuclidean(double x1, double y1, double x2, double y2);
 cords toWorldMousePosition(int mouseX, int mouseY);
 void setViewports();
+extern int multiplayerPlayerId;
+extern int multiplayerPlayers;
 
 enum dataType {
 	Text,
 	UserList,
 	MessageStatus,
 	Ping,
-	playerReady
+	playerReady,
+	startGame,
+	giveUserId,
+	readyToRecieveMap,
+	mapRecievedAndProcessed,
+	mapObjectBlob,
+	objectsBlob,
+	actorsBlob,
+	buildingsBlob,
+	playersBlob,
+	gameTimePacket,
+	readyForGameStartPacket,
+	holdGame
 };
 
 const sf::Color networkTeamColors[] =

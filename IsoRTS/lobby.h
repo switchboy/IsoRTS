@@ -89,7 +89,8 @@ public:
 	void pollConnectionAndGetUpdate(sf::TcpSocket& socket);
 	void setId(std::string id);
 	bool isDone() const;
-	void showLobby();
+	bool showLobby();
+	int getUserId();
 	
 
 
@@ -109,6 +110,8 @@ private:
 	bool textAreaSelected = false;
 	bool playerReady = false;
 	bool connectionLost = false;
+	bool startGame = false;
+	int userId = 0;
 	std::vector<sf::Text>chat;
 	std::vector<playersClient> playerList;
 	std::string text = "";

@@ -1,5 +1,7 @@
 #include "commandSync.h"
 #include "player.h"
+#include "gamestate.h"
+#include "connection.h"
 
 commandSync::commandSync()
 {
@@ -10,8 +12,68 @@ void commandSync::addCommand(command givenCommand)
 {
 	listOfCommands.push_back(givenCommand);
 	if (givenCommand.playerId == currentPlayer.getTeam()) {
-		//send command to network stack TO DO!
+		listOfUnsentCommands.push_back(givenCommand);
+	}
+}
 
+void commandSync::sendNetWorkCommands()
+{
+	sf::Packet commandPacket;
+	sf::Uint8 header = dataType::commandPacket;
+	commandPacket << header << currentGame.getTime() << multiplayerPlayerId << listOfUnsentCommands.size();
+	for (command& unsentCommand : listOfUnsentCommands) {
+		int timeCommandGiven = unsentCommand.timeCommandGiven;
+		int playerId = unsentCommand.playerId;
+		int subjectId = unsentCommand.playerId;
+		bool placingBuilding = unsentCommand.placingBuilding;
+		bool isStackedCommand = unsentCommand.isStackedCommand;
+		int commandCordsX = unsentCommand.commandCords.x;
+		int commandCordsY = unsentCommand.commandCords.y;
+		int subjectType = static_cast<int>(unsentCommand.subjectType);
+		int orderType = static_cast<int>(unsentCommand.orderType);
+		int actionToPerform = static_cast<int>(unsentCommand.actionToPerform);
+		commandPacket << timeCommandGiven << playerId << subjectId<< placingBuilding << isStackedCommand << commandCordsX << commandCordsY << subjectType << orderType << actionToPerform;
+	}
+	currentConnection.getTcpSocket()->send(commandPacket);
+	listOfUnsentCommands.clear();
+}
+
+void commandSync::recieveNetworkCommands()
+{
+	sf::Packet recievePacket;
+	sf::Socket::Status statusOfSocket = currentConnection.getTcpSocket()->receive(recievePacket);
+	if (statusOfSocket == sf::Socket::Disconnected) {
+		//complain
+	}
+	else if (statusOfSocket == sf::Socket::Done) {
+		sf::Uint8 recievedHeader;
+		recievePacket >> recievedHeader;
+		switch (recievedHeader) {
+		case dataType::commandPacket:
+		{
+			int time;
+			recievePacket >> time;
+			int fromPlayer;
+			recievePacket >> fromPlayer;
+			int amountOfCommands;
+			recievePacket >> amountOfCommands;
+			for (int i = 0; i < amountOfCommands; i++) {
+				int timeCommandGiven;
+				int playerId;
+				int subjectId;
+				bool placingBuilding;
+				bool isStackedCommand;
+				int commandCordsX;
+				int commandCordsY;
+				int subjectType;
+				int orderType;
+				int actionToPerform;
+				recievePacket >> timeCommandGiven >> playerId >> subjectId >> placingBuilding >> isStackedCommand >> commandCordsX >> commandCordsY >> subjectType >> orderType >> actionToPerform;
+				listOfCommands.push_back({ timeCommandGiven, playerId, subjectId, placingBuilding, isStackedCommand, {commandCordsX, commandCordsY}, static_cast<worldObject>(subjectType), static_cast<stackOrderTypes>(orderType) , static_cast<actionTypes>(actionToPerform) });
+			}
+			break;
+		}
+		}
 	}
 }
 

@@ -2811,6 +2811,34 @@ void loadBaseCellList() {
     }
 }
 
+void sendReadyForLaunch() {
+    sf::Packet readyPacket;
+    sf::Uint8 header = dataType::startGame;
+    readyPacket << header;
+    currentConnection.getTcpSocket()->send(readyPacket);
+}
+
+void waitUntilAllReady() {
+    sendReadyForLaunch();
+    bool everyOneReady =false;
+    while (!everyOneReady) {
+        sf::Packet recievePacket;
+        sf::Socket::Status statusOfSocket = currentConnection.getTcpSocket()->receive(recievePacket);
+        if (statusOfSocket == sf::Socket::Disconnected) {
+            //complain
+        }
+        else if (statusOfSocket == sf::Socket::Done) {
+            sf::Uint8 recievedHeader;
+            recievePacket >> recievedHeader;
+            switch (recievedHeader) {
+            case dataType::startGame:
+                everyOneReady = true;
+                break;
+            }
+        }
+    }
+}
+
 void gameState::loadGame()
 {
     showLoadingScreen();
@@ -2945,8 +2973,10 @@ void gameState::loadGame()
         for (int i = 0; i < 16; i++) {
             drawMiniMapMist(miniMapPixel);
         }
+        currentPlayer = listOfPlayers[multiplayerPlayerId];
         centerViewOnVillager();
         loadBaseCellList();
+        waitUntilAllReady();
         return;
     }
     loadMap();
@@ -3025,6 +3055,7 @@ void gameState::loadGame()
             }
         }
         currentConnection.getTcpSocket()->send(mapDataPacket);
+        waitUntilAllReady();
     }
 }
 

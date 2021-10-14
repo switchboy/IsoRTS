@@ -116,6 +116,7 @@ struct connectedPlayers {
 	sf::Int32 lastPing;
 	sf::Int32 lastPingPacketSend;
 	bool isReady;
+	bool fullyLoaded;
 };
 
 struct playersClient {

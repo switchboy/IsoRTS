@@ -60,7 +60,7 @@ void server() {
 					std::string welcomeText = "Welcome to the server " + id + "!";
 					newUserJoined << header << i << welcomeText;
 					socket->send(newUserJoined);
-					clients.push_back({ socket, id, socket->getRemoteAddress() , 0, serverTime.asMilliseconds(), false });
+					clients.push_back({ socket, id, socket->getRemoteAddress() , 0, serverTime.asMilliseconds(), false, false });
 					socket->send(pingPacket);
 					clients.back().lastPingPacketSend = serverTime.asMilliseconds();
 					selector.add(*socket);
@@ -140,8 +140,8 @@ void server() {
 								packet >> clients[i].isReady;
 								sf::Uint8 header = dataType::playerReady;
 								sendPacket << header;
-								for (int i = 0; i < clients.size(); i++) {
-									sendPacket << clients[i].isReady;
+								for (int k = 0; k < clients.size(); k++) {
+									sendPacket << clients[k].isReady;
 								}
 								for (int j = 0; j < clients.size(); j++) {
 									clients[j].playerSocket->send(sendPacket);
@@ -150,8 +150,6 @@ void server() {
 							}
 							case dataType::mapObjectBlob:
 							{
-								sf::Uint8 header = dataType::mapObjectBlob;
-								sendPacket << header << packet;
 								for (int j = 0; j < clients.size(); j++) {
 									clients[j].playerSocket->send(packet);
 								}
@@ -159,8 +157,6 @@ void server() {
 							}
 							case dataType::actorsBlob:
 							{
-								//sf::Uint8 header = dataType::actorsBlob;
-								//sendPacket << header << packet;
 								for (int j = 0; j < clients.size(); j++) {
 									clients[j].playerSocket->send(packet);
 								}
@@ -168,8 +164,6 @@ void server() {
 							}
 							case dataType::buildingsBlob:
 							{
-								//sf::Uint8 header = dataType::buildingsBlob;
-								//sendPacket << header << packet;
 								for (int j = 0; j < clients.size(); j++) {
 									clients[j].playerSocket->send(packet);
 								}
@@ -178,8 +172,6 @@ void server() {
 
 							case dataType::objectsBlob:
 							{
-								//sf::Uint8 header = dataType::objectsBlob;
-								//sendPacket << header << packet;
 								for (int j = 0; j < clients.size(); j++) {
 									clients[j].playerSocket->send(packet);
 								}
@@ -187,10 +179,25 @@ void server() {
 							}
 							case dataType::playersBlob:
 							{
-								//sf::Uint8 header = dataType::playersBlob;
-								//sendPacket << header << packet;
 								for (int j = 0; j < clients.size(); j++) {
 									clients[j].playerSocket->send(packet);
+								}
+								break;
+							}
+
+							case dataType::startGame:
+							{
+								clients[i].fullyLoaded = true;
+								bool allReady = true;
+								for (connectedPlayers& p : clients) {
+									if (p.fullyLoaded == false) {
+										allReady = false;
+									}
+								}
+								if (allReady) {
+									for (int j = 0; j < clients.size(); j++) {
+										clients[j].playerSocket->send(packet);
+									}
 								}
 								break;
 							}
@@ -276,13 +283,14 @@ void server() {
 									}
 									countdown++;
 								}
-								else {
+								else{
 									sf::Packet startGamePacket;
 									sf::Uint8 header = dataType::startGame;
 									startGamePacket << header;
 									for (connectedPlayers& client : clients) {
 										client.playerSocket->send(startGamePacket);
 									}
+									gameStarted = true;
 								}
 							}
 							else {

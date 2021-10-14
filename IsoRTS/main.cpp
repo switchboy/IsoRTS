@@ -176,7 +176,6 @@ int main()
     loadSplashScreen();
     splashScreen();
     createAndShowMainMenu();
-    sf::Clock clockMain;
     int lastActor = 0;
     int lastBuilding = 0;
     int lastPath = 0;
@@ -185,7 +184,7 @@ int main()
     int nextUpdateTick = 100;
     int nextAITick = 500;
     currentGame.loadGame();
-
+    sf::Clock clockMain;
     for (int i = 0; i < currentGame.getPlayerCount() - multiplayerPlayers; i++) {
         simpleAI newAIPlayer(i  + multiplayerPlayers, 0);
         listOfAI.push_back(newAIPlayer);

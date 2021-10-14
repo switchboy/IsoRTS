@@ -1737,7 +1737,6 @@ void drawMiniMapBuildings(sf::RectangleShape& miniMapPixel)
 {
     if(!noNewBuildings)
     {
-        if (!listOfBuildings.empty()) {
             for (int j = 0; j < MAP_HEIGHT; j++)
             {
                 for (int i = 0; i < MAP_WIDTH; i++)
@@ -1762,7 +1761,6 @@ void drawMiniMapBuildings(sf::RectangleShape& miniMapPixel)
                 }
             }
             noNewBuildings = true;
-        }
     }
 }
 
@@ -2767,7 +2765,7 @@ void gameState::setDefaultValues()
     this->objectTypeSelected = 0;
     this->showPaths = false;
     this->lastMistDraw = -1;
-    if (multiplayerPlayers != 0) {
+    if (multiplayerPlayers != 1) {
         this->players = multiplayerPlayers;
     }
     else {
@@ -2867,6 +2865,7 @@ void gameState::loadGame()
                     }
                     mapRecieved = true;
                 }
+                smoothTerrain();
                 break;
 
                 case dataType::actorsBlob:
@@ -2946,6 +2945,7 @@ void gameState::loadGame()
         for (int i = 0; i < 16; i++) {
             drawMiniMapMist(miniMapPixel);
         }
+        centerViewOnVillager();
         loadBaseCellList();
         return;
     }

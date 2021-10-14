@@ -8,8 +8,6 @@
 
 std::list<int> occupiedFoodSources;
 
-namespace
-{
 	void generatePerlinNoise(float scaleBias, int octaves, float* noiseSeed, float* output)
 	{
 		for (int x = 0; x < MAP_WIDTH; x++) {
@@ -259,15 +257,6 @@ namespace
 		}
 	}
 
-	void centerViewOnVillager() {
-		for (int i = 0; i < listOfActors.size(); i++) {
-			if (listOfActors[i].getTeam() == currentPlayer.getTeam()) {
-				viewOffsetX = worldSpace(listOfActors[i].getActorCords()).x;
-				viewOffsetY = worldSpace(listOfActors[i].getActorCords()).y;
-			}
-		}
-	}
-
 	void generateTerrain() {
 		srand(static_cast<int>(time(NULL)));
 		//Moved noiseMap and noiseSeed from stack to heap because of size
@@ -284,7 +273,7 @@ namespace
 		delete[]noiseSeed;
 	}
 
-}
+
 
 void smoothSand(int x, int y) { //This function is really convoluted there is probably a better way
 
@@ -448,4 +437,14 @@ void generateRandomMap(int players, int amountOfFoodGroups, int amountOfStoneGro
 	}
 
 
+}
+
+void centerViewOnVillager()
+{
+	for (int i = 0; i < listOfActors.size(); i++) {
+		if (listOfActors[i].getTeam() == currentPlayer.getTeam()) {
+			viewOffsetX = worldSpace(listOfActors[i].getActorCords()).x;
+			viewOffsetY = worldSpace(listOfActors[i].getActorCords()).y;
+		}
+	}
 }

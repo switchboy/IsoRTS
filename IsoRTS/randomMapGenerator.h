@@ -9,3 +9,5 @@ struct foodLocationData
 };
 
 extern void generateRandomMap(int players, int amountOfFoodGroups, int amountOfStoneGroups, int amountOfGoldGroups, int treeDensityLevel, int tries);
+extern void centerViewOnVillager();
+extern void smoothTerrain();

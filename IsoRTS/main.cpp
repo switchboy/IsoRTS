@@ -208,6 +208,8 @@ int main()
             nextCommandWindow += 200;
         }
         if (currentGame.elapsedTimeMS > nextUpdateTick) { //make the simulation update @ 10FPS
+            gameDirector.sendNetWorkCommands();
+            gameDirector.recieveNetworkCommands();
             updateStats();
             updateGameState(lastActor, lastBuilding, lastPath, lastProjectile);
             nextUpdateTick = currentGame.elapsedTimeMS + 100;

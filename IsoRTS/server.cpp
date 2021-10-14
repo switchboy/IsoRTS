@@ -115,6 +115,15 @@ void server() {
 							sf::Uint8 recievedHeader;
 							packet >> recievedHeader;
 							switch (recievedHeader) {
+							case dataType::commandPacket:
+							{
+								for (int j = 0; j < clients.size(); j++) {
+									if (i != j) {
+										clients[j].playerSocket->send(packet);
+									}
+								}
+								break;
+							}
 							case dataType::Text:
 							{
 								std::string text;

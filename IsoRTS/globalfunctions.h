@@ -85,8 +85,6 @@ enum dataType {
 	playerReady,
 	startGame,
 	giveUserId,
-	readyToRecieveMap,
-	mapRecievedAndProcessed,
 	mapObjectBlob,
 	objectsBlob,
 	actorsBlob,
@@ -94,6 +92,7 @@ enum dataType {
 	playersBlob,
 	gameTimePacket,
 	readyForGameStartPacket,
+	commandPacket,
 	holdGame
 };
 

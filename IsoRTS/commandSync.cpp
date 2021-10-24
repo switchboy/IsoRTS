@@ -24,7 +24,7 @@ void commandSync::sendNetWorkCommands()
 	for (command& unsentCommand : listOfUnsentCommands) {
 		int timeCommandGiven = unsentCommand.timeCommandGiven;
 		int playerId = unsentCommand.playerId;
-		int subjectId = unsentCommand.playerId;
+		int subjectId = unsentCommand.subjectId;
 		bool placingBuilding = unsentCommand.placingBuilding;
 		bool isStackedCommand = unsentCommand.isStackedCommand;
 		int commandCordsX = unsentCommand.commandCords.x;
@@ -70,6 +70,7 @@ void commandSync::recieveNetworkCommands()
 				int actionToPerform;
 				recievePacket >> timeCommandGiven >> playerId >> subjectId >> placingBuilding >> isStackedCommand >> commandCordsX >> commandCordsY >> subjectType >> orderType >> actionToPerform;
 				listOfCommands.push_back({ timeCommandGiven, playerId, subjectId, placingBuilding, isStackedCommand, {commandCordsX, commandCordsY}, static_cast<worldObject>(subjectType), static_cast<stackOrderTypes>(orderType) , static_cast<actionTypes>(actionToPerform) });
+				std::cout << "Command recieved! for "<< timeCommandGiven << " - current Time: "<< currentGame.getTime() << std::endl;
 			}
 			break;
 		}

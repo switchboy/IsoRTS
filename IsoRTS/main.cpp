@@ -196,6 +196,7 @@ int main()
         sf::Time elapsedMain = clockMain.getElapsedTime();
         //currentGame.elapsedTime = elapsedMain.asSeconds();
         currentGame.elapsedTimeMS = elapsedMain.asMilliseconds();
+        gameDirector.recieveNetworkCommands();
         gameText.throwOutOldMessages();
         clearOldCommandCursors();
         currentGame.interact();
@@ -209,7 +210,6 @@ int main()
         }
         if (currentGame.elapsedTimeMS > nextUpdateTick) { //make the simulation update @ 10FPS
             gameDirector.sendNetWorkCommands();
-            gameDirector.recieveNetworkCommands();
             updateStats();
             updateGameState(lastActor, lastBuilding, lastPath, lastProjectile);
             nextUpdateTick = currentGame.elapsedTimeMS + 100;

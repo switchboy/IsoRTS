@@ -5,7 +5,9 @@
 
 commandSync::commandSync()
 {
-
+	for (int i = 0; i < 8; i++) {
+		this->recievedCommandBursts.push_back({});
+	}
 }
 
 void commandSync::addCommand(command givenCommand)
@@ -57,6 +59,7 @@ void commandSync::recieveNetworkCommands()
 			recievePacket >> fromPlayer;
 			size_t amountOfCommands;
 			recievePacket >> amountOfCommands;
+			this->recievedCommandBursts[fromPlayer].push_back(time);
 			for (int i = 0; i < amountOfCommands; i++) {
 				int timeCommandGiven;
 				int playerId;

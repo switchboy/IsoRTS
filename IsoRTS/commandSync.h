@@ -18,7 +18,7 @@ private:
 	std::vector<command> listOfCommands;
 	std::vector<command> listOfUnsentCommands;
 	std::vector<command> listOfAllCommandsExcecuted;
-
+	std::vector<std::vector<int>> recievedCommandBursts; //player id, timeStampOfCommandBurst
 };
 
 extern commandSync gameDirector;

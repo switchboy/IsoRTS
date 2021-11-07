@@ -17,6 +17,8 @@ gmon.out
 *.stats
 Thumbs.db
 .DS_Store
+Platform/
+Utility/
 
 # VS Code
 .vscode/ipch

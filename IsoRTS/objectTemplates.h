@@ -1,5 +1,5 @@
 #pragma once
-#include "globalFunctions.h"
+#include "globalfunctions.h"
 #include "humanReadableNames.h"
 #include "objects.h"
 #include <SFML/Graphics.hpp>

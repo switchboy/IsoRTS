@@ -8,7 +8,7 @@
 #include "player.h"
 #include "projectile.h"
 #include "randomMapGenerator.h"
-#include <algorithm> 
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -76,7 +76,7 @@ nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId)
                 }
             }
             if (!rejectionsDuringLoop) {
-                firstLocationIsNotRejected = true; //break the loop 
+                firstLocationIsNotRejected = true; //break the loop
             }
         }
         //Return the location if one is accepted
@@ -258,10 +258,10 @@ void setMistLevel(sf::Vertex* quad, sf::Color alpha) {
 }
 
 void setMistWorldCordsForQuad(sf::Vertex* Quad, int i, int j) {
-    Quad[0].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x) + 32.f, static_cast<float>(worldSpace({ i, j }).y));           
-    Quad[1].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x) + 64.0f, static_cast<float>(worldSpace({ i, j }).y) + 16.f);         
-    Quad[2].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x) + 32.f, static_cast<float>(worldSpace({ i, j }).y) + 32.f);    
-    Quad[3].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x), static_cast<float>(worldSpace({ i, j }).y) + 16.f);           
+    Quad[0].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x) + 32.f, static_cast<float>(worldSpace({ i, j }).y));
+    Quad[1].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x) + 64.0f, static_cast<float>(worldSpace({ i, j }).y) + 16.f);
+    Quad[2].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x) + 32.f, static_cast<float>(worldSpace({ i, j }).y) + 32.f);
+    Quad[3].position = sf::Vector2f(static_cast<float>(worldSpace({ i, j }).x), static_cast<float>(worldSpace({ i, j }).y) + 16.f);
 }
 
 void gameState::drawMap()
@@ -311,7 +311,7 @@ void gameState::drawMap()
             else {
                 setMistLevel(&mistMap[((i * MAP_HEIGHT) + j) * 4], { 0,0,0,0 });
             }
-            
+
         }
     }
     window.draw(mistMap);
@@ -399,7 +399,7 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: tileObstructed.png \n" << std::endl;
     }
-    
+
     if(textureTotalBackground.loadFromFile("textures/totalBackground.png"))
     {
         spriteTotalBackground.setTexture(textureTotalBackground);
@@ -408,8 +408,8 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: totalbackground.png \n" << std::endl;
     }
-    
-    
+
+
     if(textureSelectedTile.loadFromFile("textures/tileSelected.png"))
     {
         spriteSelectedTile.setTexture(textureSelectedTile);
@@ -437,8 +437,8 @@ void gameState::loadTextures()
     {
         std::cout << "Error loading texture: emptyTile.png \n" << std::endl;
     }
-    
-   
+
+
     if(!textureCheatTile.loadFromFile("textures/cheatTile.png"))
     {
         std::cout << "Error loading texture: cheatTile.png \n" << std::endl;
@@ -603,7 +603,7 @@ void gameState::calculateRectangle()
         int stopAt = static_cast<int>(this->rectangleCords.size());
         for(int i = 0; i < stopAt; i++)
         {
-            if (i < stopAt - 1) 
+            if (i < stopAt - 1)
             {
                 if (this->rectangleCords[i].y == this->rectangleCords[i + 1].y)
                 {
@@ -750,7 +750,7 @@ void gameState::clickToPlaceBuilding() {
                             listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().wood * mapPointsCrossed.size() <= currentPlayer.getStats().amountOfWood &&
                             listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().stone * mapPointsCrossed.size() <= currentPlayer.getStats().amountOfStone &&
                             listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().gold * mapPointsCrossed.size() <= currentPlayer.getStats().amountOfGold) ||
-                        !isPlacingBuilding //Check to see if building is placed from the debugging hotkeys or map builder 
+                        !isPlacingBuilding //Check to see if building is placed from the debugging hotkeys or map builder
                         ) {
                         //place the building
                         for (cords& thisCord : mapPointsCrossed) {
@@ -875,7 +875,7 @@ void gameState::clickToSelectObjectOrBuilding()
 
         }
     }
-      
+
     if (listOfObjects.size() > 0) {
         int highestTop = 0;
         for (const objects& object : listOfObjects) {
@@ -886,7 +886,7 @@ void gameState::clickToSelectObjectOrBuilding()
                 this->objectSelectedId = object.getObjectId();
             }
 
-            /*Using a sprite            
+            /*Using a sprite
             if (Collision::PixelPerfectTest(listOfObjectTemplates[static_cast<uint32_t>(object.getType())].getSprite(), this->spriteMouseCord, 128)) {
                 this->objectSelectedId = object.getObjectId();
             }*/
@@ -1046,7 +1046,7 @@ void gameState::getDefinitiveSelection()
                     }),
                     selectedUnits.end());
 
-                //haal id's eruit die niet 
+                //haal id's eruit die niet
                 selectedUnits.erase(std::remove_if(selectedUnits.begin(),
                     selectedUnits.end(),
                     [&](const int id) -> bool
@@ -1289,11 +1289,11 @@ void gameState::clickToGiveCommand()
         {
             actionPreformed = clickToBuildOrRepairBuilding();
         }
-        else 
+        else
         {
             actionPreformed = clickToAttack();
         }
-        
+
     }
     else if (!this->occupiedByActorList[actionPosition.x][actionPosition.y].empty()) {
         if (listOfActors[this->occupiedByActorList[actionPosition.x][actionPosition.y].front()].getTeam() != currentPlayer.getTeam())
@@ -1519,7 +1519,7 @@ void gameState::interact()
         this->isPressedShift = true;
 
     }
-    else 
+    else
     {
         this->isPressedShift = false;
     }
@@ -1752,7 +1752,7 @@ void drawMiniMapBuildings(sf::RectangleShape& miniMapPixel)
                         currentMiniMapQuad[3].color = teamColors[listOfBuildings[currentGame.occupiedByBuildingList[i][j]].getTeam()];
                     }
                     else {
-                        //Pixel is not occupied so make it tansparant        
+                        //Pixel is not occupied so make it tansparant
                         currentMiniMapQuad[0].color = sf::Color({ 0,0,0,0 });
                         currentMiniMapQuad[1].color = sf::Color({ 0,0,0,0 });
                         currentMiniMapQuad[2].color = sf::Color({ 0,0,0,0 });
@@ -1791,7 +1791,7 @@ void gameState::drawMiniMapActors(sf::RectangleShape& miniMapPixel)
 void gameState::drawMiniMapMist(sf::RectangleShape& miniMapPixel)
 {
     if (this->lastMistDraw + 200 < this->elapsedTimeMS || !this->fogOfWarDrawnOnce) {           //make the fog of war update every 3 seconds to reduce system load
-               
+
         this->lastMistDraw = this->elapsedTimeMS;
         //Determine the bounderies of the sector to be drawn
         int drawStartX = 0;
@@ -1899,7 +1899,7 @@ void gameState::drawMiniMap()
         this->lastMiniMapRefresh = this->elapsedTimeMS;
     }
     drawMiniMapMist(miniMapPixel);
-    
+
     minimapTexture.clear(sf::Color(0, 0, 0, 0));;
     minimapTexture.draw(miniMapBackGroundPoints);
     minimapTexture.draw(miniMapBuildingPoints);
@@ -1908,7 +1908,7 @@ void gameState::drawMiniMap()
     minimapTexture.draw(miniMapMistPoints);
     miniMapBackground.setTexture(minimapTexture.getTexture());
     miniMapBackground.setTextureRect(sf::IntRect(0, minimapTexture.getSize().y, minimapTexture.getSize().x, -static_cast<int>(minimapTexture.getSize().y)));
-    miniMapBackground.setScale((this->miniMapWidth/(20*MAP_WIDTH)), (this->miniMapHeigth/(10*MAP_HEIGHT)));  
+    miniMapBackground.setScale((this->miniMapWidth/(20*MAP_WIDTH)), (this->miniMapHeigth/(10*MAP_HEIGHT)));
 
     window.draw(miniMapBackground);
 
@@ -2290,9 +2290,9 @@ cords getSpriteOffSetTask(int buildingId)
         switch (listOfBuildings[buildingId].getProductionQueue().front().idOfUnitOrResearch)
         {
         case 0:
-            return { 64, 0 };//placeholder change to icon of research 
+            return { 64, 0 };//placeholder change to icon of research
         default:
-            return { 64, 0 };//placeholder change to icon of research 
+            return { 64, 0 };//placeholder change to icon of research
             break;
         }
     }
@@ -2305,7 +2305,7 @@ cords getSpriteOffSetTask(int buildingId)
         case 1:
             return { 64, 64 };
         default:
-            return { 64, 0 };//placeholder change to icon of research 
+            return { 64, 0 };//placeholder change to icon of research
             break;
         }
     }
@@ -2897,7 +2897,7 @@ void gameState::loadGame()
                 break;
 
                 case dataType::actorsBlob:
-                    size_t amountOfActors;
+                    sf::Int32 amountOfActors;
                     recievePacket >> amountOfActors;
                     for (int i = 0; i < amountOfActors; i++) {
                         int x;
@@ -2915,7 +2915,7 @@ void gameState::loadGame()
                     break;
 
                 case dataType::buildingsBlob:
-                    size_t amountOfBuildings;
+                    sf::Int32 amountOfBuildings;
                     recievePacket >> amountOfBuildings;
                     for (int i = 0; i < amountOfBuildings; i++) {
                         int x;
@@ -2932,7 +2932,7 @@ void gameState::loadGame()
                     break;
 
                 case dataType::objectsBlob:
-                    size_t amountOfObjects;
+                    sf::Int32 amountOfObjects;
                     recievePacket >> amountOfObjects;
                     for (int i = 0; i < amountOfObjects; i++) {
                         int x;
@@ -2945,7 +2945,7 @@ void gameState::loadGame()
                     }
                     objectsBlobRecieved = true;
                     break;
-                
+
                 case dataType::playersBlob:
                     for (int i = 0; i < 8; i++) {
                         int food;
@@ -2986,7 +2986,7 @@ void gameState::loadGame()
         sf::Packet actorDataPacket;
         sf::Uint8 actorDataHeader = dataType::actorsBlob;
         actorDataPacket << actorDataHeader;
-        size_t amountOfActors = listOfActors.size();
+        sf::Int32 amountOfActors = listOfActors.size();
         actorDataPacket << amountOfActors;
 
         for (actors& a : listOfActors) {
@@ -3002,7 +3002,7 @@ void gameState::loadGame()
         sf::Packet buildingDataPacket;
         sf::Uint8 buildingDataHeader = dataType::buildingsBlob;
         buildingDataPacket << buildingDataHeader;
-        size_t amountOfBuildings = listOfBuildings.size();
+        sf::Int32 amountOfBuildings = listOfBuildings.size();
         buildingDataPacket << amountOfBuildings;
 
         for (buildings& a : listOfBuildings) {
@@ -3018,7 +3018,7 @@ void gameState::loadGame()
         sf::Packet objectDataPacket;
         sf::Uint8 objectDataHeader = dataType::objectsBlob;
         objectDataPacket << objectDataHeader;
-        size_t amountOfObjects = listOfObjects.size();
+        sf::Int32 amountOfObjects = listOfObjects.size();
         objectDataPacket << amountOfObjects;
         for (objects& a : listOfObjects) {
             int x = a.getLocation().x;
@@ -3059,7 +3059,7 @@ void gameState::loadGame()
     }
 }
 
-void gameState::createFogOfWar() 
+void gameState::createFogOfWar()
 {
     if (lastFogOfWarUpdated + 500 < this->elapsedTimeMS) {
         if (!noFogOfWar) {

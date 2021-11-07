@@ -4,9 +4,9 @@
  */
 #include <SFML/Graphics.hpp>
 #include <map>
-#include "Collision.h"
+#include "collision.h"
 #include <iostream>
-#include "globalFunctions.h"
+#include "globalfunctions.h"
 
 namespace Collision
 {

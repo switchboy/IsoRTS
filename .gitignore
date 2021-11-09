@@ -10,6 +10,22 @@
 *.userosscache
 *.sln.docstates
 
+# Build system
+bin
+build
+gmon.out
+*.stats
+Thumbs.db
+.DS_Store
+Platform/
+Utility/
+
+# VS Code
+.vscode/ipch
+
+# Project specific
+#
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

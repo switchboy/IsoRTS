@@ -1,6 +1,6 @@
 #include "player.h"
 player listOfPlayers[8];
-player& currentPlayer = listOfPlayers[0];
+int currentPlayerI = 0;
 
 
 player::player()

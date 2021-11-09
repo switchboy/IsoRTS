@@ -13,7 +13,7 @@ commandSync::commandSync()
 void commandSync::addCommand(command givenCommand)
 {
 	listOfCommands.push_back(givenCommand);
-	if (givenCommand.playerId == currentPlayer.getTeam()) {
+	if (givenCommand.playerId == listOfPlayers[currentPlayerI].getTeam()) {
 		listOfUnsentCommands.push_back(givenCommand);
 	}
 }

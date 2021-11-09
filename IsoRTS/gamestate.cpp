@@ -693,7 +693,7 @@ void gameState::clickToPlaceBuilding() {
                 gameDirector.addCommand(
                     {
                         this->elapsedTimeMS,
-                        currentPlayer.getTeam(),
+                        listOfPlayers[currentPlayerI].getTeam(),
                         this->buildingTypeSelected,
                         true,
                         false,
@@ -707,12 +707,12 @@ void gameState::clickToPlaceBuilding() {
 
                 for (int i = 0; i < this->selectedUnits.size(); i++)
                 {
-                    if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+                    if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == listOfPlayers[currentPlayerI].getTeam())
                     {
                         gameDirector.addCommand(
                             {
                                 this->elapsedTimeMS + 1, //this makes sure the command is excecuted after the place building command
-                                currentPlayer.getTeam(),
+                                listOfPlayers[currentPlayerI].getTeam(),
                                 this->selectedUnits[i],
                                 false,
                                 false,
@@ -746,10 +746,10 @@ void gameState::clickToPlaceBuilding() {
                 //check if the player can pay for this wall, if so place it, if not throw error in his face!
                 if (allPointsAreBuildable) {
                     if (
-                        (listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().food * mapPointsCrossed.size() <= currentPlayer.getStats().amountOfFood &&
-                            listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().wood * mapPointsCrossed.size() <= currentPlayer.getStats().amountOfWood &&
-                            listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().stone * mapPointsCrossed.size() <= currentPlayer.getStats().amountOfStone &&
-                            listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().gold * mapPointsCrossed.size() <= currentPlayer.getStats().amountOfGold) ||
+                        (listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().food * mapPointsCrossed.size() <= listOfPlayers[currentPlayerI].getStats().amountOfFood &&
+                            listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().wood * mapPointsCrossed.size() <= listOfPlayers[currentPlayerI].getStats().amountOfWood &&
+                            listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().stone * mapPointsCrossed.size() <= listOfPlayers[currentPlayerI].getStats().amountOfStone &&
+                            listOfBuildingTemplates[this->buildingTypeSelected].getPriceOfBuilding().gold * mapPointsCrossed.size() <= listOfPlayers[currentPlayerI].getStats().amountOfGold) ||
                         !isPlacingBuilding //Check to see if building is placed from the debugging hotkeys or map builder
                         ) {
                         //place the building
@@ -758,7 +758,7 @@ void gameState::clickToPlaceBuilding() {
                             gameDirector.addCommand(
                                 {
                                     this->elapsedTimeMS,
-                                    currentPlayer.getTeam(),
+                                    listOfPlayers[currentPlayerI].getTeam(),
                                     this->buildingTypeSelected,
                                     true,
                                     false,
@@ -772,12 +772,12 @@ void gameState::clickToPlaceBuilding() {
                             {
                                 for (int i = 0; i < this->selectedUnits.size(); i++)
                                 {
-                                    if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+                                    if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == listOfPlayers[currentPlayerI].getTeam())
                                     {
                                         gameDirector.addCommand(
                                             {
                                                 this->elapsedTimeMS + 1, //this makes sure the command is excecuted after the place building command
-                                                currentPlayer.getTeam(),
+                                                listOfPlayers[currentPlayerI].getTeam(),
                                                 this->selectedUnits[i],
                                                 false,
                                                 true,
@@ -846,7 +846,7 @@ void gameState::clickToPlaceActor() const
         if (this->objectLocationList[mouseWorldPosition.x][mouseWorldPosition.y] == -1 && this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] == -1 && this->occupiedByActorList[mouseWorldPosition.x][mouseWorldPosition.y].empty())
         {
             //Zet de actor neer
-            listOfActors.push_back(actors(0, this->mouseWorldPosition, currentPlayer.getTeam(), static_cast<int>(listOfActors.size())));
+            listOfActors.push_back(actors(0, this->mouseWorldPosition, listOfPlayers[currentPlayerI].getTeam(), static_cast<int>(listOfActors.size())));
         }
     }
 }
@@ -959,12 +959,12 @@ void gameState::mouseLeftClick()
                 {
                     for (int i = 0; i < this->selectedUnits.size(); i++)
                     {
-                        if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+                        if (listOfActors[this->selectedUnits[i]].getTeam() == listOfPlayers[currentPlayerI].getTeam())
                         {
                             gameDirector.addCommand(
                                 {
                                     this->elapsedTimeMS,
-                                    currentPlayer.getTeam(),
+                                    listOfPlayers[currentPlayerI].getTeam(),
                                     this->selectedUnits[i],
                                     false,
                                     this->isPressedShift,
@@ -1051,7 +1051,7 @@ void gameState::getDefinitiveSelection()
                     selectedUnits.end(),
                     [&](const int id) -> bool
                     {
-                        return listOfActors[id].getTeam() != currentPlayer.getTeam();
+                        return listOfActors[id].getTeam() != listOfPlayers[currentPlayerI].getTeam();
                     }),
                     selectedUnits.end());
             }
@@ -1070,7 +1070,7 @@ bool gameState::clickToMove(cords pos, bool minimap) const
     {
         if (this->selectedUnits.size() > 1)
         {
-            if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+            if (listOfActors[this->selectedUnits[i]].getTeam() == listOfPlayers[currentPlayerI].getTeam())
             {
                 cords tempCords = { 0,0 };
                 if (minimap) {
@@ -1084,7 +1084,7 @@ bool gameState::clickToMove(cords pos, bool minimap) const
                 gameDirector.addCommand(
                     {
                         this->elapsedTimeMS,
-                        currentPlayer.getTeam(),
+                        listOfPlayers[currentPlayerI].getTeam(),
                         this->selectedUnits[i],
                         false,
                         this->isPressedShift,
@@ -1099,7 +1099,7 @@ bool gameState::clickToMove(cords pos, bool minimap) const
         }
         else
         {
-            if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+            if (listOfActors[this->selectedUnits[i]].getTeam() == listOfPlayers[currentPlayerI].getTeam())
             {
                 cords tempcords = { 0,0 };
                 if (minimap) {
@@ -1113,7 +1113,7 @@ bool gameState::clickToMove(cords pos, bool minimap) const
                 gameDirector.addCommand(
                     {
                         this->elapsedTimeMS,
-                        currentPlayer.getTeam(),
+                        listOfPlayers[currentPlayerI].getTeam(),
                         this->selectedUnits[i],
                         false,
                         this->isPressedShift,
@@ -1135,12 +1135,12 @@ bool gameState::clickToGatherResource() const
     bool actionDone = false;
     for (int i = 0; i < this->selectedUnits.size(); i++)
     {
-        if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+        if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == listOfPlayers[currentPlayerI].getTeam())
         {
             gameDirector.addCommand(
                 {
                     this->elapsedTimeMS,
-                    currentPlayer.getTeam(),
+                    listOfPlayers[currentPlayerI].getTeam(),
                     this->selectedUnits[i],
                     false,
                     this->isPressedShift,
@@ -1163,12 +1163,12 @@ bool gameState::clickToBuildOrRepairBuilding() const
     {
         for (int i = 0; i < this->selectedUnits.size(); i++)
         {
-            if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+            if (listOfActors[this->selectedUnits[i]].getType() == 0 && listOfActors[this->selectedUnits[i]].getTeam() == listOfPlayers[currentPlayerI].getTeam())
             {
                 gameDirector.addCommand(
                     {
                         this->elapsedTimeMS,
-                        currentPlayer.getTeam(),
+                        listOfPlayers[currentPlayerI].getTeam(),
                         this->selectedUnits[i],
                         false,
                         this->isPressedShift,
@@ -1189,12 +1189,12 @@ bool gameState::clickToAttack() const {
     bool actionDone = false;
     for (int i = 0; i < this->selectedUnits.size(); i++)
     {
-        if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+        if (listOfActors[this->selectedUnits[i]].getTeam() == listOfPlayers[currentPlayerI].getTeam())
         {
             gameDirector.addCommand(
                 {
                     this->elapsedTimeMS,
-                    currentPlayer.getTeam(),
+                    listOfPlayers[currentPlayerI].getTeam(),
                     this->selectedUnits[i],
                     false,
                     this->isPressedShift,
@@ -1285,7 +1285,7 @@ void gameState::clickToGiveCommand()
     }
     else if (this->occupiedByBuildingList[actionPosition.x][actionPosition.y] != -1)
     {
-        if (listOfBuildings[this->occupiedByBuildingList[actionPosition.x][actionPosition.y]].getTeam() == currentPlayer.getTeam())
+        if (listOfBuildings[this->occupiedByBuildingList[actionPosition.x][actionPosition.y]].getTeam() == listOfPlayers[currentPlayerI].getTeam())
         {
             actionPreformed = clickToBuildOrRepairBuilding();
         }
@@ -1296,7 +1296,7 @@ void gameState::clickToGiveCommand()
 
     }
     else if (!this->occupiedByActorList[actionPosition.x][actionPosition.y].empty()) {
-        if (listOfActors[this->occupiedByActorList[actionPosition.x][actionPosition.y].front()].getTeam() != currentPlayer.getTeam())
+        if (listOfActors[this->occupiedByActorList[actionPosition.x][actionPosition.y].front()].getTeam() != listOfPlayers[currentPlayerI].getTeam())
         {
             clickToAttack();
         }
@@ -1337,7 +1337,7 @@ void gameState::orderRallyPoint() const {
     }
     else if (this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] != -1)
     {
-        if (listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getTeam() == currentPlayer.getTeam())
+        if (listOfBuildings[this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]].getTeam() == listOfPlayers[currentPlayerI].getTeam())
         {
             listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionBuild);
         }
@@ -1349,7 +1349,7 @@ void gameState::orderRallyPoint() const {
     }
     else if (!this->occupiedByActorList[this->mouseWorldPosition.x][this->mouseWorldPosition.y].empty()) {
         for (auto& id : this->occupiedByActorList[this->mouseWorldPosition.x][this->mouseWorldPosition.y]) {
-            if (listOfActors[id].getTeam() != currentPlayer.getTeam())
+            if (listOfActors[id].getTeam() != listOfPlayers[currentPlayerI].getTeam())
             {
                 listOfBuildings[this->buildingSelectedId].setRallyPoint({ this->mouseWorldPosition.x, this->mouseWorldPosition.y }, stackOrderTypes::stackActionAttack);
             }
@@ -1528,13 +1528,13 @@ void gameState::interact()
     {
         this->isPressedTab = true;
         if (this->isPressedShift) {
-            if (currentPlayer.getTeam() + 1 > this->players-1)
+            if (listOfPlayers[currentPlayerI].getTeam() + 1 > this->players-1)
             {
-                currentPlayer = listOfPlayers[0];
+                currentPlayerI = 0;
             }
             else
             {
-                currentPlayer = listOfPlayers[currentPlayer.getTeam() + 1];
+                currentPlayerI = listOfPlayers[currentPlayerI].getTeam() + 1;
             }
         }
 
@@ -2176,7 +2176,7 @@ void gameState::drawActorToolbar(int spriteYOffset, int tempY, int offSetTonextC
     int startY = this->preCalcStartY;
     for (int i = 0; i < this->selectedUnits.size(); i++)
     {
-        if (listOfActors[this->selectedUnits[i]].getTeam() == currentPlayer.getTeam())
+        if (listOfActors[this->selectedUnits[i]].getTeam() == listOfPlayers[currentPlayerI].getTeam())
         {
             createVillagerButtons(startX, startY, this->preCalcIncrementalXOffset, villagerButtonsAreThere);
         }
@@ -2391,14 +2391,14 @@ void gameState::drawBuildingToolbar(int spriteYOffset, int tempY, int offSetTone
     int startX = this->preCalcStartX;
     int startY = this->preCalcStartY;
     bool buttonsAreThere = false;
-    if (currentPlayer.getTeam() == listOfBuildings[this->buildingSelectedId].getTeam()) {
+    if (listOfPlayers[currentPlayerI].getTeam() == listOfBuildings[this->buildingSelectedId].getTeam()) {
         listOfBuildingTemplates[listOfBuildings[this->buildingSelectedId].getType()].createBuildingButtons(startX, startY, this->buildingSelectedId, this->preCalcIncrementalXOffset, buttonsAreThere);
     }
     drawBuildingBigSprite(this->buildingSelectedId);
     drawBuildingToolbarTitle(textStartX, textStartY);
     drawBuildingToolbarStats(textStartX, textStartY);
 
-    if (currentPlayer.getTeam() == listOfBuildings[this->buildingSelectedId].getTeam()) {
+    if (listOfPlayers[currentPlayerI].getTeam() == listOfBuildings[this->buildingSelectedId].getTeam()) {
         //Show what the building is doing ATM
         if (!listOfBuildings[this->buildingSelectedId].getCompleted())
         {
@@ -2476,7 +2476,7 @@ void gameState::drawToolbar()
 void gameState::drawTopBar()
 {
     window.setView(topBar);
-    playerStats tempStats = currentPlayer.getStats();
+    playerStats tempStats = listOfPlayers[currentPlayerI].getStats();
     std::stringstream resourcesText;
     int seconds = currentGame.elapsedTimeMS/1000; //Tijd in seconden
     int minutes = 0;
@@ -2504,13 +2504,13 @@ void gameState::drawTopBar()
     }
     time << seconds;
 
-    resourcesText << "|  Wood: " << tempStats.amountOfWood << " (" << currentPlayer.getTotalGatheringWood() <<
-        ")  |  Food: " << tempStats.amountOfFood << " (" << currentPlayer.getTotalGatheringFood() <<
-        ")  |  Stone: " << tempStats.amountOfStone << " (" << currentPlayer.getTotalGatheringStone() <<
-        ")  |  Gold: " << tempStats.amountOfGold << " (" << currentPlayer.getTotalGatheringGold() <<
+    resourcesText << "|  Wood: " << tempStats.amountOfWood << " (" << listOfPlayers[currentPlayerI].getTotalGatheringWood() <<
+        ")  |  Food: " << tempStats.amountOfFood << " (" << listOfPlayers[currentPlayerI].getTotalGatheringFood() <<
+        ")  |  Stone: " << tempStats.amountOfStone << " (" << listOfPlayers[currentPlayerI].getTotalGatheringStone() <<
+        ")  |  Gold: " << tempStats.amountOfGold << " (" << listOfPlayers[currentPlayerI].getTotalGatheringGold() <<
         ")  |                |  Population: " << tempStats.currentPopulation << "/" << tempStats.populationRoom <<
-        "  |  Idle: " << currentPlayer.getIdleVillagers() <<
-        "  |  Building: " << currentPlayer.getTotalBuilding() <<
+        "  |  Idle: " << listOfPlayers[currentPlayerI].getIdleVillagers() <<
+        "  |  Building: " << listOfPlayers[currentPlayerI].getTotalBuilding() <<
         "  |                |  Team: " << tempStats.team <<
         "  |                |  Time: " << time.str() << " |";
 
@@ -2592,7 +2592,7 @@ void gameState::drawMouse() {
                 listOfBuildingTemplates[building.getType()].setSpritePosition(worldSpace(building.getLocation()));
                 if (Collision::singlePixelTest(listOfBuildingTemplates[building.getType()].getBuildingSprite(), mousePosition, 128)) {
                     //Mouse cursor for building either attack, build/repair or nothing
-                    if (building.getTeam() == currentPlayer.getTeam()) {
+                    if (building.getTeam() == listOfPlayers[currentPlayerI].getTeam()) {
                         if (villagerInSelection) {
                             spriteMousePointer.setTextureRect(sf::IntRect(160, 0, 32, 32));
                         }
@@ -2632,7 +2632,7 @@ void gameState::drawMouse() {
             for (const actors& actor : listOfActors) {
                 listOfActorTemplates[actor.getType()].setSpritePosition(worldSpace(actor.getActorCords()));
                 if (Collision::singlePixelTest(listOfActorTemplates[actor.getType()].getActorSprite(), mousePosition, 128)) {
-                    if (actor.getTeam() != currentPlayer.getTeam()) {
+                    if (actor.getTeam() != listOfPlayers[currentPlayerI].getTeam()) {
                         spriteMousePointer.setTextureRect(sf::IntRect(32, 0, 32, 32));
                     }
                 }
@@ -2973,7 +2973,7 @@ void gameState::loadGame()
         for (int i = 0; i < 16; i++) {
             drawMiniMapMist(miniMapPixel);
         }
-        currentPlayer = listOfPlayers[multiplayerPlayerId];
+        currentPlayerI = multiplayerPlayerId;
         centerViewOnVillager();
         loadBaseCellList();
         waitUntilAllReady();
@@ -3071,7 +3071,7 @@ void gameState::createFogOfWar()
                 }
             }
             for (int i = 0; i < listOfActors.size(); i++) {
-                if (listOfActors[i].getTeam() == currentPlayer.getTeam()) {
+                if (listOfActors[i].getTeam() == listOfPlayers[currentPlayerI].getTeam()) {
                     std::list<cords> tempList = getListOfCordsInCircle(listOfActors[i].getActorCords().x, listOfActors[i].getActorCords().y, 6);
                     for (const cords& cord : tempList)
                     {
@@ -3080,7 +3080,7 @@ void gameState::createFogOfWar()
                 }
             }
             for (int i = 1; i < listOfBuildings.size(); i++) {
-                if (listOfBuildings[i].getTeam() == currentPlayer.getTeam()) {
+                if (listOfBuildings[i].getTeam() == listOfPlayers[currentPlayerI].getTeam()) {
                     int visRadius = 1;
                     if (listOfBuildings[i].getCompleted()) {
                         visRadius = 8;

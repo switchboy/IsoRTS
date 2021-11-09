@@ -2285,7 +2285,7 @@ void actors::drawActor()
         currentGame.spriteUnitSelectedTile.setPosition(static_cast<float>(position.x), static_cast<float>(position.y));
         window.draw(currentGame.spriteUnitSelectedTile);
         drawHealth = true;
-        if (!this->listOfOrders.empty() && this->actorTeam == currentPlayer.getTeam()) {
+        if (!this->listOfOrders.empty() && this->actorTeam == listOfPlayers[currentPlayerI].getTeam()) {
             for (const orderStack order : this->listOfOrders) {
                 currentGame.listOfFlagsToDraw.push_back(order.goal);
             }

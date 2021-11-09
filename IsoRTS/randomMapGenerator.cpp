@@ -442,7 +442,7 @@ void generateRandomMap(int players, int amountOfFoodGroups, int amountOfStoneGro
 void centerViewOnVillager()
 {
 	for (int i = 0; i < listOfActors.size(); i++) {
-		if (listOfActors[i].getTeam() == currentPlayer.getTeam()) {
+		if (listOfActors[i].getTeam() == listOfPlayers[currentPlayerI].getTeam()) {
 			viewOffsetX = worldSpace(listOfActors[i].getActorCords()).x;
 			viewOffsetY = worldSpace(listOfActors[i].getActorCords()).y;
 		}

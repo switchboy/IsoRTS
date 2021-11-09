@@ -191,7 +191,7 @@ void button::performAction()
     {
     case actionTypes::actionBuildTownCenter:
 
-        if(listOfBuildingTemplates[1].getPriceOfBuilding().food <= currentPlayer.getStats().amountOfFood && listOfBuildingTemplates[1].getPriceOfBuilding().wood <= currentPlayer.getStats().amountOfWood && listOfBuildingTemplates[1].getPriceOfBuilding().stone <= currentPlayer.getStats().amountOfStone && listOfBuildingTemplates[1].getPriceOfBuilding().gold <= currentPlayer.getStats().amountOfGold)
+        if(listOfBuildingTemplates[1].getPriceOfBuilding().food <= listOfPlayers[currentPlayerI].getStats().amountOfFood && listOfBuildingTemplates[1].getPriceOfBuilding().wood <= listOfPlayers[currentPlayerI].getStats().amountOfWood && listOfBuildingTemplates[1].getPriceOfBuilding().stone <= listOfPlayers[currentPlayerI].getStats().amountOfStone && listOfBuildingTemplates[1].getPriceOfBuilding().gold <= listOfPlayers[currentPlayerI].getStats().amountOfGold)
         {
             currentGame.setBuildingType(1);
             currentGame.setIsPlacingBuilding();
@@ -204,7 +204,7 @@ void button::performAction()
         }
         break;
     case actionTypes::actionBuildHouse:
-        if (listOfBuildingTemplates[0].getPriceOfBuilding().food <= currentPlayer.getStats().amountOfFood && listOfBuildingTemplates[0].getPriceOfBuilding().wood <= currentPlayer.getStats().amountOfWood && listOfBuildingTemplates[0].getPriceOfBuilding().stone <= currentPlayer.getStats().amountOfStone && listOfBuildingTemplates[0].getPriceOfBuilding().gold <= currentPlayer.getStats().amountOfGold)
+        if (listOfBuildingTemplates[0].getPriceOfBuilding().food <= listOfPlayers[currentPlayerI].getStats().amountOfFood && listOfBuildingTemplates[0].getPriceOfBuilding().wood <= listOfPlayers[currentPlayerI].getStats().amountOfWood && listOfBuildingTemplates[0].getPriceOfBuilding().stone <= listOfPlayers[currentPlayerI].getStats().amountOfStone && listOfBuildingTemplates[0].getPriceOfBuilding().gold <= listOfPlayers[currentPlayerI].getStats().amountOfGold)
         {
             currentGame.setBuildingType(0);
             currentGame.setIsPlacingBuilding();
@@ -223,12 +223,12 @@ void button::performAction()
         break;
     case actionTypes::actionMakeVillager:
         //create villager
-        if(listOfActorTemplates[0].getPriceOfActor().food <= currentPlayer.getStats().amountOfFood && listOfActorTemplates[0].getPriceOfActor().wood <= currentPlayer.getStats().amountOfWood && listOfActorTemplates[0].getPriceOfActor().stone <= currentPlayer.getStats().amountOfStone && listOfActorTemplates[0].getPriceOfActor().gold <= currentPlayer.getStats().amountOfGold)
+        if(listOfActorTemplates[0].getPriceOfActor().food <= listOfPlayers[currentPlayerI].getStats().amountOfFood && listOfActorTemplates[0].getPriceOfActor().wood <= listOfPlayers[currentPlayerI].getStats().amountOfWood && listOfActorTemplates[0].getPriceOfActor().stone <= listOfPlayers[currentPlayerI].getStats().amountOfStone && listOfActorTemplates[0].getPriceOfActor().gold <= listOfPlayers[currentPlayerI].getStats().amountOfGold)
         {
             gameDirector.addCommand(
                 {
                     currentGame.elapsedTimeMS,
-                    currentPlayer.getTeam(),
+                    listOfPlayers[currentPlayerI].getTeam(),
                     this->actorOrBuildingId,
                     false,
                     false,
@@ -251,7 +251,7 @@ void button::performAction()
         gameDirector.addCommand(
             {
                 currentGame.elapsedTimeMS,
-                currentPlayer.getTeam(),
+                listOfPlayers[currentPlayerI].getTeam(),
                 this->actorOrBuildingId,
                 false,
                 false,
@@ -267,7 +267,7 @@ void button::performAction()
         gameDirector.addCommand(
             {
                 currentGame.elapsedTimeMS,
-                currentPlayer.getTeam(),
+                listOfPlayers[currentPlayerI].getTeam(),
                 this->actorOrBuildingId,
                 false,
                 false,
@@ -280,7 +280,7 @@ void button::performAction()
         break;
 
     case actionTypes::actionBuildMill:
-        if (listOfBuildingTemplates[2].getPriceOfBuilding().food <= currentPlayer.getStats().amountOfFood && listOfBuildingTemplates[2].getPriceOfBuilding().wood <= currentPlayer.getStats().amountOfWood && listOfBuildingTemplates[2].getPriceOfBuilding().stone <= currentPlayer.getStats().amountOfStone && listOfBuildingTemplates[2].getPriceOfBuilding().gold <= currentPlayer.getStats().amountOfGold)
+        if (listOfBuildingTemplates[2].getPriceOfBuilding().food <= listOfPlayers[currentPlayerI].getStats().amountOfFood && listOfBuildingTemplates[2].getPriceOfBuilding().wood <= listOfPlayers[currentPlayerI].getStats().amountOfWood && listOfBuildingTemplates[2].getPriceOfBuilding().stone <= listOfPlayers[currentPlayerI].getStats().amountOfStone && listOfBuildingTemplates[2].getPriceOfBuilding().gold <= listOfPlayers[currentPlayerI].getStats().amountOfGold)
         {
             currentGame.setBuildingType(2);
             currentGame.setIsPlacingBuilding();
@@ -294,7 +294,7 @@ void button::performAction()
         break;
 
     case actionTypes::actionBuildLumberCamp:
-        if (listOfBuildingTemplates[3].getPriceOfBuilding().food <= currentPlayer.getStats().amountOfFood && listOfBuildingTemplates[3].getPriceOfBuilding().wood <= currentPlayer.getStats().amountOfWood && listOfBuildingTemplates[3].getPriceOfBuilding().stone <= currentPlayer.getStats().amountOfStone && listOfBuildingTemplates[3].getPriceOfBuilding().gold <= currentPlayer.getStats().amountOfGold)
+        if (listOfBuildingTemplates[3].getPriceOfBuilding().food <= listOfPlayers[currentPlayerI].getStats().amountOfFood && listOfBuildingTemplates[3].getPriceOfBuilding().wood <= listOfPlayers[currentPlayerI].getStats().amountOfWood && listOfBuildingTemplates[3].getPriceOfBuilding().stone <= listOfPlayers[currentPlayerI].getStats().amountOfStone && listOfBuildingTemplates[3].getPriceOfBuilding().gold <= listOfPlayers[currentPlayerI].getStats().amountOfGold)
         {
             currentGame.setBuildingType(3);
             currentGame.setIsPlacingBuilding();
@@ -308,7 +308,7 @@ void button::performAction()
         break;
 
     case actionTypes::actionBuildBarracks:
-        if (listOfBuildingTemplates[4].getPriceOfBuilding().food <= currentPlayer.getStats().amountOfFood && listOfBuildingTemplates[4].getPriceOfBuilding().wood <= currentPlayer.getStats().amountOfWood && listOfBuildingTemplates[4].getPriceOfBuilding().stone <= currentPlayer.getStats().amountOfStone && listOfBuildingTemplates[4].getPriceOfBuilding().gold <= currentPlayer.getStats().amountOfGold)
+        if (listOfBuildingTemplates[4].getPriceOfBuilding().food <= listOfPlayers[currentPlayerI].getStats().amountOfFood && listOfBuildingTemplates[4].getPriceOfBuilding().wood <= listOfPlayers[currentPlayerI].getStats().amountOfWood && listOfBuildingTemplates[4].getPriceOfBuilding().stone <= listOfPlayers[currentPlayerI].getStats().amountOfStone && listOfBuildingTemplates[4].getPriceOfBuilding().gold <= listOfPlayers[currentPlayerI].getStats().amountOfGold)
         {
             currentGame.setBuildingType(4);
             currentGame.setIsPlacingBuilding();
@@ -322,12 +322,12 @@ void button::performAction()
         break;
     case actionTypes::actionMakeSwordsman:
         //create a swordman
-        if (listOfActorTemplates[1].getPriceOfActor().food <= currentPlayer.getStats().amountOfFood && listOfActorTemplates[1].getPriceOfActor().wood <= currentPlayer.getStats().amountOfWood && listOfActorTemplates[1].getPriceOfActor().stone <= currentPlayer.getStats().amountOfStone && listOfActorTemplates[1].getPriceOfActor().gold <= currentPlayer.getStats().amountOfGold)
+        if (listOfActorTemplates[1].getPriceOfActor().food <= listOfPlayers[currentPlayerI].getStats().amountOfFood && listOfActorTemplates[1].getPriceOfActor().wood <= listOfPlayers[currentPlayerI].getStats().amountOfWood && listOfActorTemplates[1].getPriceOfActor().stone <= listOfPlayers[currentPlayerI].getStats().amountOfStone && listOfActorTemplates[1].getPriceOfActor().gold <= listOfPlayers[currentPlayerI].getStats().amountOfGold)
         {
             gameDirector.addCommand(
                 {
                     currentGame.elapsedTimeMS,
-                    currentPlayer.getTeam(),
+                    listOfPlayers[currentPlayerI].getTeam(),
                     this->actorOrBuildingId,
                     false,
                     false,
@@ -346,7 +346,7 @@ void button::performAction()
         }
         break;
     case actionTypes::actionBuildMiningCamp:
-        if (listOfBuildingTemplates[5].getPriceOfBuilding().food <= currentPlayer.getStats().amountOfFood && listOfBuildingTemplates[5].getPriceOfBuilding().wood <= currentPlayer.getStats().amountOfWood && listOfBuildingTemplates[5].getPriceOfBuilding().stone <= currentPlayer.getStats().amountOfStone && listOfBuildingTemplates[5].getPriceOfBuilding().gold <= currentPlayer.getStats().amountOfGold)
+        if (listOfBuildingTemplates[5].getPriceOfBuilding().food <= listOfPlayers[currentPlayerI].getStats().amountOfFood && listOfBuildingTemplates[5].getPriceOfBuilding().wood <= listOfPlayers[currentPlayerI].getStats().amountOfWood && listOfBuildingTemplates[5].getPriceOfBuilding().stone <= listOfPlayers[currentPlayerI].getStats().amountOfStone && listOfBuildingTemplates[5].getPriceOfBuilding().gold <= listOfPlayers[currentPlayerI].getStats().amountOfGold)
         {
             currentGame.setBuildingType(5);
             currentGame.setIsPlacingBuilding();
@@ -359,7 +359,7 @@ void button::performAction()
         }
         break;
     case actionTypes::actionBuildWall:
-        if (listOfBuildingTemplates[7].getPriceOfBuilding().food <= currentPlayer.getStats().amountOfFood && listOfBuildingTemplates[7].getPriceOfBuilding().wood <= currentPlayer.getStats().amountOfWood && listOfBuildingTemplates[7].getPriceOfBuilding().stone <= currentPlayer.getStats().amountOfStone && listOfBuildingTemplates[7].getPriceOfBuilding().gold <= currentPlayer.getStats().amountOfGold)
+        if (listOfBuildingTemplates[7].getPriceOfBuilding().food <= listOfPlayers[currentPlayerI].getStats().amountOfFood && listOfBuildingTemplates[7].getPriceOfBuilding().wood <= listOfPlayers[currentPlayerI].getStats().amountOfWood && listOfBuildingTemplates[7].getPriceOfBuilding().stone <= listOfPlayers[currentPlayerI].getStats().amountOfStone && listOfBuildingTemplates[7].getPriceOfBuilding().gold <= listOfPlayers[currentPlayerI].getStats().amountOfGold)
         {
             currentGame.setBuildingType(7);
             currentGame.setIsPlacingBuilding();
@@ -376,7 +376,7 @@ void button::performAction()
         gameDirector.addCommand(
             {
                 currentGame.elapsedTimeMS,
-                currentPlayer.getTeam(),
+                listOfPlayers[currentPlayerI].getTeam(),
                 this->actorOrBuildingId,
                 false,
                 false,
@@ -391,7 +391,7 @@ void button::performAction()
         gameDirector.addCommand(
             {
                 currentGame.elapsedTimeMS,
-                currentPlayer.getTeam(),
+                listOfPlayers[currentPlayerI].getTeam(),
                 this->actorOrBuildingId,
                 false,
                 false,
@@ -406,7 +406,7 @@ void button::performAction()
         gameDirector.addCommand(
             {
                 currentGame.elapsedTimeMS,
-                currentPlayer.getTeam(),
+                listOfPlayers[currentPlayerI].getTeam(),
                 this->actorOrBuildingId,
                 false,
                 false,

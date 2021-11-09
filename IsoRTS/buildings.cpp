@@ -225,7 +225,7 @@ bool buildings::getIsGate() const
 void buildings::setCompleted()
 {
     this->buildingCompleted = true;
-    if (this->ownedByPlayer == currentPlayer.getTeam()) {
+    if (this->ownedByPlayer == listOfPlayers[currentPlayerI].getTeam()) {
         gameText.addNewMessage("- Building completed! -", 0);
     }
     listOfPlayers[this->ownedByPlayer].addToPopulationRoom(this->supportsPopulationOf);
@@ -695,10 +695,10 @@ void buildings::removeTask(int id)
         //To be implemented
     }
     else {
-        currentPlayer.addResources(resourceTypes::resourceFood, listOfActorTemplates[it->idOfUnitOrResearch].getPriceOfActor().food);
-        currentPlayer.addResources(resourceTypes::resourceWood, listOfActorTemplates[it->idOfUnitOrResearch].getPriceOfActor().wood);
-        currentPlayer.addResources(resourceTypes::resourceStone, listOfActorTemplates[it->idOfUnitOrResearch].getPriceOfActor().stone);
-        currentPlayer.addResources(resourceTypes::resourceGold, listOfActorTemplates[it->idOfUnitOrResearch].getPriceOfActor().gold);
+        listOfPlayers[currentPlayerI].addResources(resourceTypes::resourceFood, listOfActorTemplates[it->idOfUnitOrResearch].getPriceOfActor().food);
+        listOfPlayers[currentPlayerI].addResources(resourceTypes::resourceWood, listOfActorTemplates[it->idOfUnitOrResearch].getPriceOfActor().wood);
+        listOfPlayers[currentPlayerI].addResources(resourceTypes::resourceStone, listOfActorTemplates[it->idOfUnitOrResearch].getPriceOfActor().stone);
+        listOfPlayers[currentPlayerI].addResources(resourceTypes::resourceGold, listOfActorTemplates[it->idOfUnitOrResearch].getPriceOfActor().gold);
     }
 
     this->productionQueue.erase(it);
@@ -774,7 +774,7 @@ void buildings::getTask(bool isResearch, int idOfUnitOrResearch)
     }
     else
     {
-        if (currentPlayer.getTeam() == ownedByPlayer) {
+        if (listOfPlayers[currentPlayerI].getTeam() == ownedByPlayer) {
             gameText.addNewMessage("No room in building queue for production...", 1);
         }
     }
@@ -807,7 +807,7 @@ void buildings::spawnProduce()
 {
     if (!this->productionQueue.empty()) {
         cords spawnCords = findEmptySpot({ this->startLocation.x + 1, this->startLocation.y + 1 });
-        if (currentPlayer.getStats().currentPopulation < currentPlayer.getStats().populationRoom)
+        if (listOfPlayers[currentPlayerI].getStats().currentPopulation < listOfPlayers[currentPlayerI].getStats().populationRoom)
         {
 
             actors newActor(this->productionQueue.front().idOfUnitOrResearch, spawnCords, this->ownedByPlayer, static_cast<int>(listOfActors.size()));
@@ -815,7 +815,7 @@ void buildings::spawnProduce()
             if (this->rallyPoint.isSet) {
                 listOfActors[newActor.getActorId()].stackOrder(this->rallyPoint.goal, this->rallyPoint.orderType); //Puts rally point order in command stackList of new unit
             }
-            if (this->ownedByPlayer == currentPlayer.getTeam()) {
+            if (this->ownedByPlayer == listOfPlayers[currentPlayerI].getTeam()) {
                 gameText.addNewMessage("-  " + newActor.nameOfActor() + " completed! -", 0);
             }
             this->productionQueue.pop_front();
@@ -826,7 +826,7 @@ void buildings::spawnProduce()
         {
             if (!this->hasDisplayedError)
             {
-                if (this->ownedByPlayer == currentPlayer.getTeam()) {
+                if (this->ownedByPlayer == listOfPlayers[currentPlayerI].getTeam()) {
                     gameText.addNewMessage("Not enough population room to add more units, build more houses!", 1);
                     this->hasDisplayedError = true;
                 }

@@ -87,7 +87,7 @@ private:
     std::vector<int> units;
 };
 
-extern player& currentPlayer;
+extern int currentPlayerI;
 extern player listOfPlayers[8];
 
 #endif // PLAYER_H

@@ -66,7 +66,7 @@ public:
 
 private:
 	std::vector<menuItem> menuItems;
-	int menuLevel;
+	int menuLevel = 0;
 	sf::Vector2f mousePosition;
 	sf::Sprite spriteMousePointer, menuButtonSprite;
 	sf::Texture textureMousePointer, menuButtonTexture;

@@ -63,7 +63,7 @@ void button::showToolTip() const
         break;
     case actionTypes::actionUnitSelect:
         toolTipTitle << "Unit selection";
-        toolTipText << listOfActors[this->actorOrBuildingId].nameOfActor();
+        toolTipText << listOfActors[this->actorOrBuildingId].getNameOfActor();
         toolTipDiscription << "Selects this single unit from the current selection.";
         break;
     case actionTypes::actionMakeVillager:

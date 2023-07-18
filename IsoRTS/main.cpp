@@ -37,17 +37,17 @@ void updateStats() {
         listOfPlayers[i].clearLists();
     }
     for (int n = 0; n < listOfActors.size(); n++) {
-        if (listOfActors[n].isAlive()) {
+        if (listOfActors[n].getIsAlive()) {
             listOfPlayers[listOfActors[n].getTeam()].insertUnit(n);
             if (listOfActors[n].getType() == 0) {
                 listOfPlayers[listOfActors[n].getTeam()].insertVillagerList(n);
-                if (listOfActors[n].idle()) {
+                if (listOfActors[n].getIsIdle()) {
                     listOfPlayers[listOfActors[n].getTeam()].insertIdIntoIdleVillagerList(n);
                 }
                 else if (listOfActors[n].getIsBuilding()) {
                     listOfPlayers[listOfActors[n].getTeam()].insertBuilding(n);
                 }
-                else if (listOfActors[n].isGathering()) {
+                else if (listOfActors[n].getIsGathering()) {
                     switch (listOfActors[n].getResourceGathered()) {
                     case resourceTypes::resourceWood: //wood
                         listOfPlayers[listOfActors[n].getTeam()].insertGatheringWood(n);

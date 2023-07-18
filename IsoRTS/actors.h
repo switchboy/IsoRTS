@@ -8,7 +8,7 @@
 #include "actorTemplates.h"
 
 
-class Cells
+struct Cells
 {
 public:
     Cells() {
@@ -89,8 +89,12 @@ class actors
 {
 public:
     actors(int type, cords location, int actorTeam, int actorId);
-    void animateWalkingToResource();
-    void anitmateWalkingBackAfterAbortedCommand();
+    
+    void drawActor();
+    void renderPath();
+
+    void update();
+   
     void buildBuilding();
     void calculateRoute();
     bool chaseTarget();
@@ -100,7 +104,6 @@ public:
     void doMeleeDamage();
     void doNextStackedCommand();
     void doTaskIfNotWalking();
-    void drawActor();
     void fightOrFlight(int idOfAttacker);
     void findNearestDropOffPoint();
     void findNearestSimilarResource();
@@ -114,7 +117,6 @@ public:
     void makeSureActorIsOnTheMap();
     void printActorDebugText();
     void pathAStar();
-    void renderPath();
     void selectAndAttackNextTarget(int range);
     void retryWalkingOrChangeGoal();
     void routing(std::vector<Cells>& cellsList, int endCell, int startCell, bool endReached);
@@ -128,19 +130,22 @@ public:
     void startWalking();
     void takeDamage(int amountOfDamage, int idOfAttacker);
     void unloadAndReturnToGathering();
-    void update();
     void makeSurePathIsOnListToGetCalculated();
     void updateGoal(cords goal, int waitTime);
     void updateGoalPath();
     void walkBackToOwnSquare();
     void walkToNextSquare();
     void walkBackAfterAbortedCommand();
+    void animateWalkingToResource();
+    void anitmateWalkingBackAfterAbortedCommand();
+    
+    //getters
     bool getIsBuilding() const;
-    bool hasRoute();
-    bool idle() const;
-    bool isAlive() const;
-    bool isGathering() const;
-    bool isInitialized() const;
+    bool getHasRoute();
+    bool getIsIdle() const;
+    bool getIsAlive() const;
+    bool getIsGathering() const;
+    bool getIsInitialized() const;
     int getActorId() const;
     int getBuildingId() const;
     int getMeleeDMG() const;
@@ -154,9 +159,10 @@ public:
     cords getActorCords() const;
     const std::list<cords>& getRejectedTargetsList() const;
     std::pair<int, int> getHealth() const;
-    std::string nameOfActor() const;
+    std::string getNameOfActor() const;
     std::string getResources() const;
 
+    //setters
     void setIsBuildingTrue(int buildingId, cords goal);
     void setIsDoingAttack(bool chasing);
 

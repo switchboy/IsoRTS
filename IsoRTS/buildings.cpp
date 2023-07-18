@@ -816,7 +816,7 @@ void buildings::spawnProduce()
                 listOfActors[newActor.getActorId()].stackOrder(this->rallyPoint.goal, this->rallyPoint.orderType); //Puts rally point order in command stackList of new unit
             }
             if (this->ownedByPlayer == listOfPlayers[currentPlayerI].getTeam()) {
-                gameText.addNewMessage("-  " + newActor.nameOfActor() + " completed! -", 0);
+                gameText.addNewMessage("-  " + newActor.getNameOfActor() + " completed! -", 0);
             }
             this->productionQueue.pop_front();
             this->hasDisplayedError = false;

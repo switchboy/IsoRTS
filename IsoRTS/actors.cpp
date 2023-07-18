@@ -297,8 +297,8 @@ actors::actors(int type, cords location, int actorTeam, int actorId)
 
 bool actors::chaseTarget() {
     if (this->idOfTarget >= 0) {
-        if (listOfActors[this->idOfTarget].isAlive()) {
-            if (listOfActors[this->idOfTarget].getGoal().x != listOfActors[this->idOfTarget].getActorCords().x || listOfActors[this->idOfTarget].getGoal().y != listOfActors[this->idOfTarget].getActorCords().y && listOfActors[this->idOfTarget].hasRoute()) {
+        if (listOfActors[this->idOfTarget].getIsAlive()) {
+            if (listOfActors[this->idOfTarget].getGoal().x != listOfActors[this->idOfTarget].getActorCords().x || listOfActors[this->idOfTarget].getGoal().y != listOfActors[this->idOfTarget].getActorCords().y && listOfActors[this->idOfTarget].getHasRoute()) {
                 if (!(listOfActors[this->idOfTarget].getGoal().x == this->actorCords.x && listOfActors[this->idOfTarget].getGoal().y == this->actorCords.y)) {
                     if (this->lastChaseTime + 500 < currentGame.getTime()) {
                         this->lastChaseTime = currentGame.getTime();
@@ -945,12 +945,12 @@ void actors::shootProjectile()
     }
 }
 
-bool actors::idle() const
+bool actors::getIsIdle() const
 {
     return this->isIdle;
 }
 
-bool actors::isAlive() const
+bool actors::getIsAlive() const
 {
     return this->actorAlive;
 }
@@ -1050,7 +1050,7 @@ sf::IntRect actors::getLastIntRect() const
     return this->lastIntRect;
 }
 
-std::string actors::nameOfActor() const
+std::string actors::getNameOfActor() const
 {
     switch (this->actorType)
     {
@@ -1790,7 +1790,7 @@ int actors::getTeam() const
     return this->actorTeam;
 }
 
-bool actors::isInitialized() const
+bool actors::getIsInitialized() const
 {
     return this->initialized;
 }
@@ -2380,7 +2380,7 @@ int actors::getActorId()  const
     return this->actorId;
 }
 
-bool actors::isGathering() const
+bool actors::getIsGathering() const
 {
     return this->isGatheringRecources;
 }
@@ -2390,7 +2390,7 @@ bool actors::getIsBuilding() const
     return this->isBuilding;
 }
 
-bool actors::hasRoute()
+bool actors::getHasRoute()
 {
     return !this->route.empty();
 }

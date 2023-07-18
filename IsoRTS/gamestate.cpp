@@ -2116,7 +2116,7 @@ void gameState::addActorSelectorButton(int i, int actorId, int startDeck, int te
 
 void gameState::drawActorTitle(int actorId, int textStartX, int textStartY)
 {
-    text.setString(listOfActors[actorId].nameOfActor());
+    text.setString(listOfActors[actorId].getNameOfActor());
     text.setCharacterSize(26);
     text.setOutlineColor(sf::Color::Black);
     text.setOutlineThickness(2.f);

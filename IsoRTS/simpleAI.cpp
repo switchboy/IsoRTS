@@ -499,8 +499,8 @@ void simpleAI::sandboxScript()
 		bool commandGiven = false;
 		int swordsmanId = 0;
 		while (!commandGiven && swordsmanId < listOfPlayers[this->playerId].getTotalSwordsman()) {
-			if (listOfActors[listOfPlayers[this->playerId].getSwordsman(swordsmanId)].isAlive()) {
-				if (listOfActors[listOfPlayers[this->playerId].getSwordsman(swordsmanId)].idle()) {
+			if (listOfActors[listOfPlayers[this->playerId].getSwordsman(swordsmanId)].getIsAlive()) {
+				if (listOfActors[listOfPlayers[this->playerId].getSwordsman(swordsmanId)].getIsIdle()) {
 					this->moveCommandUnit(listOfPlayers[this->playerId].getSwordsman(swordsmanId), getRandomCords(listOfActors[listOfPlayers[this->playerId].getSwordsman(swordsmanId)].getActorCords()));
 				}
 				commandGiven = true;

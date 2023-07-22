@@ -31,6 +31,8 @@ bool noNewBuildings;
 sf::Texture splashScreenTexture;
 sf::Sprite splashScreenSprite;
 
+gameState currentGame;
+
 namespace
 {
     const sf::Color teamColors[] =

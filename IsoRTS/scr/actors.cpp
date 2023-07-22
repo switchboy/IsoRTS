@@ -9,10 +9,11 @@
 #include "player.h"
 #include "projectile.h"
 #include "simpleAI.h"
+#include "cells.h"
 
 std::vector<int> listOfActorsWhoNeedAPath;
 std::vector <actors> listOfActors;
-std::vector<Cells> baseCellList;
+
 
 namespace
 {
@@ -147,75 +148,6 @@ namespace
     }
 }
 
-void updateCells(int goalId, int startId, std::vector<Cells>& cellsList, bool cantPassActors)
-{
-    int n = 0;
-    for (int i = 0; i < MAP_WIDTH; i++)
-    {
-        for (int j = 0; j < MAP_HEIGHT; j++)
-        {
-            bool obstacle = false;
-            if (cantPassActors) {
-                if (!currentGame.isPassable({ i, j })) {
-                    cellsList[n].obstacle = true;
-                }
-            }
-            else if (!currentGame.isPassableButMightHaveActor({ i, j }))
-            {
-                cellsList[n].obstacle = true;
-            }        
-            n++;
-        }
-    }
-    if (goalId >= 0) {
-        cellsList[goalId].obstacle = false;
-        cellsList[startId].obstacle = false;
-    }
-}
-
-Cells::Cells(cords cellPosition, int cellId)
-{
-    this->position = cellPosition;
-    this->cellId = cellId;
-    this->obstacle = false;
-    this->costToGoal = NULL;
-    this->visited = false;
-    this->parentCellId = NULL;
-    this->cummulativeCost = NULL;
-    this->totalCostGuess = NULL;
-    this->neighbours.reserve(8);
-    backParent = 0;
-}
-
-Cells::Cells(cords cellPosition, int cellId, bool obstacle)
-{
-    this->position = cellPosition;
-    this->cellId = cellId;
-    this->obstacle = obstacle;
-    this->costToGoal = NULL;
-    this->visited = false;
-    this->parentCellId = NULL;
-    this->cummulativeCost = NULL;
-    this->totalCostGuess = NULL;
-    this->neighbours.reserve(8);
-    backParent = 0;
-}
-
-void Cells::addNeighbours(const std::vector<Cells>& cellsList)
-{
-    for (int i = -1; i < 2; i++) {
-        for (int j = -1; j < 2; j++) {
-            int tempId = this->cellId + (i * MAP_HEIGHT) + j;
-            if (tempId >= 0 && tempId < cellsList.size()) {
-                if (tempId != this->cellId) {
-                    if (!cellsList[tempId].obstacle) {
-                        this->neighbours.push_back(tempId);
-                    }
-                }
-            }
-        }
-    }
-}
 
 actors::actors(int type, cords location, int actorTeam, int actorId)
 {
@@ -239,7 +171,7 @@ actors::actors(int type, cords location, int actorTeam, int actorId)
     this->realPath = false;
     this->timeLastPathTry = currentGame.getTime();
     this->timeLastUpdate = currentGame.getTime();
-    this->timeStartedGatheringRecource = 0;
+    this->timeStartedAction = 0;
     this->waitForAmountOfFrames = 0;
     this->reachedUnloadingPoint = false;
     this->timeLastRetry = 0;
@@ -933,8 +865,8 @@ void actors::selectAndAttackNextTarget(int range) {
 
 void actors::shootProjectile()
 {
-    if (this->timeStartedGatheringRecource + this->timeBetweenShots < currentGame.getTime()) {
-        this->timeStartedGatheringRecource = currentGame.getTime();
+    if (this->timeStartedAction + this->timeBetweenShots < currentGame.getTime()) {
+        this->timeStartedAction = currentGame.getTime();
         if (currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y].empty()) {
             projectile newProjectile(this->actorCords.x, this->actorCords.y, this->actionPreformedOnTile.x, this->actionPreformedOnTile.y, this->projectileType, this->rangedDamage, this->splashDamage, this->actorId);
             listOfProjectiles.push_back(newProjectile);
@@ -986,13 +918,13 @@ void actors::setIsDoingAttack(bool chasing)
 
 void actors::doMeleeDamage()
 {
-    if (this->timeStartedGatheringRecource == 0.0f)
+    if (this->timeStartedAction == 0.0f)
     {
         gameText.addNewMessage("We have engaged the Enemy!", 1);
     }
-    if (currentGame.elapsedTimeMS - this->timeStartedGatheringRecource > this->rateOfFire)
+    if (currentGame.elapsedTimeMS - this->timeStartedAction > this->rateOfFire)
     {
-        this->timeStartedGatheringRecource = currentGame.elapsedTimeMS;
+        this->timeStartedAction = currentGame.elapsedTimeMS;
         if (!currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y].empty()) {
             if (listOfActors[currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y].front()].getTeam() != this->actorTeam)
             {
@@ -1010,7 +942,7 @@ void actors::doMeleeDamage()
             this->selectAndAttackNextTarget(30);
         } else  {
             this->isMeleeAttacking = false;
-            this->timeStartedGatheringRecource = 0;
+            this->timeStartedAction = 0;
         }
     }
 }
@@ -1108,7 +1040,7 @@ void actors::updateGoal(cords location, int waitTime)
         this->isMeleeAttacking = false;
         this->offSetX = 0.0f;
         this->offSetY = 0.0f;
-        this->timeStartedGatheringRecource = 0;
+        this->timeStartedAction = 0;
         this->isFindingAlternative = false;
         this->isIdle = false;
         this->lastTile = false;
@@ -1281,7 +1213,7 @@ void actors::handleResourceGathering()
                 this->isAtRecource = false;
                 this->isBuilding = false;
                 this->timeStartedWalkingToRecource = 0;
-                this->timeStartedGatheringRecource = currentGame.elapsedTimeMS;
+                this->timeStartedAction = currentGame.elapsedTimeMS;
                 this->offSetX = 0;
                 this->offSetY = 0;
             }
@@ -1456,7 +1388,7 @@ void actors::startGatheringAnimation()
     }
     this->isAtRecource = true;
     this->timeStartedWalkingToRecource = 0;
-    this->timeStartedGatheringRecource = currentGame.elapsedTimeMS;
+    this->timeStartedAction = currentGame.elapsedTimeMS;
     switch (this->orientation)
     {
     case 0:
@@ -1565,7 +1497,7 @@ void actors::gatherResource()
     if (isReallyNextToResource(this->actorCords.x, this->actorCords.y, this->actionPreformedOnTile.x, this->actionPreformedOnTile.y)) {
         if (currentGame.objectLocationList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y] != -1)
         {
-            if (currentGame.elapsedTimeMS - this->timeStartedGatheringRecource > 2000)
+            if (currentGame.elapsedTimeMS - this->timeStartedAction > 2000)
             {
                 switch (this->ResourceBeingGatherd)
                 {
@@ -1591,7 +1523,7 @@ void actors::gatherResource()
                     this->isAtRecource = false;
                     this->realPath = false;
                 }
-                this->timeStartedGatheringRecource = currentGame.elapsedTimeMS;
+                this->timeStartedAction = currentGame.elapsedTimeMS;
             }
         }
         else
@@ -2325,10 +2257,10 @@ void actors::buildBuilding()
     {
         if (!listOfBuildings[currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].getCompleted())
         {
-            if (currentGame.elapsedTimeMS - this->timeStartedGatheringRecource > 1000)
+            if (currentGame.elapsedTimeMS - this->timeStartedAction > 1000)
             {
                 listOfBuildings[currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y]].addBuildingPoint();
-                this->timeStartedGatheringRecource = currentGame.elapsedTimeMS;
+                this->timeStartedAction = currentGame.elapsedTimeMS;
             }
         }
         else
@@ -2347,7 +2279,7 @@ void actors::buildBuilding()
                 this->isAtRecource = false;
                 this->isBuilding = false;
                 this->timeStartedWalkingToRecource = 0;
-                this->timeStartedGatheringRecource = currentGame.elapsedTimeMS;
+                this->timeStartedAction = currentGame.elapsedTimeMS;
                 this->offSetX = 0;
                 this->offSetY = 0;
             }
@@ -2367,7 +2299,7 @@ void actors::buildBuilding()
             this->isAtRecource = false;
             this->isBuilding = false;
             this->timeStartedWalkingToRecource = 0;
-            this->timeStartedGatheringRecource = currentGame.elapsedTimeMS;
+            this->timeStartedAction = currentGame.elapsedTimeMS;
             this->offSetX = 0;
             this->offSetY = 0;
         }

@@ -6,33 +6,7 @@
 #include "gamestate.h"
 #include "globalfunctions.h"
 #include "actorTemplates.h"
-
-
-struct Cells
-{
-public:
-    Cells() {
-        position = { 0,0 };
-        parentCellId = 0; 
-        cummulativeCost = 0; 
-        cellId = 0; 
-        backParent = 0;
-        costToGoal = 0;
-        totalCostGuess = 0;
-    }
-    Cells(cords cellPosition, int cellId);
-    Cells(cords cellPosition, int cellId, bool obstacle);
-    cords position;
-    int parentCellId, cummulativeCost, cellId, backParent;
-    double costToGoal, totalCostGuess;
-    bool visited = false;
-    bool visitedBack = false;
-    bool obstacle = false;
-    std::vector<int> neighbours;
-    void addNeighbours(const std::vector<Cells> &cellsList);
-};
-
-extern std::vector<Cells> baseCellList;
+#include "cells.h"
 
 struct nearestBuildingTile
 {
@@ -89,12 +63,9 @@ class actors
 {
 public:
     actors(int type, cords location, int actorTeam, int actorId);
-    
     void drawActor();
     void renderPath();
-
     void update();
-   
     void buildBuilding();
     void calculateRoute();
     bool chaseTarget();
@@ -138,7 +109,6 @@ public:
     void walkBackAfterAbortedCommand();
     void animateWalkingToResource();
     void anitmateWalkingBackAfterAbortedCommand();
-    
     //getters
     bool getIsBuilding() const;
     bool getHasRoute();
@@ -161,7 +131,6 @@ public:
     std::pair<int, int> getHealth() const;
     std::string getNameOfActor() const;
     std::string getResources() const;
-
     //setters
     void setIsBuildingTrue(int buildingId, cords goal);
     void setIsDoingAttack(bool chasing);
@@ -226,17 +195,14 @@ private:
     int rateOfFire;
     float offSetX;
     float offSetY;
-
-
     int lastChaseTime = 0;
     int timePassedSinceChangingOffset;
-    int timeStartedGatheringRecource;
+    int timeStartedAction;
     int timeLastOffsetChange;
     int timeLastUpdate;
     int timeLastPathTry;
     int timeStartedWalkingToRecource;
     int timeLastAttempt;
-
     int timeBetweenShots;
     int timeLastRetry;
     int timeToCrossOneTile;
@@ -253,8 +219,6 @@ private:
 
 extern std::vector<actors> listOfActors;
 extern std::vector<int>    listOfActorsWhoNeedAPath;
-
-extern void                updateCells(int goalId, int startId, std::vector<Cells>& cellsList, bool cantPassActors);
 extern nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId);
 
 #endif // ACTORS_H

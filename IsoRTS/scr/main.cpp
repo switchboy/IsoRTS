@@ -20,7 +20,7 @@
 #include "connection.h"
 #include "connectionSetupScreen.h"
 
-gameState currentGame;
+
 
 void clearOldCommandCursors()
 {

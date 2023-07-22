@@ -24,6 +24,7 @@
     <ClInclude Include="scr\Actors\actorBaseState.h" />
     <ClInclude Include="scr\Actors\actorStateIdle.h" />
     <ClInclude Include="scr\Actors\actorStateWalking.h" />
+    <ClInclude Include="scr\Actors\actorStructs.h" />
     <ClInclude Include="scr\Actors\BaseStateBuilding.h" />
     <ClInclude Include="scr\Actors\BaseStateDead.h" />
     <ClInclude Include="scr\Actors\BaseStateFighting.h" />

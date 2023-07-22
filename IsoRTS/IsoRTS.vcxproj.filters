@@ -198,6 +198,9 @@
     <ClInclude Include="scr\cells.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="scr\Actors\actorStructs.h">
+      <Filter>Header Files\Actor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scr\mainMenu.cpp">

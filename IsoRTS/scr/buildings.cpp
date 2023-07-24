@@ -1,5 +1,6 @@
 #include <iostream>
-#include "actors.h"
+#include "Actors/Actor.h"
+#include "cells.h"
 #include "buildings.h"
 #include "gametext.h"
 #include "player.h"
@@ -810,7 +811,7 @@ void buildings::spawnProduce()
         if (listOfPlayers[currentPlayerI].getStats().currentPopulation < listOfPlayers[currentPlayerI].getStats().populationRoom)
         {
 
-            actors newActor(this->productionQueue.front().idOfUnitOrResearch, spawnCords, this->ownedByPlayer, static_cast<int>(listOfActors.size()));
+            Actor newActor(this->productionQueue.front().idOfUnitOrResearch, spawnCords, this->ownedByPlayer, static_cast<int>(listOfActors.size()));
             listOfActors.push_back(newActor);
             if (this->rallyPoint.isSet) {
                 listOfActors[newActor.getActorId()].stackOrder(this->rallyPoint.goal, this->rallyPoint.orderType); //Puts rally point order in command stackList of new unit

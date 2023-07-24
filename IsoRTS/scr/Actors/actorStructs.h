@@ -52,3 +52,10 @@ struct drawXYOverride {
     bool isActive;
     cords newXY;
 };
+
+struct pathedRoute {
+    std::list<routeCell> route;
+    bool pathFound = false;
+    bool realPath = false;
+    int timeLastPathTry = 0;
+};

@@ -1,5 +1,5 @@
 #include <iostream>
-#include "actors.h"
+#include "Actors/Actor.h"
 #include "buildings.h"
 #include "objects.h"
 #include "player.h"
@@ -539,7 +539,6 @@ void simpleAI::excecuteAttackPlan() {
 	}
 	for (int i = 0; i < listOfPlayers[this->playerId].getTotalSwordsman(); i++) {
 		attakCommandUnit(listOfPlayers[this->playerId].getSwordsman(i), listOfActors[listOfPlayers[playerToAttakId].getUnit(0)].getActorCords(), true);
-		listOfActors[listOfPlayers[this->playerId].getSwordsman(i)].setDoAttackMoveTrue();
 	}
 }
 

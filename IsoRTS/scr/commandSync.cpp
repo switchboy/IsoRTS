@@ -21,7 +21,7 @@ void commandSync::addCommand(command givenCommand)
 void commandSync::sendNetWorkCommands()
 {
 	sf::Packet commandPacket;
-	sf::Uint8 header = dataType::commandPacket;
+	sf::Uint8 header = dataType::commandPacket ;
 	sf::Uint32 amounOfCommands = listOfUnsentCommands.size();
 	commandPacket << header << currentGame.getTime() << multiplayerPlayerId << amounOfCommands;
 	for (command& unsentCommand : listOfUnsentCommands) {

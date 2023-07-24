@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <SFML/Graphics.hpp>
-#include "actors.h"
+#include "Actors/Actor.h"
 #include "buildings.h"
 #include "button.h"
 #include "gametext.h"

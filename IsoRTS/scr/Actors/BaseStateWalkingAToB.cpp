@@ -5,6 +5,16 @@
 
 bool BaseStateWalkingAToB::doAction(Actor* actor) {
     // Implementation for BaseStateWalkingAToB state
-    std::cout << "State: BaseStateWalkingAToB!\n";
+
+    if (actor->_groundState == nullptr) {
+        actor->switchGroundState(GroundStateNames::Walking);
+    }
+    switch (actor->_groundState->_ground) {
+    case GroundStateNames::NONE:
+        actor->switchGroundState(GroundStateNames::Walking);
+        break;
+    case GroundStateNames::Walking:
+        return true;
+    }
     return false;
 }

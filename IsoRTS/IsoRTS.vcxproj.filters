@@ -114,15 +114,6 @@
     <ClInclude Include="scr\Actors\Actor.h">
       <Filter>Header Files\Actor</Filter>
     </ClInclude>
-    <ClInclude Include="scr\Actors\actorBaseState.h">
-      <Filter>Header Files\Actor</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Actors\actorStateIdle.h">
-      <Filter>Header Files\Actor</Filter>
-    </ClInclude>
-    <ClInclude Include="scr\Actors\actorStateWalking.h">
-      <Filter>Header Files\Actor</Filter>
-    </ClInclude>
     <ClInclude Include="scr\Actors\BaseStateBuilding.h">
       <Filter>Header Files\Actor</Filter>
     </ClInclude>
@@ -312,15 +303,6 @@
       <Filter>Source Files\Actors</Filter>
     </ClCompile>
     <ClCompile Include="scr\Actors\Actor.cpp">
-      <Filter>Source Files\Actors</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Actors\actorBaseState.cpp">
-      <Filter>Source Files\Actors</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Actors\actorStateIdle.cpp">
-      <Filter>Source Files\Actors</Filter>
-    </ClCompile>
-    <ClCompile Include="scr\Actors\actorStateWalking.cpp">
       <Filter>Source Files\Actors</Filter>
     </ClCompile>
     <ClCompile Include="scr\Actors\BaseStateBuilding.cpp">

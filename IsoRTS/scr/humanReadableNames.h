@@ -72,6 +72,7 @@ enum class stackOrderTypes
     stackActionGather,
     stackActionBuild,
     stackActionAttack,
+    stackActionAttackMove,
     none
 };
 

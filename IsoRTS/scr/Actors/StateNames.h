@@ -12,9 +12,9 @@ enum class BaseStateNames{
 enum class GroundStateNames {
 	NONE,
 	Walking,
-	GatheringTheResource,
+	AtTheResource,
 	ReturningTheResource,
-	BuildingTheBuilding,
+	AtTheBuilding,
 	Attacking,
 	Fleeing,
 	Decomposing,
@@ -34,4 +34,8 @@ enum class SubStateNames {
 	SettingGoalToFleeTo,
 	SettingMyDecompositionState,
 	CountingDownToDestroySelf,
+	WalkingToAction,
+	WalkingBackFromAction,
+	BuildingTheBuilding,
+	GatheringTheResource
 };

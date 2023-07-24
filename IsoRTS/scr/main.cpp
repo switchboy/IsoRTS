@@ -2,7 +2,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <vector>
-#include "actors.h"
+#include "Actors/Actor.h"
 #include "buildings.h"
 #include "gametext.h"
 #include "main.h"
@@ -103,6 +103,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
 
     if (!listOfActors.empty())
     {
+        /*
         if (!listOfActorsWhoNeedAPath.empty())
         {
             int begin = static_cast<int>(listOfActorsWhoNeedAPath.size());
@@ -122,6 +123,7 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
                 lastPath = endPath;
             }
         }
+        */
 
         int endActor = lastActor + 200;
         if (endActor > static_cast<int>(listOfActors.size())) {

@@ -5,6 +5,9 @@
 
 bool SubStateSearchingAPath::doAction(Actor* actor) {
     // Implementation for SubStateSearchingAPath state
-    std::cout << "State: SubStateSearchingAPath!\n";
+    actor->calculateRoute();
+    if (actor->_route.pathFound) {
+        return true;
+    }
     return false;
 }

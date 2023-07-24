@@ -7,62 +7,12 @@
 #include "globalfunctions.h"
 #include "actorTemplates.h"
 #include "cells.h"
+#include "Actors/actorStructs.h"
 
-struct nearestBuildingTile
-{
-    float deltaDistance;
-    cords location;
-    cords actionLocation;
-    int buildingId;
-    bool isSet;
-    int tileId;
-};
-
-struct islandCell
-{
-    cords position;
-    int cellId;
-    int cellScore;
-    int parentId;
-};
-
-struct routeCell
-{
-    cords position;
-    bool visited;
-    int parentCellId;
-    int backParent;
-};
-
-struct orderStack
-{
-    cords goal;
-    stackOrderTypes orderType;
-};
-
-struct unfinischedWalking {
-    int timePassedSinceChangingOffset;
-    int timeWalkingBackStarted;
-    cords position;
-    cords nPosition;
-    int speedMultiplier;
-
-    //calculations
-    int startDeltaX = position.x - nPosition.x;
-    int startDeltaY = position.y - nPosition.y;
-    float deltaXCompleted = static_cast<float>(startDeltaX) * ((static_cast<float>(this->timePassedSinceChangingOffset) / 1000.f ) * (static_cast<float>(this->speedMultiplier) / 1000.f));
-    float deltaYCompleted = static_cast<float>(startDeltaY) * ((static_cast<float>(this->timePassedSinceChangingOffset) / 1000.f ) * (static_cast<float>(this->speedMultiplier) / 1000.f));
-};
-
-struct drawXYOverride {
-    bool isActive;
-    cords newXY;
-};
-
-class actors
+class Actors
 {
 public:
-    actors(int type, cords location, int actorTeam, int actorId);
+    Actors(int type, cords location, int actorTeam, int actorId);
     void drawActor();
     void renderPath();
     void update();
@@ -217,8 +167,8 @@ private:
     sf::IntRect lastIntRect;
 };
 
-extern std::vector<actors> listOfActors;
-extern std::vector<int>    listOfActorsWhoNeedAPath;
-extern nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId);
+//extern std::vector<Actor> listOfActors;
+//extern std::vector<int>    listOfActorsWhoNeedAPath;
+//extern nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId);
 
 #endif // ACTORS_H

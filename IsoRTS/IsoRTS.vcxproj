@@ -21,9 +21,6 @@
   <ItemGroup>
     <ClInclude Include="scr\actors.h" />
     <ClInclude Include="scr\Actors\Actor.h" />
-    <ClInclude Include="scr\Actors\actorBaseState.h" />
-    <ClInclude Include="scr\Actors\actorStateIdle.h" />
-    <ClInclude Include="scr\Actors\actorStateWalking.h" />
     <ClInclude Include="scr\Actors\actorStructs.h" />
     <ClInclude Include="scr\Actors\BaseStateBuilding.h" />
     <ClInclude Include="scr\Actors\BaseStateDead.h" />
@@ -83,9 +80,6 @@
   <ItemGroup>
     <ClCompile Include="scr\actors.cpp" />
     <ClCompile Include="scr\Actors\Actor.cpp" />
-    <ClCompile Include="scr\Actors\actorBaseState.cpp" />
-    <ClCompile Include="scr\Actors\actorStateIdle.cpp" />
-    <ClCompile Include="scr\Actors\actorStateWalking.cpp" />
     <ClCompile Include="scr\Actors\BaseStateBuilding.cpp" />
     <ClCompile Include="scr\Actors\BaseStateDead.cpp" />
     <ClCompile Include="scr\Actors\BaseStateFighting.cpp" />
@@ -221,7 +215,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>D:\Programming\visualstudio\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -257,7 +251,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>D:\Programming\visualstudio\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>

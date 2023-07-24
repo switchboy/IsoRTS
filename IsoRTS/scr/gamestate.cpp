@@ -1,4 +1,5 @@
-#include "actors.h"
+#include "Actors/Actor.h"
+#include "cells.h"
 #include "buildings.h"
 #include "buildings.h"
 #include "gamestate.h"
@@ -848,7 +849,7 @@ void gameState::clickToPlaceActor() const
         if (this->objectLocationList[mouseWorldPosition.x][mouseWorldPosition.y] == -1 && this->occupiedByBuildingList[this->mouseWorldPosition.x][this->mouseWorldPosition.y] == -1 && this->occupiedByActorList[mouseWorldPosition.x][mouseWorldPosition.y].empty())
         {
             //Zet de actor neer
-            listOfActors.push_back(actors(0, this->mouseWorldPosition, listOfPlayers[currentPlayerI].getTeam(), static_cast<int>(listOfActors.size())));
+            listOfActors.push_back(Actor(0, this->mouseWorldPosition, listOfPlayers[currentPlayerI].getTeam(), static_cast<int>(listOfActors.size())));
         }
     }
 }
@@ -1007,7 +1008,7 @@ void gameState::getDefinitiveSelection()
                 if (!(this->startLocation[0] == this->mouseWorldPosition.x && this->startLocation[1] == this->mouseWorldPosition.y)) {
                     //there is a selection box find all actors in this box! (we will use old style intRect collision detection)
                     selection = static_cast<sf::IntRect>(this->selectionRectangle.getGlobalBounds());
-                    for (const actors& actor : listOfActors) {
+                    for (const Actor& actor : listOfActors) {
                         sf::IntRect result;
                         if (selection.intersects(actor.getLastIntRect(), result)) {
                             selectedUnits.push_back({ actor.getActorId() });
@@ -1020,7 +1021,7 @@ void gameState::getDefinitiveSelection()
                     //using a pixel cord
                     //this->spriteMouseCord.setPosition(mousePosition.x, mousePosition.y);
 
-                    for (const actors& actor : listOfActors) {
+                    for (const Actor& actor : listOfActors) {
                         listOfActorTemplates[actor.getType()].setSpritePosition(worldSpace(actor.getActorCords()));
                         if (Collision::singlePixelTest(listOfActorTemplates[actor.getType()].getActorSprite(), mousePosition, 128)) {
                             selectedUnits.push_back({ actor.getActorId() });
@@ -1267,7 +1268,7 @@ void gameState::clickToGiveCommand()
     }
 
     if (listOfActors.size() > 0 ) {
-        for (const actors& actor : listOfActors) {
+        for (const Actor& actor : listOfActors) {
             listOfActorTemplates[actor.getType()].setSpritePosition(worldSpace(actor.getActorCords()));
             if (Collision::singlePixelTest(listOfActorTemplates[actor.getType()].getActorSprite(), mousePosition, 128)) {
                 actionPosition = actor.getActorCords();
@@ -1984,60 +1985,28 @@ void gameState::commandExcecutor(std::vector<command> commandsToBeExcecuted)
         else {
             switch (c.subjectType) {
             case worldObject::actor:
+                if (!c.isStackedCommand) {
+                    listOfActors[c.subjectId].clearCommandStack();
+                }
                 if (c.actionToPerform == actionTypes::actionAttackMove) {
-                    listOfActors[c.subjectId].updateGoal(c.commandCords, 0);
-                    listOfActors[c.subjectId].setIsDoingAttack(true);
-                    listOfActors[c.subjectId].setDoAttackMoveTrue();
+                    listOfActors[c.subjectId].stackOrder(c.commandCords, stackOrderTypes::stackActionAttackMove);
                 }
                 else {
                     switch (c.orderType) {
                     case stackOrderTypes::stackActionAttack:
-                        if (c.isStackedCommand) {
-                            listOfActors[c.subjectId].stackOrder(c.commandCords, stackOrderTypes::stackActionAttack);
-                        }
-                        else {
-                            listOfActors[c.subjectId].clearCommandStack();
-                            listOfActors[c.subjectId].updateGoal(c.commandCords, 0);
-                            listOfActors[c.subjectId].setIsDoingAttack(false);
-                        }
+                        listOfActors[c.subjectId].stackOrder(c.commandCords, stackOrderTypes::stackActionAttack);
                         break;
                     case stackOrderTypes::stackActionBuild:
                         if (currentGame.occupiedByBuildingList[c.commandCords.x][c.commandCords.y] != -1) {
-                            if (!c.isStackedCommand) {
-                                nearestBuildingTile tempTile = findNearestBuildingTile(currentGame.occupiedByBuildingList[c.commandCords.x][c.commandCords.y], c.subjectId);
-                                if (tempTile.isSet) {
-
-                                    listOfActors[c.subjectId].clearCommandStack();
-                                    listOfActors[c.subjectId].updateGoal(tempTile.location, 0);
-                                    listOfBuildings[currentGame.occupiedByBuildingList[c.commandCords.x][c.commandCords.y]].claimFreeBuiildingTile(tempTile.buildingId, c.subjectId);
-                                    listOfActors[c.subjectId].setIsBuildingTrue(listOfBuildings[currentGame.occupiedByBuildingList[c.commandCords.x][c.commandCords.y]].getBuildingId(), tempTile.actionLocation);
-                                }
-                            } else {
-                                    listOfActors[c.subjectId].stackOrder(c.commandCords, stackOrderTypes::stackActionBuild);
-                            }
+                            listOfActors[c.subjectId].stackOrder(c.commandCords, stackOrderTypes::stackActionBuild);
                         }
                         break;
                     case stackOrderTypes::stackActionGather:
-                        if (c.isStackedCommand) {
-                            listOfActors[c.subjectId].stackOrder(c.commandCords, stackOrderTypes::stackActionGather);
-                        }
-                        else {
-                            listOfActors[c.subjectId].clearCommandStack();
-                            listOfActors[c.subjectId].updateGoal(c.commandCords, 0);
-                            listOfActors[c.subjectId].setCommonGoalTrue();
-                            listOfActors[c.subjectId].setGatheringRecource(true);
-                        }
+                        listOfActors[c.subjectId].stackOrder(c.commandCords, stackOrderTypes::stackActionGather);
                         break;
                     case stackOrderTypes::stackActionMove:
-                        if (!c.isStackedCommand) {
-                            listOfActors[c.subjectId].clearCommandStack();
-                            listOfActors[c.subjectId].updateGoal(c.commandCords, 0);
-                            listOfActors[c.subjectId].setGatheringRecource(false);
-                            break;
-                        }
-                        else {
-                            listOfActors[c.subjectId].stackOrder(c.commandCords, stackOrderTypes::stackActionMove);
-                        }
+                        listOfActors[c.subjectId].stackOrder(c.commandCords, stackOrderTypes::stackActionMove);
+                        break;
                     }
                 }
                 break;
@@ -2631,7 +2600,7 @@ void gameState::drawMouse() {
         }
 
         if (listOfActors.size() > 0 && !cursorChanged){
-            for (const actors& actor : listOfActors) {
+            for (const Actor& actor : listOfActors) {
                 listOfActorTemplates[actor.getType()].setSpritePosition(worldSpace(actor.getActorCords()));
                 if (Collision::singlePixelTest(listOfActorTemplates[actor.getType()].getActorSprite(), mousePosition, 128)) {
                     if (actor.getTeam() != listOfPlayers[currentPlayerI].getTeam()) {
@@ -2910,7 +2879,7 @@ void gameState::loadGame()
                         recievePacket >> y;
                         recievePacket >> team;
                         recievePacket >> type;
-                        listOfActors.push_back(actors(type, { x, y }, team, static_cast<int>(listOfActors.size())));
+                        listOfActors.push_back(Actor(type, { x, y }, team, static_cast<int>(listOfActors.size())));
                     }
                     actorBlobRecieved = true;
 
@@ -2991,7 +2960,7 @@ void gameState::loadGame()
         sf::Int32 amountOfActors = listOfActors.size();
         actorDataPacket << amountOfActors;
 
-        for (actors& a : listOfActors) {
+        for (Actor& a : listOfActors) {
             int x = a.getActorCords().x;
             int y = a.getActorCords().y;
             int team = a.getTeam();

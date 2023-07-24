@@ -4,7 +4,8 @@
 #include <iostream>
 
 bool BaseStateIdle::doAction(Actor* actor) {
-    // Implementation for BaseStateIdle state
-    std::cout << "State: BaseStateIdle!\n";
-    return false;
+	if (actor->doNextStackedCommand()) {
+		return false;
+   }
+	return false;
 }

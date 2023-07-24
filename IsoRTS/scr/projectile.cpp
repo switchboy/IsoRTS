@@ -1,6 +1,6 @@
 #include <math.h>
 #include <iostream>
-#include "actors.h"
+#include "Actors/Actor.h"
 #include "buildings.h"
 #include "gamestate.h"
 #include "projectile.h"

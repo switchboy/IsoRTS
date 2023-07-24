@@ -10,9 +10,10 @@
 #include "projectile.h"
 #include "simpleAI.h"
 #include "cells.h"
+#include "Actors/Actor.h"
 
-std::vector<int> listOfActorsWhoNeedAPath;
-std::vector <actors> listOfActors;
+//std::vector<int> listOfActorsWhoNeedAPath;
+//std::vector <Actors> listOfActors;
 
 
 namespace
@@ -149,7 +150,7 @@ namespace
 }
 
 
-actors::actors(int type, cords location, int actorTeam, int actorId)
+Actors::Actors(int type, cords location, int actorTeam, int actorId)
 {
     currentGame.occupiedByActorList[location.x][location.y].push_back(actorId);
     listOfPlayers[actorTeam].addToCurrentPopulation(1);
@@ -227,7 +228,7 @@ actors::actors(int type, cords location, int actorTeam, int actorId)
     this->isWalkingToMiddleOfSquare = false;
 }
 
-bool actors::chaseTarget() {
+bool Actors::chaseTarget() {
     if (this->idOfTarget >= 0) {
         if (listOfActors[this->idOfTarget].getIsAlive()) {
             if (listOfActors[this->idOfTarget].getGoal().x != listOfActors[this->idOfTarget].getActorCords().x || listOfActors[this->idOfTarget].getGoal().y != listOfActors[this->idOfTarget].getActorCords().y && listOfActors[this->idOfTarget].getHasRoute()) {
@@ -292,7 +293,7 @@ bool actors::chaseTarget() {
     return false;
 }
 
-void actors::anitmateWalkingBackAfterAbortedCommand() {
+void Actors::anitmateWalkingBackAfterAbortedCommand() {
     int timeSinceWalkingBackStarted = currentGame.getTime() - this->dataOnPositionAbortedWalk.timeWalkingBackStarted;
     float deltaXCompleted = static_cast<float>(this->dataOnPositionAbortedWalk.startDeltaX) * (
         ((static_cast<float>(this->dataOnPositionAbortedWalk.timePassedSinceChangingOffset) - static_cast<float>(timeSinceWalkingBackStarted)) / 1000.f) * (static_cast<float>(this->dataOnPositionAbortedWalk.speedMultiplier) / 1000.f)
@@ -304,7 +305,7 @@ void actors::anitmateWalkingBackAfterAbortedCommand() {
 }
 
 
-void actors::walkBackAfterAbortedCommand() {
+void Actors::walkBackAfterAbortedCommand() {
     int timeSinceWalkingBackStarted = currentGame.getTime() - this->dataOnPositionAbortedWalk.timeWalkingBackStarted;
     if (this->dataOnPositionAbortedWalk.timePassedSinceChangingOffset > timeSinceWalkingBackStarted) {
         this->orientation = newOrientation(this->orientation, actorOrientation(this->dataOnPositionAbortedWalk.nPosition.x, this->dataOnPositionAbortedWalk.nPosition.y, this->dataOnPositionAbortedWalk.position.x, this->dataOnPositionAbortedWalk.position.y));
@@ -317,7 +318,7 @@ void actors::walkBackAfterAbortedCommand() {
     }
 }
 
-void actors::makeSureActorIsOnTheMap() {
+void Actors::makeSureActorIsOnTheMap() {
     if (this->actorCords.x >= 0 && this->actorCords.x < MAP_WIDTH && this->actorCords.y >= 0 && this->actorCords.y < MAP_HEIGHT) {
         if (currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].empty()) {
             currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].push_back(this->actorId);
@@ -342,7 +343,7 @@ std::string boolAsText(bool it)
     return converter.str();
 }
 
-void actors::printActorDebugText()
+void Actors::printActorDebugText()
 {
     std::stringstream actorDeclaringString;
     actorDeclaringString << "Showing Actor ID: " << actorId;
@@ -687,7 +688,7 @@ void actors::printActorDebugText()
     }
 }
 
-void actors::makeSurePathIsOnListToGetCalculated()
+void Actors::makeSurePathIsOnListToGetCalculated()
 {
     //Route should have a path? Check if route still needs to be calculated
     bool actorInListForPathfinding = false;
@@ -703,7 +704,7 @@ void actors::makeSurePathIsOnListToGetCalculated()
     }
 }
 
-void actors::update()
+void Actors::update()
 {
     if (this->actorAlive)
     {
@@ -737,7 +738,7 @@ void actors::update()
     }
 }
 
-void actors::searchAltetnative() {
+void Actors::searchAltetnative() {
 
     if (!this->routeNeedsPath) {
         if (!this->pathFound) {
@@ -763,13 +764,13 @@ void actors::searchAltetnative() {
     }
 }
 
-std::string actors::getResources() const {
+std::string Actors::getResources() const {
     std::stringstream output;
     output << "Wood: " << this->amountOfWood << " Food: " << this->amountOfFood << " Stone: " << this->amountOfStone << " Gold: " << this->amountOfGold;
     return output.str();
 }
 
-void actors::getNewBuildingTileForSameBuilding() {
+void Actors::getNewBuildingTileForSameBuilding() {
     nearestBuildingTile tempTile = findNearestBuildingTile(this->buildingId, this->actorId);
     if (tempTile.isSet)
     {
@@ -790,7 +791,7 @@ void actors::getNewBuildingTileForSameBuilding() {
     }
 }
 
-void actors::doTaskIfNotWalking()
+void Actors::doTaskIfNotWalking()
 {
     bool chasing = false;
     if (!this->busyWalking) {
@@ -830,7 +831,7 @@ void actors::doTaskIfNotWalking()
 }
 
 
-void actors::selectAndAttackNextTarget(int range) {
+void Actors::selectAndAttackNextTarget(int range) {
     
     struct foundActors {
         int id;
@@ -838,7 +839,7 @@ void actors::selectAndAttackNextTarget(int range) {
     };
 
     std::vector<foundActors> potentialTargets;
-    for (actors& actor : listOfActors) {
+    for (Actor& actor : listOfActors) {
         if (actor.getTeam() != this->actorTeam) {
             potentialTargets.push_back({ actor.getActorId() , distEuclidean(this->actorCords.x, this->actorCords.y, actor.getActorCords().x, actor.getActorCords().y) });
         }
@@ -863,7 +864,7 @@ void actors::selectAndAttackNextTarget(int range) {
     this->wasAttackMove = false;
 }
 
-void actors::shootProjectile()
+void Actors::shootProjectile()
 {
     if (this->timeStartedAction + this->timeBetweenShots < currentGame.getTime()) {
         this->timeStartedAction = currentGame.getTime();
@@ -877,22 +878,22 @@ void actors::shootProjectile()
     }
 }
 
-bool actors::getIsIdle() const
+bool Actors::getIsIdle() const
 {
     return this->isIdle;
 }
 
-bool actors::getIsAlive() const
+bool Actors::getIsAlive() const
 {
     return this->actorAlive;
 }
 
-cords actors::getActorCords() const
+cords Actors::getActorCords() const
 {
     return this->actorCords;
 }
 
-void actors::setIsDoingAttack(bool chasing)
+void Actors::setIsDoingAttack(bool chasing)
 {
     this->isRangedAttacking = this->doesRangedDamage;
     this->isMeleeAttacking  = !this->doesRangedDamage;
@@ -916,7 +917,7 @@ void actors::setIsDoingAttack(bool chasing)
     }
 }
 
-void actors::doMeleeDamage()
+void Actors::doMeleeDamage()
 {
     if (this->timeStartedAction == 0.0f)
     {
@@ -947,12 +948,12 @@ void actors::doMeleeDamage()
     }
 }
 
-const std::list<cords>& actors::getRejectedTargetsList() const
+const std::list<cords>& Actors::getRejectedTargetsList() const
 {
     return listOfTargetsToRejectUntilSuccesfullMovement;
 }
 
-void actors::takeDamage(int amountOfDamage, int idOfAttacker)
+void Actors::takeDamage(int amountOfDamage, int idOfAttacker)
 {
     this->actorHealth -= amountOfDamage;
     if (this->actorHealth <= 0) {
@@ -961,7 +962,7 @@ void actors::takeDamage(int amountOfDamage, int idOfAttacker)
     this->fightOrFlight(idOfAttacker);
 }
 
-void actors::killActor() {
+void Actors::killActor() {
     this->actorAlive = false;
     for (auto& rows : currentGame.occupiedByActorList)
     {
@@ -972,17 +973,17 @@ void actors::killActor() {
     }
 }
 
-int actors::getType() const
+int Actors::getType() const
 {
     return this->actorType;
 }
 
-sf::IntRect actors::getLastIntRect() const
+sf::IntRect Actors::getLastIntRect() const
 {
     return this->lastIntRect;
 }
 
-std::string actors::getNameOfActor() const
+std::string Actors::getNameOfActor() const
 {
     switch (this->actorType)
     {
@@ -998,7 +999,7 @@ std::string actors::getNameOfActor() const
     }
 }
 
-void actors::updateGoal(cords location, int waitTime)
+void Actors::updateGoal(cords location, int waitTime)
 {
     if (location.x >= 0 && location.x < MAP_WIDTH && location.y >= 0 && location.y < MAP_HEIGHT &&
         !(location.x == this->actorCommandGoal.x && location.y == this->actorCommandGoal.y)) //no second update after double click
@@ -1049,7 +1050,7 @@ void actors::updateGoal(cords location, int waitTime)
     }
 }
 
-void actors::updateGoalPath()
+void Actors::updateGoalPath()
 {
     this->pathFound = false;
     this->busyWalking = false;
@@ -1067,7 +1068,7 @@ void actors::updateGoalPath()
     }
 }
 
-void actors::moveActorIfWalking()
+void Actors::moveActorIfWalking()
 {
     if (this->busyWalking && (currentGame.elapsedTimeMS - this->timeLastUpdate) > this->timeToCrossOneTile)
     {
@@ -1077,7 +1078,7 @@ void actors::moveActorIfWalking()
     }
 }
 
-void actors::clearRoute()
+void Actors::clearRoute()
 {
     this->pathFound = false;
     this->commonGoal = false;
@@ -1088,7 +1089,7 @@ void actors::clearRoute()
     }
 }
 
-void actors::startWalking()
+void Actors::startWalking()
 {
     this->hasMoved = true;
     this->retries = 0;
@@ -1110,7 +1111,7 @@ void actors::startWalking()
     }
 }
 
-void actors::retryWalkingOrChangeGoal() {
+void Actors::retryWalkingOrChangeGoal() {
     if (this->timeLastRetry + 500 < currentGame.getTime()) {
         this->timeLastRetry = currentGame.getTime();
         if (this->retries < 30)
@@ -1143,7 +1144,7 @@ void actors::retryWalkingOrChangeGoal() {
     }
 }
 
-void actors::walkToNextSquare() {
+void Actors::walkToNextSquare() {
     this->lastTile = false;
     // Deze actor heeft een doel, dit doel is nog niet bereikt en is klaar met het vorige stuk lopen!
     if (actorOrientation(this->actorCords.x, this->actorCords.y, this->route.back().position.x, this->route.back().position.y) == this->orientation)
@@ -1192,7 +1193,7 @@ void actors::walkToNextSquare() {
     }
 }
 
-void actors::handleResourceGathering()
+void Actors::handleResourceGathering()
 {
     if (this->hasToUnloadResource)
     {
@@ -1259,7 +1260,7 @@ void actors::handleResourceGathering()
     }
 }
 
-void actors::handleBuilding()
+void Actors::handleBuilding()
 {
     if (this->realPath) {
         if (this->orientation == actorOrientation(this->actorCords.x, this->actorCords.y, this->actionPreformedOnTile.x, this->actionPreformedOnTile.y)) {
@@ -1292,7 +1293,7 @@ void actors::handleBuilding()
     }
 }
 
-void actors::houseKeeping()
+void Actors::houseKeeping()
 {
     if (!this->busyWalking && this->route.empty() && this->hasMoved)
     {
@@ -1301,7 +1302,7 @@ void actors::houseKeeping()
     }
 }
 
-void actors::walkBackToOwnSquare()
+void Actors::walkBackToOwnSquare()
 {
     float northSouth;
     float eastWest;
@@ -1366,7 +1367,7 @@ void actors::walkBackToOwnSquare()
     }
 }
 
-void actors::startGatheringAnimation()
+void Actors::startGatheringAnimation()
 {
     int northSouth;
     int eastWest;
@@ -1427,7 +1428,7 @@ void actors::startGatheringAnimation()
     }
 }
 
-void actors::animateWalkingToResource()
+void Actors::animateWalkingToResource()
 {
     float northSouth;
     float eastWest;
@@ -1492,7 +1493,7 @@ void actors::animateWalkingToResource()
     }
 }
 
-void actors::gatherResource()
+void Actors::gatherResource()
 {
     if (isReallyNextToResource(this->actorCords.x, this->actorCords.y, this->actionPreformedOnTile.x, this->actionPreformedOnTile.y)) {
         if (currentGame.objectLocationList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y] != -1)
@@ -1546,7 +1547,7 @@ void actors::gatherResource()
     }
 }
 
-void actors::unloadAndReturnToGathering()
+void Actors::unloadAndReturnToGathering()
 {
     switch (listOfBuildings[this->dropOffTile.buildingId].getRecievesWhichResources())
     {
@@ -1622,7 +1623,7 @@ void actors::unloadAndReturnToGathering()
 
 }
 
-void actors::setGatheringRecource(bool flag)
+void Actors::setGatheringRecource(bool flag)
 {
     this->isGatheringRecources = flag;
     this->isBuilding = false;
@@ -1633,17 +1634,17 @@ void actors::setGatheringRecource(bool flag)
     }
 }
 
-void actors::setCommonGoalTrue()
+void Actors::setCommonGoalTrue()
 {
     this->commonGoal = true;
 }
 
-void actors::setDoAttackMoveTrue()
+void Actors::setDoAttackMoveTrue()
 {
     this->wasAttackMove = true;
 }
 
-void actors::findNearestSimilarResource()
+void Actors::findNearestSimilarResource()
 {
     cords newResourceCords = findResource(this->ResourceBeingGatherd, this->actorId);
     if (newResourceCords.x != -1) {
@@ -1666,7 +1667,7 @@ void actors::findNearestSimilarResource()
     }
 }
 
-void actors::findNearestDropOffPoint()
+void Actors::findNearestDropOffPoint()
 {
     if (!this->routeNeedsPath) {
         //Bugfix for edge case where the actor is ocuping a tile adjacent to a dropoff building
@@ -1717,17 +1718,17 @@ void actors::findNearestDropOffPoint()
     }
 }
 
-int actors::getTeam() const
+int Actors::getTeam() const
 {
     return this->actorTeam;
 }
 
-bool actors::getIsInitialized() const
+bool Actors::getIsInitialized() const
 {
     return this->initialized;
 }
 
-void actors::calculateRoute()
+void Actors::calculateRoute()
 {
     if (this->routeNeedsPath)
     {
@@ -1745,7 +1746,7 @@ void actors::calculateRoute()
     }
 }
 
-void actors::pathAStar()
+void Actors::pathAStar()
 {
     std::vector<Cells> cellsList = baseCellList;
     int startCell = (actorCords.x * MAP_HEIGHT) + actorCords.y; //eigen positie
@@ -1850,7 +1851,44 @@ void actors::pathAStar()
     if (this->pathFound)
     {
         //Er is een pad naar het doel gevonden! Stippel de route maar uit!
-        routing(cellsList, endCell, startCell, endReached);
+        this->route.push_back({ cellsList[endCell].position, cellsList[endCell].visited, cellsList[endCell].parentCellId });
+        while (!endReached)
+        {
+            if (route.back().visited == true)
+            {
+                //Voeg voor iedere tegel de parent toe aan de lijst (dit was de tegel met de korste weg naar deze tegel)
+                this->route.push_back({ cellsList[route.back().parentCellId].position, cellsList[route.back().parentCellId].visited, cellsList[route.back().parentCellId].parentCellId });
+                if (this->route.back().parentCellId == startCell) {
+                    //Als de nu volgende parentCell de tegel is waar de actor op staat zijn we klaar.
+                    endReached = true;
+                }
+                if (this->route.back().parentCellId == -1) {
+                    endReached = true;
+                }
+                //Fix voor een bug waarin op een of andere manier géén parent cell ingevult staat en dus null zou zijn. (al zou dat niet moeten kunnen)
+                if (this->route.back().parentCellId == 0) {
+                    //We gaan kijken of het een logische buur kan zijn, gelukkig hoeven we maar drie posities te controleren:
+                    if (this->route.back().position.x == 0 && this->route.back().position.x == 1) {
+                        //Logische parent; doe niets!
+                    }
+                    else if (this->route.back().position.x == 0 && this->route.back().position.x == 1) {
+                        //Logische parent; doe niets!
+                    }
+                    else if (this->route.back().position.x == 1 && this->route.back().position.x == 1) {
+                        //Logische parent; doe niets!
+                    }
+                    else {
+                        //Onlogisch! breek de route af zonder de parent cell toe te voegen
+                        endReached = true;
+                    }
+                }
+            }
+            else
+            {
+                //Blijkbaar is deze tegel nooit geevalueerd of het is de starttegel; onlogisch! breek het route maken af!
+                endReached = true;
+            }
+        }
         this->realPath = true; //Vlaggetje dat de route naar het eindpunt gaat en er in princiepe geen herbereking nodig is
     }
     else {
@@ -1881,13 +1919,13 @@ void actors::pathAStar()
     }
 }
 
-void actors::clearCommandStack()
+void Actors::clearCommandStack()
 {
     this->listOfOrders.clear();
 }
 
 
-void actors::fightOrFlight(int idOfAttacker)
+void Actors::fightOrFlight(int idOfAttacker)
 {
     auto moveOrAttackIfNotPossible = [&](cords moveAwayFrom) {
         int moveX = 0;
@@ -1957,7 +1995,7 @@ void actors::fightOrFlight(int idOfAttacker)
     }
 }
 
-void actors::doNextStackedCommand()
+void Actors::doNextStackedCommand()
 {
     if (!this->listOfOrders.empty()) {
         switch (this->listOfOrders.front().orderType) {
@@ -1988,55 +2026,18 @@ void actors::doNextStackedCommand()
     }
 }
 
-void actors::stackOrder(cords goal, const stackOrderTypes orderType)
+void Actors::stackOrder(cords goal, const stackOrderTypes orderType)
 {
     this->listOfOrders.push_back({ goal, orderType });
 }
 
-void actors::routing(std::vector<Cells>& cellsList, int endCell, int startCell, bool endReached)
+void Actors::routing(std::vector<Cells>& cellsList, int endCell, int startCell, bool endReached)
 {
     //Zet de tegel waarnaartoe gelopen wordt in de lijst
-    this->route.push_back({ cellsList[endCell].position, cellsList[endCell].visited, cellsList[endCell].parentCellId });
-    while (!endReached)
-    {
-        if (route.back().visited == true)
-        {
-            //Voeg voor iedere tegel de parent toe aan de lijst (dit was de tegel met de korste weg naar deze tegel)
-            this->route.push_back({ cellsList[route.back().parentCellId].position, cellsList[route.back().parentCellId].visited, cellsList[route.back().parentCellId].parentCellId });
-            if (this->route.back().parentCellId == startCell) {
-                //Als de nu volgende parentCell de tegel is waar de actor op staat zijn we klaar.
-                endReached = true;
-            }
-            if (this->route.back().parentCellId == -1) {
-                endReached = true;
-            }
-            //Fix voor een bug waarin op een of andere manier géén parent cell ingevult staat en dus nul zou zijn. (al zou dat niet moeten kunnen)
-            if (this->route.back().parentCellId == 0) {
-                //We gaan kijken of het een logische buur kan zijn, gelukkig hoeven we maar drie posities te controleren:
-                if (this->route.back().position.x == 0 && this->route.back().position.x == 1) {
-                    //Logische parent; doe niets!
-                }
-                else if (this->route.back().position.x == 0 && this->route.back().position.x == 1) {
-                    //Logische parent; doe niets!
-                }
-                else if (this->route.back().position.x == 1 && this->route.back().position.x == 1) {
-                    //Logische parent; doe niets!
-                }
-                else {
-                    //Onlogisch! breek de route af zonder de parent cell toe te voegen
-                    endReached = true;
-                }
-            }
-        }
-        else
-        {
-            //Blijkbaar is deze tegel nooit geevalueerd of het is de starttegel; onlogisch! breek het route maken af!
-            endReached = true;
-        }
-    }
+    
 }
 
-void actors::cleanUp()
+void Actors::cleanUp()
 {
     for (int i = 0; i < MAP_WIDTH; i++)
     {
@@ -2048,22 +2049,22 @@ void actors::cleanUp()
     currentGame.occupiedByActorList[this->actorCords.x][this->actorCords.y].push_back(this->actorId);
 }
 
-std::pair<int, int> actors::getHealth() const
+std::pair<int, int> Actors::getHealth() const
 {
     return { this->actorHealth, this->hitPoints };
 }
 
-int actors::getMeleeDMG() const
+int Actors::getMeleeDMG() const
 {
     return this->meleeDamage;
 }
 
-int actors::getRangedDMG() const
+int Actors::getRangedDMG() const
 {
     return this->rangedDamage;
 }
 
-void actors::drawActor()
+void Actors::drawActor()
 {
     int i = this->actorCords.x;
     int j = this->actorCords.y;
@@ -2251,7 +2252,7 @@ void actors::drawActor()
     }
 }
 
-void actors::buildBuilding()
+void Actors::buildBuilding()
 {
     if (currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y] != -1)
     {
@@ -2307,32 +2308,32 @@ void actors::buildBuilding()
     }
 }
 
-int actors::getActorId()  const
+int Actors::getActorId()  const
 {
     return this->actorId;
 }
 
-bool actors::getIsGathering() const
+bool Actors::getIsGathering() const
 {
     return this->isGatheringRecources;
 }
 
-bool actors::getIsBuilding() const
+bool Actors::getIsBuilding() const
 {
     return this->isBuilding;
 }
 
-bool actors::getHasRoute()
+bool Actors::getHasRoute()
 {
     return !this->route.empty();
 }
 
-cords actors::getGoal() const
+cords Actors::getGoal() const
 {
     return this->actorGoal;
 }
 
-cords actors::getEndGoal()
+cords Actors::getEndGoal()
 {
     if (!this->isGatheringRecources) {
         return { this->actorRealGoal.x, this->actorRealGoal.y };
@@ -2352,17 +2353,17 @@ cords actors::getEndGoal()
 
 }
 
-int actors::getBuildingId() const
+int Actors::getBuildingId() const
 {
     return this->buildingId;
 }
 
-resourceTypes actors::getResourceGathered() const
+resourceTypes Actors::getResourceGathered() const
 {
     return this->ResourceBeingGatherd;
 }
 
-void actors::setIsBuildingTrue(int buildingId, cords goal)
+void Actors::setIsBuildingTrue(int buildingId, cords goal)
 {
     this->isBuilding = true;
     this->buildingId = buildingId;
@@ -2371,7 +2372,7 @@ void actors::setIsBuildingTrue(int buildingId, cords goal)
     this->actionPreformedOnTile = goal;
 }
 
-void actors::renderPath()
+void Actors::renderPath()
 {
     std::list<routeCell>::iterator it;
     for (it = route.begin(); it != route.end(); it++)

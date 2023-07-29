@@ -5,6 +5,7 @@
 #include "../gamestate.h"
 #include "../player.h"
 #include "../cells.h"
+#include "../gametext.h"
 
 //Base states
 #include "BaseStateIdle.h"
@@ -63,6 +64,7 @@ Actor::Actor(int type, cords location, int actorTeam, int actorId)
     _amountOfStone = 0;
     _amountOfWood = 0;
     _actorGoal = { 0,0 };
+    _actorRealGoal = { 0,0 };
     _buildingId = 0;
 
     _orientation = 0;
@@ -150,6 +152,7 @@ Actor::Actor(const Actor& other) {
     _listOfOrders = other._listOfOrders;
     _cantPassActors = other._cantPassActors;
     _route = other._route;
+    _actorRealGoal = other._actorRealGoal;
 }
 
 // Copy assignment operator
@@ -204,6 +207,7 @@ Actor& Actor::operator=(const Actor& other) {
     _listOfOrders = other._listOfOrders;
     _cantPassActors = other._cantPassActors;
     _route = other._route;
+    _actorRealGoal = other._actorRealGoal;
 
     return *this;
 }
@@ -327,12 +331,14 @@ void Actor::stackOrder(cords Goal, stackOrderTypes orderType)
 
 void Actor::updateGoal(cords goal, int waitTime)
 {
+
 }
 
 
 void Actor::clearCommandStack()
 {
     _listOfOrders.clear();
+    
 }
 
 void Actor::update()
@@ -351,7 +357,7 @@ void Actor::calculateRoute()
     _route.route.clear();
     _route.pathFound = false;
     _route.realPath = false;
-    //this->actorRealGoal = this->actorGoal;
+    _actorRealGoal = _actorGoal;
     pathAStar();
     if (_route.realPath && _route.pathFound) {
         _route.timeLastPathTry = currentGame.elapsedTimeMS;
@@ -377,7 +383,7 @@ void Actor::drawActor()
     }
     */
 
-    if (_subState->_sub == SubStateNames::WalkingToNextSquare || _subState->_sub == SubStateNames::WalkingToAction ) //To do: || _timeStartedWalkingToRecource > 0)
+    if (_subState->_sub == SubStateNames::WalkingToNextSquare || _subState->_sub == SubStateNames::WalkingToAction)// || _timeStartedWalkingToRecource > 0)
     {
         if (currentGame.elapsedTimeMS - _timeLastOffsetChange > 200)
         {
@@ -388,15 +394,19 @@ void Actor::drawActor()
             }
             _timeLastOffsetChange = currentGame.elapsedTimeMS;
         }
-        if (_subState->_sub == SubStateNames::WalkingToNextSquare)
+        if (_subState->_sub == SubStateNames::WalkingToNextSquare && _subState->getMoved())
         {
             cords nPosition = worldSpace({ x, y });
             int deltaX = position.x - nPosition.x;
             int deltaY = position.y - nPosition.y;
             float deltaTime = static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate);
+            if (deltaTime > _timeToCrossOneTile) {
+                deltaTime = _timeToCrossOneTile;
+            }
             float speedMultiplier = 1.f / _timeToCrossOneTile;
             float deltaXCompleted = deltaX * (deltaTime * speedMultiplier);
             float deltaYCompleted = deltaY * (deltaTime * speedMultiplier);
+            
             position = { position.x - static_cast<int>(deltaXCompleted),  position.y - static_cast<int>(deltaYCompleted) };
         }
     }
@@ -523,13 +533,13 @@ void Actor::drawActor()
     }
 
 
-    //Draw the actor
+    _actorDeclaringString = "Actor " + std::to_string(_actorId) + "\n" + "Postion x : " + std::to_string(_actorCords.x) + " y : " + std::to_string(_actorCords.y) + "\n" + "Draw pos x : " + std::to_string(position.x) + " y : " + std::to_string(position.y) + "\n" + "Sprite x : " + std::to_string(spriteXoffset) + " y : " + std::to_string(spriteYoffset) + "\n\n";
+   
+
+
     listOfActorTemplates[_actorType].setSpritePosition(position);
     listOfActorTemplates[_actorType].getActorSprite().setTextureRect(sf::IntRect(spriteXoffset, spriteYoffset, 16, 32));
     window.draw(listOfActorTemplates[_actorType].getActorSprite());
-
-    //Set last intRect for selection handeling
-
     _lastIntRect = static_cast<sf::IntRect>(listOfActorTemplates[_actorType].getActorSprite().getGlobalBounds());
 
 
@@ -548,11 +558,17 @@ void Actor::drawActor()
 
 void Actor::renderPath()
 {
-
+    std::list<routeCell>::iterator it;
+    for (it = _route.route.begin(); it != _route.route.end(); it++)
+    {
+        currentGame.spriteSelectedTileForPath.setPosition(static_cast<float>(worldSpace(it->position).x), static_cast<float>(worldSpace(it->position).y));
+        window.draw(currentGame.spriteSelectedTileForPath);
+    }
 }
 
 void Actor::printActorDebugText()
 {
+    gameText.addDebugMessage(_actorDeclaringString, 0);
 }
 
 bool Actor::getIsAlive() const
@@ -665,6 +681,7 @@ bool Actor::doNextStackedCommand()
     case stackOrderTypes::stackActionMove:
         switchBaseState(BaseStateNames::WalikngAToB);
         _actorGoal = _listOfOrders.front().goal;
+        _actorRealGoal = _actorGoal;
         //_actorCommandGoal = location;
         break;
     /*

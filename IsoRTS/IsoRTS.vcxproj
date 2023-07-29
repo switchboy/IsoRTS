@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="scr\actors.h" />
     <ClInclude Include="scr\Actors\Actor.h" />
+    <ClInclude Include="scr\Actors\ActorHelper.h" />
     <ClInclude Include="scr\Actors\actorStructs.h" />
     <ClInclude Include="scr\Actors\BaseStateBuilding.h" />
     <ClInclude Include="scr\Actors\BaseStateDead.h" />
@@ -37,6 +38,8 @@
     <ClInclude Include="scr\Actors\GroundStateWalking.h" />
     <ClInclude Include="scr\Actors\heirachicalStateMachineState.h" />
     <ClInclude Include="scr\Actors\StateBase.h" />
+    <ClInclude Include="scr\Actors\StateCanceldWhileWalking.h" />
+    <ClInclude Include="scr\Actors\StateCanceled.h" />
     <ClInclude Include="scr\Actors\StateNames.h" />
     <ClInclude Include="scr\Actors\SubStateCountingDownToDestroySelf.h" />
     <ClInclude Include="scr\Actors\SubStateMeleeAttacking.h" />
@@ -80,6 +83,7 @@
   <ItemGroup>
     <ClCompile Include="scr\actors.cpp" />
     <ClCompile Include="scr\Actors\Actor.cpp" />
+    <ClCompile Include="scr\Actors\ActorHelper.cpp" />
     <ClCompile Include="scr\Actors\BaseStateBuilding.cpp" />
     <ClCompile Include="scr\Actors\BaseStateDead.cpp" />
     <ClCompile Include="scr\Actors\BaseStateFighting.cpp" />
@@ -94,6 +98,8 @@
     <ClCompile Include="scr\Actors\GroundStateReturningTheResource.cpp" />
     <ClCompile Include="scr\Actors\GroundStateWalking.cpp" />
     <ClCompile Include="scr\Actors\StateBase.cpp" />
+    <ClCompile Include="scr\Actors\StateCanceldWhileWalking.cpp" />
+    <ClCompile Include="scr\Actors\StateCanceled.cpp" />
     <ClCompile Include="scr\Actors\SubStateCountingDownToDestroySelf.cpp" />
     <ClCompile Include="scr\Actors\SubStateMeleeAttacking.cpp" />
     <ClCompile Include="scr\Actors\SubStateRangedAttacking.cpp" />

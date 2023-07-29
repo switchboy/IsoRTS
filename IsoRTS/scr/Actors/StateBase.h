@@ -12,6 +12,8 @@ public:
         _sub = sub;
     }
     virtual bool doAction(Actor* actor);
+    virtual ModesOfAttack getModeOfAttack();
+    virtual bool getMoved();
     BaseStateNames _base;
     GroundStateNames _ground;
     SubStateNames _sub;

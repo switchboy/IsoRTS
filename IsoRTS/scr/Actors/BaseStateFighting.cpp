@@ -8,3 +8,8 @@ bool BaseStateFighting::doAction(Actor* actor) {
     std::cout << "State: BaseStateFighting!\n";
     return false;
 }
+
+ModesOfAttack BaseStateFighting::getModeOfAttack()
+{
+    return _modeOfAttack;
+}

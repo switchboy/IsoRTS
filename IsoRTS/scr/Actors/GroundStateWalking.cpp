@@ -1,5 +1,6 @@
 #include "GroundStateWalking.h"
 #include "actor.h"
+#include "../gamestate.h"
 
 #include <iostream>
 
@@ -16,6 +17,7 @@ bool GroundStateWalking::doAction(Actor* actor) {
         actor->switchSubState(SubStateNames::SearchingAPath);
         return false;
     case SubStateNames::SearchingAPath:
+        actor->_timeLastUpdate = currentGame.elapsedTimeMS;
         actor->switchSubState(SubStateNames::WalkingToNextSquare);
         return false;
     case SubStateNames::WalkingToNextSquare:

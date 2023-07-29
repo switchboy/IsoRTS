@@ -39,3 +39,8 @@ enum class SubStateNames {
 	BuildingTheBuilding,
 	GatheringTheResource
 };
+
+enum class ModesOfAttack {
+	melee,
+	ranged,
+};

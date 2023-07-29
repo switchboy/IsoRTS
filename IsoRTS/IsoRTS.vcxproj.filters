@@ -192,6 +192,15 @@
     <ClInclude Include="scr\Actors\actorStructs.h">
       <Filter>Header Files\Actor</Filter>
     </ClInclude>
+    <ClInclude Include="scr\Actors\ActorHelper.h">
+      <Filter>Header Files\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Actors\StateCanceled.h">
+      <Filter>Header Files\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Actors\StateCanceldWhileWalking.h">
+      <Filter>Header Files\Actor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scr\mainMenu.cpp">
@@ -352,6 +361,15 @@
     </ClCompile>
     <ClCompile Include="scr\cells.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Actors\ActorHelper.cpp">
+      <Filter>Source Files\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Actors\StateCanceldWhileWalking.cpp">
+      <Filter>Source Files\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Actors\StateCanceled.cpp">
+      <Filter>Source Files\Actors</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

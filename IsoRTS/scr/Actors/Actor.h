@@ -72,12 +72,15 @@ private:
         _amountOfGold, _buildingId, _range, _timeBetweenShots, _splashDamage, _projectileType, _doesRangedDamage, _rateOfFire, _timeToCrossOneTile,
         _spriteYOffset, _timeLastOffsetChange, _orientation, _offSetX, _offSetY, _timeLastUpdate;
     bool _cantPassActors;
-    cords _actorGoal, _actorCords ;
+    cords _actorGoal, _actorCords, _actorRealGoal;
     sf::IntRect _lastIntRect;
     std::list<cords> _listOfTargetsToRejectUntilSuccesfullMovement;
     pathedRoute _route;
     std::list<orderStack> _listOfOrders;
     resourceTypes _resourceBeingGatherd;
+    
+    //temp
+    sf::String _actorDeclaringString;
 
     //Actor modifiers
     void updateGoal(cords goal, int waitTime);

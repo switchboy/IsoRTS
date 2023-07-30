@@ -7,6 +7,9 @@
 #include "../cells.h"
 #include "../gametext.h"
 
+#include "StateCanceled.h"
+#include "StateCanceledWhileWalking.h"
+
 //Base states
 #include "BaseStateIdle.h"
 #include "BaseStateWalkingAToB.h"
@@ -338,7 +341,19 @@ void Actor::updateGoal(cords goal, int waitTime)
 void Actor::clearCommandStack()
 {
     _listOfOrders.clear();
-    
+    delete _baseState;
+    delete _groundState;
+    _baseState = new StateCanceled(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::NONE);
+    _groundState = new StateCanceled(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::NONE);
+    switch(_subState->_sub){
+    case SubStateNames::WalkingToNextSquare:
+        delete _subState;
+        _subState = new StateCanceledWhileWalking(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::CanceldWhileWalking);
+        break;
+    default:
+        delete _subState;
+        _subState = new StateCanceled(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::NONE);
+    }
 }
 
 void Actor::update()
@@ -350,6 +365,28 @@ void Actor::update()
             }
         }
     }
+}
+
+void Actor::makeSureActorIsOnTheMap() {
+    if (_actorCords.x < 0 && _actorCords.x >= MAP_WIDTH && _actorCords.y < 0 && _actorCords.y >= MAP_HEIGHT) {
+        return;
+    }
+
+    if (currentGame.occupiedByActorList[_actorCords.x][_actorCords.y].empty()) {
+        currentGame.occupiedByActorList[_actorCords.x][_actorCords.y].push_back(_actorId);
+        return;
+    }
+
+    bool isOnList = false;
+    for (int& id : currentGame.occupiedByActorList[_actorCords.x][_actorCords.y]) {
+        if (id == _actorId) { isOnList = true; }
+    }
+
+    if (!isOnList) {
+        currentGame.occupiedByActorList[_actorCords.x][_actorCords.y].push_back(_actorId);
+    }
+
+    return;
 }
 
 void Actor::calculateRoute()
@@ -383,7 +420,7 @@ void Actor::drawActor()
     }
     */
 
-    if (_subState->_sub == SubStateNames::WalkingToNextSquare || _subState->_sub == SubStateNames::WalkingToAction)// || _timeStartedWalkingToRecource > 0)
+    if (_subState->_sub == SubStateNames::WalkingToNextSquare || _subState->_sub == SubStateNames::WalkingToAction || _subState->_sub == SubStateNames::CanceldWhileWalking)// || _timeStartedWalkingToRecource > 0)
     {
         if (currentGame.elapsedTimeMS - _timeLastOffsetChange > 200)
         {
@@ -394,7 +431,7 @@ void Actor::drawActor()
             }
             _timeLastOffsetChange = currentGame.elapsedTimeMS;
         }
-        if (_subState->_sub == SubStateNames::WalkingToNextSquare && _subState->getMoved())
+        if ((_subState->_sub == SubStateNames::WalkingToNextSquare && _subState->getMoved() )|| _subState->_sub == SubStateNames::CanceldWhileWalking )
         {
             cords nPosition = worldSpace({ x, y });
             int deltaX = position.x - nPosition.x;
@@ -535,8 +572,6 @@ void Actor::drawActor()
 
     _actorDeclaringString = "Actor " + std::to_string(_actorId) + "\n" + "Postion x : " + std::to_string(_actorCords.x) + " y : " + std::to_string(_actorCords.y) + "\n" + "Draw pos x : " + std::to_string(position.x) + " y : " + std::to_string(position.y) + "\n" + "Sprite x : " + std::to_string(spriteXoffset) + " y : " + std::to_string(spriteYoffset) + "\n\n";
    
-
-
     listOfActorTemplates[_actorType].setSpritePosition(position);
     listOfActorTemplates[_actorType].getActorSprite().setTextureRect(sf::IntRect(spriteXoffset, spriteYoffset, 16, 32));
     window.draw(listOfActorTemplates[_actorType].getActorSprite());
@@ -749,6 +784,7 @@ void Actor::pathAStar()
         //en geen obstakel is of het hokje van de actor zelf is
         if (!cellsList[endCell].obstacle || (_actorCords.x == _actorGoal.x && _actorCords.y == _actorGoal.y))
         {
+            _route.pathFound = true;
             endReached = true;
         }
         else

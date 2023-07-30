@@ -65,6 +65,7 @@ public:
 
 private:
     bool doNextStackedCommand();
+    void makeSureActorIsOnTheMap();
     StateBase* _baseState;
     StateBase* _groundState;
     StateBase* _subState;
@@ -86,6 +87,8 @@ private:
     void updateGoal(cords goal, int waitTime);
 
     friend class StateBase;
+    friend class StateCanceledWhileWalking;
+
     //Base states
     friend class BaseStateIdle;
     friend class BaseStateWalkingAToB;

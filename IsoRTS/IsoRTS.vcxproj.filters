@@ -198,7 +198,7 @@
     <ClInclude Include="scr\Actors\StateCanceled.h">
       <Filter>Header Files\Actor</Filter>
     </ClInclude>
-    <ClInclude Include="scr\Actors\StateCanceldWhileWalking.h">
+    <ClInclude Include="scr\Actors\StateCanceledWhileWalking.h">
       <Filter>Header Files\Actor</Filter>
     </ClInclude>
   </ItemGroup>
@@ -365,7 +365,7 @@
     <ClCompile Include="scr\Actors\ActorHelper.cpp">
       <Filter>Source Files\Actors</Filter>
     </ClCompile>
-    <ClCompile Include="scr\Actors\StateCanceldWhileWalking.cpp">
+    <ClCompile Include="scr\Actors\StateCanceledWhileWalking.cpp">
       <Filter>Source Files\Actors</Filter>
     </ClCompile>
     <ClCompile Include="scr\Actors\StateCanceled.cpp">

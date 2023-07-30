@@ -38,7 +38,7 @@
     <ClInclude Include="scr\Actors\GroundStateWalking.h" />
     <ClInclude Include="scr\Actors\heirachicalStateMachineState.h" />
     <ClInclude Include="scr\Actors\StateBase.h" />
-    <ClInclude Include="scr\Actors\StateCanceldWhileWalking.h" />
+    <ClInclude Include="scr\Actors\StateCanceledWhileWalking.h" />
     <ClInclude Include="scr\Actors\StateCanceled.h" />
     <ClInclude Include="scr\Actors\StateNames.h" />
     <ClInclude Include="scr\Actors\SubStateCountingDownToDestroySelf.h" />
@@ -98,7 +98,7 @@
     <ClCompile Include="scr\Actors\GroundStateReturningTheResource.cpp" />
     <ClCompile Include="scr\Actors\GroundStateWalking.cpp" />
     <ClCompile Include="scr\Actors\StateBase.cpp" />
-    <ClCompile Include="scr\Actors\StateCanceldWhileWalking.cpp" />
+    <ClCompile Include="scr\Actors\StateCanceledWhileWalking.cpp" />
     <ClCompile Include="scr\Actors\StateCanceled.cpp" />
     <ClCompile Include="scr\Actors\SubStateCountingDownToDestroySelf.cpp" />
     <ClCompile Include="scr\Actors\SubStateMeleeAttacking.cpp" />

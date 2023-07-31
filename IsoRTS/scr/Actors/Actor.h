@@ -37,6 +37,8 @@ public:
     void drawActor();
     void renderPath();
     void printActorDebugText();
+    void animateWalkingToAction();
+    void animatWalkingBackFromAction();
 
     //Getters
     int getActorId() const;
@@ -45,11 +47,8 @@ public:
     bool getIsIdle() const;
     bool getIsBuilding() const;
     resourceTypes getResourceGathered() const;
-
-    void pathAStar();
-
-    bool getHasRoute();
     std::pair<int, int> getHealth() const;
+    bool getHasRoute();
     cords getGoal() const;
     cords getActorCords() const;
     int getTeam() const;
@@ -61,7 +60,9 @@ public:
     int getType() const;
     std::string getResources() const;
     int getBuildingId() const;
-   
+
+    //pathfinding
+    void pathAStar();
 
 private:
     bool doNextStackedCommand();
@@ -105,6 +106,7 @@ private:
     friend class GroundStateAttacking;
     friend class GroundStateFleeing;
     friend class GroundStateDecomposing;
+    friend class GroundStateFindAlternativeSource;
 
     //Sub states
     friend class SubStateWalkingToNextSquare;
@@ -119,6 +121,11 @@ private:
     friend class SubStateSettingGoalToFleeTo;
     friend class SubStateSettingMyDecompositionState;
     friend class SubStateCountingDownToDestroySelf;
+    friend class SubStateWalkingToAction;
+    friend class SubStateWalkingBackFromAction;
+    friend class SubStateBuildingTheBuilding;
+    friend class SubStateGatheringTheResource;
+    friend class SubStateDroppingOffResource;
 };
 
 extern std::vector <Actor> listOfActors;

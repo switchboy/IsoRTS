@@ -29,3 +29,4 @@ public:
 
 extern std::vector<Cells> baseCellList;
 extern void updateCells(int goalId, int startId, std::vector<Cells>& cellsList, bool cantPassActors);
+bool canReachTarget(const cords& source, const cords& target, bool _cantPassActors);

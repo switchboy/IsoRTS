@@ -103,28 +103,6 @@ void updateGameState(int& lastActor, int& lastBuilding, int& lastPath, int& last
 
     if (!listOfActors.empty())
     {
-        /*
-        if (!listOfActorsWhoNeedAPath.empty())
-        {
-            int begin = static_cast<int>(listOfActorsWhoNeedAPath.size());
-            int endPath = lastPath + 5;
-            if (endPath > static_cast<int>(listOfActorsWhoNeedAPath.size())) {
-                endPath = static_cast<int>(listOfActorsWhoNeedAPath.size());
-            }
-            for (int i = lastPath; i < endPath; i++) {
-                listOfActors[listOfActorsWhoNeedAPath[i]].calculateRoute();
-            }
-            int after = static_cast<int>(listOfActorsWhoNeedAPath.size());
-            if (endPath == listOfActorsWhoNeedAPath.size()) {
-                lastPath = 0;
-                listOfActorsWhoNeedAPath.clear();
-            }
-            else {
-                lastPath = endPath;
-            }
-        }
-        */
-
         int endActor = lastActor + 200;
         if (endActor > static_cast<int>(listOfActors.size())) {
             endActor = static_cast<int>(listOfActors.size());

@@ -14,3 +14,8 @@
  {
      return false;
  }
+
+ cords StateBase::getActionPreformedOn()
+ {
+     return cords();
+ }

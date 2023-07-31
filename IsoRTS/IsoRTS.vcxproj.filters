@@ -201,6 +201,24 @@
     <ClInclude Include="scr\Actors\StateCanceledWhileWalking.h">
       <Filter>Header Files\Actor</Filter>
     </ClInclude>
+    <ClInclude Include="scr\Actors\SubStateWalkingToAction.h">
+      <Filter>Header Files\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Actors\SubStateWalkingBackFromAction.h">
+      <Filter>Header Files\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Actors\SubStateGatheringTheResource.h">
+      <Filter>Header Files\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Actors\SubStateBuildingTheBuilding.h">
+      <Filter>Header Files\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Actors\SubStateDroppingOffResource.h">
+      <Filter>Header Files\Actor</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Actors\GroundStateFindAlternativeSource.h">
+      <Filter>Header Files\Actor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scr\mainMenu.cpp">
@@ -369,6 +387,24 @@
       <Filter>Source Files\Actors</Filter>
     </ClCompile>
     <ClCompile Include="scr\Actors\StateCanceled.cpp">
+      <Filter>Source Files\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Actors\SubStateWalkingBackFromAction.cpp">
+      <Filter>Source Files\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Actors\SubStateWalkingToAction.cpp">
+      <Filter>Source Files\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Actors\SubStateGatheringTheResource.cpp">
+      <Filter>Source Files\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Actors\SubStateBuildingTheBuilding.cpp">
+      <Filter>Source Files\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Actors\SubStateDroppingOffResource.cpp">
+      <Filter>Source Files\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Actors\GroundStateFindAlternativeSource.cpp">
       <Filter>Source Files\Actors</Filter>
     </ClCompile>
   </ItemGroup>

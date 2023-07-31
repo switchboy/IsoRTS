@@ -32,6 +32,7 @@
     <ClInclude Include="scr\Actors\GroundStateAttacking.h" />
     <ClInclude Include="scr\Actors\GroundStateBuildingTheBuilding.h" />
     <ClInclude Include="scr\Actors\GroundStateDecomposing.h" />
+    <ClInclude Include="scr\Actors\GroundStateFindAlternativeSource.h" />
     <ClInclude Include="scr\Actors\GroundStateFleeing.h" />
     <ClInclude Include="scr\Actors\GroundStateGatheringTheResource.h" />
     <ClInclude Include="scr\Actors\GroundStateReturningTheResource.h" />
@@ -41,7 +42,10 @@
     <ClInclude Include="scr\Actors\StateCanceledWhileWalking.h" />
     <ClInclude Include="scr\Actors\StateCanceled.h" />
     <ClInclude Include="scr\Actors\StateNames.h" />
+    <ClInclude Include="scr\Actors\SubStateBuildingTheBuilding.h" />
     <ClInclude Include="scr\Actors\SubStateCountingDownToDestroySelf.h" />
+    <ClInclude Include="scr\Actors\SubStateDroppingOffResource.h" />
+    <ClInclude Include="scr\Actors\SubStateGatheringTheResource.h" />
     <ClInclude Include="scr\Actors\SubStateMeleeAttacking.h" />
     <ClInclude Include="scr\Actors\SubStateRangedAttacking.h" />
     <ClInclude Include="scr\Actors\SubStateSearchingAlternativeBuildingSpot.h" />
@@ -53,6 +57,8 @@
     <ClInclude Include="scr\Actors\SubStateSettingGoalToFleeTo.h" />
     <ClInclude Include="scr\Actors\SubStateSettingMyDecompositionState.h" />
     <ClInclude Include="scr\Actors\SubStateWalkingToNextSquare.h" />
+    <ClInclude Include="scr\Actors\SubStateWalkingBackFromAction.h" />
+    <ClInclude Include="scr\Actors\SubStateWalkingToAction.h" />
     <ClInclude Include="scr\actorTemplates.h" />
     <ClInclude Include="scr\buildings.h" />
     <ClInclude Include="scr\button.h" />
@@ -93,6 +99,7 @@
     <ClCompile Include="scr\Actors\GroundStateAttacking.cpp" />
     <ClCompile Include="scr\Actors\GroundStateBuildingTheBuilding.cpp" />
     <ClCompile Include="scr\Actors\GroundStateDecomposing.cpp" />
+    <ClCompile Include="scr\Actors\GroundStateFindAlternativeSource.cpp" />
     <ClCompile Include="scr\Actors\GroundStateFleeing.cpp" />
     <ClCompile Include="scr\Actors\GroundStateGatheringTheResource.cpp" />
     <ClCompile Include="scr\Actors\GroundStateReturningTheResource.cpp" />
@@ -100,7 +107,10 @@
     <ClCompile Include="scr\Actors\StateBase.cpp" />
     <ClCompile Include="scr\Actors\StateCanceledWhileWalking.cpp" />
     <ClCompile Include="scr\Actors\StateCanceled.cpp" />
+    <ClCompile Include="scr\Actors\SubStateBuildingTheBuilding.cpp" />
     <ClCompile Include="scr\Actors\SubStateCountingDownToDestroySelf.cpp" />
+    <ClCompile Include="scr\Actors\SubStateDroppingOffResource.cpp" />
+    <ClCompile Include="scr\Actors\SubStateGatheringTheResource.cpp" />
     <ClCompile Include="scr\Actors\SubStateMeleeAttacking.cpp" />
     <ClCompile Include="scr\Actors\SubStateRangedAttacking.cpp" />
     <ClCompile Include="scr\Actors\SubStateSearchingAlternativeBuildingSpot.cpp" />
@@ -112,6 +122,8 @@
     <ClCompile Include="scr\Actors\SubStateSettingGoalToFleeTo.cpp" />
     <ClCompile Include="scr\Actors\SubStateSettingMyDecompositionState.cpp" />
     <ClCompile Include="scr\Actors\SubStateWalkingToNextSquare.cpp" />
+    <ClCompile Include="scr\Actors\SubStateWalkingBackFromAction.cpp" />
+    <ClCompile Include="scr\Actors\SubStateWalkingToAction.cpp" />
     <ClCompile Include="scr\actorTemplates.cpp" />
     <ClCompile Include="scr\buildings.cpp" />
     <ClCompile Include="scr\button.cpp" />

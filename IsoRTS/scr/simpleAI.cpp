@@ -188,48 +188,7 @@ int distanceToResource(resourceTypes kind, cords from) {
 	}
 }
 
-cords findResource(resourceTypes kind, int unitId ) {
-	std::list <nearestBuildingTile> listOfResourceLocations;
-	cords actorCords = listOfActors[unitId].getActorCords();
-	cords targetCords{ -1, -1 };
 
-	for (int i = 0; i < listOfObjects.size(); i++) {
-		if (listOfObjects[i].getTypeOfResource() == kind && listOfObjects[i].amountOfResourcesLeft() > 0 ) {
-			float tempDeltaDistance = static_cast<float>(distEuclidean(listOfActors[unitId].getActorCords().x, listOfActors[unitId].getActorCords().y, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y));
-			listOfResourceLocations.push_back({ tempDeltaDistance, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y, i, true });
-		}
-	}
-
-	if (!listOfResourceLocations.empty())
-	{
-		listOfResourceLocations.sort([](const nearestBuildingTile& f, const nearestBuildingTile& s)
-			{
-				return f.deltaDistance < s.deltaDistance;
-			});
-		
-		bool firstLocationIsNotRejected = false;
-		while (!firstLocationIsNotRejected && !listOfResourceLocations.empty() && !listOfActors[unitId].getRejectedTargetsList().empty()) {
-			bool rejectionsDuringLoop = false;
-			for (const auto& reject : listOfActors[unitId].getRejectedTargetsList())
-			{
-				if (reject.x == listOfResourceLocations.front().location.x && reject.y == listOfResourceLocations.front().location.y) {
-					//target rejected!
-					listOfResourceLocations.pop_front();
-					rejectionsDuringLoop = true;
-				}
-			}
-			if (!rejectionsDuringLoop) {
-				firstLocationIsNotRejected = true; //break the loop 
-			}
-		}
-
-		if (!listOfResourceLocations.empty()) {
-			targetCords = listOfResourceLocations.front().location;
-		}
-
-	}
-	return targetCords;
-}
 
 void simpleAI::buildBuildingNearUnlessBuilding(int buildingId, int idleVillagerId, resourceTypes nearResource) {
 	int idOfUnfinishedHousing = isBuildingThereButIncomplete(buildingId);

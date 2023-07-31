@@ -6,8 +6,6 @@
 #include "../globalfunctions.h"
 
 
-
-
 bool StateCanceledWhileWalking::doAction(Actor* actor) {
     if (!_moved && !_walkBackSet) {
         

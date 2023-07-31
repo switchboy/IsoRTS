@@ -1,6 +1,7 @@
 #pragma once
 
 #include "StateNames.h"
+#include "../globalfunctions.h"
 
 class Actor;  // Forward declaration
 
@@ -14,6 +15,7 @@ public:
     virtual bool doAction(Actor* actor);
     virtual ModesOfAttack getModeOfAttack();
     virtual bool getMoved();
+    virtual cords getActionPreformedOn();
     BaseStateNames _base;
     GroundStateNames _ground;
     SubStateNames _sub;

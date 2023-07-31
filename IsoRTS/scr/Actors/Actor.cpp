@@ -26,6 +26,7 @@
 #include "GroundStateAttacking.h"
 #include "GroundStateFleeing.h"
 #include "GroundStateDecomposing.h"
+#include "GroundStateFIndAlternativeSource.h";
 
 //Sub states
 #include "SubStateWalkingToNextSquare.h"
@@ -40,6 +41,11 @@
 #include "SubStateSettingGoalToFleeTo.h"
 #include "SubStateSettingMyDecompositionState.h"
 #include "SubStateCountingDownToDestroySelf.h"
+#include "SubStateWalkingToAction.h"
+#include "SubStateWalkingBackFromAction.h"
+#include "SubStateGatheringTheResource.h"
+#include "SubStateBuildingTheBuilding.h"
+#include "SubStateDroppingOffResource.h"
 
 
 #include "StateNames.h"
@@ -254,22 +260,25 @@ void Actor::switchGroundState(GroundStateNames desiredState) {
         _groundState = new GroundStateWalking(BaseStateNames::Idle, GroundStateNames::Walking, SubStateNames::NONE);
         break;
     case GroundStateNames::AtTheResource:
-        _groundState = new GroundStateGatheringTheResource(BaseStateNames::Idle, GroundStateNames::Walking, SubStateNames::NONE);
+        _groundState = new GroundStateGatheringTheResource(BaseStateNames::Idle, GroundStateNames::AtTheResource, SubStateNames::NONE);
         break;
     case GroundStateNames::ReturningTheResource:
-        _groundState = new GroundStateReturningTheResource(BaseStateNames::Idle, GroundStateNames::Walking, SubStateNames::NONE);
+        _groundState = new GroundStateReturningTheResource(BaseStateNames::Idle, GroundStateNames::ReturningTheResource, SubStateNames::NONE);
         break;
     case GroundStateNames::AtTheBuilding:
-        _groundState = new GroundStateBuildingTheBuilding(BaseStateNames::Idle, GroundStateNames::Walking, SubStateNames::NONE);
+        _groundState = new GroundStateBuildingTheBuilding(BaseStateNames::Idle, GroundStateNames::AtTheBuilding, SubStateNames::NONE);
         break;
     case GroundStateNames::Attacking:
-        _groundState = new GroundStateAttacking(BaseStateNames::Idle, GroundStateNames::Walking, SubStateNames::NONE);
+        _groundState = new GroundStateAttacking(BaseStateNames::Idle, GroundStateNames::Attacking, SubStateNames::NONE);
         break;
     case GroundStateNames::Fleeing:
-        _groundState = new GroundStateFleeing(BaseStateNames::Idle, GroundStateNames::Walking, SubStateNames::NONE);
+        _groundState = new GroundStateFleeing(BaseStateNames::Idle, GroundStateNames::Fleeing, SubStateNames::NONE);
         break;
     case GroundStateNames::Decomposing:
-        _groundState = new GroundStateDecomposing(BaseStateNames::Idle, GroundStateNames::Walking, SubStateNames::NONE);
+        _groundState = new GroundStateDecomposing(BaseStateNames::Idle, GroundStateNames::Decomposing, SubStateNames::NONE);
+        break;
+    case GroundStateNames::FindAlternativeSource:
+        GroundStateFindAlternativeSource(BaseStateNames::Idle, GroundStateNames::FindAlternativeSource, SubStateNames::NONE);
         break;
     default:
         _groundState = new StateBase(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::NONE);
@@ -316,6 +325,21 @@ void Actor::switchSubState(SubStateNames desiredState) {
         break;
     case SubStateNames::CountingDownToDestroySelf:
         _subState = new SubStateCountingDownToDestroySelf(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::CountingDownToDestroySelf);
+        break;
+    case SubStateNames::WalkingToAction:
+        _subState = new SubStateWalkingToAction(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::WalkingToAction);
+        break;
+    case SubStateNames::WalkingBackFromAction:
+        _subState = new SubStateWalkingBackFromAction(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::WalkingBackFromAction);
+        break;
+    case SubStateNames::GatheringTheResource:
+        _subState = new SubStateGatheringTheResource(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::GatheringTheResource);
+        break;
+    case SubStateNames::BuildingTheBuilding:
+        _subState = new SubStateBuildingTheBuilding(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::BuildingTheBuilding);
+        break;
+    case SubStateNames::DroppingOffResource:
+        _subState = new SubStateDroppingOffResource(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::DroppingOffResource);
         break;
     default:
         _subState = new StateBase(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::NONE);
@@ -401,6 +425,135 @@ void Actor::calculateRoute()
     }
 }
 
+void Actor::animateWalkingToAction() {
+    float northSouth;
+    float eastWest;
+    float diagonalX;
+    float diagonalY;
+    if (_resourceBeingGatherd == resourceTypes::resourceWood)
+    {
+        northSouth = 22;
+        eastWest = 55;
+        diagonalX = 21;
+        diagonalY = 12;
+    }
+    else
+    {
+        northSouth = 11;
+        eastWest = 27;
+        diagonalX = 11;
+        diagonalY = 6;
+    }
+    //0 N       0   degrees     = x-1  y-1
+    //1 NE      45  degrees     = x    y-1
+    //2 E       90  degrees     = x+1  y-1
+    //3 SE      135 degrees     = x+1  y
+    //4 S       180 degrees     = x+1  y+1
+    //5 SW      225 degrees     = x    y+1
+    //6 W       270 degrees     = x-1  y+1
+    //7 NW      315 degrees     = x-1  y
+    switch (_orientation)
+    {
+    case 0:
+        _offSetX = 0;
+        _offSetY = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * northSouth * -1.f;
+        break;
+    case 1:
+        _offSetX = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalX;
+        _offSetY = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalY * -1.f;
+        break;
+    case 2:
+        _offSetX = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * eastWest;
+        _offSetY = 0;
+        break;
+    case 3:
+        _offSetX = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalX;
+        _offSetY = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalY;
+        break;
+    case 4:
+        _offSetX = 0;
+        _offSetY = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * northSouth;
+        break;
+    case 5:
+        _offSetX = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalX * -1.f;
+        _offSetY = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalY;
+        break;
+    case 6:
+        _offSetX = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * eastWest * -1.f;
+        _offSetY = 0;
+        break;
+    case 7:
+        _offSetX = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalX * -1.f;
+        _offSetY = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalY * -1.f;
+        break;
+    }
+}
+
+void Actor::animatWalkingBackFromAction() {
+    float northSouth;
+    float eastWest;
+    float diagonalX;
+    float diagonalY;
+    if (_resourceBeingGatherd == resourceTypes::resourceWood)
+    {
+        northSouth = 22.f;
+        eastWest = 55.f;
+        diagonalX = 21.f;
+        diagonalY = 12.f;
+    }
+    else
+    {
+        northSouth = 11;
+        eastWest = 27;
+        diagonalX = 11;
+        diagonalY = 6;
+    }
+    //0 N       0   degrees     = x-1  y-1
+    //1 NE      45  degrees     = x    y-1
+    //2 E       90  degrees     = x+1  y-1
+    //3 SE      135 degrees     = x+1  y
+    //4 S       180 degrees     = x+1  y+1
+    //5 SW      225 degrees     = x    y+1
+    //6 W       270 degrees     = x-1  y+1
+    //7 NW      315 degrees     = x-1  y
+    switch (_orientation)
+    {
+    case 0:
+        _offSetX = 0;
+        _offSetY = -northSouth + ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * northSouth;
+        break;
+    case 1:
+        _offSetX = diagonalX - ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalX;
+        _offSetY = -diagonalY + ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalY;
+        break;
+    case 2:
+        _offSetX = eastWest - ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * eastWest;
+        _offSetY = 0;
+        break;
+    case 3:
+        _offSetX = diagonalX - ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalX;
+        _offSetY = diagonalY - ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalY;
+        break;
+    case 4:
+        _offSetX = 0;
+        _offSetY = northSouth - ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * northSouth;
+        break;
+    case 5:
+        _offSetX = -diagonalX + ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalX;
+        _offSetY = diagonalY - ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalY;
+        break;
+    case 6:
+        _offSetX = -eastWest + ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * eastWest;
+        _offSetY = 0;
+        break;
+    case 7:
+        _offSetX = -diagonalX + ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalX;
+        _offSetY = -diagonalY + ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalY;
+        break;
+    }
+
+}
+
 void Actor::drawActor()
 {
     int i = _actorCords.x;
@@ -411,16 +564,18 @@ void Actor::drawActor()
     int spriteXoffset = 0;
     int spriteYoffset = 0;
 
-    /*To Do:
-    if (_subState->_sub == SubStateNames::){
-        this->animateWalkingToResource();
-    }
-    if(_subState->_sub == SubStateNames::){
-        this->walkBackToOwnSquare();
-    }
-    */
 
-    if (_subState->_sub == SubStateNames::WalkingToNextSquare || _subState->_sub == SubStateNames::WalkingToAction || _subState->_sub == SubStateNames::CanceldWhileWalking)// || _timeStartedWalkingToRecource > 0)
+    if (_subState->_sub == SubStateNames::WalkingToAction){
+        animateWalkingToAction();
+    }
+
+    
+    if(_subState->_sub == SubStateNames::WalkingBackFromAction){
+        animatWalkingBackFromAction();
+    }
+    
+
+    if (_subState->_sub == SubStateNames::WalkingToNextSquare || _subState->_sub == SubStateNames::WalkingToAction || _subState->_sub == SubStateNames::CanceldWhileWalking)
     {
         if (currentGame.elapsedTimeMS - _timeLastOffsetChange > 200)
         {
@@ -529,18 +684,7 @@ void Actor::drawActor()
     }
     position = { position.x + _offSetX, position.y + _offSetY };
 
-    /* To do:
-    if (this->isWalkingBackXYDrawOverride.isActive) {
-        anitmateWalkingBackAfterAbortedCommand();
-        position = this->isWalkingBackXYDrawOverride.newXY;
-    }
-    */
-
-    bool drawHealth = false;
-
-    //determine if actor is the only actor on the tile
     if (currentGame.occupiedByActorList[_actorCords.x][_actorCords.y].size() > 1) {
-        //Tile is occupied by more then one actor!
         int id = 0;
         for (auto& actorId : currentGame.occupiedByActorList[_actorCords.x][_actorCords.y]) {
             if (actorId == _actorId) {
@@ -548,12 +692,12 @@ void Actor::drawActor()
             }
             id++;
         }
-        //If the actor was occuping the cell before the other one let it step asside to let the other pass
         if (id == 0) {
             position.x = position.x - 7;
         }
     }
 
+    bool drawHealth = false;
     if (currentGame.isInSelectedActors(_actorId))
     {
         currentGame.spriteUnitSelectedTile.setPosition(static_cast<float>(position.x), static_cast<float>(position.y));
@@ -719,11 +863,14 @@ bool Actor::doNextStackedCommand()
         _actorRealGoal = _actorGoal;
         //_actorCommandGoal = location;
         break;
-    /*
+    
     case stackOrderTypes::stackActionGather:
-        this->updateGoal(this->listOfOrders.front().goal, 0);
-        this->setGatheringRecource(true);
+        switchBaseState(BaseStateNames::Gathering);
+        _actorGoal = _listOfOrders.front().goal;
+        _actorRealGoal = _actorGoal;
         break;
+
+    /*
     case stackOrderTypes::stackActionBuild:
         if (currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y] != -1) {
             if (!listOfBuildings[currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y]].getCompleted()

@@ -66,6 +66,7 @@ int roll(int min, int max);
 bool rectCord (const cords& lhs, const cords& rhs);
 bool compareCord(const cords& lhs, const cords& rhs);
 bool sortCordByX(const cords& lhs, const cords& rhs);
+cords findResource(resourceTypes kind, int unitId);
 cords worldSpace(cords location);
 cords miniMapSpace(cords location);
 std::list<cords> getListOfCordsInCircle(int startX, int startY, int r);

@@ -1,5 +1,8 @@
 #include "globalfunctions.h"
 #include "gamestate.h"
+#include "Actors/Actor.h"
+#include "objects.h"
+#include "cells.h"
 
 sf::Image cheatTile;
 
@@ -109,6 +112,44 @@ cords toWorldMousePosition(int mouseX, int mouseY)
 
 }
 
+
+
+
+cords findResource(resourceTypes kind, int unitId) {
+    std::list <nearestBuildingTile> listOfResourceLocations;
+    cords actorCords = listOfActors[unitId].getActorCords();
+    cords targetCords{ -1, -1 };
+
+    for (int i = 0; i < listOfObjects.size(); i++) {
+        if (listOfObjects[i].getTypeOfResource() == kind && listOfObjects[i].amountOfResourcesLeft() > 0) {
+            float tempDeltaDistance = static_cast<float>(distEuclidean(listOfActors[unitId].getActorCords().x, listOfActors[unitId].getActorCords().y, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y));
+            listOfResourceLocations.push_back({ tempDeltaDistance, listOfObjects[i].getLocation().x, listOfObjects[i].getLocation().y, i, true });
+        }
+    }
+
+    if (!listOfResourceLocations.empty())
+    {
+        listOfResourceLocations.sort([](const nearestBuildingTile& f, const nearestBuildingTile& s)
+            {
+                return f.deltaDistance < s.deltaDistance;
+            });
+
+        bool targetFound = false;
+        while (!listOfResourceLocations.empty() && !targetFound) {
+            targetFound = canReachTarget(actorCords, listOfResourceLocations.front().location, false);
+            if (!targetFound) {
+                listOfResourceLocations.pop_front();
+            }
+        }
+
+
+        if (!listOfResourceLocations.empty()) {
+            targetCords = listOfResourceLocations.front().location;
+        }
+
+    }
+    return targetCords;
+}
 
 std::list<cords> bresenham(cords first, cords second) {
     std::list<cords> mapPointsCrossed;

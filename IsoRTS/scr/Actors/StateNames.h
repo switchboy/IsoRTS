@@ -18,6 +18,7 @@ enum class GroundStateNames {
 	Attacking,
 	Fleeing,
 	Decomposing,
+	FindAlternativeSource
 };
 
 enum class SubStateNames {
@@ -38,7 +39,8 @@ enum class SubStateNames {
 	WalkingBackFromAction,
 	BuildingTheBuilding,
 	GatheringTheResource,
-	CanceldWhileWalking
+	CanceldWhileWalking,
+	DroppingOffResource
 };
 
 enum class ModesOfAttack {

@@ -27,6 +27,7 @@
 #include "GroundStateFleeing.h"
 #include "GroundStateDecomposing.h"
 #include "GroundStateFIndAlternativeSource.h";
+#include "GroundStateSearchAlternativeBuildingSpot.h";
 
 //Sub states
 #include "SubStateWalkingToNextSquare.h"
@@ -278,7 +279,10 @@ void Actor::switchGroundState(GroundStateNames desiredState) {
         _groundState = new GroundStateDecomposing(BaseStateNames::Idle, GroundStateNames::Decomposing, SubStateNames::NONE);
         break;
     case GroundStateNames::FindAlternativeSource:
-        GroundStateFindAlternativeSource(BaseStateNames::Idle, GroundStateNames::FindAlternativeSource, SubStateNames::NONE);
+        _groundState = new GroundStateFindAlternativeSource(BaseStateNames::Idle, GroundStateNames::FindAlternativeSource, SubStateNames::NONE);
+        break;
+    case GroundStateNames::SearchAlternativeBuildingSpot:
+        _groundState = new GroundStateSearchAlternativeBuildingSpot(BaseStateNames::Idle, GroundStateNames::SearchAlternativeBuildingSpot, SubStateNames::NONE);
         break;
     default:
         _groundState = new StateBase(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::NONE);
@@ -355,12 +359,6 @@ void Actor::stackOrder(cords Goal, stackOrderTypes orderType)
 {
     _listOfOrders.push_back({ Goal, orderType });
 }
-
-void Actor::updateGoal(cords goal, int waitTime)
-{
-
-}
-
 
 void Actor::clearCommandStack()
 {
@@ -637,17 +635,17 @@ void Actor::drawActor()
         break;
     }
     int spriteOffset = 0;
-    if (_subState->_sub == SubStateNames::GatheringTheResource)
+    if (_subState->_sub == SubStateNames::GatheringTheResource || _subState->_sub == SubStateNames::BuildingTheBuilding)
     {
         if (_resourceBeingGatherd == resourceTypes::resourceWood)
         {
             spriteOffset = 128;
         }
-        else if (_resourceBeingGatherd == resourceTypes::resourceFood || _resourceBeingGatherd == resourceTypes::resourceStone)
+        else if (_resourceBeingGatherd == resourceTypes::resourceGold || _resourceBeingGatherd == resourceTypes::resourceStone || _subState->_sub == SubStateNames::BuildingTheBuilding)
         {
             spriteOffset = 256;
         }
-        else if (_resourceBeingGatherd == resourceTypes::resourceGold)
+        else if (_resourceBeingGatherd == resourceTypes::resourceFood)
         {
             spriteOffset = 384;
         }
@@ -851,37 +849,26 @@ int Actor::getBuildingId() const
     return _buildingId;
 }
 
+
+
 bool Actor::doNextStackedCommand()
 {
     if (_listOfOrders.empty()) {
         return false;
     }
+    _actorGoal = _listOfOrders.front().goal;
+    _actorRealGoal = _actorGoal;
     switch (_listOfOrders.front().orderType) {
     case stackOrderTypes::stackActionMove:
         switchBaseState(BaseStateNames::WalikngAToB);
-        _actorGoal = _listOfOrders.front().goal;
-        _actorRealGoal = _actorGoal;
-        //_actorCommandGoal = location;
         break;
-    
     case stackOrderTypes::stackActionGather:
         switchBaseState(BaseStateNames::Gathering);
-        _actorGoal = _listOfOrders.front().goal;
-        _actorRealGoal = _actorGoal;
         break;
-
-    /*
     case stackOrderTypes::stackActionBuild:
-        if (currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y] != -1) {
-            if (!listOfBuildings[currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y]].getCompleted()
-                && listOfBuildings[currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y]].getTeam() == this->actorTeam) {
-                nearestBuildingTile tempTile = findNearestBuildingTile(currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y], this->actorId);
-                this->updateGoal(tempTile.location, 0);
-                listOfBuildings[currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y]].claimFreeBuiildingTile(tempTile.buildingId, this->actorId);
-                this->setIsBuildingTrue(currentGame.occupiedByBuildingList[this->listOfOrders.front().goal.x][this->listOfOrders.front().goal.y], this->listOfOrders.front().goal);
-            }
-        }
+        switchBaseState(BaseStateNames::Building);
         break;
+    /*
     case stackOrderTypes::stackActionAttack:
         this->updateGoal(this->listOfOrders.front().goal, 0);
         this->setIsDoingAttack(false);
@@ -924,31 +911,24 @@ void Actor::pathAStar()
     std::vector<Cells*> listToCheck;
     std::vector<Cells*> checkedList;
     bool endReached = false;
+    _route.pathFound = false;
 
-    //check of de doelcel niet 1 hokje weg is 
     if (((_actorCords.x - _actorGoal.x == 0) || (_actorCords.x - _actorGoal.x == -1) || (_actorCords.x - _actorGoal.x == 1)) && ((_actorCords.y - _actorGoal.y == 0) || (_actorCords.y - _actorGoal.y == -1) || (_actorCords.y - _actorGoal.y == 1)))
     {
-        //en geen obstakel is of het hokje van de actor zelf is
         if (!cellsList[endCell].obstacle || (_actorCords.x == _actorGoal.x && _actorCords.y == _actorGoal.y))
         {
             _route.pathFound = true;
             endReached = true;
         }
-        else
-        {
-            _route.pathFound = false;
-        }
     }
     else
     {
-       //De startcell initialiseren
         _route.pathFound = false;
         cellsList[startCell].addNeighbours(cellsList);
         cellsList[startCell].totalCostGuess = dist(cellsList[startCell].position.x, cellsList[startCell].position.y, cellsList[endCell].position.x, cellsList[endCell].position.y);
         cellsList[startCell].visited = true;
         cellsList[startCell].parentCellId = -1;
         cellsList[startCell].costToGoal = dist(cellsList[startCell].position.x, cellsList[startCell].position.y, cellsList[endCell].position.x, cellsList[endCell].position.y);
-        //De startcel in de lijst van te checken cellen zetten om te kunnen beginnen
         listToCheck.push_back(&cellsList[startCell]);
     }
 
@@ -964,8 +944,6 @@ void Actor::pathAStar()
             }
             iterator++;
         }
-
-        //Check of de te checken cell het doel is. Als dat zo is zijn we klaar
         if ((*listToCheck[cellId]).cellId == endCell)
         {
             listToCheck.clear();
@@ -973,92 +951,63 @@ void Actor::pathAStar()
         }
         else if (!listToCheck.empty())
         {
-            //Loop door de lijst van "buurcellen van de te checken cell"
             for (std::vector<int>::const_iterator iterator = (*listToCheck[cellId]).neighbours.begin(), end = (*listToCheck[cellId]).neighbours.end(); iterator != end; ++iterator)
             {
-                //Kijk of deze cell eerder bezocht is
                 if (!cellsList[*iterator].visited)
                 {
-                    //Deze cell heeft geen parent is is dus nooit eerder gevonden! De buren moeten dus toegevoegd worden!
                     cellsList[*iterator].addNeighbours(cellsList);
-                    //De cell waarvan we de neighbours onderzoeken is uiteraard tot nu toe de kortste route hiernaartoe
                     cellsList[*iterator].parentCellId = (*listToCheck[cellId]).cellId;
-                    //Nu moeten de kosten voor de route hiernatoe uitgerekend worden (Dit zijn de kosten van naar de parent gaan +1)
                     cellsList[*iterator].cummulativeCost = (*listToCheck[cellId]).cummulativeCost + 1;
-                    //Als laatste zetten we de cell in de lijst met cellen die gecheckt moet worden
                     listToCheck.push_back(&cellsList[*iterator]);
-                    //En we schatten vanaf deze cell de kosten naar het doel
                     cellsList[*iterator].costToGoal = dist(cellsList[*iterator].position.x, cellsList[*iterator].position.y, cellsList[endCell].position.x, cellsList[endCell].position.y);
-                    //Waardoor we dus de totale kosten kunnen schatten
                     cellsList[*iterator].totalCostGuess = cellsList[*iterator].costToGoal + cellsList[*iterator].cummulativeCost;
-                    //We zijn voor nu klaar met deze tegel en laten een vlag achter dat de tegel al eens bekeken is
                     cellsList[*iterator].visited = true;
                 }
                 else
                 {
-                    //Deze tegel is al eerder gevonden, de buren staan dus al in de te checken cell lijst en hoeft niet opnieuw gechecked te worden
-                    //We moeten wel weten of de route waarmee deze tegel nu is aangedaan niet korter is dan een eerder gevonden route
                     if ((*listToCheck[cellId]).cummulativeCost + 1 < cellsList[*iterator].cummulativeCost)
                     {
-                        //Er is een kortere route naar deze cell! Pas de parent cell dus aan en geef een nieuwe cummulative Cost;
                         cellsList[*iterator].parentCellId = (*listToCheck[cellId]).cellId;
                         cellsList[*iterator].cummulativeCost = (*listToCheck[cellId]).cummulativeCost + 1;
-                        //Uiteraard verranderd dit dan ook de geschatte totale kosten vanaf deze tegel
                         cellsList[*iterator].totalCostGuess = cellsList[*iterator].costToGoal + cellsList[*iterator].cummulativeCost;
                     }
                 }
             }
-            //zet de tegel op de bezochte tegellijst
             checkedList.push_back(&cellsList[(*listToCheck[cellId]).cellId]);
-            //en haal hem van de te bezoeken tegellijst
             listToCheck.erase(std::next(listToCheck.begin(), cellId));
         }
     }
-    //Alle tegels die te bereiken zijn zijn bekeken of er is een route gevonden.
-    //Maak een route door de parent cells achter elkaar te zetten tot de begin cell
     _route.route.clear();
     if (_route.pathFound)
     {
-        //Er is een pad naar het doel gevonden! Stippel de route maar uit!
         _route.route.push_back({ cellsList[endCell].position, cellsList[endCell].visited, cellsList[endCell].parentCellId });
         while (!endReached)
         {
             if (_route.route.back().visited == true)
             {
-                //Voeg voor iedere tegel de parent toe aan de lijst (dit was de tegel met de korste weg naar deze tegel)
                 _route.route.push_back({ cellsList[_route.route.back().parentCellId].position, cellsList[_route.route.back().parentCellId].visited, cellsList[_route.route.back().parentCellId].parentCellId });
                 if (_route.route.back().parentCellId == startCell) {
-                    //Als de nu volgende parentCell de tegel is waar de actor op staat zijn we klaar.
                     endReached = true;
                 }
                 if (_route.route.back().parentCellId == -1) {
                     endReached = true;
                 }
-                //Fix voor een bug waarin op een of andere manier géén parent cell ingevult staat en dus null zou zijn. (al zou dat niet moeten kunnen)
                 if (_route.route.back().parentCellId == 0) {
                     //We gaan kijken of het een logische buur kan zijn, gelukkig hoeven we maar drie posities te controleren:
-                    if (_route.route.back().position.x == 0 && _route.route.back().position.x == 1) {
-                        //Logische parent; doe niets!
-                    }
-                    else if (_route.route.back().position.x == 0 && _route.route.back().position.x == 1) {
-                        //Logische parent; doe niets!
-                    }
-                    else if (_route.route.back().position.x == 1 && _route.route.back().position.x == 1) {
-                        //Logische parent; doe niets!
-                    }
-                    else {
-                        //Onlogisch! breek de route af zonder de parent cell toe te voegen
+                    if (!(_route.route.back().position.x == 0 && _route.route.back().position.x == 1 ||
+                        _route.route.back().position.x == 0 && _route.route.back().position.x == 1 ||
+                        _route.route.back().position.x == 1 && _route.route.back().position.x == 1
+                    )) {
                         endReached = true;
                     }
                 }
             }
             else
             {
-                //Blijkbaar is deze tegel nooit geevalueerd of het is de starttegel; onlogisch! breek het route maken af!
                 endReached = true;
             }
         }
-        _route.realPath = true; //Vlaggetje dat de route naar het eindpunt gaat en er in princiepe geen herbereking nodig is
+        _route.realPath = true;
     }
     else {
         //Check of de actor niet naar een opdracht moet lopen. Is dat het geval wil ik niet naar de dichtsbijzijnde tegel lopen maar de actor een nieuw doel laten kiezen
@@ -1067,61 +1016,42 @@ void Actor::pathAStar()
         } else if (_baseState->_base == BaseStateNames::Gathering) {
             switchSubState(SubStateNames::SearchingNextSimilairResource);
         } else{
-            //We kunnen niet bij het doel komen en hebben geen bouw of verzamel opdracht, dan gaan we maar naar de geschatte dichtsbijzijnde cell waar we naartoe kunnen!
-            if (!checkedList.empty()) {
+            if (!checkedList.empty()) {  //We kunnen niet bij het doel komen en hebben geen bouw of verzamel opdracht, dan gaan we maar naar de geschatte dichtsbijzijnde cell waar we naartoe kunnen!
                 std::sort(checkedList.begin(), checkedList.end(), ([](const Cells* f, const Cells* s)
                     {
                         return f->costToGoal < s->costToGoal;
                     }));
-                //Een bereikbare tegel met de laagst geschatte totale kosten staat nu vooraan in de rij van de bezochte tegels
                 _actorGoal = cellsList[(*checkedList.front()).cellId].position;
                 if ((*checkedList.front()).parentCellId != -1) {
-                    //Actor staat niet op de dichtsbijzijnde tegel: Stippel de route hiernaartoe uit
-                            //Er is een pad naar het doel gevonden! Stippel de route maar uit!
                     _route.route.push_back({ cellsList[endCell].position, cellsList[endCell].visited, cellsList[endCell].parentCellId });
                     while (!endReached)
                     {
                         if (_route.route.back().visited == true)
                         {
-                            //Voeg voor iedere tegel de parent toe aan de lijst (dit was de tegel met de korste weg naar deze tegel)
                             _route.route.push_back({ cellsList[_route.route.back().parentCellId].position, cellsList[_route.route.back().parentCellId].visited, cellsList[_route.route.back().parentCellId].parentCellId });
                             if (_route.route.back().parentCellId == startCell) {
-                                //Als de nu volgende parentCell de tegel is waar de actor op staat zijn we klaar.
                                 endReached = true;
                             }
                             if (_route.route.back().parentCellId == -1) {
                                 endReached = true;
                             }
-                            //Fix voor een bug waarin op een of andere manier géén parent cell ingevult staat en dus null zou zijn. (al zou dat niet moeten kunnen)
                             if (_route.route.back().parentCellId == 0) {
-                                //We gaan kijken of het een logische buur kan zijn, gelukkig hoeven we maar drie posities te controleren:
-                                if (_route.route.back().position.x == 0 && _route.route.back().position.x == 1) {
-                                    //Logische parent; doe niets!
-                                }
-                                else if (_route.route.back().position.x == 0 && _route.route.back().position.x == 1) {
-                                    //Logische parent; doe niets!
-                                }
-                                else if (_route.route.back().position.x == 1 && _route.route.back().position.x == 1) {
-                                    //Logische parent; doe niets!
-                                }
-                                else {
-                                    //Onlogisch! breek de route af zonder de parent cell toe te voegen
+                                if (!(_route.route.back().position.x == 0 && _route.route.back().position.x == 1 ||
+                                    _route.route.back().position.x == 0 && _route.route.back().position.x == 1 ||
+                                    _route.route.back().position.x == 1 && _route.route.back().position.x == 1)
+                                    ) {
                                     endReached = true;
                                 }
                             }
                         }
                         else
                         {
-                            //Blijkbaar is deze tegel nooit geevalueerd of het is de starttegel; onlogisch! breek het route maken af!
                             endReached = true;
                         }
                     }
                 }
-                else {
-                    //Actor staat al op de dichtsbijzijnde tegel er is dus geen route nodig
-                }
-               _route.pathFound = true; //Er is geen pad naar het doel maar wel een pad naar de dichtsbijzijnde plek, de actor moet dus wel gaan lopen
-               _route.realPath = false; //Vlaggetje op false laten staan zodat op een later tijdstip er opnieuw geprobeerd kan worden of er nu wél een pad naar het doel is
+               _route.pathFound = true; 
+               _route.realPath = false; 
             }
         }
     }

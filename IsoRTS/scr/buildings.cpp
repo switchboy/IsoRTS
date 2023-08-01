@@ -267,7 +267,7 @@ buildings::buildings(int type, cords startLocation, int buildingId, int team)
     this->endLocation = { this->startLocation.x - listOfBuildingTemplates[this->buildingType].getBuildingFootprint().amountOfXFootprint + 1, this->startLocation.y - listOfBuildingTemplates[this->buildingType].getBuildingFootprint().amountOfYFootprint + 1 };
     this->buildingId = buildingId;
     this->ownedByPlayer = team;
-    this->buildingCompleted = true;
+    this->buildingCompleted = false;
     this->exists = true;
     this->lastShotFired = 0;
     this->rallyPoint = { {0,0}, stackOrderTypes::stackActionMove, false }; //set dummy values for the rally point

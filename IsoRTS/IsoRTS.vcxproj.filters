@@ -219,6 +219,9 @@
     <ClInclude Include="scr\Actors\GroundStateFindAlternativeSource.h">
       <Filter>Header Files\Actor</Filter>
     </ClInclude>
+    <ClInclude Include="scr\Actors\GroundStateSearchAlternativeBuildingSpot.h">
+      <Filter>Header Files\Actor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scr\mainMenu.cpp">
@@ -405,6 +408,9 @@
       <Filter>Source Files\Actors</Filter>
     </ClCompile>
     <ClCompile Include="scr\Actors\GroundStateFindAlternativeSource.cpp">
+      <Filter>Source Files\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Actors\GroundStateSearchAlternativeBuildingSpot.cpp">
       <Filter>Source Files\Actors</Filter>
     </ClCompile>
   </ItemGroup>

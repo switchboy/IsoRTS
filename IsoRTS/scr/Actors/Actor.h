@@ -107,6 +107,7 @@ private:
     friend class GroundStateFleeing;
     friend class GroundStateDecomposing;
     friend class GroundStateFindAlternativeSource;
+    friend class GroundStateSearchAlternativeBuildingSpot;
 
     //Sub states
     friend class SubStateWalkingToNextSquare;
@@ -126,6 +127,7 @@ private:
     friend class SubStateBuildingTheBuilding;
     friend class SubStateGatheringTheResource;
     friend class SubStateDroppingOffResource;
+    
 };
 
 extern std::vector <Actor> listOfActors;

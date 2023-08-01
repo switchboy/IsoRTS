@@ -18,7 +18,8 @@ enum class GroundStateNames {
 	Attacking,
 	Fleeing,
 	Decomposing,
-	FindAlternativeSource
+	FindAlternativeSource,
+	SearchAlternativeBuildingSpot
 };
 
 enum class SubStateNames {

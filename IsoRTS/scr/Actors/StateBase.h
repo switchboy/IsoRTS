@@ -16,6 +16,7 @@ public:
     virtual ModesOfAttack getModeOfAttack();
     virtual bool getMoved();
     virtual cords getActionPreformedOn();
+    virtual void setActionPreformedOn(cords location);
     BaseStateNames _base;
     GroundStateNames _ground;
     SubStateNames _sub;

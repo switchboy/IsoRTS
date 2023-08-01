@@ -19,3 +19,7 @@
  {
      return cords();
  }
+
+ void StateBase::setActionPreformedOn(cords location)
+ {
+ }

@@ -36,6 +36,7 @@
     <ClInclude Include="scr\Actors\GroundStateFleeing.h" />
     <ClInclude Include="scr\Actors\GroundStateGatheringTheResource.h" />
     <ClInclude Include="scr\Actors\GroundStateReturningTheResource.h" />
+    <ClInclude Include="scr\Actors\GroundStateSearchAlternativeBuildingSpot.h" />
     <ClInclude Include="scr\Actors\GroundStateWalking.h" />
     <ClInclude Include="scr\Actors\heirachicalStateMachineState.h" />
     <ClInclude Include="scr\Actors\StateBase.h" />
@@ -103,6 +104,7 @@
     <ClCompile Include="scr\Actors\GroundStateFleeing.cpp" />
     <ClCompile Include="scr\Actors\GroundStateGatheringTheResource.cpp" />
     <ClCompile Include="scr\Actors\GroundStateReturningTheResource.cpp" />
+    <ClCompile Include="scr\Actors\GroundStateSearchAlternativeBuildingSpot.cpp" />
     <ClCompile Include="scr\Actors\GroundStateWalking.cpp" />
     <ClCompile Include="scr\Actors\StateBase.cpp" />
     <ClCompile Include="scr\Actors\StateCanceledWhileWalking.cpp" />

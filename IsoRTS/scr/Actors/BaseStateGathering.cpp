@@ -15,24 +15,31 @@ bool BaseStateGathering::doAction(Actor* actor) {
             _actionPreformedOn = actor->_actorGoal;
         }
         actor->switchGroundState(GroundStateNames::Walking);
+        actor->_groundState->doAction(actor);
         break;
     case GroundStateNames::Walking:
         actor->switchGroundState(GroundStateNames::AtTheResource);
+        actor->_groundState->doAction(actor);
         break;
     case GroundStateNames::AtTheResource:
         actor->switchGroundState(GroundStateNames::ReturningTheResource);
+        actor->_groundState->doAction(actor);
         break;
     case GroundStateNames::ReturningTheResource:
         actor->_actorGoal = _actionPreformedOn;
         if (currentGame.objectLocationList[actor->_actorGoal.x][actor->_actorGoal.y] == -1) {
             actor->switchGroundState(GroundStateNames::FindAlternativeSource);
+            actor->_groundState->doAction(actor);
         }
         else {
             actor->switchGroundState(GroundStateNames::Walking);
+            actor->_groundState->doAction(actor);
         }
         break;
     case GroundStateNames::FindAlternativeSource:
         actor->switchGroundState(GroundStateNames::Walking);
+        actor->switchSubState(SubStateNames::WalkingToNextSquare);
+        actor->_subState->doAction(actor);
         break;
     }
     return false;
@@ -41,4 +48,9 @@ bool BaseStateGathering::doAction(Actor* actor) {
 cords BaseStateGathering::getActionPreformedOn()
 {
     return _actionPreformedOn;
+}
+
+void BaseStateGathering::setActionPreformedOn(cords location)
+{
+    _actionPreformedOn = location;
 }

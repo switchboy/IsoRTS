@@ -10,7 +10,7 @@ bool StateCanceledWhileWalking::doAction(Actor* actor) {
     if (!_moved && !_walkBackSet) {
         
         int deltaTime = currentGame.elapsedTimeMS - actor->_timeLastUpdate;
-        if ( 
+        if (!actor->_listOfOrders.empty() &&
             (deltaTime * 2) < actor->_timeToCrossOneTile && 
             dist(actor->_actorCords.x, actor->_actorCords.y, actor->_listOfOrders.front().goal.x, actor->_listOfOrders.front().goal.y) > dist(actor->_actorGoal.x, actor->_actorGoal.y, actor->_listOfOrders.front().goal.x, actor->_listOfOrders.front().goal.y)
             ) {
@@ -20,7 +20,7 @@ bool StateCanceledWhileWalking::doAction(Actor* actor) {
             actor->_timeLastUpdate += actor->_timeToCrossOneTile - deltaTime;
             actor->_orientation = actorHelper::actorOrientation(actor->_actorCords.x, actor->_actorCords.y, actor->_actorGoal.x, actor->_actorGoal.y);
         }
-        
+   
         actor->_route.route.clear();
         _walkBackSet = true;
         _moved = true;

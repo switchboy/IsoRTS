@@ -9,12 +9,10 @@ bool SubStateGatheringTheResource::doAction(Actor* actor) {
     // Implementation for SubStateGatheringTheResource state
     if (!actorHelper::isReallyNextToResource(actor->_actorCords.x, actor->_actorCords.y, actor->_baseState->getActionPreformedOn().x, actor->_baseState->getActionPreformedOn().y) ||
         currentGame.objectLocationList[actor->_baseState->getActionPreformedOn().x][actor->_baseState->getActionPreformedOn().y] == -1) {
-        //resource not here!
-        std::stringstream error;
-        error << "Resources no longer here! Going back to base.";
-        gameText.addNewMessage(error.str(), 1);
+        std::cout << "Actor " << actor->_actorId << ": Resource is not here! \n my location: x: " << actor->_actorCords.x << " y: " << actor->_actorCords.y << " action on: x: " << actor->_baseState->getActionPreformedOn().x <<" y: " << actor->_baseState->getActionPreformedOn().y << "\n";
+        actor->switchGroundState(GroundStateNames::FindAlternativeSource);
         actor->_timeLastUpdate = currentGame.elapsedTimeMS;
-        return true;
+        return false;
     }
 
     if (currentGame.elapsedTimeMS - actor->_timeLastUpdate > 2000)

@@ -9,7 +9,7 @@ bool GroundStateFindAlternativeSource::doAction(Actor* actor) {
         actor->switchSubState(SubStateNames::SearchingNextSimilairResource);
         return false;
     case SubStateNames::SearchingNextSimilairResource:
-        return true;
+         return true;
     default:
         actor->switchSubState(SubStateNames::SearchingNextSimilairResource);
         return false;

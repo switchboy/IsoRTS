@@ -3,6 +3,7 @@
 #include "Actors/Actor.h"
 #include "objects.h"
 #include "cells.h"
+#include "Actors/ActorHelper.h"
 
 sf::Image cheatTile;
 
@@ -136,7 +137,9 @@ cords findResource(resourceTypes kind, int unitId) {
 
         bool targetFound = false;
         while (!listOfResourceLocations.empty() && !targetFound) {
-            targetFound = canReachTarget(actorCords, listOfResourceLocations.front().location, false);
+            if (!(actorHelper::isReallyNextToResource(actorCords.x, actorCords.y, listOfResourceLocations.front().location.x, listOfResourceLocations.front().location.y) && currentGame.occupiedByActorList[actorCords.x][actorCords.y].size() > 1) ){
+                targetFound = canReachTarget(actorCords, listOfResourceLocations.front().location, true);
+            }
             if (!targetFound) {
                 listOfResourceLocations.pop_front();
             }

@@ -54,7 +54,7 @@ struct drawXYOverride {
 };
 
 struct pathedRoute {
-    std::list<routeCell> route;
+    std::vector<routeCell> route;
     bool pathFound = false;
     bool realPath = false;
     int timeLastPathTry = 0;

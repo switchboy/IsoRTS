@@ -34,6 +34,7 @@ bool SubStateWalkingToNextSquare::getMoved()
 bool SubStateWalkingToNextSquare::walkToNextRoutePoint(Actor* actor)
 {
     if (actor->_route.route.empty()) {
+        std::cout << "Actor " << actor->_actorId << ": Route is empty! \n";
         return false;
     }
 
@@ -43,62 +44,92 @@ bool SubStateWalkingToNextSquare::walkToNextRoutePoint(Actor* actor)
     }
 
     if ((actor->_baseState->_base == BaseStateNames::Gathering || (actor->_baseState->_base == BaseStateNames::Fighting && actor->_baseState->getModeOfAttack() == ModesOfAttack::melee)) && actor->_route.route.size() == 1 ){
-        //if (!actor->_isWalkingToUnloadingPoint) {
         actor->_route.route.clear();
+        std::cout << "Actor " << actor->_actorId << ": Route cleared! Reason at melee range! \n";
         return false;
     }
 
-    if ((actor->_baseState->_base == BaseStateNames::Fighting && actor->_baseState->getModeOfAttack() == ModesOfAttack::melee) && distEuclidean(actor->_actorCords.x, actor->_actorCords.y, actor->_actorGoal.x, actor->_actorGoal.y) <= actor->_range)
+    if ((actor->_baseState->_base == BaseStateNames::Fighting && actor->_baseState->getModeOfAttack() == ModesOfAttack::ranged) && distEuclidean(actor->_actorCords.x, actor->_actorCords.y, actor->_actorGoal.x, actor->_actorGoal.y) <= actor->_range)
     {
         actor->_route.route.clear();
+        std::cout << "Actor " << actor->_actorId << ": Route cleared! Reason at ranged range\n";
         return false;
     }
 
-    if (    (   actor->_baseState->_base == BaseStateNames::Gathering || 
-                (
-                    actor->_baseState->_base == BaseStateNames::Fighting &&
-                    actor->_baseState->getModeOfAttack() == ModesOfAttack::melee
-                )
-            ) &&
+    if (  ( actor->_baseState->_base == BaseStateNames::Gathering || ( actor->_baseState->_base == BaseStateNames::Fighting && actor->_baseState->getModeOfAttack() == ModesOfAttack::melee ) ) &&
             actor->_route.route.size() == 2 &&
-            !currentGame.occupiedByActorList[actor->_route.route.back().position.x][actor->_route.route.back().position.y].empty() &&
-            !retryWalkingOrChangeGoal(actor)
+            !currentGame.occupiedByActorList[actor->_route.route[1].position.x][actor->_route.route[1].position.y].empty()
         )
     {
-        actor->switchBaseState(BaseStateNames::Idle);
-        return true;       
+        std::cout << "Actor " << actor->_actorId << ": Last tile in walking te resource blocked! \n";
+        _lastCellBlocked = true;
+        if (!retryWalkingOrChangeGoal(actor)) {
+            actor->_route.route.clear();
+            actor->switchBaseState(BaseStateNames::Idle);
+        }
+        return true;
     }
 
-    if (actor->_route.route.size() == 1 && !currentGame.occupiedByActorList[actor->_route.route.back().position.x][actor->_route.route.back().position.y].empty() && !retryWalkingOrChangeGoal(actor)) {
+    if (actor->_route.route.size() == 1 && !currentGame.occupiedByActorList[actor->_route.route.back().position.x][actor->_route.route.back().position.y].empty()) {
+        _lastCellBlocked = true;
+        if (!retryWalkingOrChangeGoal(actor)) {
+            actor->_route.route.clear();
             actor->switchBaseState(BaseStateNames::Idle);
-            return true;      
+        }
+        return true;
     }
+    if (!currentGame.occupiedByActorList[actor->_route.route.back().position.x][actor->_route.route.back().position.y].empty() && listOfActors[currentGame.occupiedByActorList[actor->_route.route.back().position.x][actor->_route.route.back().position.y][0]].getTeam() != actor->_actorTeam) {
+        if (!retryWalkingOrChangeGoal(actor)) {
+            actor->_route.route.clear();
+            actor->switchBaseState(BaseStateNames::Idle);
+        }
+        return true;
+    }
+    std::cout << "Actor " << actor->_actorId << ": moving one tile! \n";
     _retries = 0;
     actor->_listOfTargetsToRejectUntilSuccesfullMovement.clear();
-    startWalking(actor);
-    return true;
-}
-
-void SubStateWalkingToNextSquare::startWalking(Actor* actor) {
     _moved = true;
     actor->_timeLastUpdate = currentGame.elapsedTimeMS;
     actor->_actorGoal = actor->_route.route.back().position;
     currentGame.occupiedByActorList[actor->_route.route.back().position.x][actor->_route.route.back().position.y].push_back(actor->_actorId);
     actor->_route.route.pop_back();
+    return true;
 }
 
 bool SubStateWalkingToNextSquare::retryWalkingOrChangeGoal(Actor* actor) {
     if (_timeLastRetry + 500 < currentGame.getTime()) {
         _timeLastRetry = currentGame.getTime();
-        if (_retries < 30)
+        if (_retries < 0)
         {
+            std::cout << "Actor " << actor->_actorId << ": retry route! \n";
+            if (_lastCellBlocked) {
+                actor->_cantPassActors = true;
+            }
+            pathedRoute backupRoute = actor->_route;
             actor->calculateRoute();
+            if (!actor->_route.realPath) {
+                std::cout << "Actor " << actor->_actorId << ": I can't walk around the obstacle! \n";
+                actor->_route = backupRoute;
+            }
             _retries += 1;
+            actor->_cantPassActors = false;
+            _lastCellBlocked = false;
             return true;
         }
-        if (actor->_groundState->_ground == GroundStateNames::ReturningTheResource || actor->_baseState->_base == BaseStateNames::Gathering || actor->_baseState->_base == BaseStateNames::Building)
+
+        std::cout << "Actor " << actor->_actorId << ": retries failed switching state! \n";
+
+        if (actor->_groundState->_ground == GroundStateNames::ReturningTheResource)
         {
-            //find alternative
+            actor->switchSubState(SubStateNames::SearchingDropOffPoint);
+            return true;
+        }
+        if (actor->_baseState->_base == BaseStateNames::Gathering) {
+            actor->switchGroundState(GroundStateNames::FindAlternativeSource);
+            return true;
+        }
+        if (actor->_baseState->_base == BaseStateNames::Building) {
+            actor->switchGroundState(GroundStateNames::SearchAlternativeBuildingSpot);
             return true;
         }
         return false;

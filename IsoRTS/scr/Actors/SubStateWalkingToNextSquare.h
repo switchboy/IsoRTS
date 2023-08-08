@@ -9,8 +9,8 @@ public:
 
 private:
     bool walkToNextRoutePoint(Actor* actor);
-    void startWalking(Actor* actor);
     bool retryWalkingOrChangeGoal(Actor* actor);
+    bool _lastCellBlocked = false;
     int _timeLastRetry = 0;
     int _retries = 0;
     bool _moved = false;

@@ -10,18 +10,23 @@ bool BaseStateBuilding::doAction(Actor* actor) {
     case GroundStateNames::NONE:
         if (initiateBuilding(actor)) {
             actor->switchGroundState(GroundStateNames::Walking);
+            actor->_groundState->doAction(actor);
             return false;
         }
         actor->switchGroundState(GroundStateNames::SearchAlternativeBuildingSpot);
+        actor->_groundState->doAction(actor);
         return false;
     case GroundStateNames::Walking:
         actor->switchGroundState(GroundStateNames::AtTheBuilding);
+        actor->_groundState->doAction(actor);
         return false;
     case GroundStateNames::AtTheBuilding:
         actor->switchGroundState(GroundStateNames::SearchAlternativeBuildingSpot);
+        actor->_groundState->doAction(actor);
         return false;
     case GroundStateNames::SearchAlternativeBuildingSpot:
         actor->switchGroundState(GroundStateNames::Walking);
+        actor->_groundState->doAction(actor);
         return false;
    }
 }

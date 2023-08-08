@@ -14,6 +14,21 @@ int actorHelper::actorOrientation(int Xc, int Yc, int Xn, int Yn)
     int diffX = Xn - Xc;
     int diffY = Yn - Yc;
 
+    if (diffX < 0) {
+        diffX = -1;
+    }
+    if (diffX > 0) {
+        diffX = 1;
+    }
+
+    if (diffY > 0) {
+        diffY = 1;
+    }
+
+    if (diffY < 0) {
+        diffY = -1;
+    }
+
     switch (diffX)
     {
     case -1:

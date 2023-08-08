@@ -37,6 +37,7 @@ public:
     void drawActor();
     void renderPath();
     void printActorDebugText();
+    void animateWalkingToAndFromAction(bool from);
     void animateWalkingToAction();
     void animatWalkingBackFromAction();
 
@@ -82,7 +83,7 @@ private:
     resourceTypes _resourceBeingGatherd;
     
     //temp
-    sf::String _actorDeclaringString;
+    std::vector<sf::String> _actorDeclaringString;
 
     //Actor modifiers
     void updateGoal(cords goal, int waitTime);

@@ -224,135 +224,184 @@ Actor& Actor::operator=(const Actor& other) {
 
 void Actor::switchBaseState(BaseStateNames desiredState) {
     delete _baseState;
+    std::string stateName;
     switch (desiredState) {
     case BaseStateNames::NONE:
         _baseState = new StateBase(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::NONE);
+        stateName = "NONE";
         break;
     case BaseStateNames::Idle:
         _baseState =  new BaseStateIdle(BaseStateNames::Idle, GroundStateNames::NONE, SubStateNames::NONE);
+        stateName = "Idle";
         break;
     case BaseStateNames::WalikngAToB:
         _baseState = new BaseStateWalkingAToB(BaseStateNames::WalikngAToB, GroundStateNames::NONE, SubStateNames::NONE);
+        stateName = "WalikngAToB";
         break;
     case BaseStateNames::Building:
         _baseState = new BaseStateBuilding(BaseStateNames::Building, GroundStateNames::NONE, SubStateNames::NONE);
+        stateName = "Building";
         break;
     case BaseStateNames::Gathering:
         _baseState = new BaseStateGathering(BaseStateNames::Gathering, GroundStateNames::NONE, SubStateNames::NONE);
+        stateName = "Gathering";
         break;
     case BaseStateNames::Fighting:
         _baseState = new BaseStateFighting(BaseStateNames::Fighting, GroundStateNames::NONE, SubStateNames::NONE);
+        stateName = "Fighting";
         break;
     case BaseStateNames::Dead:
         _baseState = new BaseStateDead(BaseStateNames::Dead, GroundStateNames::NONE, SubStateNames::NONE);
+        stateName = "Dead";
         break;
     default:
         _baseState = new StateBase(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::NONE);
+        stateName = "NONE";
         break;
     }
+    std::cout << "Actor " << _actorId << ": changed baseState to: " << stateName << "\n";
     switchGroundState(GroundStateNames::NONE);
 }
 
 void Actor::switchGroundState(GroundStateNames desiredState) {
     delete _groundState;
-
+    std::string stateName;
     switch (desiredState) {
     case GroundStateNames::Walking:
         _groundState = new GroundStateWalking(BaseStateNames::Idle, GroundStateNames::Walking, SubStateNames::NONE);
+        stateName = "Walking";
         break;
     case GroundStateNames::AtTheResource:
         _groundState = new GroundStateGatheringTheResource(BaseStateNames::Idle, GroundStateNames::AtTheResource, SubStateNames::NONE);
+        stateName = "AtTheResource";
         break;
     case GroundStateNames::ReturningTheResource:
         _groundState = new GroundStateReturningTheResource(BaseStateNames::Idle, GroundStateNames::ReturningTheResource, SubStateNames::NONE);
+        stateName = "ReturningTheResource";
         break;
     case GroundStateNames::AtTheBuilding:
         _groundState = new GroundStateBuildingTheBuilding(BaseStateNames::Idle, GroundStateNames::AtTheBuilding, SubStateNames::NONE);
+        stateName = "AtTheBuilding";
         break;
     case GroundStateNames::Attacking:
         _groundState = new GroundStateAttacking(BaseStateNames::Idle, GroundStateNames::Attacking, SubStateNames::NONE);
+        stateName = "Attacking";
         break;
     case GroundStateNames::Fleeing:
         _groundState = new GroundStateFleeing(BaseStateNames::Idle, GroundStateNames::Fleeing, SubStateNames::NONE);
+        stateName = "Fleeing";
         break;
     case GroundStateNames::Decomposing:
         _groundState = new GroundStateDecomposing(BaseStateNames::Idle, GroundStateNames::Decomposing, SubStateNames::NONE);
+        stateName = "Decomposing";
         break;
     case GroundStateNames::FindAlternativeSource:
         _groundState = new GroundStateFindAlternativeSource(BaseStateNames::Idle, GroundStateNames::FindAlternativeSource, SubStateNames::NONE);
+        stateName = "FindAlternativeSource";
         break;
     case GroundStateNames::SearchAlternativeBuildingSpot:
         _groundState = new GroundStateSearchAlternativeBuildingSpot(BaseStateNames::Idle, GroundStateNames::SearchAlternativeBuildingSpot, SubStateNames::NONE);
+        stateName = "SearchAlternativeBuildingSpot"; 
         break;
     default:
         _groundState = new StateBase(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::NONE);
+        stateName = "NONE";
         break;
     }
+    std::cout << "Actor " << _actorId << ": changed groundState to: " << stateName << "\n";
     switchSubState(SubStateNames::NONE);
 }
 
 void Actor::switchSubState(SubStateNames desiredState) {
     delete _subState;
+    std::string stateName;
     switch (desiredState) {
     case SubStateNames::WalkingToNextSquare:
         _subState = new SubStateWalkingToNextSquare(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::WalkingToNextSquare);
+        stateName = "WalkingToNextSquare";
         break;
     case SubStateNames::SearchingAPath:
         _subState = new SubStateSearchingAPath(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::SearchingAPath);
+        stateName = "SearchingAPath";
         break;
     case SubStateNames::SearchingNextSimilairResource:
         _subState = new SubStateSearchingNextSimilairResource(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::SearchingNextSimilairResource);
+        stateName = "SearchingNextSimilairResource";
         break;
     case SubStateNames::SearchingDropOffPoint:
         _subState = new SubStateSearchingDropOffPoint(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::SearchingDropOffPoint);
+        stateName = "SearchingDropOffPoint";
         break;
     case SubStateNames::SearchingAlternativeBuildingSpot:
         _subState = new SubStateSearchingAlternativeBuildingSpot(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::SearchingAlternativeBuildingSpot);
+        stateName = "SearchingAlternativeBuildingSpot";
         break;
     case SubStateNames::SearchingAlternativeBuildingToBuilt:
         _subState = new SubStateSearchingAlternativeBuildingToBuilt(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::SearchingAlternativeBuildingToBuilt);
+        stateName = "SearchingAlternativeBuildingToBuilt";
         break;
     case SubStateNames::MeleeAttacking:
         _subState = new SubStateMeleeAttacking(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::MeleeAttacking);
+        stateName = "MeleeAttacking";
         break;
     case SubStateNames::RangedAttacking:
         _subState = new SubStateRangedAttacking(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::RangedAttacking);
+        stateName = "RangedAttacking";
         break;
     case SubStateNames::SearchNextTarget:
         _subState = new SubStateSearchNextTarget(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::SearchNextTarget);
+        stateName = "SearchNextTarget";
         break;
     case SubStateNames::SettingGoalToFleeTo:
         _subState = new SubStateSettingGoalToFleeTo(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::SettingGoalToFleeTo);
+        stateName = "SettingGoalToFleeTo";
         break;
     case SubStateNames::SettingMyDecompositionState:
         _subState = new SubStateSettingMyDecompositionState(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::SettingMyDecompositionState);
+        stateName = "SettingMyDecompositionState";
         break;
     case SubStateNames::CountingDownToDestroySelf:
         _subState = new SubStateCountingDownToDestroySelf(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::CountingDownToDestroySelf);
+        stateName = "CountingDownToDestroySelf";
         break;
     case SubStateNames::WalkingToAction:
         _subState = new SubStateWalkingToAction(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::WalkingToAction);
+        stateName = "WalkingToAction";
         break;
     case SubStateNames::WalkingBackFromAction:
         _subState = new SubStateWalkingBackFromAction(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::WalkingBackFromAction);
+        stateName = "WalkingBackFromAction";
         break;
     case SubStateNames::GatheringTheResource:
         _subState = new SubStateGatheringTheResource(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::GatheringTheResource);
+        stateName = "GatheringTheResource";
         break;
     case SubStateNames::BuildingTheBuilding:
         _subState = new SubStateBuildingTheBuilding(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::BuildingTheBuilding);
+        stateName = "BuildingTheBuilding";
         break;
     case SubStateNames::DroppingOffResource:
         _subState = new SubStateDroppingOffResource(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::DroppingOffResource);
+        stateName = "DroppingOffResource";
         break;
+    case SubStateNames::CanceldWhileWalking:
+        _subState = new StateCanceledWhileWalking(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::CanceldWhileWalking);
+        stateName = "CanceldWhileWalking";
+        return;
     default:
         _subState = new StateBase(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::NONE);
+        stateName = "NONE";
         break;
     }
+    std::cout << "Actor " << _actorId << ": changed substate to: " << stateName << "\n";
+    _spriteYOffset = 0;
+    makeSureActorIsOnTheMap();
+    return;
 }
 
 void Actor::takeDamage(int amountOfDamage, int idOfAttacker)
 {
+
 }
 
 void Actor::stackOrder(cords Goal, stackOrderTypes orderType)
@@ -494,10 +543,10 @@ void Actor::animatWalkingBackFromAction() {
     float diagonalY;
     if (_resourceBeingGatherd == resourceTypes::resourceWood)
     {
-        northSouth = 22.f;
-        eastWest = 55.f;
-        diagonalX = 21.f;
-        diagonalY = 12.f;
+        northSouth = 22;
+        eastWest = 55;
+        diagonalX = 21;
+        diagonalY = 12;
     }
     else
     {
@@ -549,27 +598,129 @@ void Actor::animatWalkingBackFromAction() {
         _offSetY = -diagonalY + ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalY;
         break;
     }
+}
 
+void Actor::animateWalkingToAndFromAction(bool from) {
+    float northSouth;
+    float eastWest;
+    float diagonalX;
+    float diagonalY;
+    if (_resourceBeingGatherd == resourceTypes::resourceWood)
+    {
+        northSouth = 22;
+        eastWest = 55;
+        diagonalX = 21;
+        diagonalY = 12;
+    }
+    else
+    {
+        northSouth = 11;
+        eastWest = 27;
+        diagonalX = 11;
+        diagonalY = 6;
+    }
+    //0 N       0   degrees     = x-1  y-1
+    //1 NE      45  degrees     = x    y-1
+    //2 E       90  degrees     = x+1  y-1
+    //3 SE      135 degrees     = x+1  y
+    //4 S       180 degrees     = x+1  y+1
+    //5 SW      225 degrees     = x    y+1
+    //6 W       270 degrees     = x-1  y+1
+    //7 NW      315 degrees     = x-1  y
+    switch (_orientation)
+    {
+    case 0:
+        _offSetX = 0;
+        if (from) {
+            _offSetX = 0;
+            _offSetY = -northSouth + ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * northSouth;
+            return;
+        }
+        _offSetY = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * northSouth * -1.f;
+        return;
+    case 1:
+        if (from) {
+            _offSetX = diagonalX - ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalX;
+            _offSetY = -diagonalY + ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalY;
+            return;
+        }
+        _offSetX = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalX;
+        _offSetY = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalY * -1.f;
+        return;
+    case 2:
+        if (from) {
+            _offSetX = eastWest - ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * eastWest;
+            _offSetY = 0;
+            return;
+        }
+        _offSetX = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * eastWest;
+        _offSetY = 0;
+        return ;
+    case 3:
+        if (from) {
+            _offSetX = diagonalX - ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalX;
+            _offSetY = diagonalY - ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalY;
+            return;
+        }
+        _offSetX = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalX;
+        _offSetY = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalY;
+        return ;
+    case 4:
+        if (from) {
+            _offSetX = 0;
+            _offSetY = northSouth - ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * northSouth;
+            return;
+        }
+        _offSetX = 0;
+        _offSetY = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * northSouth;
+        return;
+    case 5:
+        if (from) {
+            _offSetX = -diagonalX + ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalX;
+            _offSetY = diagonalY - ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalY;
+            return;
+        }
+        _offSetX = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalX * -1.f;
+        _offSetY = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalY;
+        return;
+    case 6:
+        if (from) {
+            _offSetX = -eastWest + ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * eastWest;
+            _offSetY = 0;
+            return;
+        }
+        _offSetX = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * eastWest * -1.f;
+        _offSetY = 0;
+        return;
+    case 7:
+        if (from) {
+            _offSetX = -diagonalX + ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalX;
+            _offSetY = -diagonalY + ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalY;
+            return;
+        }
+        _offSetX = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalX * -1.f;
+        _offSetY = ((static_cast<float>(currentGame.elapsedTimeMS) - static_cast<float>(_timeLastUpdate)) / 500.f) * diagonalY * -1.f;
+        return;
+    }
 }
 
 void Actor::drawActor()
 {
+    _actorDeclaringString.clear();
     int i = _actorCords.x;
     int j = _actorCords.y;
     int x = _actorGoal.x;
     int y = _actorGoal.y;
     cords position = worldSpace({ i,j });
     int spriteXoffset = 0;
-    int spriteYoffset = 0;
-
 
     if (_subState->_sub == SubStateNames::WalkingToAction){
-        animateWalkingToAction();
+        animateWalkingToAndFromAction(false);
     }
 
     
     if(_subState->_sub == SubStateNames::WalkingBackFromAction){
-        animatWalkingBackFromAction();
+        animateWalkingToAndFromAction(true);
     }
     
 
@@ -616,24 +767,8 @@ void Actor::drawActor()
     {
         _spriteYOffset = 0;
     }
-    switch (_spriteYOffset)
-    {
-    case 0:
-        spriteYoffset = 0;
-        break;
-    case 32:
-        spriteYoffset = 32;
-        break;
-    case 64:
-        spriteYoffset = 64;
-        break;
-    case 96:
-        spriteYoffset = 96;
-        break;
-    case 128:
-        spriteYoffset = 128;
-        break;
-    }
+
+
     int spriteOffset = 0;
     if (_subState->_sub == SubStateNames::GatheringTheResource || _subState->_sub == SubStateNames::BuildingTheBuilding)
     {
@@ -680,6 +815,7 @@ void Actor::drawActor()
         spriteXoffset = 0 + spriteOffset;
         break;
     }
+
     position = { position.x + _offSetX, position.y + _offSetY };
 
     if (currentGame.occupiedByActorList[_actorCords.x][_actorCords.y].size() > 1) {
@@ -710,12 +846,13 @@ void Actor::drawActor()
     else if (_actorHealth < _hitPoints) {
         drawHealth = true;
     }
-
-
-    _actorDeclaringString = "Actor " + std::to_string(_actorId) + "\n" + "Postion x : " + std::to_string(_actorCords.x) + " y : " + std::to_string(_actorCords.y) + "\n" + "Draw pos x : " + std::to_string(position.x) + " y : " + std::to_string(position.y) + "\n" + "Sprite x : " + std::to_string(spriteXoffset) + " y : " + std::to_string(spriteYoffset) + "\n\n";
-   
+    _actorDeclaringString.push_back("Actor " + std::to_string(_actorId));
+    _actorDeclaringString.push_back("Postion x : " + std::to_string(_actorCords.x) + " y : " + std::to_string(_actorCords.y));
+    _actorDeclaringString.push_back("Draw pos x : " + std::to_string(position.x) + " y : " + std::to_string(position.y)); 
+    _actorDeclaringString.push_back("Sprite x : " + std::to_string(spriteXoffset) + " y : " + std::to_string(_spriteYOffset));
+ 
     listOfActorTemplates[_actorType].setSpritePosition(position);
-    listOfActorTemplates[_actorType].getActorSprite().setTextureRect(sf::IntRect(spriteXoffset, spriteYoffset, 16, 32));
+    listOfActorTemplates[_actorType].getActorSprite().setTextureRect(sf::IntRect(spriteXoffset, _spriteYOffset, 16, 32));
     window.draw(listOfActorTemplates[_actorType].getActorSprite());
     _lastIntRect = static_cast<sf::IntRect>(listOfActorTemplates[_actorType].getActorSprite().getGlobalBounds());
 
@@ -735,17 +872,19 @@ void Actor::drawActor()
 
 void Actor::renderPath()
 {
-    std::list<routeCell>::iterator it;
-    for (it = _route.route.begin(); it != _route.route.end(); it++)
+    for(int i = 0; i < _route.route.size(); i++)
     {
-        currentGame.spriteSelectedTileForPath.setPosition(static_cast<float>(worldSpace(it->position).x), static_cast<float>(worldSpace(it->position).y));
+        currentGame.spriteSelectedTileForPath.setPosition(static_cast<float>(worldSpace(_route.route[i].position).x), static_cast<float>(worldSpace(_route.route[i].position).y));
         window.draw(currentGame.spriteSelectedTileForPath);
     }
 }
 
 void Actor::printActorDebugText()
 {
-    gameText.addDebugMessage(_actorDeclaringString, 0);
+    for (int i = 0; i < _actorDeclaringString.size(); i++) {
+        gameText.addDebugMessage(_actorDeclaringString[i], 0);
+    }
+    gameText.addDebugMessage("", 0);
 }
 
 bool Actor::getIsAlive() const
@@ -904,7 +1043,12 @@ resourceTypes Actor::getResourceGathered() const
 
 void Actor::pathAStar()
 {
-    std::vector<Cells> cellsList = baseCellList;
+    //std::vector<Cells> cellsList = baseCellList;
+
+    std::vector<Cells> cellsList;
+    cellsList.reserve(baseCellList.size());
+    std::copy(baseCellList.begin(), baseCellList.end(), std::back_inserter(cellsList));
+
     int startCell = (_actorCords.x * MAP_HEIGHT) + _actorCords.y; //eigen positie
     int endCell = (_actorGoal.x * MAP_HEIGHT) + _actorGoal.y; //doel positie
     updateCells(endCell, startCell, cellsList, _cantPassActors);

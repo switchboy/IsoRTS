@@ -6,5 +6,5 @@ public:
     using StateBase::StateBase;
     bool doAction(Actor* actor) override;
 private:
-    bool checkIfBuildingIsThereAndIncomplete(Actor* actor);
+    
 };

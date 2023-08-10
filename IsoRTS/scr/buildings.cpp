@@ -108,7 +108,6 @@ namespace
 
 }
 
-
 void buildings::fillAdjacentTiles()
 {
     //The row above and below the building
@@ -131,10 +130,20 @@ void buildings::fillAdjacentTiles()
             }
 
             //adjacent tile above
-            this->adjacentTiles.push_back({ static_cast<int>(this->adjacentTiles.size()), i, this->endLocation.y - 1, goalX, this->endLocation.y, false, -1 });
-            
+            if (this->endLocation.y - 1 >= 0) {
+                this->adjacentTiles.push_back({
+                    static_cast<int>(this->adjacentTiles.size()), //id
+                    { i, this->endLocation.y - 1}, //tileCords
+                    {goalX, this->endLocation.y}, //goal
+                    false, //occupied
+                    -1 //actorId
+                    });
+            }
             //adjacent tile below
-            this->adjacentTiles.push_back({ static_cast<int>(this->adjacentTiles.size()), i, this->startLocation.y + 1, goalX, this->startLocation.y, false, -1 });
+            if (this->startLocation.y + 1 <= MAP_HEIGHT) {
+                this->adjacentTiles.push_back({ static_cast<int>(this->adjacentTiles.size()),{ i, this->startLocation.y + 1}, {goalX, this->startLocation.y}, false, -1 });
+            }
+            
         }
     }
     //The row left and right of the building
@@ -143,10 +152,14 @@ void buildings::fillAdjacentTiles()
         if(i >= 0 && i <= MAP_HEIGHT)
         {
             //new left tile
-            this->adjacentTiles.push_back({ static_cast<int>(this->adjacentTiles.size()), this->endLocation.x - 1, i, this->endLocation.x, i, false, -1 });
-
+            if (this->endLocation.x - 1 >= 0) {
+                this->adjacentTiles.push_back({ static_cast<int>(this->adjacentTiles.size()), {this->endLocation.x - 1, i}, {this->endLocation.x, i}, false, -1 });
+            }
+            
             //new right tile
-            this->adjacentTiles.push_back({ static_cast<int>(this->adjacentTiles.size()), this->startLocation.x + 1, i, this->startLocation.x, i, false, -1 });
+            if (this->startLocation.x + 1 <= MAP_WIDTH) {
+                this->adjacentTiles.push_back({ static_cast<int>(this->adjacentTiles.size()), {this->startLocation.x + 1, i}, {this->startLocation.x, i}, false, -1 });
+            }
         }
     }
 }

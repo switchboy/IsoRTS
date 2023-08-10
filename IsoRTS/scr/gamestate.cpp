@@ -58,7 +58,7 @@ nearestBuildingTile findNearestBuildingTile(int buildingId, int actorId)
         for (int j = 0; j < tileList.size(); j++)
         {
             float tempDeltaDistance = static_cast<float>(dist(listOfActors[actorId].getActorCords().x, listOfActors[actorId].getActorCords().y, tileList[j].tileCords.x, tileList[j].tileCords.y));
-            listOfBuildLocations.push_back({ tempDeltaDistance, tileList[j].tileCords.x, tileList[j].tileCords.y, tileList[j].goal.x , tileList[j].goal.y, tileList[j].tileId, true });
+            listOfBuildLocations.push_back({ tempDeltaDistance, {tileList[j].tileCords.x, tileList[j].tileCords.y}, {tileList[j].goal.x , tileList[j].goal.y}, buildingId, true, tileList[j].tileId });
         }
         if (!listOfBuildLocations.empty())
         {

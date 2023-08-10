@@ -1,4 +1,7 @@
 #include "ActorHelper.h"
+#include "Actor.h"
+
+
 int actorHelper::actorOrientation(int Xc, int Yc, int Xn, int Yn)
 {
 
@@ -142,4 +145,19 @@ bool actorHelper::isReallyNextToResource(int unitX, int unitY, int resourceX, in
     else {
         return false;
     }
+}
+
+bool actorHelper::checkIfBuildingIsThereAndIncomplete(const cords& buildinCords, const int& buildingId, const int& actorTeam)
+{
+    if (buildinCords.x < 0 || buildinCords.x > MAP_WIDTH || buildinCords.y < 0 || buildinCords.y > MAP_HEIGHT) {
+        return false;
+    }
+    if (currentGame.occupiedByBuildingList[buildinCords.x][buildinCords.y] == -1) {
+        return false;
+    }
+    if (listOfBuildings[buildingId].getCompleted() ||
+        listOfBuildings[buildingId].getTeam() != actorTeam) {
+        return false;
+    }
+    return true;
 }

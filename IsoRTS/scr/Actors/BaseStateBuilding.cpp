@@ -51,7 +51,7 @@ bool BaseStateBuilding::initiateBuilding(Actor* actor)
         return false;
     }
     nearestBuildingTile tempTile = findNearestBuildingTile(currentGame.occupiedByBuildingList[actor->_actorGoal.x][actor->_actorGoal.y], actor->_actorId);
-    listOfBuildings[currentGame.occupiedByBuildingList[actor->_actorGoal.x][actor->_actorGoal.y]].claimFreeBuiildingTile(tempTile.buildingId, actor->_actorId);
+    listOfBuildings[currentGame.occupiedByBuildingList[actor->_actorGoal.x][actor->_actorGoal.y]].claimFreeBuiildingTile(tempTile.tileId, actor->_actorId);
     _originalCords = actor->_actorGoal;
     actor->_buildingId = currentGame.occupiedByBuildingList[actor->_actorGoal.x][actor->_actorGoal.y];
     actor->_actorGoal = tempTile.location;

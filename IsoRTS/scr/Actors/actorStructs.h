@@ -1,12 +1,24 @@
 #pragma once
 
 #include "../globalfunctions.h"
+#include "StateNames.h"
+
+enum class FightOrFlight {
+    fight,
+    flight
+};
 
 enum class targetTypes{
     actor,
     building,
     object,
     groundTile,
+};
+
+
+struct stateBackup {
+    cords _actrorGoal, _actorRealGoal;
+    BaseStateNames _stateName;
 };
 
 struct nearestBuildingTile

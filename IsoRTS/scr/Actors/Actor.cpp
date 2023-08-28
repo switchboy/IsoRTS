@@ -50,6 +50,8 @@
 
 
 #include "StateNames.h"
+#include "../buildings.h"
+#include "../objects.h"
 
 std::vector<int> listOfActorsWhoNeedAPath;
 std::vector <Actor> listOfActors;
@@ -83,6 +85,7 @@ Actor::Actor(int type, cords location, int actorTeam, int actorId)
     _spriteYOffset = 0;
     _timeLastOffsetChange = currentGame.getTime();
     _timeLastUpdate = currentGame.getTime();
+    _previousState = { {0,0}, {0,0}, BaseStateNames::Idle };
 
     _cantPassActors = false;
     _actorHealth = listOfActorTemplates[type].getHitPoints();
@@ -163,6 +166,7 @@ Actor::Actor(const Actor& other) {
     _cantPassActors = other._cantPassActors;
     _route = other._route;
     _actorRealGoal = other._actorRealGoal;
+    _previousState = other._previousState;
 }
 
 // Copy assignment operator
@@ -218,11 +222,13 @@ Actor& Actor::operator=(const Actor& other) {
     _cantPassActors = other._cantPassActors;
     _route = other._route;
     _actorRealGoal = other._actorRealGoal;
+    _previousState = other._previousState;
 
     return *this;
 }
 
 void Actor::switchBaseState(BaseStateNames desiredState) {
+    _previousState = { _actorGoal, _actorRealGoal, _baseState->_base };
     delete _baseState;
     std::string stateName;
     switch (desiredState) {
@@ -399,9 +405,30 @@ void Actor::switchSubState(SubStateNames desiredState) {
     return;
 }
 
-void Actor::takeDamage(int amountOfDamage, int idOfAttacker)
+void Actor::takeDamage(int amountOfDamage, int idOfAttacker, targetTypes typeOfAttacker)
 {
-
+    //TODO determine switching to fighting state based on stance < to be implemented
+    //For now it is perma set to 'agressive'
+    switchBaseState(BaseStateNames::Fighting);
+    switch (typeOfAttacker) {
+    case targetTypes::actor:
+        _actorGoal = listOfActors[idOfAttacker].getActorCords();
+        break;
+    case targetTypes::building:
+        _actorGoal = listOfBuildings[idOfAttacker].getLocation();
+        break;
+    case targetTypes::object:
+        _actorGoal = listOfObjects[idOfAttacker].getLocation();
+        break;
+    default:
+        _actorGoal.x = idOfAttacker % MAP_HEIGHT;
+        _actorGoal.y = idOfAttacker / MAP_HEIGHT;
+    }
+    _actorHealth -= amountOfDamage;
+    if (_actorHealth <= 0) {
+        _actorHealth = 0;
+        switchBaseState(BaseStateNames::Dead);
+    }
 }
 
 void Actor::stackOrder(cords Goal, stackOrderTypes orderType)
@@ -1007,12 +1034,10 @@ bool Actor::doNextStackedCommand()
     case stackOrderTypes::stackActionBuild:
         switchBaseState(BaseStateNames::Building);
         break;
-    /*
     case stackOrderTypes::stackActionAttack:
-        this->updateGoal(this->listOfOrders.front().goal, 0);
-        this->setIsDoingAttack(false);
+        switchBaseState(BaseStateNames::Fighting);
+        _baseState->doAction(this);
         break;
-    */
     }
     _listOfOrders.pop_front();
     return true;

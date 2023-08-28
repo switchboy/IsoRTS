@@ -32,90 +32,91 @@ namespace
 
 }
 
-projectile::projectile(int projectileStartX, int projectileStartY, int projectileTargetX, int projectileTargetY, int projectileType, int damageOnImpact, int splashDamageOnImpact, int firedBy)
+projectile::projectile(int projectileStartX, int projectileStartY, int projectileTargetX, int projectileTargetY, int projectileType, int damageOnImpact, int splashDamageOnImpact, int firedBy, targetTypes firedByType)
 {
-	this->X = worldSpace({ projectileStartX, projectileStartY }).x*1000;
-	this->Y = worldSpace({ projectileStartX, projectileStartY }).y*1000;
-	this->Z = 0;
-	this->projectileType = projectileType;
-	this->damageOnImpact = damageOnImpact;
-	this->projectileTarget = { projectileTargetX, projectileTargetY };
-	this->projectilePosition = {projectileStartX, projectileStartY};
-	this->splashDamageOnImpact = splashDamageOnImpact;
+	_X = worldSpace({ projectileStartX, projectileStartY }).x*1000;
+	_Y = worldSpace({ projectileStartX, projectileStartY }).y*1000;
+	_Z = 0;
+	_projectileType = projectileType;
+	_damageOnImpact = damageOnImpact;
+	_projectileTarget = { projectileTargetX, projectileTargetY };
+	_projectilePosition = {projectileStartX, projectileStartY};
+	_splashDamageOnImpact = splashDamageOnImpact;
 	int travelTimeInSeconds = static_cast<int>(distEuclidean(projectileStartX * 32000, projectileStartY * 32000, projectileTargetX * 32000, projectileTargetY * 32000) / (int)128); //32 pixel/s
-	this->deltaX = ((this->X - (worldSpace(this->projectileTarget).x*1000))*1000) / travelTimeInSeconds;
-	this->deltaY = ((this->Y - (worldSpace(this->projectileTarget).y*1000))*1000) / travelTimeInSeconds;
-	this->deltaZ = travelTimeInSeconds*3;
-	this->timeFired = currentGame.getTime();
-	this->reachedTarget = false;
-	this->projectileRotation = 0.0f;
-	this->firedBy = firedBy;
-	this->X += 32000;
+	_deltaX = ((_X - (worldSpace(_projectileTarget).x*1000))*1000) / travelTimeInSeconds;
+	_deltaY = ((_Y - (worldSpace(_projectileTarget).y*1000))*1000) / travelTimeInSeconds;
+	_deltaZ = travelTimeInSeconds*3;
+	_timeFired = currentGame.getTime();
+	_reachedTarget = false;
+	_projectileRotation = 0.0f;
+	_firedBy = firedBy;
+	_X += 32000;
+	_firedByType = firedByType;
 }
 
 int projectile::getTimeLastUpdate() const {
-	return this->timeFired;
+	return _timeFired;
 }
 
 void projectile::updatePosition()
 {
-	if (!reachedTarget) {
+	if (!_reachedTarget) {
 		//speed is in pixels per second
-		if (this->timeFired + 100 < currentGame.getTime()) { //simulation runs at 10 frames per second
-			this->timeFired = currentGame.getTime();
-			this->X -= this->deltaX / 10;
-			this->Y -= this->deltaY / 10;
-			this->Z -= this->deltaZ;
-			this->projectileRotation = giveAngleOfSpriteInDGR(static_cast<float>(this->deltaX), static_cast<float>(this->deltaY + (this->deltaZ * 60)));
-			this->deltaZ -= 576;
-			if (this->Z >= 0) {
+		if (_timeFired + 100 < currentGame.getTime()) { //simulation runs at 10 frames per second
+			_timeFired = currentGame.getTime();
+			_X -= _deltaX / 10;
+			_Y -= _deltaY / 10;
+			_Z -= _deltaZ;
+			_projectileRotation = giveAngleOfSpriteInDGR(static_cast<float>(_deltaX), static_cast<float>(_deltaY + (_deltaZ * 60)));
+			_deltaZ -= 576;
+			if (_Z >= 0) {
 				doDamage();
 				doSplashDamage();
-				reachedTarget = true;
+				_reachedTarget = true;
 			}
 		}
 	}
 }
 
 void projectile::interprolatePositionForDrawCall() {
-	if (this->timeFired > this->lastInterprolation) {
-		this->interProlateX = this->X;
-		this->interProlateY = this->Y;
-		this->interProlateZ = this->Z;
-		this->lastInterprolation = this->timeFired;
-		this->interProlateDeltaZ = this->deltaZ;
+	if (_timeFired > _lastInterprolation) {
+		_interProlateX = _X;
+		_interProlateY = _Y;
+		_interProlateZ = _Z;
+		_lastInterprolation = _timeFired;
+		_interProlateDeltaZ = _deltaZ;
 	}
 	
-	if (this->lastInterprolation + 16 < currentGame.getTime()) { //Window updates 60 frames per second
-		this->lastInterprolation = currentGame.getTime();
-		if (this->Z <= 0) {
-			this->interProlateX -= this->deltaX / 60;
-			this->interProlateY -= this->deltaY / 60;
-			this->interProlateZ -= this->deltaZ;
-			this->interProlateDeltaZ -= 96;
+	if (_lastInterprolation + 16 < currentGame.getTime()) { //Window updates 60 frames per second
+		_lastInterprolation = currentGame.getTime();
+		if (_Z <= 0) {
+			_interProlateX -= _deltaX / 60;
+			_interProlateY -= _deltaY / 60;
+			_interProlateZ -= _deltaZ;
+			_interProlateDeltaZ -= 96;
 		}
-		this->projectileRotation = giveAngleOfSpriteInDGR(static_cast<float>(this->deltaX), static_cast<float>(this->deltaY + (this->interProlateDeltaZ  * 60)));
+		_projectileRotation = giveAngleOfSpriteInDGR(static_cast<float>(_deltaX), static_cast<float>(_deltaY + (_interProlateDeltaZ  * 60)));
 	}
 }
 
 void projectile::drawProjectile()
 {
 	interprolatePositionForDrawCall();
-	currentGame.spriteArrow.setRotation(this->projectileRotation);
-	currentGame.spriteArrow.setPosition(static_cast<float>(this->interProlateX)/1000.f, (static_cast<float>(this->interProlateY)/1000.f) + (static_cast<float>(this->interProlateZ)/1000.f));
+	currentGame.spriteArrow.setRotation(_projectileRotation);
+	currentGame.spriteArrow.setPosition(static_cast<float>(_interProlateX)/1000.f, (static_cast<float>(_interProlateY)/1000.f) + (static_cast<float>(_interProlateZ)/1000.f));
 	window.draw(currentGame.spriteArrow);
 }
 
 void projectile::doDamage() const
 {
-	if (!currentGame.occupiedByActorList[this->projectileTarget.x][this->projectileTarget.y].empty()) {
-		for (auto& id : currentGame.occupiedByActorList[this->projectileTarget.x][this->projectileTarget.y]) {
-			listOfActors[id].takeDamage(this->damageOnImpact, this->firedBy);
+	if (!currentGame.occupiedByActorList[_projectileTarget.x][_projectileTarget.y].empty()) {
+		for (auto& id : currentGame.occupiedByActorList[_projectileTarget.x][_projectileTarget.y]) {
+			listOfActors[id].takeDamage(_damageOnImpact, _firedBy, _firedByType);
 		}
 	}
-	else if (currentGame.occupiedByBuildingList[this->projectileTarget.x][this->projectileTarget.y] != -1)
+	else if (currentGame.occupiedByBuildingList[_projectileTarget.x][_projectileTarget.y] != -1)
 	{
-		listOfBuildings[currentGame.occupiedByBuildingList[this->projectileTarget.x][this->projectileTarget.y]].takeDamage(this->damageOnImpact);
+		listOfBuildings[currentGame.occupiedByBuildingList[_projectileTarget.x][_projectileTarget.y]].takeDamage(_damageOnImpact);
 	}
 }
 

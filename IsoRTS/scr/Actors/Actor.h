@@ -25,7 +25,7 @@ public:
     void switchSubState(SubStateNames desiredState);
 
     //Interact
-    void takeDamage(int amountOfDamage, int idOfAttacker);
+    void takeDamage(int amountOfDamage, int idOfAttacker, targetTypes typeOfAttacker);
     void stackOrder(cords Goal, stackOrderTypes orderType);
     void clearCommandStack();
 
@@ -81,7 +81,8 @@ private:
     pathedRoute _route;
     std::list<orderStack> _listOfOrders;
     resourceTypes _resourceBeingGatherd;
-    
+    stateBackup _previousState;
+
     //temp
     std::vector<sf::String> _actorDeclaringString;
 

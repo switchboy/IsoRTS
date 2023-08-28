@@ -9,14 +9,17 @@ public:
     ModesOfAttack getModeOfAttack();
 
 private:
-    targetTypes getTargettype();
-    int getIdOfTarget();
-    fightOrFlight();
+    targetTypes getTargettype() const;
+    int getIdOfTarget() const;
+    FightOrFlight fightOrFlight(Actor* actor);
 
 private:
     ModesOfAttack _modeOfAttack;
     int _idOfTarget;
     targetTypes _targetType;
+    bool _wasAttakOrder = true;
+    bool _isInitialised = false;
+
 
     friend class groundStateAttaking;
     friend class groundStateFleeing;

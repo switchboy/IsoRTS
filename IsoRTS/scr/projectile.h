@@ -5,7 +5,7 @@
 class projectile
 {
 public:
-	projectile(int projectileStartX, int projectileStartY, int projectileTargetX, int projectileTargetY, int projectileType, int damageOnImpact, int splashDamageOnImpact, int firedBy);
+	projectile(int projectileStartX, int projectileStartY, int projectileTargetX, int projectileTargetY, int projectileType, int damageOnImpact, int splashDamageOnImpact, int firedBy, targetTypes firedByType);
 	void doDamage() const;//not detemenistic yet!
 	void doSplashDamage();
 	void drawProjectile();
@@ -15,33 +15,34 @@ public:
 	int getTimeLastUpdate() const;
 
 private:
-	cords projectilePosition;
-	cords projectileTarget;
+	cords _projectilePosition;
+	cords _projectileTarget;
 
-	int timeFired;
-	int lastInterprolation = 0;
+	int _timeFired;
+	int _lastInterprolation = 0;
 
-	int   projectileType;
-	int   damageOnImpact;
-	int   splashDamageOnImpact;
-	int   firedBy;
+	int   _projectileType;
+	int   _damageOnImpact;
+	int   _splashDamageOnImpact;
+	int   _firedBy;
+	targetTypes _firedByType;
 
 	//not detemenistic yet!
-	int X;
-	int Y;
-	int Z;
+	int _X;
+	int _Y;
+	int _Z;
 
-	int interProlateX = 0;
-	int interProlateY = 0;
-	int interProlateZ = 0;
-	int interProlateDeltaZ = 0;
+	int _interProlateX = 0;
+	int _interProlateY = 0;
+	int _interProlateZ = 0;
+	int _interProlateDeltaZ = 0;
 
-	int deltaX;
-	int deltaY;
-	int deltaZ;
+	int _deltaX;
+	int _deltaY;
+	int _deltaZ;
 
-	float projectileRotation;
-	bool  reachedTarget;
+	float _projectileRotation;
+	bool  _reachedTarget;
 };
 
 extern std::vector<projectile> listOfProjectiles;

@@ -796,7 +796,7 @@ void Actors::doMeleeDamage()
         if (!currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y].empty()) {
             if (listOfActors[currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y].front()].getTeam() != this->actorTeam)
             {
-                listOfActors[currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y].front()].takeDamage(this->meleeDamage, this->actorId);
+                listOfActors[currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y].front()].takeDamage(this->meleeDamage, this->actorId, targetTypes::actor);
             }
         }
         else if (currentGame.occupiedByBuildingList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y] != -1)

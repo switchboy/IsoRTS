@@ -736,7 +736,7 @@ void Actors::shootProjectile()
     if (this->timeStartedAction + this->timeBetweenShots < currentGame.getTime()) {
         this->timeStartedAction = currentGame.getTime();
         if (currentGame.occupiedByActorList[this->actionPreformedOnTile.x][this->actionPreformedOnTile.y].empty()) {
-            projectile newProjectile(this->actorCords.x, this->actorCords.y, this->actionPreformedOnTile.x, this->actionPreformedOnTile.y, this->projectileType, this->rangedDamage, this->splashDamage, this->actorId);
+            projectile newProjectile(this->actorCords.x, this->actorCords.y, this->actionPreformedOnTile.x, this->actionPreformedOnTile.y, this->projectileType, this->rangedDamage, this->splashDamage, this->actorId, targetTypes::actor );
             listOfProjectiles.push_back(newProjectile);
         }
         else {

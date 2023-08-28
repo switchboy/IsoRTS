@@ -2,6 +2,13 @@
 
 #include "../globalfunctions.h"
 
+enum class targetTypes{
+    actor,
+    building,
+    object,
+    groundTile,
+};
+
 struct nearestBuildingTile
 {
     float deltaDistance;

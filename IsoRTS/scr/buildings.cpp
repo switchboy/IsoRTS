@@ -891,7 +891,7 @@ void buildings::checkOnEnemyAndShoot()
                         if (listOfActors[id].getTeam() != this->ownedByPlayer)
                         {
                             cords sourceTile = findCloseTile(buidlingFootprint, cord);
-                            listOfProjectiles.push_back(projectile(sourceTile.x, sourceTile.y, cord.x, cord.y, 0, this->amountOfRangedDamage, 0, -this->buildingId, targetTypes::building));
+                            listOfProjectiles.push_back(projectile(sourceTile.x, sourceTile.y, cord.x, cord.y, 0, this->amountOfRangedDamage, 0, this->buildingId, targetTypes::building));
                             return;
                         }
                     }

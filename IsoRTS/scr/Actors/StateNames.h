@@ -41,7 +41,8 @@ enum class SubStateNames {
 	BuildingTheBuilding,
 	GatheringTheResource,
 	CanceldWhileWalking,
-	DroppingOffResource
+	DroppingOffResource,
+	FindingNewTarget,
 };
 
 enum class ModesOfAttack {

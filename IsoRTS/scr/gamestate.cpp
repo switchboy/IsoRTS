@@ -1627,7 +1627,7 @@ void gameState::drawMouseInteraction()
     }
     if(isPressedO)
     {
-        objects temp;
+        objects temp(static_cast<objectTypes>(this->objectTypeSelected), { 0,0 }, -1);
         temp.drawObjectFootprint(static_cast<objectTypes>(this->objectTypeSelected), mouseWorldPosition);
     }
 }

@@ -129,6 +129,7 @@ private:
     friend class SubStateBuildingTheBuilding;
     friend class SubStateGatheringTheResource;
     friend class SubStateDroppingOffResource;
+    friend class SubStateFindingNewTarget;
     
 };
 

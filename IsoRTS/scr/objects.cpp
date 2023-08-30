@@ -1,25 +1,27 @@
 #include "objects.h"
 #include "gamestate.h"
+#include "Actors/actorStructs.h"
 
 std::vector<objects> listOfObjects;
 
 objects::objects(objectTypes type, cords location, int objectId)
 {
-    this->objectType = type;
-    this->location = location;
-    this->objectId = objectId;
-    this->typeOfResource = listOfObjectTemplates[static_cast<uint32_t>(type)].getTypeOfResource();
-    this->resourceLeft = listOfObjectTemplates[static_cast<uint32_t>(type)].getStartAmountOfResources();
+    _objectType = type;
+    _location = location;
+    _objectId = objectId;
+    _isInWorld = true;
+    _typeOfResource = listOfObjectTemplates[static_cast<uint32_t>(type)].getTypeOfResource();
+    _resourceLeft = listOfObjectTemplates[static_cast<uint32_t>(type)].getStartAmountOfResources();
     currentGame.objectLocationList[location.x][location.y] = objectId;
     currentGame.setObjectsHaveChanged();
 }
 
 void objects::substractResource()
 {
-    this->resourceLeft -= 1;
-    if(resourceLeft <= 0)
+    _resourceLeft -= 1;
+    if(_resourceLeft <= 0)
     {
-        this->destroyObject();
+        destroyObject();
     }
 }
 
@@ -27,16 +29,16 @@ void objects::substractResource()
 
 int objects::getObjectId() const
 {
-    return this->objectId;
+    return _objectId;
 }
 
 cords objects::getLocation() const {
-    return this->location;
+    return _location;
 }
 
 void objects::drawObject(int i, int j)
 {
-    if (currentGame.objectSelectedId == this->objectId) {
+    if (currentGame.objectSelectedId == _objectId) {
         sf::CircleShape selectionCircle(static_cast<float>(32));
         selectionCircle.setFillColor(sf::Color(255, 255, 255, 0));
         selectionCircle.setOutlineThickness(3.f);
@@ -45,41 +47,55 @@ void objects::drawObject(int i, int j)
         selectionCircle.setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i,j }).y));
         window.draw(selectionCircle);
     }
-    drawObjectSprite(this->objectType, i, j);
-    this->lastIntRect = static_cast<sf::IntRect>(listOfObjectTemplates[static_cast<int>(this->objectType)].getSprite().getGlobalBounds());
+    drawObjectSprite(_objectType, i, j);
+    _lastIntRect = static_cast<sf::IntRect>(listOfObjectTemplates[static_cast<int>(_objectType)].getSprite().getGlobalBounds());
 }
 
 
 resourceTypes objects::getTypeOfResource() const
 {
-    return this->typeOfResource;
+    return _typeOfResource;
+}
+
+bool objects::getIsInWorld() const
+{
+    return _isInWorld;
+}
+
+void objects::takeDamage(const int& amountOfDamage, const int& attackerId, const targetTypes attackerType)
+{
+    _health -= amountOfDamage;
+    if (_health <= 0) {
+        _health = 0;
+        destroyObject();
+    }
 }
 
 void objects::drawObjectSprite(objectTypes spriteNumber, int i, int j) const
 {
-    listOfObjectTemplates[static_cast<uint32_t>(this->objectType)].getSprite().setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
-    window.draw(listOfObjectTemplates[static_cast<uint32_t>(this->objectType)].getSprite());
+    listOfObjectTemplates[static_cast<uint32_t>(_objectType)].getSprite().setPosition(static_cast<float>(worldSpace({ i,j }).x), static_cast<float>(worldSpace({ i, j }).y));
+    window.draw(listOfObjectTemplates[static_cast<uint32_t>(_objectType)].getSprite());
 
 }
 
 std::string objects::getName() const
 {
-    return listOfObjectTemplates[static_cast<uint32_t>(this->objectType)].getRealName();
+    return listOfObjectTemplates[static_cast<uint32_t>(_objectType)].getRealName();
 }
 
 objectTypes objects::getType() const
 {
-    return this->objectType;
+    return _objectType;
 }
 
 int objects::amountOfResourcesLeft() const
 {
-    return this->resourceLeft;
+    return _resourceLeft;
 }
 
 std::string objects::nameOfResource() const
 {
-    switch(this->typeOfResource)
+    switch(_typeOfResource)
     {
     case resourceTypes::resourceWood:
         return "Wood";
@@ -100,13 +116,14 @@ std::string objects::nameOfResource() const
 
 sf::IntRect objects::getLastIntRect() const
 {
-    return this->lastIntRect;
+    return _lastIntRect;
 }
 
 void objects::destroyObject()
 {
-    currentGame.objectLocationList[this->location.x][this->location.y] = -1;
+    currentGame.objectLocationList[_location.x][_location.y] = -1;
     currentGame.setObjectsHaveChanged();
+    _isInWorld = false;
 }
 
 void objects::drawObjectFootprint(objectTypes type, cords mouseWorld) const

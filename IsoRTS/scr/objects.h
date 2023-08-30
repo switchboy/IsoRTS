@@ -6,18 +6,13 @@
 #include "humanReadableNames.h"
 #include "objectTemplates.h"
 #include <SFML/Graphics.hpp>
+#include "Actors/actorStructs.h"
 
 class objects
 {
 
 public:
-    objects(){
-        objectId =0;
-        objectType = objectTypes::cypress;
-        location = { -1, -1 };
-        typeOfResource = resourceTypes::resourceWood;
-        resourceLeft = 0;
-    }
+
     objects(objectTypes type, cords location, int objectId);
 
     void            destroyObject();
@@ -34,14 +29,19 @@ public:
     std::string     getName() const;
     objectTypes     getType() const;
     resourceTypes   getTypeOfResource() const;
+    bool            getIsInWorld() const;
+    void            takeDamage(const int& amountOfDamage, const int& attackerId, const targetTypes attackerType);
 
 private:
-    sf::IntRect   lastIntRect;
-    int           objectId;
-    objectTypes   objectType;
-    cords         location;
-    resourceTypes typeOfResource;
-    int           resourceLeft;
+    sf::IntRect   _lastIntRect;
+    int           _objectId;
+    objectTypes   _objectType;
+    cords         _location;
+    resourceTypes _typeOfResource;
+    int           _resourceLeft;
+    bool          _isInWorld;
+    int           _health = 250;
+    int           _maxHealth = 250;
     
    
 

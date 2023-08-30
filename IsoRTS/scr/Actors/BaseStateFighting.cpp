@@ -41,6 +41,19 @@ bool BaseStateFighting::doAction(Actor* actor) {
     }
 }
 
+
+
+cords BaseStateFighting::getActionPreformedOn()
+{
+    return { _idOfTarget, static_cast<int>(_targetType) };
+}
+
+void BaseStateFighting::setActionPreformedOn(cords location)
+{
+    _targetType = static_cast<targetTypes>(location.y);
+    _idOfTarget = location.x;
+}
+
 bool canActorWinThisFight(int enemyHitpoints, int enemyDamage, int actorHitpoints, int actorDamage) {
     if (actorDamage <= 0 || enemyDamage <= 0) {
         return false;

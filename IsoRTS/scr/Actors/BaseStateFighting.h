@@ -6,6 +6,8 @@ class BaseStateFighting : public StateBase {
 public:
     using StateBase::StateBase;
     bool doAction(Actor* actor) override;
+    cords getActionPreformedOn() override;
+    void setActionPreformedOn(cords location) override;
     ModesOfAttack getModeOfAttack();
 
 private:

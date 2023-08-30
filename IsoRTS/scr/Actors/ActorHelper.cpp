@@ -161,3 +161,11 @@ bool actorHelper::checkIfBuildingIsThereAndIncomplete(const cords& buildinCords,
     }
     return true;
 }
+
+bool actorHelper::isNextToTarget(const cords& a, const cords& b, const int range)
+{
+    int dx = abs(a.x - b.x);
+    int dy = abs(a.y - b.y);
+
+    return (dx <= range && dy <= range && (dx + dy) > 0);
+}

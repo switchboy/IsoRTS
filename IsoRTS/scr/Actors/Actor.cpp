@@ -47,6 +47,7 @@
 #include "SubStateGatheringTheResource.h"
 #include "SubStateBuildingTheBuilding.h"
 #include "SubStateDroppingOffResource.h"
+#include "SubStateFindingNewTarget.h"
 
 
 #include "StateNames.h"
@@ -394,6 +395,9 @@ void Actor::switchSubState(SubStateNames desiredState) {
         _subState = new StateCanceledWhileWalking(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::CanceldWhileWalking);
         stateName = "CanceldWhileWalking";
         return;
+    case SubStateNames::FindingNewTarget:
+        _subState = new SubStateFindingNewTarget(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::FindingNewTarget);
+        stateName = "FindingNewTarget";
     default:
         _subState = new StateBase(BaseStateNames::NONE, GroundStateNames::NONE, SubStateNames::NONE);
         stateName = "NONE";

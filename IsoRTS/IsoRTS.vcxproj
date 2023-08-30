@@ -46,6 +46,7 @@
     <ClInclude Include="scr\Actors\SubStateBuildingTheBuilding.h" />
     <ClInclude Include="scr\Actors\SubStateCountingDownToDestroySelf.h" />
     <ClInclude Include="scr\Actors\SubStateDroppingOffResource.h" />
+    <ClInclude Include="scr\Actors\SubStateFindingNewTarget.h" />
     <ClInclude Include="scr\Actors\SubStateGatheringTheResource.h" />
     <ClInclude Include="scr\Actors\SubStateMeleeAttacking.h" />
     <ClInclude Include="scr\Actors\SubStateRangedAttacking.h" />
@@ -112,6 +113,7 @@
     <ClCompile Include="scr\Actors\SubStateBuildingTheBuilding.cpp" />
     <ClCompile Include="scr\Actors\SubStateCountingDownToDestroySelf.cpp" />
     <ClCompile Include="scr\Actors\SubStateDroppingOffResource.cpp" />
+    <ClCompile Include="scr\Actors\SubStateFindingNewTarget.cpp" />
     <ClCompile Include="scr\Actors\SubStateGatheringTheResource.cpp" />
     <ClCompile Include="scr\Actors\SubStateMeleeAttacking.cpp" />
     <ClCompile Include="scr\Actors\SubStateRangedAttacking.cpp" />

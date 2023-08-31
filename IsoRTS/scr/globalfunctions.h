@@ -30,6 +30,11 @@ extern int AIPlayers;
 struct cords {
     int x;
     int y;
+
+	bool operator==(const cords& other) const {
+		return x == other.x && y == other.y;
+	}
+
 };
 
 struct footprintOfBuilding

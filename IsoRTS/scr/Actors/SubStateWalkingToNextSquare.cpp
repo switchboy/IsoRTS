@@ -43,10 +43,10 @@ bool SubStateWalkingToNextSquare::walkToNextRoutePoint(Actor* actor)
         return true;
     }
 
-    if ((actor->_baseState->_base == BaseStateNames::Gathering || (actor->_baseState->_base == BaseStateNames::Fighting && actor->_baseState->getModeOfAttack() == ModesOfAttack::melee)) && actor->_route.route.size() == 1 ){
-        actor->_route.route.clear();
-        std::cout << "Actor " << actor->_actorId << ": Route cleared! Reason at melee range! \n";
-        return false;
+    if ((actor->_baseState->_base == BaseStateNames::Gathering || (actor->_baseState->_base == BaseStateNames::Fighting && actor->_baseState->getModeOfAttack() == ModesOfAttack::melee)) && actor->_route.route.size() == 1 && (!(actor->_baseState->_base == BaseStateNames::Fighting && (actor->_route.route.back().position.x != actor->_actorRealGoal.x || actor->_route.route.back().position.y != actor->_actorRealGoal.y)))){
+            actor->_route.route.clear();
+            std::cout << "Actor " << actor->_actorId << ": Route cleared! Reason at melee range! \n";
+            return false;
     }
 
     if ((actor->_baseState->_base == BaseStateNames::Fighting && actor->_baseState->getModeOfAttack() == ModesOfAttack::ranged) && distEuclidean(actor->_actorCords.x, actor->_actorCords.y, actor->_actorGoal.x, actor->_actorGoal.y) <= actor->_range)
@@ -85,6 +85,14 @@ bool SubStateWalkingToNextSquare::walkToNextRoutePoint(Actor* actor)
         }
         return true;
     }
+
+    if (actor->_baseState->_base == BaseStateNames::Fighting && checkIfEnemyHasMoved(actor)) {
+        //Intercept enemy
+        actor->switchSubState(SubStateNames::SearchingAPath);
+        actor->_route.route.clear();
+        return true;
+    }
+
     std::cout << "Actor " << actor->_actorId << ": moving one tile! \n";
     _retries = 0;
     actor->_listOfTargetsToRejectUntilSuccesfullMovement.clear();
@@ -94,6 +102,26 @@ bool SubStateWalkingToNextSquare::walkToNextRoutePoint(Actor* actor)
     currentGame.occupiedByActorList[actor->_route.route.back().position.x][actor->_route.route.back().position.y].push_back(actor->_actorId);
     actor->_route.route.pop_back();
     return true;
+}
+
+bool SubStateWalkingToNextSquare::checkIfEnemyHasMoved(Actor* actor) {
+
+    //Going to enemy targets avoids pathfinding for every square the enemy moves, but might feel a bit cheesy in the game
+
+    int targetId = actor->_baseState->getActionPreformedOn().x;
+    targetTypes targetType = static_cast<targetTypes>(actor->_baseState->getActionPreformedOn().y);
+
+    if (targetType == targetTypes::actor && listOfActors[targetId].getHasRoute()) {
+        if (actor->_actorRealGoal.x != listOfActors[targetId].getGoal().x || actor->_actorRealGoal.y != listOfActors[targetId].getGoal().y) {
+            if (distEuclidean(actor->_actorCords.x, listOfActors[targetId].getActorCords().x, actor->_actorCords.y, listOfActors[targetId].getActorCords().y) < 15) {
+                actor->_actorGoal = listOfActors[targetId].getGoal();
+                actor->_actorRealGoal = listOfActors[targetId].getGoal();
+                return true;
+            }
+            //Just continue walking the path totally oblivious to the movement
+        }
+    }
+    return false;
 }
 
 bool SubStateWalkingToNextSquare::retryWalkingOrChangeGoal(Actor* actor) {

@@ -3,6 +3,7 @@
 #include "../gamestate.h"
 #include "../buildings.h"
 #include "../objects.h"
+#include "../gametext.h"
 #include <iostream>
 
 bool GroundStateAttacking::doAction(Actor* actor) {
@@ -37,48 +38,50 @@ bool GroundStateAttacking::doAction(Actor* actor) {
             std::cout << "Actor " << actor->_actorId << ": is ranged attacking! \n";
             return false;
         case ModesOfAttack::melee:
-            actor->switchSubState(SubStateNames::WalkingToAction);
-            actor->_timeLastUpdate = currentGame.elapsedTimeMS;
-            std::cout << "Actor " << actor->_actorId << ": getting close for melee attak! \n";
-            return false;
+            actor->switchSubState(SubStateNames::MeleeAttacking);
+            actor->_subState->doAction(actor);
+            std::cout << "Actor " << actor->_actorId << ": is melee attacking! \n";
+            gameText.addNewMessage("- We have engaged the enemy! -", 1);
+            return false;;
         default:
-            actor->switchSubState(SubStateNames::WalkingToAction);
-            actor->_timeLastUpdate = currentGame.elapsedTimeMS;
-            std::cout << "Actor " << actor->_actorId << ": getting close for melee attak! \n";
-            return false;
+            actor->switchSubState(SubStateNames::MeleeAttacking);
+            actor->_subState->doAction(actor);
+            std::cout << "Actor " << actor->_actorId << ": is melee attacking! \n";
+            gameText.addNewMessage("- We have engaged the enemy! -", 1);
+            return false;;
         }
         return false;
-    case SubStateNames::WalkingToAction:
-        actor->switchSubState(SubStateNames::MeleeAttacking);
-        actor->_subState->doAction(actor);
-        std::cout << "Actor " << actor->_actorId << ": is melee attacking! \n";
-        return false;
-    case SubStateNames::MeleeAttacking: 
-        actor->switchSubState(SubStateNames::WalkingBackFromAction);
-        actor->_timeLastUpdate = currentGame.elapsedTimeMS;
-        std::cout << "Actor " << actor->_actorId << ": done attacking getting to own square! \n";
-        return false;
-    case SubStateNames::RangedAttacking: case SubStateNames::WalkingBackFromAction:
+    case SubStateNames::MeleeAttacking: case SubStateNames::RangedAttacking:
         std::cout << "Actor " << actor->_actorId << ": target out of range or destroyed! \n";
         switch (targetType) {
         case targetTypes::actor:
             targetAlive = listOfActors[targetId].getIsAlive();
-            if (listOfActors[targetId].getHasRoute()) {
-                actor->_actorGoal = listOfActors[targetId].getGoal();
+            if (distEuclidean(actor->_actorCords.x, listOfActors[targetId].getActorCords().x, actor->_actorCords.y, listOfActors[targetId].getActorCords().y) < 30) {
+                actor->_actorGoal = listOfActors[targetId].getActorCords();
+                if (listOfActors[targetId].getHasRoute()) {
+                    actor->_actorGoal = listOfActors[targetId].getGoal();
+                }
+                actor->_actorGoal = listOfActors[targetId].getActorCords();
+                actor->_actorRealGoal = actor->_actorGoal;
             }
-            actor->_actorGoal = listOfActors[targetId].getActorCords();
+            else {
+                targetAlive = false;
+            }
             break;
         case targetTypes::building:
             targetAlive = listOfBuildings[targetId].getExists();
-            actor->_actorGoal = listOfBuildings[targetId].getLocation();
+            actor->_actorGoal = listOfBuildings[targetId].getFreeBuildingTile().back().tileCords;
+            actor->_actorRealGoal = listOfBuildings[targetId].getLocation();
             break;
         case targetTypes::object:
             targetAlive = listOfObjects[targetId].getIsInWorld();
             actor->_actorGoal = listOfObjects[targetId].getLocation();
+            actor->_actorRealGoal = actor->_actorGoal;
             break;
         default:
             break;
         }
+       
         if (targetAlive) {
             actor->switchSubState(SubStateNames::SearchingAPath);
             actor->_subState->doAction(actor);

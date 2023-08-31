@@ -7,7 +7,7 @@
 bool BaseStateFighting::doAction(Actor* actor) {
 
     if (!_isInitialised) {
-        if (actor->_listOfOrders.front().orderType != stackOrderTypes::stackActionAttack) {
+        if (actor->_listOfOrders.empty() || actor->_listOfOrders.front().orderType != stackOrderTypes::stackActionAttack) {
             _wasAttakOrder = false;
         }
         if (!currentGame.occupiedByActorList[actor->_actorGoal.x][actor->_actorGoal.y].empty()) {
@@ -24,6 +24,7 @@ bool BaseStateFighting::doAction(Actor* actor) {
         }
         else {
             _targetType = targetTypes::groundTile;
+            _idOfTarget = actor->_actorRealGoal.y * MAP_HEIGHT + actor->_actorRealGoal.x;
         }
         _isInitialised = true;
     }

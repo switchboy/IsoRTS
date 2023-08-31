@@ -411,12 +411,26 @@ void Actor::switchSubState(SubStateNames desiredState) {
 
 void Actor::takeDamage(int amountOfDamage, int idOfAttacker, targetTypes typeOfAttacker)
 {
+    _actorHealth -= amountOfDamage;
+    if (_actorHealth <= 0) {
+        _actorHealth = 0;
+        switchBaseState(BaseStateNames::Dead);
+        return;
+    }
+
+    if (_baseState->_base == BaseStateNames::Fighting) {
+        //Maybe add flee evaluation logic on certain stances later, for now zombie/beserk mode! :P Just continue attacking behavior even though might not be survivable
+        return;
+    }
+
     //TODO determine switching to fighting state based on stance < to be implemented
     //For now it is perma set to 'agressive'
     switchBaseState(BaseStateNames::Fighting);
+
     switch (typeOfAttacker) {
     case targetTypes::actor:
         _actorGoal = listOfActors[idOfAttacker].getActorCords();
+        _actorRealGoal = _actorGoal;
         break;
     case targetTypes::building:
         _actorGoal = listOfBuildings[idOfAttacker].getLocation();
@@ -427,12 +441,9 @@ void Actor::takeDamage(int amountOfDamage, int idOfAttacker, targetTypes typeOfA
     default:
         _actorGoal.x = idOfAttacker % MAP_HEIGHT;
         _actorGoal.y = idOfAttacker / MAP_HEIGHT;
+        _actorRealGoal = _actorGoal;
     }
-    _actorHealth -= amountOfDamage;
-    if (_actorHealth <= 0) {
-        _actorHealth = 0;
-        switchBaseState(BaseStateNames::Dead);
-    }
+    _actorRealGoal = _actorGoal;
 }
 
 void Actor::stackOrder(cords Goal, stackOrderTypes orderType)

@@ -7,7 +7,7 @@
 bool BaseStateFighting::doAction(Actor* actor) {
 
     if (!_isInitialised) {
-        if (actor->_listOfOrders.empty() || actor->_listOfOrders.front().orderType != stackOrderTypes::stackActionAttack) {
+        if (actor->_listOfOrders.front().orderType != stackOrderTypes::stackActionAttack) {
             _wasAttakOrder = false;
         }
         if (!currentGame.occupiedByActorList[actor->_actorGoal.x][actor->_actorGoal.y].empty()) {

@@ -968,6 +968,11 @@ cords Actor::getGoal() const
     return _actorGoal;
 }
 
+cords Actor::getRealGoal() const
+{
+    return _actorRealGoal;
+}
+
 cords Actor::getActorCords() const
 {
     return _actorCords;

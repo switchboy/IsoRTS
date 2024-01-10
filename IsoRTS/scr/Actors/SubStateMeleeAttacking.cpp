@@ -13,15 +13,21 @@ bool SubStateMeleeAttacking::doAction(Actor* actor) {
 	switch (targetType) {
 		case targetTypes::actor:
 			if (!actorHelper::isNextToTarget(listOfActors[targetId].getActorCords(), actor->_actorCords, 1)) {
+				std::cout << "Actor " << actor->_actorId << ": Not next to target! \n";
 				return true;
 			}
-			if (actor->_timeLastUpdate + actor->_rateOfFire < currentGame.getTime() && checkAndMoveActorToRightOrientation(actor, listOfActors[targetId].getActorCords())) {
-				listOfActors[targetId].takeDamage(actor->_meleeDamage, actor->_actorId, targetTypes::actor);
-				actor->_timeLastUpdate = currentGame.getTime();
+			if (listOfActors[targetId].getIsAlive()) {
+				if (actor->_timeLastUpdate + actor->_rateOfFire < currentGame.getTime() && checkAndMoveActorToRightOrientation(actor, listOfActors[targetId].getActorCords())) {
+					listOfActors[targetId].takeDamage(actor->_meleeDamage, actor->_actorId, targetTypes::actor);
+					actor->_timeLastUpdate = currentGame.getTime();
+				}
+				return false;
 			}
-			return false;
+			std::cout << "Actor " << actor->_actorId << ": Target is dead! \n";
+			return true;
 		case targetTypes::building:
 			if (!actorHelper::isNextToTarget(listOfBuildings[targetId].getLocation(), actor->_actorCords, 1)) {
+				std::cout << "Actor " << actor->_actorId << ": Not next to target! \n";
 				return true;
 			}
 			if (actor->_timeLastUpdate + actor->_rateOfFire < currentGame.getTime() && checkAndMoveActorToRightOrientation(actor, listOfBuildings[targetId].getLocation())) {
@@ -31,6 +37,7 @@ bool SubStateMeleeAttacking::doAction(Actor* actor) {
 			break;
 		case targetTypes::object:
 			if (!actorHelper::isNextToTarget(listOfObjects[targetId].getLocation(), actor->_actorCords, 1)) {
+				std::cout << "Actor " << actor->_actorId << ": Not next to target! \n";
 				return true;
 			}
 			if (actor->_timeLastUpdate + actor->_rateOfFire < currentGame.getTime() && checkAndMoveActorToRightOrientation(actor, listOfObjects[targetId].getLocation())) {
@@ -40,6 +47,7 @@ bool SubStateMeleeAttacking::doAction(Actor* actor) {
 			return false;
 		case targetTypes::groundTile:
 			if (!actorHelper::isNextToTarget({ targetId % MAP_HEIGHT, targetId / MAP_HEIGHT }, actor->_actorCords, actor->_range)) {
+				std::cout << "Actor " << actor->_actorId << ": Not next to target! \n";
 				return true;
 			}
 			if (actor->_timeLastUpdate + actor->_rateOfFire < currentGame.getTime() && checkAndMoveActorToRightOrientation(actor, { targetId % MAP_HEIGHT, targetId / MAP_HEIGHT })) {

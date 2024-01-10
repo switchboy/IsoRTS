@@ -43,7 +43,7 @@ bool SubStateWalkingToNextSquare::walkToNextRoutePoint(Actor* actor)
         return true;
     }
 
-    if ((actor->_baseState->_base == BaseStateNames::Gathering || (actor->_baseState->_base == BaseStateNames::Fighting && actor->_baseState->getModeOfAttack() == ModesOfAttack::melee)) && actor->_route.route.size() == 1 && (!(actor->_baseState->_base == BaseStateNames::Fighting && (actor->_route.route.back().position.x != actor->_actorRealGoal.x || actor->_route.route.back().position.y != actor->_actorRealGoal.y)))){
+    if ((actor->_baseState->_base == BaseStateNames::Gathering || (actor->_baseState->_base == BaseStateNames::Fighting && actor->_baseState->getModeOfAttack() == ModesOfAttack::melee && !(actor->_groundState->_ground == GroundStateNames::Fleeing))) && actor->_route.route.size() == 1 ) {
             actor->_route.route.clear();
             std::cout << "Actor " << actor->_actorId << ": Route cleared! Reason at melee range! \n";
             return false;

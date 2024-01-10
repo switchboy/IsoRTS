@@ -156,13 +156,6 @@ int main()
     loadSplashScreen();
     splashScreen();
     createAndShowMainMenu();
-    int lastActor = 0;
-    int lastBuilding = 0;
-    int lastPath = 0;
-    int lastProjectile = 0;
-    int nextCommandWindow = 200;
-    int nextUpdateTick = 100;
-    int nextAITick = 500;
     currentGame.loadGame();
     sf::Clock clockMain;
     for (int i = 0; i < currentGame.getPlayerCount() - multiplayerPlayers; i++) {
@@ -180,19 +173,19 @@ int main()
         gameText.throwOutOldMessages();
         clearOldCommandCursors();
         currentGame.interact();
-        if (currentGame.elapsedTimeMS > nextAITick) { //AI updates every half second
+        if (currentGame.elapsedTimeMS > currentGame.nextAITick) { //AI updates every half second
             updateAI();
-            nextAITick = currentGame.elapsedTimeMS + 500;
+            currentGame.nextAITick = currentGame.elapsedTimeMS + 500;
         }
-        if (currentGame.elapsedTimeMS > nextCommandWindow) { //Every 200ms commands are excecuted
-            currentGame.commandExcecutor(gameDirector.getNextCommandsToExcecute(nextCommandWindow - 200));
-            nextCommandWindow += 200;
+        if (currentGame.elapsedTimeMS > currentGame.nextCommandWindow) { //Every 200ms commands are excecuted
+            currentGame.commandExcecutor(gameDirector.getNextCommandsToExcecute(currentGame.nextCommandWindow - 200));
+            currentGame.nextCommandWindow += 200;
         }
-        if (currentGame.elapsedTimeMS > nextUpdateTick) { //make the simulation update @ 10FPS
+        if (currentGame.elapsedTimeMS > currentGame.nextUpdateTick) { //make the simulation update @ 10FPS
             gameDirector.sendNetWorkCommands();
             updateStats();
-            updateGameState(lastActor, lastBuilding, lastPath, lastProjectile);
-            nextUpdateTick = currentGame.elapsedTimeMS + 100;
+            updateGameState(currentGame.lastActor, currentGame.lastBuilding, currentGame.lastPath, currentGame.lastProjectile);
+            currentGame.nextUpdateTick = currentGame.elapsedTimeMS + 100;
         }
         currentGame.drawGame(); //gamedrawing happens @60 FPS
     }

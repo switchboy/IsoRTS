@@ -56,12 +56,9 @@ bool GroundStateAttacking::doAction(Actor* actor) {
         switch (targetType) {
         case targetTypes::actor:
             targetAlive = listOfActors[targetId].getIsAlive();
-            if (distEuclidean(actor->_actorCords.x, listOfActors[targetId].getActorCords().x, actor->_actorCords.y, listOfActors[targetId].getActorCords().y) < 30) {
-                actor->_actorGoal = listOfActors[targetId].getActorCords();
-                if (listOfActors[targetId].getHasRoute()) {
-                    actor->_actorGoal = listOfActors[targetId].getGoal();
-                }
-                actor->_actorGoal = listOfActors[targetId].getActorCords();
+            if (distEuclidean(actor->_actorCords.x, actor->_actorCords.y, listOfActors[targetId].getActorCords().x, listOfActors[targetId].getActorCords().y) < 30) {
+                std::cout << "Actor " << actor->_actorId << ": target moved new goal needed \n";
+                actor->_actorGoal = listOfActors[targetId].getRealGoal();
                 actor->_actorRealGoal = actor->_actorGoal;
             }
             else {

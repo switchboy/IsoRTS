@@ -26,6 +26,10 @@ bool BaseStateFighting::doAction(Actor* actor) {
             _targetType = targetTypes::groundTile;
             _idOfTarget = actor->_actorRealGoal.y * MAP_HEIGHT + actor->_actorRealGoal.x;
         }
+        _modeOfAttack = ModesOfAttack::melee;
+        if (actor->_doesRangedDamage && actor->_rangedDamage > actor->_meleeDamage) {
+            _modeOfAttack = ModesOfAttack::ranged;
+        }
         _isInitialised = true;
     }
 
@@ -59,7 +63,7 @@ bool canActorWinThisFight(int enemyHitpoints, int enemyDamage, int actorHitpoint
     if (actorDamage <= 0 || enemyDamage <= 0) {
         return false;
     }
-    if (enemyHitpoints / actorDamage <= actorHitpoints / enemyDamage) {
+    if (enemyHitpoints / actorDamage < actorHitpoints / enemyDamage) {
         return true;
     }
     return false;

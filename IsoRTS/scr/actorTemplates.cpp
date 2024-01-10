@@ -148,7 +148,7 @@ void loadActors()
         0,                                  //int                     projectileType,
         3,                                  //int                     range,
         1,                                  //int                     rangedDamage,
-        2,                                  //int                     rateOfFire,
+        2000,                                //int                     rateOfFire,
         0,                                  //int                     splashDamage,
         { 16, 32 },                         //cords                   textureRect,
         { 50, 0, 0, 0, 25 },                //actorOrBuildingPrice    priceOfActor, (food, wood, stone, gold, production points)
@@ -186,7 +186,7 @@ void loadActors()
         0,                                  //int                     projectileType,
         3,                                  //int                     range,
         0,                                  //int                     rangedDamage,
-        3,                                  //int                     rateOfFire,
+        2000,                                  //int                     rateOfFire,
         0,                                  //int                     splashDamage,
         { 16, 32 },                         //cords                   textureRect,
         { 50, 0, 0, 0, 25 },                //actorOrBuildingPrice    priceOfActor, (food, wood, stone, gold, production points)

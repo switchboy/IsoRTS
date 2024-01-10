@@ -121,6 +121,14 @@ public:
     int buildingSelectedId;
     int objectSelectedId; 
 
+    int lastActor = 0;
+    int lastBuilding = 0;
+    int lastPath = 0;
+    int lastProjectile = 0;
+    int nextCommandWindow = 200;
+    int nextUpdateTick = 100;
+    int nextAITick = 500;
+
     sf::Font font;
     sf::Text text;
 

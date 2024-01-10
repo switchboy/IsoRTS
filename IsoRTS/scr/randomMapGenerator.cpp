@@ -239,7 +239,7 @@ std::list<int> occupiedFoodSources;
 						listOfActors.push_back(Actor(0, suggestedCords, teamId, static_cast<int>(listOfActors.size())));
 						listOfActors.push_back(Actor(0, {suggestedCords.x, suggestedCords.y + 1}, teamId, static_cast<int>(listOfActors.size())));
 						listOfActors.push_back(Actor(0, { suggestedCords.x + 1, suggestedCords.y }, teamId, static_cast<int>(listOfActors.size())));
-						listOfActors.push_back(Actor(0, { suggestedCords.x + 1, suggestedCords.y + 1 }, teamId, static_cast<int>(listOfActors.size())));
+						listOfActors.push_back(Actor(0, { suggestedCords.x + 1, suggestedCords.y + 1 }, teamId+1, static_cast<int>(listOfActors.size())));
 						villagerIsPlaced = true;
 					}
 				}

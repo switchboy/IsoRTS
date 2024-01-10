@@ -51,6 +51,7 @@ public:
     std::pair<int, int> getHealth() const;
     bool getHasRoute();
     cords getGoal() const;
+    cords getRealGoal() const;
     cords getActorCords() const;
     int getTeam() const;
     int getMeleeDMG() const;

@@ -8,7 +8,7 @@ public:
     bool doAction(Actor* actor) override;
     cords getActionPreformedOn() override;
     void setActionPreformedOn(cords location) override;
-    ModesOfAttack getModeOfAttack();
+    ModesOfAttack getModeOfAttack() override;
 
 private:
     targetTypes getTargettype() const;

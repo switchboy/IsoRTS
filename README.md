@@ -25,6 +25,7 @@ The project goals that have been reached:
 - Buildable town centre, house, baracks, mill and lumbercamp
 - A basic Rock/Paper/Scissors for damage calculations during battle
 - Basic AI to play against
+- Working netcode to play against friends! (using determenistic game logic in a 200ms delayed lockstep world with 10Hz tickrate, decoupled from the game rendereing at 60Hz)
 
 <img src=https://user-images.githubusercontent.com/16579757/128767803-cf248db7-f597-475d-b153-8283cd44e3f4.png>
 
@@ -39,7 +40,7 @@ Attainable project goals for the near future:
 <img src=https://user-images.githubusercontent.com/16579757/128768503-89e79c33-156f-4b35-9873-d3eb9ecb2153.png>
 
 Aim for the moon project goal:
-- Working netcode to play against friends!
+- MOAR units!
 
 
 <img src=https://user-images.githubusercontent.com/16579757/128768337-17b38c06-759e-46d1-a263-4dfee538ca70.png>
